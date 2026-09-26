@@ -13,7 +13,8 @@
     "parse:institutes": "tsx src/cli/parseInstitutes.ts",
     "validate": "tsx src/cli/validate.ts",
     "migrate": "tsx --env-file=../../.env src/cli/migrate.ts",
-    "load": "tsx --env-file=../../.env src/cli/load.ts"
+    "load": "tsx --env-file=../../.env src/cli/load.ts",
+    "db:checksum": "tsx --env-file=../../.env src/cli/dbChecksum.ts"
   },
   "dependencies": {
     "@mhtcet/core": "*",

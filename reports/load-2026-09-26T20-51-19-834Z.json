@@ -1,0 +1,31 @@
+{
+  "kind": "load",
+  "environment": "staging",
+  "runId": "2026-09-26T20-51-19-834Z",
+  "gitCommit": "f532d9a",
+  "year": 2026,
+  "validationReport": "2026-09-26T20:49:57.076Z",
+  "excluded": {
+    "excludedFiles": [],
+    "excludedColleges": [],
+    "excludedKeys": [
+      "MH-CET-CELL|MHT-CET|2026|AI|IV|0530319110|AI to AI|AI|",
+      "MH-CET-CELL|MHT-CET|2026|AI|IV|0687824210|MH to AI|ORPHAN2|"
+    ]
+  },
+  "sourceCutoffRows": 111757,
+  "loadedCutoffRows": 111754,
+  "meritRows": 240141,
+  "counts": {
+    "collegeUpserts": 387,
+    "branchUpserts": 2333,
+    "cutoffUpserts": 111754,
+    "meritUpserts": 240141
+  },
+  "tables": {
+    "college": 387,
+    "branch": 2333,
+    "cutoff": 111754,
+    "merit_lookup": 240141
+  }
+}
