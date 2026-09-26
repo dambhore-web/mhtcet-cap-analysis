@@ -1,0 +1,23 @@
+{
+  "name": "@mhtcet/pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline data pipeline: discover, download, parse, validate, load (run by AG-002).",
+  "type": "module",
+  "scripts": {
+    "discover": "tsx src/cli/discover.ts",
+    "download": "tsx src/cli/download.ts",
+    "parse:cutoffs": "tsx src/cli/parseCutoffs.ts",
+    "parse:allotment": "tsx src/cli/parseAllotment.ts",
+    "parse:merit": "tsx src/cli/parseMerit.ts",
+    "parse:institutes": "tsx src/cli/parseInstitutes.ts",
+    "validate": "tsx src/cli/validate.ts",
+    "migrate": "tsx --env-file=../../.env src/cli/migrate.ts",
+    "load": "tsx --env-file=../../.env src/cli/load.ts"
+  },
+  "dependencies": {
+    "@mhtcet/core": "*",
+    "pdfjs-dist": "^4.10.38",
+    "pg": "^8.23.0"
+  }
+}

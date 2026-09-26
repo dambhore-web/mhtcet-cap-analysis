@@ -1,0 +1,10 @@
+{
+  "name": "@mhtcet/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pure domain logic: shared types, seat-type grammar, cutoff helpers. No I/O.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
