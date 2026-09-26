@@ -56,3 +56,17 @@ export const median = (xs: number[]): number => {
 
 /** Application ID pattern printed in allotment and merit lists (personal data; never output). */
 export const APPLICATION_ID = /^EN\d{8}$/;
+
+/**
+ * Hide personal data in a page's words before printing them: every application ID and every word
+ * within 230 pt right of an ID on the same row (+-14 pt, which covers wrapped name lines) becomes
+ * "#". Used by the layout-study tool; parsers never output these words at all.
+ */
+export function maskPersonalData(words: Word[]): Word[] {
+  const ids = words.filter((w) => /EN\d{8}/.test(w.text));
+  return words.map((w) =>
+    /EN\d{8}/.test(w.text) || ids.some((i) => Math.abs(i.y0 - w.y0) < 14 && w.x0 >= i.x0 - 1 && w.x0 < i.x0 + 230)
+      ? { ...w, text: "#" }
+      : w,
+  );
+}
