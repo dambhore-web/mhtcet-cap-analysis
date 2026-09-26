@@ -32,7 +32,7 @@ merit lists. See `docs/00-project/vision.md`.
 | `.claude/agents/` | Claude Code subagents, e.g. `data-ingestion.md` (AG-002). Registry: `docs/06-agents/agent-registry.md` |
 | `data/` | Local only, git-ignored |
 
-Until Phase 2 finishes, code still sits in `src/` (see `PROJECT_STATUS.md`).
+`packages/core` and `packages/pipeline` exist (TASK-0002); `apps/` does not yet (see `PROJECT_STATUS.md`).
 
 ## Coding conventions
 - **TypeScript only**, `strict` mode, ES modules, Node 24 (ADR-001). No Python, no plain JS files.

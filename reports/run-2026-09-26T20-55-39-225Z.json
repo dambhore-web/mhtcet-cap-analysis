@@ -1,0 +1,635 @@
+{
+  "kind": "validation",
+  "year": 2026,
+  "createdAt": "2026-09-26T20:55:39.225Z",
+  "gitCommit": "5965989",
+  "checks": [
+    {
+      "name": "cutoff-parse",
+      "blocking": true,
+      "pass": true,
+      "summary": "9 files, 111757 rows; files with issues/serial gaps/round mismatch: 0",
+      "details": [
+        {
+          "file": "2026ENGG_CAP1_AI_CutOff.pdf",
+          "round": "I",
+          "titleRounds": [
+            "I"
+          ],
+          "rows": 2004,
+          "issues": 0,
+          "serialProblems": 0
+        },
+        {
+          "file": "2026ENGG_CAP1_MH_CutOff_V1.pdf",
+          "round": "I",
+          "titleRounds": [
+            "I"
+          ],
+          "rows": 36059,
+          "issues": 0,
+          "serialProblems": 0
+        },
+        {
+          "file": "2026ENGG_CAP2_AI_CutOff.pdf",
+          "round": "II",
+          "titleRounds": [
+            "II"
+          ],
+          "rows": 1753,
+          "issues": 0,
+          "serialProblems": 0
+        },
+        {
+          "file": "2026ENGG_CAP2_MH_CutOff.pdf",
+          "round": "II",
+          "titleRounds": [
+            "II"
+          ],
+          "rows": 34391,
+          "issues": 0,
+          "serialProblems": 0
+        },
+        {
+          "file": "2026ENGG_CAP3_AI_CutOff.pdf",
+          "round": "III",
+          "titleRounds": [
+            "III"
+          ],
+          "rows": 1472,
+          "issues": 0,
+          "serialProblems": 0
+        },
+        {
+          "file": "2026ENGG_CAP3_MH_CutOff.pdf",
+          "round": "III",
+          "titleRounds": [
+            "III"
+          ],
+          "rows": 19839,
+          "issues": 0,
+          "serialProblems": 0
+        },
+        {
+          "file": "2026ENGG_CAP4_AI_CutOff.pdf",
+          "round": "IV",
+          "titleRounds": [
+            "IV"
+          ],
+          "rows": 1335,
+          "issues": 0,
+          "serialProblems": 0
+        },
+        {
+          "file": "2026ENGG_CAP4_Diploma_CutOff.pdf",
+          "round": "IV",
+          "titleRounds": [
+            "IV"
+          ],
+          "rows": 140,
+          "issues": 0,
+          "serialProblems": 0
+        },
+        {
+          "file": "2026ENGG_CAP4_MH_CutOff.pdf",
+          "round": "IV",
+          "titleRounds": [
+            "IV"
+          ],
+          "rows": 14764,
+          "issues": 0,
+          "serialProblems": 0
+        }
+      ]
+    },
+    {
+      "name": "coep-verified-values",
+      "blocking": true,
+      "pass": true,
+      "summary": "8/8 match",
+      "details": [
+        {
+          "choiceCode": "1600619110",
+          "seatType": "GOPENS",
+          "expected": 4148,
+          "got": [
+            4148
+          ]
+        },
+        {
+          "choiceCode": "1600619110",
+          "seatType": "GSCS",
+          "expected": 13137,
+          "got": [
+            13137
+          ]
+        },
+        {
+          "choiceCode": "1600619110",
+          "seatType": "GOBCS",
+          "expected": 5736,
+          "got": [
+            5736
+          ]
+        },
+        {
+          "choiceCode": "1600619110",
+          "seatType": "TFWS",
+          "expected": 3746,
+          "got": [
+            3746
+          ]
+        },
+        {
+          "choiceCode": "1600692110",
+          "seatType": "GOPENS",
+          "expected": 365,
+          "got": [
+            365
+          ]
+        },
+        {
+          "choiceCode": "1600692110",
+          "seatType": "GSCS",
+          "expected": 4669,
+          "got": [
+            4669
+          ]
+        },
+        {
+          "choiceCode": "1600692110",
+          "seatType": "EWS",
+          "expected": 1261,
+          "got": [
+            1261
+          ]
+        },
+        {
+          "choiceCode": "1600646410",
+          "seatType": "GOPENS",
+          "expected": 1743,
+          "got": [
+            1743
+          ]
+        }
+      ]
+    },
+    {
+      "name": "seat-type-grammar",
+      "blocking": false,
+      "pass": false,
+      "summary": "1 rows with a seat type outside the grammar (excluded from load)",
+      "details": [
+        {
+          "list": "AI",
+          "round": "IV",
+          "choiceCode": "0687824210",
+          "section": "MH to AI",
+          "seatType": "ORPHAN2"
+        }
+      ]
+    },
+    {
+      "name": "duplicate-cutoff-keys",
+      "blocking": false,
+      "pass": false,
+      "summary": "1 natural keys printed more than once (all rows for these keys excluded from load)",
+      "details": [
+        "MH-CET-CELL|MHT-CET|2026|AI|IV|0530319110|AI to AI|AI|"
+      ]
+    },
+    {
+      "name": "coverage",
+      "blocking": false,
+      "pass": false,
+      "summary": "institute list 387, allotment-list colleges 387; colleges without cutoff rows per round: I=7, II=2, III=1, IV=0; cutoff colleges not in institute list: 0",
+      "details": {
+        "coverage": [
+          {
+            "round": "I",
+            "collegesWithRows": 380,
+            "missing": [
+              "01347",
+              "02037",
+              "03209",
+              "04766",
+              "05235",
+              "05688",
+              "16373"
+            ]
+          },
+          {
+            "round": "II",
+            "collegesWithRows": 385,
+            "missing": [
+              "01347",
+              "02037"
+            ]
+          },
+          {
+            "round": "III",
+            "collegesWithRows": 386,
+            "missing": [
+              "02037"
+            ]
+          },
+          {
+            "round": "IV",
+            "collegesWithRows": 387,
+            "missing": []
+          }
+        ],
+        "unknownColleges": []
+      }
+    },
+    {
+      "name": "institute-list",
+      "blocking": true,
+      "pass": true,
+      "summary": "387 institutes; matches allotment-list college set: true"
+    },
+    {
+      "name": "cap-seats",
+      "blocking": true,
+      "pass": true,
+      "summary": "01012 40/40, 02189 16/16, 03012 72/72, 03183 64/64, 06007 88/88, 16006 72/72 (rows + VACANT - EWS supernumerary = CAP Seats)",
+      "details": [
+        {
+          "collegeCode": "01012",
+          "branchLists": 40,
+          "failures": []
+        },
+        {
+          "collegeCode": "02189",
+          "branchLists": 16,
+          "failures": []
+        },
+        {
+          "collegeCode": "03012",
+          "branchLists": 72,
+          "failures": []
+        },
+        {
+          "collegeCode": "03183",
+          "branchLists": 64,
+          "failures": []
+        },
+        {
+          "collegeCode": "06007",
+          "branchLists": 88,
+          "failures": []
+        },
+        {
+          "collegeCode": "16006",
+          "branchLists": 72,
+          "failures": []
+        }
+      ]
+    },
+    {
+      "name": "cutoff-cross-check-round-I",
+      "blocking": true,
+      "pass": true,
+      "summary": "01012 146/146, 02189 47/47, 03012 215/215, 03183 57/57, 06007 269/269, 16006 261/261",
+      "details": [
+        {
+          "collegeCode": "01012",
+          "byRound": {
+            "III": {
+              "match": 103,
+              "missing-computed": 1
+            },
+            "II": {
+              "match": 131,
+              "missing-computed": 1
+            },
+            "IV": {
+              "match": 81
+            },
+            "I": {
+              "match": 146
+            }
+          }
+        },
+        {
+          "collegeCode": "02189",
+          "byRound": {
+            "III": {
+              "match": 20
+            },
+            "II": {
+              "match": 40
+            },
+            "IV": {
+              "match": 17
+            },
+            "I": {
+              "match": 47
+            }
+          }
+        },
+        {
+          "collegeCode": "03012",
+          "byRound": {
+            "III": {
+              "match": 52,
+              "missing-computed": 3
+            },
+            "II": {
+              "match": 79,
+              "missing-computed": 1
+            },
+            "IV": {
+              "match": 30,
+              "mismatch": 1
+            },
+            "I": {
+              "match": 215
+            }
+          }
+        },
+        {
+          "collegeCode": "03183",
+          "byRound": {
+            "III": {
+              "match": 37,
+              "mismatch": 1,
+              "missing-computed": 1
+            },
+            "II": {
+              "match": 54,
+              "missing-computed": 1
+            },
+            "IV": {
+              "match": 34,
+              "mismatch": 2,
+              "missing-computed": 1
+            },
+            "I": {
+              "match": 57
+            }
+          }
+        },
+        {
+          "collegeCode": "06007",
+          "byRound": {
+            "III": {
+              "match": 85
+            },
+            "II": {
+              "match": 140
+            },
+            "IV": {
+              "match": 65
+            },
+            "I": {
+              "match": 269
+            }
+          }
+        },
+        {
+          "collegeCode": "16006",
+          "byRound": {
+            "III": {
+              "match": 60
+            },
+            "II": {
+              "match": 116
+            },
+            "IV": {
+              "match": 44
+            },
+            "I": {
+              "match": 261
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "cutoff-cross-check-later-rounds",
+      "blocking": false,
+      "pass": false,
+      "summary": "01012 315/317, 02189 77/77, 03012 161/166, 03183 125/131, 06007 290/290, 16006 220/220",
+      "details": [
+        {
+          "collegeCode": "01012",
+          "nonMatches": [
+            {
+              "round": "II",
+              "choiceCode": "0101219110",
+              "section": "Home University Seats Allotted to Home University Candidates",
+              "seatType": "LNT2H",
+              "computed": null,
+              "official": 124629,
+              "seatsFilled": 0,
+              "status": "missing-computed"
+            },
+            {
+              "round": "III",
+              "choiceCode": "0101261210",
+              "section": "Home University Seats Allotted to Home University Candidates",
+              "seatType": "LSEBCH",
+              "computed": null,
+              "official": 152502,
+              "seatsFilled": 0,
+              "status": "missing-computed"
+            }
+          ]
+        },
+        {
+          "collegeCode": "02189",
+          "nonMatches": []
+        },
+        {
+          "collegeCode": "03012",
+          "nonMatches": [
+            {
+              "round": "IV",
+              "choiceCode": "0301237610",
+              "section": "State Level",
+              "seatType": "GOPENS",
+              "computed": 923,
+              "official": 1168,
+              "seatsFilled": 2,
+              "status": "mismatch"
+            },
+            {
+              "round": "II",
+              "choiceCode": "0301262610",
+              "section": "*",
+              "seatType": "EWS",
+              "computed": null,
+              "official": 9795,
+              "seatsFilled": 0,
+              "status": "missing-computed"
+            },
+            {
+              "round": "III",
+              "choiceCode": "0301219110",
+              "section": "State Level",
+              "seatType": "LOPENS",
+              "computed": null,
+              "official": 4142,
+              "seatsFilled": 0,
+              "status": "missing-computed"
+            },
+            {
+              "round": "III",
+              "choiceCode": "0301229310",
+              "section": "State Level",
+              "seatType": "GVJS",
+              "computed": null,
+              "official": 9386,
+              "seatsFilled": 0,
+              "status": "missing-computed"
+            },
+            {
+              "round": "III",
+              "choiceCode": "0301262610",
+              "section": "*",
+              "seatType": "EWS",
+              "computed": null,
+              "official": 9795,
+              "seatsFilled": 0,
+              "status": "missing-computed"
+            }
+          ]
+        },
+        {
+          "collegeCode": "03183",
+          "nonMatches": [
+            {
+              "round": "III",
+              "choiceCode": "0318361610",
+              "section": "*",
+              "seatType": "TFWS",
+              "computed": 169792,
+              "official": 173551,
+              "seatsFilled": 1,
+              "status": "mismatch"
+            },
+            {
+              "round": "IV",
+              "choiceCode": "0318337210",
+              "section": "Home University Seats Allotted to Home University Candidates",
+              "seatType": "GOPENH",
+              "computed": 89691,
+              "official": 90972,
+              "seatsFilled": 3,
+              "status": "mismatch"
+            },
+            {
+              "round": "IV",
+              "choiceCode": "0318361210",
+              "section": "Home University Seats Allotted to Home University Candidates",
+              "seatType": "LOPENH",
+              "computed": 70285,
+              "official": 100445,
+              "seatsFilled": 1,
+              "status": "mismatch"
+            },
+            {
+              "round": "II",
+              "choiceCode": "0318361210",
+              "section": "*",
+              "seatType": "TFWS",
+              "computed": null,
+              "official": 31797,
+              "seatsFilled": 0,
+              "status": "missing-computed"
+            },
+            {
+              "round": "III",
+              "choiceCode": "0318361210",
+              "section": "*",
+              "seatType": "TFWS",
+              "computed": null,
+              "official": 31797,
+              "seatsFilled": 0,
+              "status": "missing-computed"
+            },
+            {
+              "round": "IV",
+              "choiceCode": "0318361210",
+              "section": "*",
+              "seatType": "TFWS",
+              "computed": null,
+              "official": 31797,
+              "seatsFilled": 0,
+              "status": "missing-computed"
+            }
+          ]
+        },
+        {
+          "collegeCode": "06007",
+          "nonMatches": []
+        },
+        {
+          "collegeCode": "16006",
+          "nonMatches": []
+        }
+      ]
+    },
+    {
+      "name": "allotment-parity-python",
+      "blocking": false,
+      "pass": true,
+      "summary": "5468/5468 rows; 659 rows differ, all explained Python bugs ({\"category\":419,\"branch_code\":248,\"seat_type\":1}); unexplained 0"
+    },
+    {
+      "name": "ai-merit-list",
+      "blocking": true,
+      "pass": true,
+      "summary": "240141 rows (merit 1-240141, gaps 0, duplicates 0); JEE 1-98360 count 98360 contiguous true; score increases within an exam: 0; parity vs Python: missing 0, field mismatches 0, extra 27",
+      "details": {
+        "gaps": [],
+        "monotoneViolations": []
+      }
+    },
+    {
+      "name": "no-personal-data",
+      "blocking": true,
+      "pass": true,
+      "summary": "11 processed files scanned for EN########: 0 hits; unexpected allotment fields: 0",
+      "details": {
+        "scanned": [
+          "ai_merit-check.json",
+          "ai_merit.ndjson",
+          "allotment-branches.json",
+          "allotment.ndjson",
+          "cutoff-colleges.json",
+          "cutoff-parse.json",
+          "cutoffs.ndjson",
+          "institutes.json",
+          "parity-allotment.json",
+          "parity-merit.json",
+          "validation.json"
+        ],
+        "hits": [],
+        "extraKeys": []
+      }
+    },
+    {
+      "name": "typecheck-and-tests",
+      "blocking": true,
+      "pass": true,
+      "summary": "typecheck ok; 33 passed (33)"
+    }
+  ],
+  "load": {
+    "allowed": true,
+    "blockedBy": [],
+    "cutoffs": {
+      "excludedFiles": [],
+      "excludedColleges": [],
+      "excludedKeys": [
+        "MH-CET-CELL|MHT-CET|2026|AI|IV|0530319110|AI to AI|AI|",
+        "MH-CET-CELL|MHT-CET|2026|AI|IV|0687824210|MH to AI|ORPHAN2|"
+      ]
+    },
+    "merit": {
+      "allowed": true
+    }
+  }
+}

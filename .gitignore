@@ -10,7 +10,7 @@ node_modules/
 dist/
 *.tsbuildinfo
 
-# Python leftovers (being removed, see ADR-001)
+# Python leftovers (Python code removed in TASK-0002, see ADR-001)
 __pycache__/
 *.pyc
 
@@ -18,3 +18,6 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# reports/ IS committed: run and load reports hold only codes, counts and cutoff values
+# (no names, no application IDs). The validate step scans for EN######## before writing.

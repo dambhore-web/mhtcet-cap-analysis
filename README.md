@@ -11,9 +11,22 @@ merit lists.
 - **Decisions:** [docs/DECISIONS.md](docs/DECISIONS.md) and [docs/adr/](docs/adr/)
 
 ## Current state
+- 2026 data layer built by AG-002 (TASK-0002): official cutoff lists for all 387 colleges, rounds
+  I–IV (state, All India, diploma), the institute list and the All India merit list are parsed,
+  validated and loaded into the Supabase **staging** database.
 - COEP Technological University (16006), 2026 Rounds I–IV analysed: `dashboards/coep-2026.html`.
-- The pipeline is being ported from Python to TypeScript (TASK-0002). Until that's done, the
-  Python scripts in `src/cap/` are the only runnable pipeline; they'll be removed afterwards.
+
+## Quick start (Node 24)
+```sh
+npm install
+npm run typecheck && npm test          # strict TypeScript + vitest (synthetic fixtures)
+npm run discover -- 2026               # data/raw/2026/manifest.json
+npm run download -- 2026 --colleges 16006 --merit PCMAI
+npm run parse:institutes && npm run parse:cutoffs && npm run parse:allotment && npm run parse:merit
+npm run validate                       # writes reports/run-<ts>.json
+npm run migrate && npm run load        # staging only; needs DATABASE_URL_STAGING in .env
+```
+Pipeline details: [docs/02-architecture/data-pipeline.md](docs/02-architecture/data-pipeline.md).
 
 ## Privacy
 The source PDFs contain candidate names and application IDs. The parsers drop both, and raw PDFs

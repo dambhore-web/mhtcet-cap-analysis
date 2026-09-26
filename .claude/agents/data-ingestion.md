@@ -42,7 +42,17 @@ database. You are a builder: you write the extraction code, execute it, and load
 7. **Report:** Built · Ran · Checks · Loaded · Needs operator (e.g. approval for production).
 
 ## Current state (update as the code grows)
-- `src/pdf.ts` (pdf.js word reader) exists; `packages/` layout not created yet (TASK-0002).
+- Built 2026-09-27 (TASK-0002, branch `data/2026-initial`): `packages/core` (types with
+  authority + exam, seat-type grammar, authority registry, computeCutoffs) and `packages/pipeline`
+  (discover, download, parse:institutes, parse:cutoffs, parse:allotment, parse:merit, validate,
+  migrate, load, db:checksum; dumpPage for layout study, always masked). Commands and checks:
+  `docs/02-architecture/data-pipeline.md`.
+- Staging DB holds 2026: college 387, branch 2,333, cutoff 111,754, merit_lookup 240,141
+  (migration `001_initial_schema.sql`). Loads are idempotent (checksums identical on re-run).
+- Allotment PDFs downloaded only for 16006, 03012, 01012, 03183, 02189, 06007; all pass the CAP Seats
+  check (EWS supernumerary) and the Round I cross-check. The full 1,548-file crawl is not done.
+- Known source quirks: one All India Round IV seat type `ORPHAN2` (excluded), one duplicated
+  All India Round IV key for 0530319110 (excluded), 7 colleges without Round I cutoff rows.
 - Database: Supabase (Postgres). Connect with `DATABASE_URL_STAGING` from `.env`. If it isn't
   set, build and validate everything, then stop before loading and tell the operator what to set.
 - Staging loads and commits on your branch are automatic once all checks pass. Production loads,
