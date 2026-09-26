@@ -4,7 +4,17 @@ data/raw/*
 data/processed/*
 !data/processed/.gitkeep
 *.pdf
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Python leftovers (being removed, see ADR-001)
 __pycache__/
 *.pyc
-.venv/
+
+# Local env and secrets
 .env
+.env.*
+!.env.example

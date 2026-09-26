@@ -1,0 +1,30 @@
+{
+  "name": "mhtcet-cap-analysis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Closing-rank analysis of Maharashtra first-year engineering admissions (MHT-CET CAP rounds), built from the State CET Cell's published allotment lists and merit lists.",
+  "type": "module",
+  "scripts": {
+    "download": "tsx src/download.ts",
+    "parse:allotment": "tsx src/parseAllotment.ts",
+    "parse:merit": "tsx src/parseMerit.ts",
+    "summarize": "tsx src/summarize.ts",
+    "build:dashboard": "tsx src/buildDashboard.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dambhore-web/mhtcet-cap-analysis.git"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "pdfjs-dist": "^4.10.38",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
