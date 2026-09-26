@@ -1,0 +1,10 @@
+# Source PDFs and parsed rows contain candidate names - never commit them
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+*.pdf
+__pycache__/
+*.pyc
+.venv/
+.env
