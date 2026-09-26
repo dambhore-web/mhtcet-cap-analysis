@@ -5,10 +5,12 @@
   "description": "Closing-rank analysis of Maharashtra first-year engineering admissions (MHT-CET CAP rounds), built from the State CET Cell's published cutoff, allotment and merit lists.",
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
-    "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/pipeline",
+    "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/pipeline && tsc --noEmit -p apps/api",
+    "dev:api": "npm run dev -w @mhtcet/api",
     "test": "vitest run",
     "discover": "npm run discover -w @mhtcet/pipeline --",
     "download": "npm run download -w @mhtcet/pipeline --",
