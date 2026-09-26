@@ -58,9 +58,14 @@ Nothing is blocked. The paid launch is gated on the legal items in `docs/07-secu
 | 9 | Security review, legal sign-off, observability, launch | not started |
 | 10 | Earlier years | not started |
 
+## Product decisions (2026-09-27)
+Name **Compass** · Maharashtra first, other states later (ADR-007) · build locally, host on
+Railway · Google sign-in only · English only · free vs paid parked. UI mockups:
+https://claude.ai/artifact/7K3x3et9aFdXhbyVx5sLn4 (private). All decisions: `docs/DECISIONS.md`.
+
 ## Known risks
-See `docs/00-project/project-discovery.md` §Risks. Top risk: commercial reuse terms for CET Cell
-data are `UNKNOWN`. Data risks: later-round allotment cross-checks leave a few unexplained
+Commercial reuse of CET Cell data: owner confirmed permitted (L1–L3 resolved). Remaining
+pre-launch legal items: disclaimer, privacy policy, terms (L4–L6). Data risks: later-round allotment cross-checks leave a few unexplained
 differences per sample college (reported, not blocking); layouts of the other 381 colleges'
 allotment lists are untested.
 

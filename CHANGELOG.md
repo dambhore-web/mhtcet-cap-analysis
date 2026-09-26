@@ -26,7 +26,17 @@
   - 33 vitest tests on synthetic fixtures, including a privacy regression test.
   - Staging loaded: college 387, branch 2,333, cutoff 111,754, merit_lookup 240,141.
 
+- `docs/02-architecture/data-sources.md`: catalogue of every CET Cell source (cutoffs 2023–2026,
+  merit lists, seat matrix, vacancy lists, institute lists) plus external sources (FRA fees and
+  districts: 306/387 colleges match; NIRF, NBA, NAAC, AICTE).
+- `docs/adr/ADR-007-multi-authority-data-model.md`; product decisions (name Compass, Google
+  sign-in only, English only, Railway, free vs paid parked) in `docs/DECISIONS.md`.
+
 ### Changed
+- `docs/03-domain/eligibility-rules.md`: rewritten from the 2026-27 CAP admission brochure (seat
+  split, Home University, reservations, allotment stages). Matching now uses the highest closing
+  published in later rounds, because each round's official value covers only that round's allotments.
+- `docs/07-security/legal-open-items.md`: L1–L3 resolved (owner confirmed data reuse).
 - `.gitignore`: ignore `node_modules/`, build output and env files; `reports/` is committed
   (counts and cutoff values only, no personal data).
 - `src/pdf.ts` moved to `packages/pipeline/src/pdf.ts` (now also returns word right edges).

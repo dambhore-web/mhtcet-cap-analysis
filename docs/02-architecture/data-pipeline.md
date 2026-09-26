@@ -63,6 +63,13 @@ closing merit numbers and a row of `(percentiles)`.
 - Choice codes can carry suffix letters (`…T` TFWS, `…L`, `…U`, `…K`, e.g. `0303337293LK`).
 - Figures are state general merit numbers and MHT-CET percentiles.
 
+**What a round's value means (checked 2026-09-27).** Each round's list gives the closing merit of
+the seats **allotted in that round**, not of all seat holders. Seat types with no new allotments
+are absent. For example, COEP 16006 has 26–34 MH cells per branch in Round I but only 1–8 in
+Round IV. Values can go down between rounds (COEP AI & ML TFWS: 466 in R-I, 372 in R-II). Store
+values as published. The rank finder's rule for combining rounds is in
+`docs/03-domain/eligibility-rules.md` §6.
+
 **AI lists** (row per record): Sr. No (with thousands separator), All India merit, (percentile),
 choice code, institute, course, merit exam (`JEE`, `MHT-CET`, `JEE(Main)-2026`, `MHT-CET-PCB 2026`),
 type (`AI to AI`, `MI to AI`, `MH to AI`) and seat type (`AI`, `MI`, or MH codes such as `GNT2H` for
