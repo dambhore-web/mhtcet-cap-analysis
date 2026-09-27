@@ -1,9 +1,10 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { loadProfile, saveProfile, type Profile, DEFAULT_PROFILE } from "./profile";
+import { loadProfile, saveProfile, clearProfile, type Profile, DEFAULT_PROFILE } from "./profile";
 
 interface ProfileCtx {
   profile: Profile;
   setProfile: (p: Profile) => void;
+  resetProfile: () => void;
   hasProfile: boolean;
 }
 
@@ -19,7 +20,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     setHasProfile(true);
   }
 
-  return <Ctx.Provider value={{ profile, setProfile, hasProfile }}>{children}</Ctx.Provider>;
+  function resetProfile() {
+    clearProfile();
+    setProfileState(DEFAULT_PROFILE);
+    setHasProfile(false);
+  }
+
+  return <Ctx.Provider value={{ profile, setProfile, resetProfile, hasProfile }}>{children}</Ctx.Provider>;
 }
 
 export function useProfile() {

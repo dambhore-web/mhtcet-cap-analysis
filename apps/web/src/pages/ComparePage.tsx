@@ -4,6 +4,10 @@ import { api, type CollegeFees, type CollegeFeesUnavailable } from "../lib/api";
 import { useCompare } from "../lib/CompareContext";
 import { addToList, isInList } from "../lib/list";
 import { useProfile } from "../lib/ProfileContext";
+import { PageHeader } from "../components/PageHeader";
+import { Icon } from "../components/Icon";
+import { formatNumber, formatRound } from "../lib/format";
+import { formatInr } from "../lib/plans";
 import "./ComparePage.css";
 
 interface CutoffRow {
@@ -20,11 +24,8 @@ interface CollegeData {
 }
 
 const ROUNDS = ["I", "II", "III", "IV"] as const;
-const ROUND_LABELS: Record<string, string> = { I: "Round I", II: "Round II", III: "Round III", IV: "Round IV" };
-
-function fmt(n: number) {
-  return n.toLocaleString("en-IN");
-}
+const fmt = formatNumber;
+const CRUMBS = [{ label: "Colleges", to: "/colleges" }, { label: "Compare" }];
 
 function gopensForBranch(cutoffs: CutoffRow[], branch: string, round: string): number | null {
   const row = cutoffs.find((r) => r.branch === branch && r.seatType === "GOPENS" && r.round === round);
@@ -62,29 +63,30 @@ export function ComparePage() {
 
   if (pinned.length === 0) {
     return (
-      <div className="compare-page">
-        <header className="compare-header">
-          <Link to="/colleges" className="compare-back">←</Link>
-          <h1>Compare colleges</h1>
-        </header>
-        <div className="compare-empty">
-          <p>No colleges pinned yet.</p>
-          <p>Open a college page and tap "Pin to compare" to add it here.</p>
-          <Link to="/colleges" className="compare-empty-link">Browse colleges →</Link>
+      <div className="page compare-page">
+        <PageHeader breadcrumb={CRUMBS} title="Compare colleges" />
+        <div className="empty-state">
+          <Icon name="pin" size={28} className="empty-state-icon" />
+          <h2>Nothing to compare yet</h2>
+          <p>Use <strong>Add to compare</strong> on up to 3 colleges, from the Colleges list or a college page, to see their closing ranks and fees side by side.</p>
+          <Link to="/colleges" className="btn btn-primary">
+            <Icon name="building" size={18} />
+            Browse colleges
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="compare-page">
-      <header className="compare-header">
-        <Link to="/colleges" className="compare-back">←</Link>
-        <h1>Compare colleges</h1>
-        <span className="compare-count">{pinned.length} / 3</span>
-      </header>
+    <div className="page compare-page">
+      <PageHeader
+        breadcrumb={CRUMBS}
+        title="Compare colleges"
+        subtitle={`${pinned.length} of 3 colleges. Pick a branch in each column to compare general open closing ranks and fees.`}
+      />
 
-      <div className="compare-scroll">
+      <div className="compare-scroll table-scroll">
         <div className="compare-grid" style={{ gridTemplateColumns: `repeat(${pinned.length}, minmax(240px, 1fr))` }}>
           {pinned.map((c) => {
             const data = dataMap[c.code];
@@ -97,27 +99,32 @@ export function ComparePage() {
             return (
               <div key={c.code} className="compare-col">
                 <div className="compare-col-head">
-                  <div className="compare-col-name">{c.name}</div>
-                  <div className="compare-col-code">{c.code}</div>
+                  <h2 className="compare-col-name">
+                    <Link to={`/colleges/${c.code}`}>{c.name}</Link>
+                  </h2>
+                  <div className="compare-col-code">Code {c.code}</div>
                   <div className="compare-col-actions">
-                    <Link to={`/colleges/${c.code}`} className="compare-view-btn">View →</Link>
-                    <button className="compare-unpin-btn" onClick={() => unpin(c.code)}>Remove</button>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => unpin(c.code)}>
+                      <Icon name="close" size={14} />
+                      Remove
+                    </button>
                   </div>
                 </div>
 
                 {data === undefined && (
-                  <div className="compare-loading">Loading…</div>
+                  <div className="compare-loading" role="status">Loading…</div>
                 )}
 
                 {data === null && (
-                  <div className="compare-error">Could not load data</div>
+                  <div className="compare-error" role="alert">Couldn't load this college. Try again later.</div>
                 )}
 
                 {data && (
                   <>
                     <div className="compare-branch-row">
-                      <label className="compare-branch-label">Branch</label>
+                      <label className="compare-branch-label" htmlFor={`cmp-branch-${c.code}`}>Branch</label>
                       <select
+                        id={`cmp-branch-${c.code}`}
                         className="compare-branch-select"
                         value={branch}
                         onChange={(e) => setSelectedBranches((prev) => ({ ...prev, [c.code]: e.target.value }))}
@@ -126,20 +133,20 @@ export function ComparePage() {
                       </select>
                     </div>
 
-                    <div className="compare-section-title">GOPENS closing merit</div>
+                    <div className="compare-section-title">Closing rank, general open</div>
                     <div className="compare-merit-rows">
                       {ROUNDS.map((r) => {
                         const m = gopensForBranch(data.cutoffs, branch, r);
                         const surplus = m !== null && merit > 0 ? m - merit : null;
                         return (
                           <div key={r} className={`compare-merit-row${r === "I" ? " r1" : ""}`}>
-                            <span className="compare-round-label">{ROUND_LABELS[r]}</span>
+                            <span className="compare-round-label">{formatRound(r)}</span>
                             <span className="compare-merit-val">
                               {m !== null ? fmt(m) : <span className="compare-na">—</span>}
                             </span>
                             {surplus !== null && (
                               <span className={`compare-surplus${surplus >= 0 ? " pos" : " neg"}`}>
-                                {surplus >= 0 ? `+${fmt(surplus)}` : fmt(surplus)}
+                                {surplus >= 0 ? `${fmt(surplus)} to spare` : `${fmt(-surplus)} short`}
                               </span>
                             )}
                           </div>
@@ -147,14 +154,14 @@ export function ComparePage() {
                       })}
                     </div>
 
-                    <div className="compare-section-title">Fees</div>
+                    <div className="compare-section-title">Fees per year</div>
                     {totalFee !== null ? (
                       <div className="compare-fee-row">
-                        <span className="compare-fee-label">Total per year</span>
-                        <span className="compare-fee-val">₹{fmt(totalFee)}</span>
+                        <span className="compare-fee-label">Total</span>
+                        <span className="compare-fee-val">{formatInr(totalFee)}</span>
                       </div>
                     ) : (
-                      <div className="compare-na-row">Fee data not yet available</div>
+                      <div className="compare-na-row">Fees not published yet</div>
                     )}
 
                     <AddCollegeBtn code={c.code} name={c.name} branch={branch} cutoffs={data.cutoffs} />
@@ -167,7 +174,7 @@ export function ComparePage() {
       </div>
 
       <div className="compare-footnote">
-        2026 official MHT-CET CAP cutoffs · GOPENS only · Past data — not a guarantee
+        Closing ranks for general open seats (state level) from official CET Cell CAP lists. A guide, not a guarantee.
       </div>
     </div>
   );
@@ -197,8 +204,9 @@ function AddCollegeBtn({ code, name, branch, cutoffs }: {
   }
 
   return (
-    <button className={`compare-add-btn${saved ? " saved" : ""}`} onClick={handleAdd}>
-      {saved ? "✓ Saved to list" : "+ Add to preference list"}
+    <button type="button" className={`btn btn-block btn-sm ${saved ? "btn-secondary" : "btn-primary"}`} onClick={handleAdd} disabled={saved}>
+      <Icon name={saved ? "check" : "plus"} size={16} />
+      {saved ? "In your option form" : "Add to option form"}
     </button>
   );
 }

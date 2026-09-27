@@ -1,33 +1,81 @@
 :root {
+  /* ── Colour ─────────────────────────────────────────────────────────── */
   --page: #f6f7ff;
   --lavender: #ece9ff;
+  --lavender-2: #f3f1ff;
   --violet: #6552d8;
   --violet-deep: #4f46ae;
   --violet-soft: #cbbdff;
   --lime: #d6f95a;
+  --lime-deep: #b8e02e;
   --orange: #ff775b;
   --orange-shadow: #b74c39;
   --navy: #24314d;
-  --muted: #807991;
+  --navy-deep: #1a2438;
+  --muted: #6b6580;
+  --muted-2: #9a94ab;
   --line: #ded7f6;
+  --line-soft: #ece8fb;
   --white: #ffffff;
 
-  /* status */
+  /* status: always paired with an icon and a label */
   --safe-text: #2d6a30;
   --safe-bg: #e8f5e9;
   --later-text: #7d4a00;
   --later-bg: #fff3e0;
-  --out-text: #c62828;
-  --out-bg: #fce4ec;
+  --out-text: #4b5563;
+  --out-bg: #eef0f3;
+  --danger-text: #b3261e;
+  --danger-bg: #fdecea;
+  --danger-on-violet: #ffd9d0;
+  --info-text: #1e4f8a;
+  --info-bg: #e6f0fb;
+  --warn-text: #7d4a00;
+  --warn-bg: #fff8e1;
+  --warn-line: #f3d27a;
 
-  /* typography */
-  --font-head: "Syne", Arial, sans-serif;
-  --font-body: "DM Sans", Arial, sans-serif;
-  --font-num: "Space Grotesk", Arial, sans-serif;
+  /* ── Typography ─────────────────────────────────────────────────────── */
+  --font-head: "Syne", "Segoe UI", system-ui, sans-serif;
+  --font-body: "DM Sans", "Segoe UI", system-ui, sans-serif;
+  --font-num: "Space Grotesk", ui-monospace, "Segoe UI", sans-serif;
 
-  /* layout */
-  --top-nav-h: 56px;
+  /* type scale: the only font sizes used in the app */
+  --text-xs: 12px;   /* captions, table heads, badges */
+  --text-sm: 14px;   /* secondary text, buttons */
+  --text-base: 16px; /* body */
+  --text-lg: 18px;   /* card titles */
+  --text-xl: 22px;   /* section titles */
+  --text-2xl: 28px;  /* page titles */
+  --text-3xl: 36px;  /* large figures */
+  --text-hero: clamp(40px, 6vw, 72px); /* landing hero only */
+
+  --label-tracking: 0.06em;
+
+  /* ── Shape ──────────────────────────────────────────────────────────── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(36, 49, 77, 0.06);
+  --shadow-raised: 0 8px 24px rgba(36, 49, 77, 0.12);
+
+  /* ── Layout ─────────────────────────────────────────────────────────── */
+  --content-max: 1200px;
+  --content-narrow: 760px;
+  --gutter: 16px;
+  --top-nav-h: 60px;
+  --compare-bar-h: 0px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* breakpoints (for reference; CSS vars can't be used in @media):
+     phone < 640px · tablet 640–1023px · desktop ≥ 1024px */
+}
+
+@media (min-width: 640px) {
+  :root { --gutter: 24px; }
+}
+
+@media (min-width: 1024px) {
+  :root { --gutter: 32px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,6 +2,19 @@
 
 ## Unreleased
 ### Added
+- Web UI audit fixes (issues #93–#108). Why: the Dev audit found inconsistent sizes, fonts,
+  widths and navigation, wrong seat-type labels and pages that went blank on bad saved data.
+  - `apps/web`: tokens for type, radii, colours and layout; `PageHeader`, `Icon`, `PlanSubnav`,
+    `ErrorBoundary`; one top nav (Find, Colleges, My CAP plan, Ask, CAP guide) with an account menu;
+    compare bar only where colleges are browsed; bottom nav removed.
+  - Seat labels from the seat-type grammar (`lib/seatType.ts`); NT1/NT2/NT3 shown as NT-B/C/D.
+  - Rounds always written "Round I" style; college page reads the API's Roman-numeral rounds
+    (its headline previously never showed).
+  - Find results grouped by college; new `/estimate` page; guide tabs linkable with `?tab=`;
+    plans and question limits read from `lib/plans.ts`; option form limit shown as 300.
+  - Saved profile, list, compare and session data are shape-checked on load.
+  - Fonts self-hosted with `@fontsource` instead of Google Fonts.
+  - 15 new vitest tests in `apps/web/test/`.
 - Foundation documentation: `AGENTS.md`, `CLAUDE.md`, `PROJECT_STATUS.md`, `docs/` tree, ADR-001
   to ADR-005, task files. Why: the project is becoming a paid, AI-assisted product and needs
   written rules, architecture and decisions before more code.

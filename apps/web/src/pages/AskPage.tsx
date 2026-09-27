@@ -2,9 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
 import { api } from "../lib/api";
+import { PLANS } from "../lib/plans";
+import { formatNumber } from "../lib/format";
+import { CATEGORY_OPTIONS } from "../lib/categories";
+import { PageHeader } from "../components/PageHeader";
+import { Icon } from "../components/Icon";
 import "./AskPage.css";
 
-const FREE_LIMIT = 3;
+const FREE_LIMIT = PLANS.free.askQuestions;
 
 const SUGGESTIONS = [
   "What's the difference between Freeze, Float, and Slide?",
@@ -122,36 +127,35 @@ export function AskPage() {
     }
   }
 
+  const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === (profile.category ?? ""))?.label ?? "Open";
   const contextLine = profile.meritNumber
-    ? `Merit ${profile.meritNumber.toLocaleString("en-IN")}${profile.category ? ` · ${profile.category}` : ""}`
-    : null;
+    ? `Answers use your merit ${formatNumber(profile.meritNumber)} and ${categoryLabel} category.`
+    : "Add your merit number in My details for answers about your own chances.";
 
   return (
-    <div className="ask-page">
-      <header className="ask-header">
-        <div className="ask-header-left">
-          <span className="ask-header-icon">✦</span>
-          <div>
-            <h1>Ask Compass</h1>
-            {contextLine && <span className="ask-context-line">{contextLine} · auto-injected</span>}
-          </div>
-        </div>
-        {messages.length > 0 && (
-          <button className="ask-new-chat" onClick={() => { setMessages([]); setQuestionCount(0); }}>
-            New chat
-          </button>
-        )}
-      </header>
+    <div className="page page--narrow ask-page">
+      <PageHeader
+        title="Ask Compass"
+        subtitle={contextLine}
+        actions={
+          messages.length > 0 && (
+            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setMessages([])}>
+              <Icon name="plus" size={16} />
+              New chat
+            </button>
+          )
+        }
+      />
 
-      <div className="ask-messages">
+      <div className="ask-messages" aria-live="polite">
         {messages.length === 0 && (
           <div className="ask-empty">
-            <div className="ask-empty-icon">✦</div>
-            <h2>Ask me anything about MHT-CET CAP</h2>
-            <p>Cutoffs, eligibility, documents, Freeze vs Float — I'll explain with official sources.</p>
+            <Icon name="chat" size={28} className="ask-empty-icon" />
+            <h2>Ask anything about MHT-CET CAP</h2>
+            <p>Cutoffs, eligibility, documents, freeze or float. Answers point to official sources. Try one of these:</p>
             <div className="ask-suggestions">
               {SUGGESTIONS.map((s) => (
-                <button key={s} className="ask-suggestion" onClick={() => sendMessage(s)}>
+                <button key={s} type="button" className="ask-suggestion" onClick={() => sendMessage(s)}>
                   {s}
                 </button>
               ))}
@@ -161,7 +165,7 @@ export function AskPage() {
 
         {messages.map((msg) => (
           <div key={msg.id} className={`ask-bubble-wrap ${msg.role}`}>
-            {msg.role === "assistant" && <span className="ask-ai-dot">✦</span>}
+            {msg.role === "assistant" && <span className="ask-ai-dot" aria-hidden="true"><Icon name="sparkle" size={14} /></span>}
             <div className={`ask-bubble ${msg.role}`}>
               <FormattedText text={msg.text} />
             </div>
@@ -170,8 +174,8 @@ export function AskPage() {
 
         {isTyping && (
           <div className="ask-bubble-wrap assistant">
-            <span className="ask-ai-dot">✦</span>
-            <div className="ask-bubble assistant ask-typing">
+            <span className="ask-ai-dot" aria-hidden="true"><Icon name="sparkle" size={14} /></span>
+            <div className="ask-bubble assistant ask-typing" role="status" aria-label="Compass is typing">
               <span /><span /><span />
             </div>
           </div>
@@ -184,19 +188,21 @@ export function AskPage() {
         {limitReached ? (
           <div className="ask-limit-banner">
             <div className="ask-limit-text">
-              <strong>You've used {FREE_LIMIT} of {FREE_LIMIT} free questions</strong>
-              <span>Upgrade to ask unlimited questions</span>
+              <strong>You've used all {FREE_LIMIT} free questions</strong>
+              <span>The {PLANS.seasonPass.name} includes unlimited questions.</span>
             </div>
-            <Link to="/plans" className="ask-limit-cta">See plans</Link>
+            <Link to="/plans" className="btn btn-accent btn-sm">See plans</Link>
           </div>
         ) : (
           <>
             <div className="ask-usage-bar">
-              <span>{FREE_LIMIT - questionCount} of {FREE_LIMIT} free questions remaining</span>
-              <Link to="/plans" className="ask-upgrade-link">Upgrade</Link>
+              <span>{FREE_LIMIT - questionCount} of {FREE_LIMIT} free questions left</span>
+              <Link to="/plans" className="ask-upgrade-link">Unlimited with {PLANS.seasonPass.name}</Link>
             </div>
             <div className="ask-input-row">
+              <label htmlFor="ask-input" className="sr-only">Your question</label>
               <textarea
+                id="ask-input"
                 ref={inputRef}
                 className="ask-input"
                 placeholder="Ask about MHT-CET admissions…"
@@ -207,12 +213,13 @@ export function AskPage() {
                 disabled={isTyping}
               />
               <button
+                type="button"
                 className="ask-send"
                 onClick={() => sendMessage(input)}
                 disabled={!input.trim() || isTyping}
-                aria-label="Send"
+                aria-label="Send question"
               >
-                ↑
+                <Icon name="arrowUp" size={18} />
               </button>
             </div>
           </>

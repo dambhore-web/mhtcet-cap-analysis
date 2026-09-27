@@ -37,7 +37,7 @@ export interface FindOption {
   branch: string;
   seatType: string;
   status: RankStatus;
-  round: number | null;
+  round: number | string | null;
   closingMerit: number;
   year: number;
 }

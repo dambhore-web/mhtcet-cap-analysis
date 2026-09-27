@@ -1,10 +1,12 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { seatTypeLabel, seatTypeShortLabel, seatTypeSortKey } from "../lib/seatType";
+import { formatNumber, formatRound, roundIndex } from "../lib/format";
 import "./CutoffChart.css";
 
 interface CutoffRow {
   branch: string;
   seatType: string;
-  round: number;
+  round: number | string;
   closingMerit: number;
 }
 
@@ -14,34 +16,6 @@ interface BranchSeries {
   firstMerit: number;
   lastMerit: number;
 }
-
-const SEAT_NAMES: Record<string, string> = {
-  GOPENS: "General Open", GOPENH: "General Open (HU)", GOPENO: "General Open (Other HU)",
-  LOPENS: "Ladies Open", LOPENH: "Ladies Open (HU)", LOPENO: "Ladies Open (Other HU)",
-  GOBCSS: "OBC", GOBCSH: "OBC (HU)", GOBCSO: "OBC (Other HU)",
-  LOBCSS: "Ladies OBC", LOBCSH: "Ladies OBC (HU)",
-  GOSCS: "SC", GOSCSH: "SC (HU)", GOSTS: "ST", GOSTH: "ST (HU)",
-  GOVJS: "VJ/DT", GOVJIH: "VJ/DT (HU)",
-  GONT1S: "NT-A", GONT1H: "NT-A (HU)", GONT2S: "NT-B", GONT2H: "NT-B (HU)",
-  GONT3S: "NT-C", GONT3H: "NT-C (HU)",
-  GOSEBCS: "SEBC", GOSEBCH: "SEBC (HU)",
-  EWSS: "EWS", EWSH: "EWS (HU)", TFWS: "TFWS (Fee Waiver)",
-  MI: "Minority", ORPHANI: "Orphan (AI)", ORPHANN: "Orphan (MH)",
-  PWDS: "PwD", PWDH: "PwD (HU)", DEFS: "Defence", DEFH: "Defence (HU)",
-  // mock-up style codes (without double suffix)
-  GOBCS: "OBC", LOBCS: "Ladies OBC", GSCS: "SC", LSCS: "Ladies SC",
-  GSTS: "ST", LSTS: "Ladies ST", GVJS: "VJ/DT", LVJS: "Ladies VJ/DT",
-  GNT1S: "NT-A", LNT1S: "Ladies NT-A", GNT2S: "NT-B", LNT2S: "Ladies NT-B",
-  GNT3S: "NT-C", LNT3S: "Ladies NT-C", GSEBCS: "SEBC", LSEBCS: "Ladies SEBC",
-  EWS: "EWS", PWDOPENS: "PwD Open", PWDOBCS: "PwD OBC",
-};
-
-const PREFERRED_SEAT_TYPES = [
-  "GOPENS", "GOPENH", "LOPENS", "TFWS", "EWS", "EWSS",
-  "GOBCSS", "GOBCS", "LOBCSS", "LOBCS",
-  "GOSEBCS", "GSEBCS", "GOSCS", "GSCS",
-  "GOSTS", "GSTS",
-];
 
 const LOG_TICKS = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 400000];
 
@@ -62,13 +36,14 @@ function tickLabel(t: number) {
 
 interface ChartSvgProps {
   series: BranchSeries[];
-  availableRounds: number[];
+  availableRounds: (number | string)[];
   svgWidth: number;
 }
 
 function ChartSvg({ series, svgWidth }: ChartSvgProps) {
-  const LEFT = 170;
-  const RIGHT = 90;
+  const narrow = svgWidth < 520;
+  const LEFT = narrow ? 112 : 170;
+  const RIGHT = narrow ? 60 : 90;
   const ROW_H = 38;
   const TOP = 14;
   const BTM = 34;
@@ -79,7 +54,9 @@ function ChartSvg({ series, svgWidth }: ChartSvgProps) {
   if (allMerits.length === 0) return null;
   const { a, z } = bestLogBounds(Math.min(...allMerits), Math.max(...allMerits));
   const xOf = (v: number) => xScale(v, a, z, LEFT, CW);
-  const ticks = LOG_TICKS.filter((t) => t >= a && t <= z);
+  const allTicks = LOG_TICKS.filter((t) => t >= a && t <= z);
+  // on narrow screens keep every other tick so labels never collide
+  const ticks = narrow ? allTicks.filter((_, i) => i % 2 === 0 || i === allTicks.length - 1) : allTicks;
 
   return (
     <svg
@@ -100,9 +77,9 @@ function ChartSvg({ series, svgWidth }: ChartSvgProps) {
           <text
             x={xOf(t)} y={H - 8}
             textAnchor="middle"
-            fontSize={11}
+            fontSize={12}
             fill="var(--muted)"
-            fontFamily="Space Grotesk, monospace"
+            fontFamily="var(--font-num)"
           >
             {tickLabel(t)}
           </text>
@@ -116,7 +93,8 @@ function ChartSvg({ series, svgWidth }: ChartSvgProps) {
         const x2 = xOf(s.lastMerit);
         const labelX = Math.max(x1, x2) + 10;
         const hasRange = s.firstMerit !== s.lastMerit;
-        const branchLabel = s.branch.length > 22 ? s.branch.slice(0, 21) + "…" : s.branch;
+        const maxChars = narrow ? 14 : 22;
+        const branchLabel = s.branch.length > maxChars ? s.branch.slice(0, maxChars - 1) + "…" : s.branch;
 
         return (
           <g key={s.branch}>
@@ -126,8 +104,9 @@ function ChartSvg({ series, svgWidth }: ChartSvgProps) {
               textAnchor="end"
               fontSize={12}
               fill="var(--navy)"
-              fontFamily="DM Sans, sans-serif"
+              fontFamily="var(--font-body)"
             >
+              <title>{s.branch}</title>
               {branchLabel}
             </text>
 
@@ -143,26 +122,26 @@ function ChartSvg({ series, svgWidth }: ChartSvgProps) {
             )}
 
             {/* Round I circle — outlined */}
-            <circle cx={x1} cy={cy} r={5.5} fill="white" stroke="var(--violet)" strokeWidth={2}>
-              <title>Round I: {s.firstMerit.toLocaleString("en-IN")}</title>
+            <circle cx={x1} cy={cy} r={5.5} fill="var(--white)" stroke="var(--violet)" strokeWidth={2}>
+              <title>{formatRound(1)}: {formatNumber(s.firstMerit)}</title>
             </circle>
 
             {/* Last round circle — filled (only if different from R1) */}
             {hasRange && (
               <circle cx={x2} cy={cy} r={5.5} fill="var(--orange)">
-                <title>Last round: {s.lastMerit.toLocaleString("en-IN")}</title>
+                <title>Last round: {formatNumber(s.lastMerit)}</title>
               </circle>
             )}
 
             <text
               x={labelX}
               y={cy + 4}
-              fontSize={11.5}
+              fontSize={12}
               fill="var(--navy)"
-              fontFamily="Space Grotesk, monospace"
+              fontFamily="var(--font-num)"
               fontWeight={600}
             >
-              {s.lastMerit.toLocaleString("en-IN")}
+              {formatNumber(s.lastMerit)}
             </text>
           </g>
         );
@@ -181,7 +160,7 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
 
   const updateWidth = useCallback(() => {
     if (containerRef.current) {
-      setSvgWidth(Math.max(containerRef.current.clientWidth, 320));
+      setSvgWidth(Math.max(containerRef.current.clientWidth, 260));
     }
   }, []);
 
@@ -194,9 +173,7 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
 
   const availableSeatTypes = useMemo(() => {
     const set = new Set(cutoffs.map((r) => r.seatType));
-    return PREFERRED_SEAT_TYPES.filter((st) => set.has(st)).concat(
-      [...set].filter((st) => !PREFERRED_SEAT_TYPES.includes(st)).sort()
-    );
+    return [...set].sort((x, y) => seatTypeSortKey(x) - seatTypeSortKey(y));
   }, [cutoffs]);
 
   const [selectedSeatType, setSelectedSeatType] = useState<string>(() =>
@@ -211,12 +188,12 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
   }, [availableSeatTypes, selectedSeatType]);
 
   const availableRounds = useMemo(() => {
-    return [...new Set(cutoffs.map((r) => r.round))].sort((a, b) => a - b);
+    return [...new Set(cutoffs.map((r) => r.round))].sort((a, b) => roundIndex(a) - roundIndex(b));
   }, [cutoffs]);
 
   const series = useMemo((): BranchSeries[] => {
     const rows = cutoffs.filter((r) => r.seatType === selectedSeatType);
-    const branchMap = new Map<string, Map<number, number>>();
+    const branchMap = new Map<string, Map<number | string, number>>();
     for (const row of rows) {
       if (!branchMap.has(row.branch)) branchMap.set(row.branch, new Map());
       branchMap.get(row.branch)!.set(row.round, row.closingMerit);
@@ -237,16 +214,15 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
       .sort((a, b) => a.firstMerit - b.firstMerit);
   }, [cutoffs, selectedSeatType, availableRounds]);
 
-  const ROUND_LABELS: Record<number, string> = { 1: "Round I", 2: "Round II", 3: "Round III", 4: "Round IV" };
-
   if (availableSeatTypes.length === 0) return null;
 
   return (
     <section className="cutoff-chart" aria-label="Cutoff visualization">
       <div className="cc-header">
-        <span className="cc-eyebrow">Closing merit by branch</span>
+        <h2 className="cc-title">Closing rank by branch</h2>
         <p className="cc-desc">
-          Lower merit number = harder to get in. Circle shows Round I; dot shows final round.
+          The last merit number admitted to each branch. A lower number means the branch is harder to get.
+          Choose the seat type that matches you.
         </p>
       </div>
 
@@ -259,25 +235,26 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
             className={`cc-chip${selectedSeatType === st ? " active" : ""}`}
             aria-pressed={selectedSeatType === st}
             onClick={() => setSelectedSeatType(st)}
+            title={seatTypeLabel(st)}
           >
-            {SEAT_NAMES[st] ?? st}
+            {seatTypeShortLabel(st)}
           </button>
         ))}
       </div>
 
       {series.length === 0 ? (
-        <div className="cc-empty">No data for {SEAT_NAMES[selectedSeatType] ?? selectedSeatType}</div>
+        <div className="cc-empty">No closing ranks for {seatTypeLabel(selectedSeatType)}</div>
       ) : (
         <>
           {/* Legend */}
           <div className="cc-legend">
             <span className="cc-legend-item">
               <span className="cc-dot cc-dot-r1" aria-hidden="true" />
-              Round I closing
+              {formatRound(1)}
             </span>
             <span className="cc-legend-item">
               <span className="cc-dot cc-dot-last" aria-hidden="true" />
-              Latest round closing
+              Latest round
             </span>
           </div>
 
@@ -287,13 +264,13 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
           </div>
 
           {/* Table: branches × rounds */}
-          <div className="cc-table-wrap">
+          <div className="cc-table-wrap table-scroll">
             <table className="cc-table">
               <thead>
                 <tr>
                   <th className="cc-th-branch">Branch</th>
                   {availableRounds.map((r) => (
-                    <th key={r} className="cc-th-round">{ROUND_LABELS[r] ?? `R${r}`}</th>
+                    <th key={r} className="cc-th-round">{formatRound(r)}</th>
                   ))}
                 </tr>
               </thead>
@@ -309,10 +286,10 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
                         <td key={i} className="cc-td-merit">
                           {v !== null ? (
                             <>
-                              <span className="cc-merit-num">{v.toLocaleString("en-IN")}</span>
+                              <span className="cc-merit-num">{formatNumber(v)}</span>
                               {delta !== null && delta !== 0 && (
-                                <span className={`cc-delta${delta > 0 ? " up" : " dn"}`}>
-                                  {delta > 0 ? `+${delta.toLocaleString("en-IN")}` : delta.toLocaleString("en-IN")}
+                                <span className={`cc-delta${delta > 0 ? " up" : " dn"}`} title="Change from the previous round">
+                                  {delta > 0 ? `+${formatNumber(delta)}` : formatNumber(delta)}
                                 </span>
                               )}
                             </>

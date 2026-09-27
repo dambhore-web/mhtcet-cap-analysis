@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
+import { PageHeader } from "../components/PageHeader";
+import { Icon } from "../components/Icon";
 import "./SignInPage.css";
 
 export function SignInPage() {
@@ -16,30 +18,23 @@ export function SignInPage() {
       await signIn();
       navigate(-1);
     } catch {
-      setError("Google sign-in is not yet available. Check back in October 2026.");
+      setError("Google sign-in isn't available yet. Your details stay saved in this browser meanwhile.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="signin-page">
-      <header className="signin-header">
-        <Link to="/" className="signin-back">←</Link>
-      </header>
+    <div className="page page--narrow signin-page">
+      <PageHeader
+        breadcrumb={[{ label: "Account", to: "/profile" }, { label: "Sign in" }]}
+        title="Sign in to Compass"
+        subtitle="Keep your details and option form in sync across devices."
+      />
 
-      <div className="signin-body">
-        <div className="signin-logo-wrap">
-          <span className="signin-logo-mark">↗</span>
-          <span className="signin-logo-text">compass</span>
-        </div>
-
-        <h1 className="signin-title">Sign in to Compass</h1>
-        <p className="signin-sub">
-          Save your profile and plan across devices. Access the AI assistant and CAP simulator.
-        </p>
-
+      <div className="signin-body card">
         <button
+          type="button"
           className="signin-google-btn"
           onClick={handleGoogleSignIn}
           disabled={loading}
@@ -48,22 +43,23 @@ export function SignInPage() {
           {loading ? "Signing in…" : "Continue with Google"}
         </button>
 
-        {error && <p className="signin-error">{error}</p>}
+        {error && <p className="signin-error" role="alert">{error}</p>}
 
         <div className="signin-coming-soon">
-          <span className="signin-cs-badge">Coming October 2026</span>
-          <p>Google sign-in will be available when accounts launch. Your profile is saved locally in the meantime.</p>
+          <span className="badge badge-sample">Coming soon</span>
+          <p>Accounts are not live yet. Everything you save is kept in this browser until then.</p>
         </div>
 
-        <button className="signin-skip" onClick={() => navigate(-1)}>
-          Continue without signing in →
-        </button>
+        <Link to="/" className="btn btn-ghost btn-block">
+          Continue without signing in
+          <Icon name="arrowRight" size={16} />
+        </Link>
 
         <p className="signin-legal">
           By signing in you agree to our{" "}
-          <Link to="/legal" className="signin-legal-link">Terms of Service</Link>
+          <Link to="/legal?tab=terms" className="signin-legal-link">Terms</Link>
           {" "}and{" "}
-          <Link to="/legal" className="signin-legal-link">Privacy Policy</Link>.
+          <Link to="/legal?tab=privacy" className="signin-legal-link">Privacy policy</Link>.
         </p>
       </div>
     </div>

@@ -1,26 +1,43 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { PageHeader } from "../components/PageHeader";
 import "./LegalPage.css";
 
 type Tab = "disclaimer" | "privacy" | "terms";
 
+const TABS: [Tab, string][] = [
+  ["disclaimer", "Disclaimer"],
+  ["privacy", "Privacy"],
+  ["terms", "Terms"],
+];
+
 export function LegalPage() {
-  const [tab, setTab] = useState<Tab>("disclaimer");
+  const [params, setParams] = useSearchParams();
+  const raw = params.get("tab");
+  const tab: Tab = raw === "privacy" || raw === "terms" ? raw : "disclaimer";
+  const setTab = (t: Tab) => setParams(t === "disclaimer" ? {} : { tab: t }, { replace: true });
 
   return (
-    <div className="legal-page">
-      <header className="legal-header">
-        <Link to="/" className="legal-back">←</Link>
-        <h1>Legal</h1>
-      </header>
+    <div className="page page--narrow legal-page">
+      <PageHeader title="Disclaimer, privacy and terms" />
 
-      <div className="legal-tabs" role="tablist">
-        <button role="tab" aria-selected={tab === "disclaimer"} className={tab === "disclaimer" ? "active" : ""} onClick={() => setTab("disclaimer")}>Disclaimer</button>
-        <button role="tab" aria-selected={tab === "privacy"} className={tab === "privacy" ? "active" : ""} onClick={() => setTab("privacy")}>Privacy</button>
-        <button role="tab" aria-selected={tab === "terms"} className={tab === "terms" ? "active" : ""} onClick={() => setTab("terms")}>Terms</button>
+      <div className="legal-tabs" role="tablist" aria-label="Legal documents">
+        {TABS.map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            id={`legal-tab-${id}`}
+            aria-selected={tab === id}
+            aria-controls="legal-panel"
+            className={tab === id ? "active" : ""}
+            onClick={() => setTab(id)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      <div className="legal-body">
+      <div className="legal-body card" role="tabpanel" id="legal-panel" aria-labelledby={`legal-tab-${tab}`}>
         {tab === "disclaimer" && <DisclaimerTab />}
         {tab === "privacy" && <PrivacyTab />}
         {tab === "terms" && <TermsTab />}
@@ -103,7 +120,7 @@ function PrivacyTab() {
 
       <h3>3. Data storage and retention</h3>
       <p>
-        Profile and preference data is stored in your browser's localStorage. You can clear this at any time by clearing your browser data or using the "Edit profile" option. Server logs are retained for up to 30 days.
+        Profile and preference data is stored in your browser's localStorage. You can clear this at any time by clearing your browser data or using "Clear saved details" in My details. Server logs are retained for up to 30 days.
       </p>
 
       <h3>4. Digital Personal Data Protection Act (DPDP) 2023</h3>

@@ -1,86 +1,71 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
+import { PLANS, formatInr } from "../lib/plans";
+import { PageHeader } from "../components/PageHeader";
+import { Icon } from "../components/Icon";
 import "./PlansPage.css";
-
-const FEATURES_FREE = [
-  "Rank finder — unlimited searches",
-  "Browse all 387 colleges",
-  "College cutoff pages (all rounds)",
-  "Save up to 50 preferences",
-  "Compare up to 3 colleges",
-  "Shareable result links",
-  "Parent summary PDF",
-];
-
-const FEATURES_PRO = [
-  "Everything in Free",
-  "AI admissions assistant (unlimited questions)",
-  "CAP round simulator — see where you land Round I–IV",
-  "Freeze / Float / Slide advisor",
-  "Priority support via WhatsApp",
-];
 
 export function PlansPage() {
   const { user } = useAuth();
   const isPaid = user?.plan === "paid";
+  const { free, seasonPass } = PLANS;
 
   return (
-    <div className="plans-page">
-      <header className="plans-header">
-        <Link to="/profile" className="plans-back">←</Link>
-        <div className="plans-header-text">
-          <h1>Upgrade Compass</h1>
-          <p>One-time season pass. Valid for 2026–27 admissions cycle.</p>
-        </div>
-      </header>
+    <div className="page plans-page">
+      <PageHeader
+        breadcrumb={[{ label: "Account", to: "/profile" }, { label: "Plans" }]}
+        title="Plans"
+        subtitle={`Finding colleges is free. The ${seasonPass.name} adds the simulator and unlimited questions, for one payment covering the ${seasonPass.validity}.`}
+      />
 
-      <div className="plans-body">
-        {/* Free plan */}
-        <div className="plan-card free">
+      <div className="plans-grid">
+        <section className="plan-card card" aria-labelledby="plan-free">
           <div className="plan-card-head">
-            <span className="plan-name">Free</span>
-            {!isPaid && <span className="plan-current-badge">Current plan</span>}
-            <span className="plan-price">₹ 0</span>
+            <h2 id="plan-free" className="plan-name">{free.name}</h2>
+            {!isPaid && <span className="badge badge-sample">Your plan</span>}
           </div>
+          <p className="plan-price">{formatInr(free.priceInr)}</p>
           <ul className="plan-features">
-            {FEATURES_FREE.map((f) => (
-              <li key={f}><span className="pf-check">✓</span>{f}</li>
+            {free.features.map((f) => (
+              <li key={f}><Icon name="check" size={16} />{f}</li>
+            ))}
+            <li><Icon name="check" size={16} />Ask Compass: {free.askQuestions} questions</li>
+          </ul>
+          <Link to="/" className="btn btn-secondary btn-block">Find my options</Link>
+        </section>
+
+        <section className={`plan-card plan-card--pro card${isPaid ? " active" : ""}`} aria-labelledby="plan-pro">
+          <div className="plan-card-head">
+            <h2 id="plan-pro" className="plan-name">{seasonPass.name}</h2>
+            {isPaid && <span className="badge badge-safe"><Icon name="check" size={12} />Active</span>}
+          </div>
+          <p className="plan-price">
+            {formatInr(seasonPass.priceInr)} <span className="plan-price-note">one payment</span>
+          </p>
+          <p className="plan-validity">Valid for the {seasonPass.validity}</p>
+          <ul className="plan-features">
+            {seasonPass.features.map((f) => (
+              <li key={f}><Icon name="check" size={16} />{f}</li>
             ))}
           </ul>
-        </div>
-
-        {/* Pro plan */}
-        <div className={`plan-card pro${isPaid ? " active" : ""}`}>
-          <div className="plan-card-head">
-            <span className="plan-name">Season Pass</span>
-            {isPaid && <span className="plan-current-badge pro">Active ✓</span>}
-            <span className="plan-price">₹ 299 <span className="plan-price-note">one-time</span></span>
-          </div>
-          <ul className="plan-features">
-            {FEATURES_PRO.map((f) => (
-              <li key={f} className="pro-feature"><span className="pf-check pro">✓</span>{f}</li>
-            ))}
-          </ul>
-          {!isPaid && (
-            <button className="plan-cta" onClick={() => alert("Payments launch October 2026. Come back then!")}>
-              Get Season Pass — ₹ 299
+          {isPaid ? (
+            <p className="plan-active-msg">You're all set for this CAP season.</p>
+          ) : (
+            <button type="button" className="btn btn-accent btn-block" disabled aria-describedby="plan-soon">
+              Get {seasonPass.name}
             </button>
           )}
-          {isPaid && (
-            <div className="plan-active-msg">You're all set for the 2026–27 season.</div>
+          {!isPaid && (
+            <p id="plan-soon" className="plan-soon">
+              Payments open soon.{seasonPass.priceIsProvisional ? " Price may change before launch." : ""}
+            </p>
           )}
-        </div>
+        </section>
+      </div>
 
-        <div className="plans-note">
-          <p>
-            Payments via Razorpay. GST invoice issued automatically.{" "}
-            <strong>7-day refund policy</strong> if unused.
-          </p>
-          <p>
-            Season pass valid for the entire 2026–27 MHT-CET CAP cycle (Rounds I–IV + ARC).
-          </p>
-          <Link to="/legal" className="plans-legal-link">Disclaimer · Terms · Privacy</Link>
-        </div>
+      <div className="plans-note">
+        <p>Payments will be handled by a secure payment provider, with a GST invoice and a 7-day refund if the pass is unused.</p>
+        <p><Link to="/legal?tab=terms">Terms</Link> · <Link to="/legal?tab=privacy">Privacy</Link></p>
       </div>
     </div>
   );
