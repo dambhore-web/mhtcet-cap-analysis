@@ -9,6 +9,7 @@ import { postRankFinder } from "./routes/rankFinder.ts";
 import { getMeritEstimate } from "./routes/meritEstimate.ts";
 import { getCollegeFees } from "./routes/fees.ts";
 import { postSimulate } from "./routes/simulate.ts";
+import { getJeeEstimate } from "./routes/jeeEstimate.ts";
 import type pg from "pg";
 
 const CACHE_YEAR = 2026;
@@ -25,6 +26,7 @@ function createApp(cache: AppCache, pool: pg.Pool) {
   app.post("/api/rank-finder", (c) => postRankFinder(c, cache));
   app.post("/api/simulate", (c) => postSimulate(c, cache));
   app.get("/api/merit-estimate", (c) => getMeritEstimate(c, pool));
+  app.get("/api/jee-estimate", getJeeEstimate);
   app.get("/api/colleges/:code/fees", getCollegeFees);
 
   app.onError((err, c) => {

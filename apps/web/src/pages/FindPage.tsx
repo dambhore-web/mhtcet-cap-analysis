@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api, BRANCH_GROUPS, type FindOption, type Category, type MeritEstimate, type ResultFilters } from "../lib/api";
+
+interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; }
 import { useProfile } from "../lib/ProfileContext";
 import type { Profile } from "../lib/profile";
 import { addToList, isInList } from "../lib/list";
@@ -32,7 +34,7 @@ const UNIVERSITIES = [
 ];
 
 interface FormState {
-  mode: "merit" | "percentile";
+  mode: "merit" | "percentile" | "jee";
   score: string;
   category: Category | "";
   gender: "M" | "F";
@@ -91,6 +93,7 @@ export function FindPage() {
   const [scoreError, setScoreError] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [estimate, setEstimate] = useState<MeritEstimate | null>(null);
+  const [jeeEstimate, setJeeEstimate] = useState<JeeEstimate | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const resultsRef = useRef<HTMLElement>(null);
@@ -98,13 +101,26 @@ export function FindPage() {
   const autoSubmittedRef = useRef(false);
 
   useEffect(() => {
-    if (form.mode !== "percentile") { setEstimate(null); return; }
-    const pct = parseFloat(form.score);
-    if (isNaN(pct) || pct <= 0 || pct > 100) { setEstimate(null); return; }
-    if (estimateTimer.current) clearTimeout(estimateTimer.current);
-    estimateTimer.current = setTimeout(() => {
-      api.meritEstimate(pct, form.subjectGroup).then(setEstimate).catch(() => setEstimate(null));
-    }, 400);
+    if (form.mode === "percentile") {
+      setJeeEstimate(null);
+      const pct = parseFloat(form.score);
+      if (isNaN(pct) || pct <= 0 || pct > 100) { setEstimate(null); return; }
+      if (estimateTimer.current) clearTimeout(estimateTimer.current);
+      estimateTimer.current = setTimeout(() => {
+        api.meritEstimate(pct, form.subjectGroup).then(setEstimate).catch(() => setEstimate(null));
+      }, 400);
+    } else if (form.mode === "jee") {
+      setEstimate(null);
+      const pct = parseFloat(form.score);
+      if (isNaN(pct) || pct <= 0 || pct > 100) { setJeeEstimate(null); return; }
+      if (estimateTimer.current) clearTimeout(estimateTimer.current);
+      estimateTimer.current = setTimeout(() => {
+        api.jeeEstimate(pct).then(setJeeEstimate).catch(() => setJeeEstimate(null));
+      }, 400);
+    } else {
+      setEstimate(null);
+      setJeeEstimate(null);
+    }
     return () => { if (estimateTimer.current) clearTimeout(estimateTimer.current); };
   }, [form.mode, form.score, form.subjectGroup]);
 
@@ -181,6 +197,11 @@ export function FindPage() {
       if (isNaN(pct) || pct <= 0 || pct > 100) { setScoreError("Enter a valid percentile (1–100)."); return; }
       if (!estimate) { setScoreError("Waiting for merit estimate… try again in a moment."); return; }
       num = Math.round((estimate.estimatedMeritRange[0] + estimate.estimatedMeritRange[1]) / 2);
+    } else if (form.mode === "jee") {
+      const pct = parseFloat(rawScore);
+      if (isNaN(pct) || pct <= 0 || pct > 100) { setScoreError("Enter a valid JEE percentile (1–100)."); return; }
+      if (!jeeEstimate) { setScoreError("Waiting for rank estimate… try again in a moment."); return; }
+      num = jeeEstimate.estimatedRank;
     } else {
       num = parseInt(rawScore, 10);
       if (isNaN(num) || num < 1) { setScoreError("Enter a valid merit number."); return; }
@@ -257,10 +278,17 @@ export function FindPage() {
             >
               Percentile
             </button>
+            <button
+              type="button"
+              className={form.mode === "jee" ? "active" : ""}
+              onClick={() => set("mode", "jee")}
+            >
+              JEE rank
+            </button>
           </div>
 
           <label className="form-label" htmlFor="score-input">
-            {form.mode === "merit" ? "Your state merit number" : "Your MHT-CET percentile"}
+            {form.mode === "merit" ? "Your state merit number" : form.mode === "jee" ? "JEE Main percentile" : "Your MHT-CET percentile"}
           </label>
           <div className={`score-input-wrap${scoreError ? " invalid" : ""}`}>
             <input
@@ -291,6 +319,15 @@ export function FindPage() {
                 ≈ merit {estimate.estimatedMeritRange[0].toLocaleString("en-IN")}–{estimate.estimatedMeritRange[1].toLocaleString("en-IN")}
               </span>
               {estimate.method === "statistical" && <span className="estimate-stat-badge">estimate</span>}
+            </div>
+          )}
+
+          {form.mode === "jee" && jeeEstimate && (
+            <div className="estimate-hint jee-hint">
+              <span className="estimate-range">
+                ≈ JEE rank {jeeEstimate.rankRange[0].toLocaleString("en-IN")}–{jeeEstimate.rankRange[1].toLocaleString("en-IN")}
+              </span>
+              <span className="estimate-stat-badge">AI seats</span>
             </div>
           )}
 
