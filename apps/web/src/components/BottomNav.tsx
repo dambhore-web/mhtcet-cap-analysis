@@ -6,6 +6,7 @@ const TABS = [
   { to: "/colleges", label: "Colleges", icon: BuildingIcon, end: false },
   { to: "/list", label: "My List", icon: ListIcon, end: false },
   { to: "/ask", label: "Ask", icon: SparkleIcon, end: false },
+  { to: "/profile", label: "Profile", icon: PersonIcon, end: false },
 ] as const;
 
 export function BottomNav() {
@@ -56,6 +57,15 @@ function SparkleIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+    </svg>
+  );
+}
+
+function PersonIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
     </svg>
   );
 }
