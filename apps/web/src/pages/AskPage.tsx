@@ -27,9 +27,10 @@ export function AskPage() {
   const [input, setInput] = useState("");
   const [questionCount, setQuestionCount] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
+  const [serverLimited, setServerLimited] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const limitReached = questionCount >= FREE_LIMIT;
+  const limitReached = questionCount >= FREE_LIMIT || serverLimited;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -97,15 +98,20 @@ export function AskPage() {
       setMessages((m) =>
         m.map((msg) => (msg.id === assistantId ? { ...msg, streaming: false } : msg))
       );
-    } catch {
+    } catch (err: unknown) {
       setIsTyping(false);
-      setMessages((m) =>
-        m.map((msg) =>
-          msg.id === assistantId
-            ? { ...msg, text: "Sorry, the assistant is unavailable right now. Please try again later.", streaming: false }
-            : msg
-        )
-      );
+      const code = (err as { code?: string }).code;
+      if (code === "rate_limited") {
+        setServerLimited(true);
+        setMessages((m) => m.filter((msg) => msg.id !== assistantId));
+      } else {
+        const text = code === "assistant_unavailable"
+          ? "The AI assistant is currently unavailable. Please try again later."
+          : "Something went wrong. Please try again.";
+        setMessages((m) =>
+          m.map((msg) => (msg.id === assistantId ? { ...msg, text, streaming: false } : msg))
+        );
+      }
     }
   }
 
