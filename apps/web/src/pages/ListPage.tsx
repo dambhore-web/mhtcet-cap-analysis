@@ -96,6 +96,17 @@ async function exportPDF(items: ListItem[], merit: number, category: string) {
   doc.save("compass-preference-list.pdf");
 }
 
+// Auto-freeze zones: R I = option 1 only, R II = 1–3, R III = 1–6
+function FreezeZones({ rank }: { rank: number }) {
+  return (
+    <div className="freeze-zones" title={`Auto-freeze: R I if #1, R II if #1–3, R III if #1–6`}>
+      <span className={`fz-sq${rank <= 1 ? " fz-active" : ""}`} />
+      <span className={`fz-sq${rank <= 3 ? " fz-active" : ""}`} />
+      <span className={`fz-sq${rank <= 6 ? " fz-active" : ""}`} />
+    </div>
+  );
+}
+
 function SortableRow({
   item,
   rank,
@@ -108,7 +119,6 @@ function SortableRow({
   onRemove: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
-
   const surplus = item.closingMerit - merit;
 
   return (
@@ -117,9 +127,8 @@ function SortableRow({
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`list-row${isDragging ? " dragging" : ""}`}
     >
-      <button className="drag-handle" {...attributes} {...listeners} aria-label="Drag to reorder">
-        ⠿
-      </button>
+      <button className="drag-handle" {...attributes} {...listeners} aria-label="Drag to reorder">⠿</button>
+      <FreezeZones rank={rank} />
       <span className="list-rank">{rank}</span>
       <span className="list-code">{item.choiceCode}</span>
       <div className="list-detail">
@@ -182,90 +191,122 @@ export function ListPage() {
     }
   }
 
+  // Advisory checks
+  const topOption = items[0];
+  const topSurplus = topOption ? topOption.closingMerit - merit : null;
+  const topOutOfReach = topSurplus !== null && merit > 0 && topSurplus < 0;
+  const noGreenOptions = merit > 0 && items.every((i) => i.closingMerit < merit);
+
   return (
     <div className="list-page">
-      <header className="list-header">
-        <div className="list-header-top">
-          <div>
-            <h1>My List</h1>
-            <p>{items.length === 0 ? "No options saved yet" : `${items.length} option${items.length !== 1 ? "s" : ""}`}</p>
+      <div className="list-content">
+        {/* Header */}
+        <header className="list-header">
+          <div className="list-header-top">
+            <div>
+              <h1>Shortlist &amp; option form</h1>
+              <p>{items.length === 0 ? "No options saved yet" : `${items.length} option${items.length !== 1 ? "s" : ""} · drag to reorder`}</p>
+            </div>
+            <div className="list-header-actions">
+              {items.length > 0 && (
+                <>
+                  <button className="list-export-btn" onClick={() => exportCSV(items, merit)}>CSV</button>
+                  <button className="list-export-btn" onClick={handlePDF} disabled={pdfLoading}>{pdfLoading ? "…" : "PDF"}</button>
+                  <button className="list-copy-btn" onClick={handleCopyCodes} aria-live="polite">{copied ? "Copied ✓" : "Copy codes"}</button>
+                </>
+              )}
+              <Link to="/simulator" className="list-sim-cta">Test in simulator →</Link>
+            </div>
           </div>
-          {items.length > 0 && (
-            <div className="list-export-row">
-              <button className="list-export-btn" onClick={() => exportCSV(items, merit)}>
-                CSV
-              </button>
-              <button className="list-export-btn" onClick={handlePDF} disabled={pdfLoading}>
-                {pdfLoading ? "…" : "PDF"}
-              </button>
-              <button className="list-copy-btn" onClick={handleCopyCodes} aria-live="polite">
-                {copied ? "Copied ✓" : "Copy codes"}
-              </button>
+          {merit > 0 && (
+            <div className="list-merit-bar">
+              Merit <strong>{merit.toLocaleString("en-IN")}</strong>
+              {category && <span className="list-cat-badge">{category}</span>}
             </div>
           )}
-        </div>
-        {merit > 0 && (
-          <div className="list-merit-bar">
-            Your merit: <strong>{merit.toLocaleString("en-IN")}</strong>
-            {category && <span className="list-cat-badge">{category}</span>}
-          </div>
-        )}
-      </header>
+        </header>
 
-      {items.length === 0 ? (
-        <div className="list-empty">
-          <div className="list-empty-icon">📋</div>
-          <h2>Your list is empty</h2>
-          <p>
-            Go to the <strong>Find</strong> tab, search for options, and tap the{" "}
-            <span className="list-add-hint">+</span> button to save them here.
-          </p>
-          <p className="list-empty-note">
-            You can save up to 300 options, drag to reorder, and export as PDF or CSV — free.
-          </p>
-        </div>
-      ) : (
-        <>
-          <div className="list-table-head">
-            <span className="lth-rank">#</span>
-            <span className="lth-code">Choice code</span>
-            <span className="lth-detail">College / Branch</span>
-            <span className="lth-seat">Seat</span>
-            <span className="lth-merit">Closing / Surplus</span>
-            <span className="lth-del" />
-          </div>
-
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-              <div className="list-rows" role="list">
-                {items.map((item, i) => (
-                  <SortableRow
-                    key={item.id}
-                    item={item}
-                    rank={i + 1}
-                    merit={merit}
-                    onRemove={handleRemove}
-                  />
-                ))}
+        <div className="list-body">
+          {/* Main list */}
+          <div className="list-main">
+            {items.length === 0 ? (
+              <div className="list-empty">
+                <h2>Your list is empty</h2>
+                <p>Go to <Link to="/">Find colleges</Link>, search for options, and tap <span className="list-add-hint">+</span> to save them here.</p>
+                <p className="list-empty-note">Up to 300 options · drag to reorder · export as PDF or CSV — free.</p>
               </div>
-            </SortableContext>
-          </DndContext>
+            ) : (
+              <>
+                <div className="list-table-head">
+                  <span className="lth-zones" title="Auto-freeze zones: R I · R II · R III">Freeze</span>
+                  <span className="lth-rank">#</span>
+                  <span className="lth-code">Choice code</span>
+                  <span className="lth-detail">College / Branch</span>
+                  <span className="lth-seat">Seat</span>
+                  <span className="lth-merit">Closing / Surplus</span>
+                  <span className="lth-del" />
+                </div>
 
-          <Link to="/simulator" className="list-sim-banner">
-            <span>⚡ Simulate your Round I, II, III allotments</span>
-            <span className="list-guide-arrow">→</span>
-          </Link>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                    <div className="list-rows" role="list">
+                      {items.map((item, i) => (
+                        <SortableRow key={item.id} item={item} rank={i + 1} merit={merit} onRemove={handleRemove} />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
 
-          <Link to="/guide" className="list-guide-banner">
-            <span>🧊 After allotment: should you Freeze, Float, or Slide?</span>
-            <span className="list-guide-arrow">→</span>
-          </Link>
-
-          <div className="list-footnote">
-            Drag rows to reorder · {items.length}/300 options · 2026 closing merits from official DTE Maharashtra lists
+                <div className="list-footnote">
+                  {items.length}/300 options · 2026 closing merits from official DTE Maharashtra lists
+                </div>
+              </>
+            )}
           </div>
-        </>
-      )}
+
+          {/* Sidebar */}
+          <aside className="list-sidebar">
+            <div className="list-sidebar-card list-freeze-rule">
+              <h3 className="list-sidebar-title">The auto-freeze rule</h3>
+              <div className="list-freeze-row">
+                <div className="fz-demo"><span className="fz-sq fz-active"/><span className="fz-sq"/><span className="fz-sq"/></div>
+                <div><strong>Round I</strong> — only option 1 is auto-frozen</div>
+              </div>
+              <div className="list-freeze-row">
+                <div className="fz-demo"><span className="fz-sq fz-active"/><span className="fz-sq fz-active"/><span className="fz-sq"/></div>
+                <div><strong>Round II</strong> — options 1–3 are auto-frozen</div>
+              </div>
+              <div className="list-freeze-row">
+                <div className="fz-demo"><span className="fz-sq fz-active"/><span className="fz-sq fz-active"/><span className="fz-sq fz-active"/></div>
+                <div><strong>Round III</strong> — options 1–6 are auto-frozen</div>
+              </div>
+              <p className="list-freeze-note">Put your most-wanted options at the top. CAP auto-freezes your allotment if it falls in the freeze zone for that round.</p>
+            </div>
+
+            {items.length > 0 && (
+              <div className="list-sidebar-card list-checks">
+                <h3 className="list-sidebar-title">Checks on your list</h3>
+                {!topOutOfReach && !noGreenOptions && (
+                  <div className="list-check list-check-ok">Your top option is within reach at merit {merit > 0 ? merit.toLocaleString("en-IN") : "—"}</div>
+                )}
+                {topOutOfReach && (
+                  <div className="list-check list-check-warn">Top option closed at {topOption.closingMerit.toLocaleString("en-IN")} — outside your merit. Consider reordering.</div>
+                )}
+                {noGreenOptions && merit > 0 && (
+                  <div className="list-check list-check-warn">No options are within your merit ({merit.toLocaleString("en-IN")}). Add reachable options or use the simulator.</div>
+                )}
+                {items.length < 3 && (
+                  <div className="list-check list-check-info">Add at least 3–5 options to improve your chances of an allotment.</div>
+                )}
+              </div>
+            )}
+
+            <Link to="/simulator" className="list-sim-sidebar-cta">
+              Test this list in the simulator →
+            </Link>
+          </aside>
+        </div>
+      </div>
     </div>
   );
 }
