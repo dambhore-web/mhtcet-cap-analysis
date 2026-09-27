@@ -3,6 +3,7 @@ import { useParams, Link, useSearchParams } from "react-router-dom";
 import { api, type CollegeFees, type CollegeFeesUnavailable } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { useCompare } from "../lib/CompareContext";
+import { CutoffChart } from "../components/CutoffChart";
 import "./CollegePage.css";
 
 interface CutoffRow {
@@ -286,6 +287,9 @@ export function CollegePage() {
         )}
       </div>
 
+      <CutoffChart cutoffs={data.cutoffs} />
+
+      <div className="cp-branches-label">Branch detail</div>
       <div className="cp-branches">
         <div className="cp-branches-scroll" role="tablist" aria-label="Select branch">
           {branches.map((b) => {
