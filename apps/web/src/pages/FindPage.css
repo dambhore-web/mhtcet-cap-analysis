@@ -670,6 +670,14 @@
   font-size: 13px;
 }
 
+/* ─── Results action bar ─── */
+.results-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
 /* ─── Parent PDF button ─── */
 .parent-pdf-btn {
   display: flex;
@@ -702,6 +710,34 @@
 
 .parent-pdf-btn.loading {
   background: var(--muted);
+}
+
+/* ─── Share button ─── */
+.share-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+
+.share-btn:hover {
+  border-color: var(--violet);
+  color: var(--violet);
+}
+
+.share-btn.copied {
+  background: #e8f5e9;
+  border-color: #2d6a30;
+  color: #2d6a30;
 }
 
 /* ─── Result filters ─── */

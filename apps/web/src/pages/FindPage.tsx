@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { api, BRANCH_GROUPS, type FindOption, type Category, type MeritEstimate, type ResultFilters } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import type { Profile } from "../lib/profile";
@@ -65,18 +65,20 @@ type Status = "idle" | "loading" | "done" | "error";
 
 export function FindPage() {
   const { profile } = useProfile();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const initialForm: FormState = {
     ...DEFAULT,
-    score: profile.meritNumber ? String(profile.meritNumber) : "",
-    category: profile.category ?? "",
-    gender: profile.gender,
-    subjectGroup: profile.subjectGroup,
-    homeUniversity: profile.homeUniversity,
-    ews: profile.ews,
-    tfws: profile.tfws,
-    defence: profile.defence,
-    pwd: profile.pwd,
-    orphan: profile.orphan,
+    score: searchParams.get("merit") ?? (profile.meritNumber ? String(profile.meritNumber) : ""),
+    category: (searchParams.get("cat") as Category | "") || profile.category || "",
+    gender: (searchParams.get("gen") as "M" | "F") || profile.gender,
+    subjectGroup: (searchParams.get("subj") as "PCM" | "PCB") || profile.subjectGroup,
+    homeUniversity: searchParams.get("hu") ?? profile.homeUniversity,
+    ews: searchParams.get("ews") === "1" || profile.ews,
+    tfws: searchParams.get("tfws") === "1" || profile.tfws,
+    defence: searchParams.get("def") === "1" || profile.defence,
+    pwd: searchParams.get("pwd") === "1" || profile.pwd,
+    orphan: searchParams.get("orphan") === "1" || profile.orphan,
   };
   const [form, setForm] = useState<FormState>(initialForm);
   const [status, setStatus] = useState<Status>("idle");
@@ -90,8 +92,10 @@ export function FindPage() {
   const [showAll, setShowAll] = useState(false);
   const [estimate, setEstimate] = useState<MeritEstimate | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const resultsRef = useRef<HTMLElement>(null);
   const estimateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSubmittedRef = useRef(false);
 
   useEffect(() => {
     if (form.mode !== "percentile") { setEstimate(null); return; }
@@ -112,6 +116,58 @@ export function FindPage() {
     setForm((f) => ({ ...f, [flag]: !f[flag] }));
   }
 
+  const doSearch = useCallback(async (merit: number, f: FormState) => {
+    setStatus("loading");
+    setShowAll(false);
+    setResultFilters({});
+
+    // Push shareable URL
+    const p: Record<string, string> = { merit: String(merit) };
+    if (f.category) p.cat = f.category;
+    if (f.gender !== "M") p.gen = f.gender;
+    if (f.subjectGroup !== "PCM") p.subj = f.subjectGroup;
+    if (f.homeUniversity) p.hu = f.homeUniversity;
+    if (f.ews) p.ews = "1";
+    if (f.tfws) p.tfws = "1";
+    if (f.defence) p.def = "1";
+    if (f.pwd) p.pwd = "1";
+    if (f.orphan) p.orphan = "1";
+    setSearchParams(p, { replace: true });
+
+    const req = {
+      merit,
+      homeUniversity: f.homeUniversity || null,
+      category: f.category || null,
+      gender: f.gender,
+      minorityCommunity: null,
+      flags: { ews: f.ews, tfws: f.tfws, defence: f.defence, pwd: f.pwd, orphan: f.orphan },
+      subjectGroup: f.subjectGroup,
+    };
+    lastRequest.current = req;
+
+    try {
+      const res = await api.find(req);
+      setOptions(res.options);
+      setSearchedMerit(merit);
+      setStatus("done");
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    } catch {
+      setStatus("error");
+      setErrorMsg("Could not reach the server. Make sure the API is running.");
+    }
+  }, [setSearchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-submit when merit is in the URL (shared link)
+  useEffect(() => {
+    if (autoSubmittedRef.current) return;
+    const meritParam = searchParams.get("merit");
+    if (!meritParam) return;
+    const merit = parseInt(meritParam, 10);
+    if (isNaN(merit) || merit < 1) return;
+    autoSubmittedRef.current = true;
+    doSearch(merit, initialForm);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const rawScore = form.score.replace(/,/g, "").trim();
@@ -130,31 +186,7 @@ export function FindPage() {
       if (isNaN(num) || num < 1) { setScoreError("Enter a valid merit number."); return; }
     }
     setScoreError("");
-    setStatus("loading");
-    setShowAll(false);
-    setResultFilters({});
-
-    const req = {
-      merit: num,
-      homeUniversity: form.homeUniversity || null,
-      category: form.category || null,
-      gender: form.gender,
-      minorityCommunity: null,
-      flags: { ews: form.ews, tfws: form.tfws, defence: form.defence, pwd: form.pwd, orphan: form.orphan },
-      subjectGroup: form.subjectGroup,
-    };
-    lastRequest.current = req;
-
-    try {
-      const res = await api.find(req);
-      setOptions(res.options);
-      setSearchedMerit(num);
-      setStatus("done");
-      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-    } catch {
-      setStatus("error");
-      setErrorMsg("Could not reach the server. Make sure the API is running.");
-    }
+    await doSearch(num, form);
   }
 
   async function applyFilter(newFilters: ResultFilters) {
@@ -392,17 +424,29 @@ export function FindPage() {
               </div>
             </div>
 
-            <button
-              className={`parent-pdf-btn${pdfLoading ? " loading" : ""}`}
-              disabled={pdfLoading || options.length === 0}
-              onClick={async () => {
-                setPdfLoading(true);
-                try { await generateParentPDF(options, searchedMerit, profile); }
-                finally { setPdfLoading(false); }
-              }}
-            >
-              {pdfLoading ? "Generating…" : "Share with parent (PDF)"}
-            </button>
+            <div className="results-actions">
+              <button
+                className={`parent-pdf-btn${pdfLoading ? " loading" : ""}`}
+                disabled={pdfLoading || options.length === 0}
+                onClick={async () => {
+                  setPdfLoading(true);
+                  try { await generateParentPDF(options, searchedMerit, profile); }
+                  finally { setPdfLoading(false); }
+                }}
+              >
+                {pdfLoading ? "Generating…" : "Parent PDF"}
+              </button>
+              <button
+                className={`share-btn${shareCopied ? " copied" : ""}`}
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  setShareCopied(true);
+                  setTimeout(() => setShareCopied(false), 2000);
+                }}
+              >
+                {shareCopied ? "✓ Copied!" : "Share results"}
+              </button>
+            </div>
 
             <div className="result-filters">
               <span className="rf-label">Filter:</span>
