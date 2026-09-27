@@ -91,3 +91,26 @@ export function seatTypeSortKey(code: string): number {
 export function isOpenSeat(code: string): boolean {
   return /^[GL]OPEN[HOS]$/.test(code.trim().toUpperCase());
 }
+
+/** Level suffix: "S" state, "H" home university, "O" other. null for standalone codes (TFWS, EWS…). */
+export function seatLevelCode(code: string): "S" | "H" | "O" | null {
+  const c = code.trim().toUpperCase();
+  if (STANDALONE[c]) return null;
+  const m = RESERVED_RE.exec(c);
+  return m ? (m[3] as "S" | "H" | "O") : null;
+}
+
+/** Category label without the level, e.g. "GOPENS" → "General open", "GSCH" → "General SC". */
+export function seatCategoryLabel(code: string): string {
+  const c = code.trim().toUpperCase();
+  if (STANDALONE[c]) return STANDALONE[c];
+  const m = RESERVED_RE.exec(c);
+  if (!m) return c;
+  return `${QUOTA[m[1]]} ${CATEGORY[m[2]]}`;
+}
+
+export const LEVEL_LABELS: Record<string, string> = {
+  S: "State",
+  H: "Home university",
+  O: "Other than HU",
+};
