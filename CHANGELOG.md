@@ -2,6 +2,10 @@
 
 ## Unreleased
 ### Added
+- `docs/02-architecture/navigation.md`: navigation rules, site map with status, the My CAP plan
+  steps and the 14 user journeys from the clickable mockup, each linked to the issues that
+  complete it. Why: the journeys lived only in the design canvas, and feature issues didn't say
+  which user question they answer.
 - Web UI audit fixes (issues #93–#108). Why: the Dev audit found inconsistent sizes, fonts,
   widths and navigation, wrong seat-type labels and pages that went blank on bad saved data.
   - `apps/web`: tokens for type, radii, colours and layout; `PageHeader`, `Icon`, `PlanSubnav`,

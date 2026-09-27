@@ -69,7 +69,8 @@ Nothing is blocked. The paid launch is gated on the legal items in `docs/07-secu
 ## Product decisions (2026-09-27)
 Name **Compass** · Maharashtra first, other states later (ADR-007) · build locally, host on
 Railway · Google sign-in only · English only · free vs paid parked. UI mockups:
-https://claude.ai/artifact/7K3x3et9aFdXhbyVx5sLn4 (private). All decisions: `docs/DECISIONS.md`.
+https://claude.ai/artifact/AMQz7i84DpLtphboyZUZuD (private, 30 screens + journey map; supersedes
+the earlier phone mockup). Navigation and the 14 user journeys: `docs/02-architecture/navigation.md`. All decisions: `docs/DECISIONS.md`.
 
 ## Known risks
 Commercial reuse of CET Cell data: owner confirmed permitted (L1–L3 resolved). Remaining
