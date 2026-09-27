@@ -1,4 +1,5 @@
 import type { Category } from "./api";
+import { readJson, writeJson, removeKey, isRecord, isNum, isStr, isBool } from "./storage";
 
 export interface Profile {
   meritNumber: number | null;
@@ -15,22 +16,37 @@ export interface Profile {
 
 const KEY = "compass_profile_v1";
 
+const CATEGORIES: readonly Category[] = ["OPEN", "OBC", "SEBC", "SC", "ST", "VJ", "NT1", "NT2", "NT3"];
+
+/** Shape-check a stored profile; invalid fields fall back to the defaults. */
+export function parseProfile(v: unknown): Profile | null {
+  if (!isRecord(v)) return null;
+  const d = DEFAULT_PROFILE;
+  const flag = (x: unknown) => (isBool(x) ? x : false);
+  return {
+    meritNumber: isNum(v.meritNumber) && v.meritNumber > 0 ? v.meritNumber : null,
+    category: CATEGORIES.includes(v.category as Category) ? (v.category as Category) : null,
+    gender: v.gender === "F" ? "F" : d.gender,
+    subjectGroup: v.subjectGroup === "PCB" ? "PCB" : d.subjectGroup,
+    homeUniversity: isStr(v.homeUniversity) ? v.homeUniversity : d.homeUniversity,
+    ews: flag(v.ews),
+    tfws: flag(v.tfws),
+    defence: flag(v.defence),
+    pwd: flag(v.pwd),
+    orphan: flag(v.orphan),
+  };
+}
+
 export function loadProfile(): Profile | null {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as Profile;
-  } catch {
-    return null;
-  }
+  return parseProfile(readJson(KEY));
 }
 
 export function saveProfile(p: Profile) {
-  localStorage.setItem(KEY, JSON.stringify(p));
+  writeJson(KEY, p);
 }
 
 export function clearProfile() {
-  localStorage.removeItem(KEY);
+  removeKey(KEY);
 }
 
 export const DEFAULT_PROFILE: Profile = {

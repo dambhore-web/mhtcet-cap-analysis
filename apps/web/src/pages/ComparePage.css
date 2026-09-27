@@ -1,48 +1,7 @@
-.compare-page {
-  min-height: 100svh;
-  background: var(--page);
-  display: flex;
-  flex-direction: column;
-}
 
-/* ─── Header ─── */
-.compare-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px 16px;
-  background: linear-gradient(150deg, var(--violet) 0%, var(--violet-deep) 100%);
-  flex-shrink: 0;
-}
 
-.compare-back {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  color: var(--white);
-  text-decoration: none;
-  font-size: 16px;
-  flex-shrink: 0;
-}
 
-.compare-header h1 {
-  margin: 0;
-  font-family: var(--font-head);
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--white);
-  flex: 1;
-}
 
-.compare-count {
-  font-family: var(--font-num);
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.6);
-}
 
 /* ─── Empty state ─── */
 .compare-empty {
@@ -59,43 +18,40 @@
 .compare-empty p {
   margin: 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 .compare-empty-link {
   margin-top: 8px;
   padding: 10px 20px;
   background: var(--violet);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   color: var(--white);
   font-weight: 700;
   text-decoration: none;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 /* ─── Scrollable column grid ─── */
 .compare-scroll {
-  flex: 1;
-  overflow-x: auto;
-  padding: 16px;
-  scrollbar-width: thin;
+  padding-bottom: 4px;
 }
 
 .compare-grid {
   display: grid;
   gap: 12px;
-  min-width: max-content;
+  min-width: 0;
 }
 
 /* ─── College column ─── */
 .compare-col {
   background: var(--white);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: 240px;
+  min-width: 240px;
 }
 
 .compare-col-head {
@@ -104,9 +60,21 @@
   border-bottom: 1px solid var(--line);
 }
 
+.compare-col-name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.compare-col-name a:hover {
+  color: var(--violet);
+  text-decoration: underline;
+}
+
 .compare-col-name {
-  font-family: var(--font-head);
-  font-size: 14px;
+  margin: 0 0 3px;
+  letter-spacing: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
   font-weight: 800;
   color: var(--navy);
   line-height: 1.3;
@@ -115,7 +83,7 @@
 
 .compare-col-code {
   font-family: var(--font-num);
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--muted);
   margin-bottom: 10px;
 }
@@ -128,9 +96,9 @@
 .compare-view-btn {
   padding: 5px 10px;
   background: var(--violet);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   color: var(--white);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-decoration: none;
   transition: opacity 0.12s;
@@ -142,21 +110,21 @@
   padding: 5px 10px;
   background: rgba(0,0,0,0.06);
   border: none;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   color: var(--muted);
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.12s;
 }
 
-.compare-unpin-btn:hover { background: #fce4ec; color: #c62828; }
+.compare-unpin-btn:hover { background: var(--danger-bg); color: var(--danger-text); }
 
 .compare-loading,
 .compare-error {
   padding: 24px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--muted);
   text-align: center;
 }
@@ -171,7 +139,7 @@
 }
 
 .compare-branch-label {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -182,18 +150,18 @@
 .compare-branch-select {
   flex: 1;
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--navy);
   background: var(--page);
   border: 1.5px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 4px 6px;
 }
 
 /* ─── Section titles ─── */
 .compare-section-title {
   padding: 8px 12px 4px;
-  font-size: 10px;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -214,7 +182,7 @@
   gap: 6px;
   padding: 7px 12px;
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 
 .compare-merit-row.r1 {
@@ -237,16 +205,16 @@
   color: var(--navy);
 }
 
-.compare-na { color: #ccc; }
+.compare-na { color: var(--muted-2); }
 
 .compare-surplus {
   font-family: var(--font-num);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 700;
 }
 
-.compare-surplus.pos { color: #2d6a30; }
-.compare-surplus.neg { color: #c62828; }
+.compare-surplus.pos { color: var(--safe-text); }
+.compare-surplus.neg { color: var(--danger-text); }
 
 /* ─── Fee row ─── */
 .compare-fee-row {
@@ -258,21 +226,21 @@
 }
 
 .compare-fee-label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 
 .compare-fee-val {
   font-family: var(--font-num);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--navy);
 }
 
 .compare-na-row {
   padding: 9px 12px;
-  font-size: 11px;
-  color: #ccc;
+  font-size: var(--text-xs);
+  color: var(--muted-2);
   border-bottom: 1px solid var(--line);
 }
 
@@ -282,9 +250,9 @@
   padding: 9px 14px;
   background: var(--lime);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: var(--navy);
   cursor: pointer;
@@ -293,8 +261,8 @@
 }
 
 .compare-add-btn.saved {
-  background: #e8f5e9;
-  color: #2d6a30;
+  background: var(--safe-bg);
+  color: var(--safe-text);
   cursor: default;
 }
 
@@ -303,7 +271,7 @@
 /* ─── Footer ─── */
 .compare-footnote {
   padding: 12px 16px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--muted);
   text-align: center;
   border-top: 1px solid var(--line);

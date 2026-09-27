@@ -1,37 +1,17 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api, BRANCH_GROUPS, type FindOption, type Category, type MeritEstimate, type ResultFilters } from "../lib/api";
-
-interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; }
 import { useProfile } from "../lib/ProfileContext";
 import type { Profile } from "../lib/profile";
 import { addToList, isInList } from "../lib/list";
+import { Icon } from "../components/Icon";
+import { avatarTint, collegeInitials, formatNumber, formatRound } from "../lib/format";
+import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
+import { UNIVERSITIES } from "../lib/universities";
+import { CATEGORY_OPTIONS } from "../lib/categories";
 import "./FindPage.css";
 
-const CATEGORIES: { value: Category | ""; label: string }[] = [
-  { value: "", label: "Open" },
-  { value: "SC", label: "SC" },
-  { value: "ST", label: "ST" },
-  { value: "OBC", label: "OBC" },
-  { value: "SEBC", label: "SEBC" },
-  { value: "VJ", label: "VJ/DT" },
-  { value: "NT1", label: "NT-A" },
-  { value: "NT2", label: "NT-B" },
-  { value: "NT3", label: "NT-C" },
-];
-
-const UNIVERSITIES = [
-  "University of Mumbai",
-  "Savitribai Phule Pune University",
-  "Dr. Babasaheb Ambedkar Marathwada University",
-  "Sant Gadge Baba Amravati University",
-  "Rashtrasant Tukadoji Maharaj Nagpur University",
-  "Swami Ramanand Teertha Marathwada University",
-  "North Maharashtra University",
-  "Dr. Babasaheb Ambedkar Technological University",
-  "Solapur University",
-  "Gondwana University",
-];
+interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; }
 
 interface FormState {
   mode: "merit" | "percentile" | "jee";
@@ -92,6 +72,7 @@ export function FindPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [scoreError, setScoreError] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [view, setView] = useState<"college" | "all">("college");
   const [estimate, setEstimate] = useState<MeritEstimate | null>(null);
   const [jeeEstimate, setJeeEstimate] = useState<JeeEstimate | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -227,64 +208,53 @@ export function FindPage() {
 
   const roundI = options.filter((o) => o.status === "round-I");
   const later = options.filter((o) => o.status === "later-round");
-  const visible = showAll ? options : options.slice(0, 30);
+  const groups = useMemo(() => groupByCollege(options), [options]);
+  const PAGE = view === "college" ? 12 : 30;
+  const total = view === "college" ? groups.length : options.length;
 
   return (
     <div className="find-page">
       <div className="find-bg" aria-hidden="true" />
 
-      <header className="find-header">
-        <div className="find-logo">
-          <span className="find-logo-mark">↗</span>
-          compass
-        </div>
-        <span className="find-year-badge">2026</span>
-        <Link to="/welcome" className="find-edit-profile">Edit profile</Link>
-      </header>
-
-      <section className="find-hero">
+      <section className="find-hero page">
         <div className="find-copy">
-          <div className="find-kicker">
-            <span className="kicker-dot" />
-            MHT-CET CAP cutoffs
-          </div>
+          <p className="find-kicker">
+            <Icon name="compass" size={14} />
+            MHT-CET CAP 2026 · engineering
+          </p>
           <h1>
             Your merit,<br />
             your <em>options.</em>
           </h1>
           <p>
-            Enter your 2026 state merit number and profile. See every college and branch where you can get a seat — sorted by round.
+            Enter your state merit number. See every college and branch where your merit number was good enough last year, and in which CAP round.
           </p>
+          <ul className="find-steps" aria-label="How it works">
+            <li><span>1</span>Enter merit number and category</li>
+            <li><span>2</span>See colleges you can get, round by round</li>
+            <li><span>3</span>Save options to your CAP option form</li>
+          </ul>
         </div>
 
-        <form className="find-card" onSubmit={handleSubmit} noValidate>
-          <div className="find-card-head">
-            <h2>Find my options.</h2>
-            <div className="find-card-step">01 / 02</div>
-          </div>
+        <form className="find-card" onSubmit={handleSubmit} noValidate aria-labelledby="find-card-title">
+          <h2 id="find-card-title">Find my options</h2>
 
-          <div className="score-toggle" role="group" aria-label="Score type">
-            <button
-              type="button"
-              className={form.mode === "merit" ? "active" : ""}
-              onClick={() => set("mode", "merit")}
-            >
-              Merit number
-            </button>
-            <button
-              type="button"
-              className={form.mode === "percentile" ? "active" : ""}
-              onClick={() => set("mode", "percentile")}
-            >
-              Percentile
-            </button>
-            <button
-              type="button"
-              className={form.mode === "jee" ? "active" : ""}
-              onClick={() => set("mode", "jee")}
-            >
-              JEE rank
-            </button>
+          <div className="score-toggle" role="group" aria-label="What score do you have?">
+            {([
+              ["merit", "Merit number"],
+              ["percentile", "CET percentile"],
+              ["jee", "JEE percentile"],
+            ] as const).map(([m, label]) => (
+              <button
+                key={m}
+                type="button"
+                className={form.mode === m ? "active" : ""}
+                aria-pressed={form.mode === m}
+                onClick={() => set("mode", m)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
           <label className="form-label" htmlFor="score-input">
@@ -294,40 +264,49 @@ export function FindPage() {
             <input
               id="score-input"
               type="text"
-              inputMode="numeric"
+              inputMode={form.mode === "merit" ? "numeric" : "decimal"}
               value={form.score}
               onChange={(e) => {
                 set("score", e.target.value);
                 setScoreError("");
               }}
               placeholder={form.mode === "merit" ? "e.g. 12840" : "e.g. 92.84"}
-              aria-describedby={scoreError ? "score-error" : undefined}
+              aria-describedby={scoreError ? "score-error" : "score-help"}
               aria-invalid={!!scoreError}
               autoComplete="off"
             />
-            <span className="score-suffix">{form.mode === "merit" ? "MH" : "%"}</span>
+            <span className="score-suffix">{form.mode === "merit" ? "rank" : "%"}</span>
           </div>
-          {scoreError && (
+          {scoreError ? (
             <div id="score-error" className="field-error" role="alert">
+              <Icon name="alert" size={14} />
               {scoreError}
+            </div>
+          ) : (
+            <div id="score-help" className="field-help">
+              {form.mode === "merit" ? (
+                <>Not published yet? <Link to="/estimate">Estimate it from your percentile</Link></>
+              ) : (
+                "We convert this to an estimated merit number range."
+              )}
             </div>
           )}
 
           {form.mode === "percentile" && estimate && (
             <div className="estimate-hint">
               <span className="estimate-range">
-                ≈ merit {estimate.estimatedMeritRange[0].toLocaleString("en-IN")}–{estimate.estimatedMeritRange[1].toLocaleString("en-IN")}
+                ≈ merit {formatNumber(estimate.estimatedMeritRange[0])}–{formatNumber(estimate.estimatedMeritRange[1])}
               </span>
               {estimate.method === "statistical" && <span className="estimate-stat-badge">estimate</span>}
             </div>
           )}
 
           {form.mode === "jee" && jeeEstimate && (
-            <div className="estimate-hint jee-hint">
+            <div className="estimate-hint">
               <span className="estimate-range">
-                ≈ JEE rank {jeeEstimate.rankRange[0].toLocaleString("en-IN")}–{jeeEstimate.rankRange[1].toLocaleString("en-IN")}
+                ≈ JEE rank {formatNumber(jeeEstimate.rankRange[0])}–{formatNumber(jeeEstimate.rankRange[1])}
               </span>
-              <span className="estimate-stat-badge">AI seats</span>
+              <span className="estimate-stat-badge">All India seats</span>
             </div>
           )}
 
@@ -340,13 +319,13 @@ export function FindPage() {
                 onChange={(e) => set("category", e.target.value as Category | "")}
                 className="form-select"
               >
-                {CATEGORIES.map((c) => (
+                {CATEGORY_OPTIONS.map((c) => (
                   <option key={c.value} value={c.value}>{c.label}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="form-label" htmlFor="subject-select">Subject</label>
+              <label className="form-label" htmlFor="subject-select">Subject group</label>
               <select
                 id="subject-select"
                 value={form.subjectGroup}
@@ -379,12 +358,14 @@ export function FindPage() {
               className="adv-toggle"
               onClick={() => set("showAdvanced", !form.showAdvanced)}
               aria-expanded={form.showAdvanced}
+              aria-controls="adv-body"
             >
-              {form.showAdvanced ? "▾" : "▸"} Home university &amp; special categories
+              <Icon name={form.showAdvanced ? "minus" : "plus"} size={14} />
+              Home university and special categories
             </button>
 
             {form.showAdvanced && (
-              <div className="adv-body">
+              <div className="adv-body" id="adv-body">
                 <label className="form-label" htmlFor="uni-select">Home university</label>
                 <select
                   id="uni-select"
@@ -392,13 +373,13 @@ export function FindPage() {
                   onChange={(e) => set("homeUniversity", e.target.value)}
                   className="form-select"
                 >
-                  <option value="">— Not sure / State Level only —</option>
+                  <option value="">Not sure / state level only</option>
                   {UNIVERSITIES.map((u) => (
                     <option key={u} value={u}>{u}</option>
                   ))}
                 </select>
 
-                <div className="form-label" style={{ marginTop: "14px" }}>Special categories</div>
+                <div className="form-label adv-flags-label">Special categories</div>
                 <div className="flag-chips">
                   {(["ews", "tfws", "defence", "pwd", "orphan"] as const).map((flag) => (
                     <button
@@ -408,7 +389,7 @@ export function FindPage() {
                       onClick={() => toggleFlag(flag)}
                       aria-pressed={form[flag]}
                     >
-                      {flag.toUpperCase()}
+                      {FLAG_LABELS[flag]}
                     </button>
                   ))}
                 </div>
@@ -416,125 +397,147 @@ export function FindPage() {
             )}
           </div>
 
-          <button
-            type="submit"
-            className="find-submit"
-            disabled={status === "loading"}
-          >
-            {status === "loading" ? "Searching…" : "Find my options →"}
+          <button type="submit" className="btn btn-accent btn-block find-submit" disabled={status === "loading"}>
+            {status === "loading" ? "Searching…" : "Find my options"}
+            {status !== "loading" && <Icon name="arrowRight" size={18} />}
           </button>
 
           {status === "error" && (
-            <div className="find-api-error" role="alert">{errorMsg}</div>
+            <div className="field-error find-api-error" role="alert">
+              <Icon name="alert" size={14} />
+              {errorMsg}
+            </div>
           )}
 
-          <div className="find-card-foot">
-            <strong>● 2026 official data</strong>
-            <span>·</span>
-            387 colleges · 4 CAP rounds
-          </div>
+          <p className="find-card-foot">
+            Based on official CET Cell cutoff lists · 387 colleges · 4 CAP rounds
+          </p>
         </form>
       </section>
 
       {status === "done" && (
-        <section className="results-wrap" ref={resultsRef} aria-label="Your options">
-          <div className="results-inner">
+        <section className="results-wrap" ref={resultsRef} aria-labelledby="results-title">
+          <div className="page results-inner">
             <div className="results-header">
-              <h2>
-                Here's your <span>starting line.</span>
-              </h2>
-              <p>Based on 2026 official CAP cutoffs. Past data — not a guarantee.</p>
+              <div>
+                <h2 id="results-title">
+                  {options.length === 0 ? "No options found" : `${formatNumber(options.length)} options for merit ${formatNumber(searchedMerit)}`}
+                </h2>
+                <p>Based on last year's official closing ranks. A guide, not a guarantee.</p>
+              </div>
+              <div className="results-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  disabled={pdfLoading || options.length === 0}
+                  onClick={async () => {
+                    setPdfLoading(true);
+                    try { await generateParentPDF(options, searchedMerit, profile); }
+                    finally { setPdfLoading(false); }
+                  }}
+                >
+                  <Icon name="clipboard" size={16} />
+                  {pdfLoading ? "Preparing…" : "Parent summary PDF"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(window.location.href).catch(() => {});
+                    setShareCopied(true);
+                    setTimeout(() => setShareCopied(false), 2000);
+                  }}
+                >
+                  <Icon name={shareCopied ? "check" : "share"} size={16} />
+                  {shareCopied ? "Link copied" : "Share results"}
+                </button>
+              </div>
             </div>
 
             <div className="results-stats">
               <div className="stat-card">
-                <strong>{options.length}</strong>
-                <span>total options</span>
+                <strong>{formatNumber(options.length)}</strong>
+                <span>options in {formatNumber(groups.length)} colleges</span>
               </div>
               <div className="stat-card safe">
-                <strong>{roundI.length}</strong>
-                <span>Round I picks</span>
+                <strong>{formatNumber(roundI.length)}</strong>
+                <span><Icon name="check" size={14} /> Likely in {formatRound(1)}</span>
               </div>
               <div className="stat-card later">
-                <strong>{later.length}</strong>
-                <span>later rounds</span>
+                <strong>{formatNumber(later.length)}</strong>
+                <span><Icon name="clock" size={14} /> Likely in a later round</span>
               </div>
             </div>
 
-            <div className="results-actions">
-              <button
-                className={`parent-pdf-btn${pdfLoading ? " loading" : ""}`}
-                disabled={pdfLoading || options.length === 0}
-                onClick={async () => {
-                  setPdfLoading(true);
-                  try { await generateParentPDF(options, searchedMerit, profile); }
-                  finally { setPdfLoading(false); }
-                }}
-              >
-                {pdfLoading ? "Generating…" : "Parent PDF"}
-              </button>
-              <button
-                className={`share-btn${shareCopied ? " copied" : ""}`}
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  setShareCopied(true);
-                  setTimeout(() => setShareCopied(false), 2000);
-                }}
-              >
-                {shareCopied ? "✓ Copied!" : "Share results"}
-              </button>
-            </div>
-
-            <div className="result-filters">
-              <span className="rf-label">Filter:</span>
-              <select
-                className="rf-select"
-                value={resultFilters.university ?? ""}
-                onChange={(e) => applyFilter({ ...resultFilters, university: e.target.value || null })}
-                disabled={filterLoading}
-              >
-                <option value="">All universities</option>
-                {UNIVERSITIES.map((u) => (
-                  <option key={u} value={u}>{u.replace("University", "Univ.")}</option>
-                ))}
-              </select>
-              <select
-                className="rf-select"
-                value={resultFilters.branchGroup ?? ""}
-                onChange={(e) => applyFilter({ ...resultFilters, branchGroup: e.target.value || null })}
-                disabled={filterLoading}
-              >
-                <option value="">All branches</option>
-                {BRANCH_GROUPS.map((g) => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
-              {filterLoading && <span className="rf-spinner" aria-label="Filtering…" />}
-              {(resultFilters.university || resultFilters.branchGroup) && (
-                <button
-                  className="rf-clear"
-                  onClick={() => applyFilter({})}
+            <div className="results-toolbar">
+              <div className="view-toggle" role="group" aria-label="Group results">
+                <button type="button" className={view === "college" ? "active" : ""} aria-pressed={view === "college"} onClick={() => { setView("college"); setShowAll(false); }}>
+                  By college
+                </button>
+                <button type="button" className={view === "all" ? "active" : ""} aria-pressed={view === "all"} onClick={() => { setView("all"); setShowAll(false); }}>
+                  All options
+                </button>
+              </div>
+              <div className="result-filters">
+                <label className="sr-only" htmlFor="rf-university">Filter by university</label>
+                <select
+                  id="rf-university"
+                  className="rf-select"
+                  value={resultFilters.university ?? ""}
+                  onChange={(e) => applyFilter({ ...resultFilters, university: e.target.value || null })}
                   disabled={filterLoading}
                 >
-                  Clear ×
-                </button>
-              )}
+                  <option value="">All universities</option>
+                  {UNIVERSITIES.map((u) => (
+                    <option key={u} value={u}>{u}</option>
+                  ))}
+                </select>
+                <label className="sr-only" htmlFor="rf-branch">Filter by branch</label>
+                <select
+                  id="rf-branch"
+                  className="rf-select"
+                  value={resultFilters.branchGroup ?? ""}
+                  onChange={(e) => applyFilter({ ...resultFilters, branchGroup: e.target.value || null })}
+                  disabled={filterLoading}
+                >
+                  <option value="">All branches</option>
+                  {BRANCH_GROUPS.map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
+                {filterLoading && <span className="rf-spinner" role="status" aria-label="Filtering" />}
+                {(resultFilters.university || resultFilters.branchGroup) && (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => applyFilter({})} disabled={filterLoading}>
+                    <Icon name="close" size={14} />
+                    Clear filters
+                  </button>
+                )}
+              </div>
             </div>
 
             {options.length === 0 ? (
-              <div className="no-results">
-                No seats found for this profile. Try adjusting your category or checking special categories like EWS or TFWS.
+              <div className="empty-state">
+                <h3>No seats matched this profile</h3>
+                <p>Check your category and gender, add your home university, or turn on special categories such as EWS or TFWS if they apply to you.</p>
               </div>
             ) : (
               <>
-                <div className="results-list" role="list">
-                  {visible.map((opt) => (
-                    <OptionRow key={opt.choiceCode} opt={opt} merit={searchedMerit} />
-                  ))}
-                </div>
-                {!showAll && options.length > 30 && (
-                  <button className="show-more" onClick={() => setShowAll(true)}>
-                    Show all {options.length} options →
+                {view === "college" ? (
+                  <div className="college-groups">
+                    {(showAll ? groups : groups.slice(0, PAGE)).map((g) => (
+                      <CollegeGroup key={g.code} group={g} merit={searchedMerit} />
+                    ))}
+                  </div>
+                ) : (
+                  <ul className="results-list">
+                    {(showAll ? options : options.slice(0, PAGE)).map((opt) => (
+                      <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={searchedMerit} showCollege />
+                    ))}
+                  </ul>
+                )}
+                {!showAll && total > PAGE && (
+                  <button type="button" className="btn btn-secondary btn-block show-more" onClick={() => setShowAll(true)}>
+                    Show all {formatNumber(total)} {view === "college" ? "colleges" : "options"}
                   </button>
                 )}
               </>
@@ -542,34 +545,80 @@ export function FindPage() {
           </div>
         </section>
       )}
-
-      <footer className="find-footer">
-        <span><strong>Compass</strong> — MHT-CET CAP cutoffs</span>
-        <span>Data from official DTE Maharashtra lists. Estimates only.</span>
-        <span>
-          <Link to="/legal" className="find-footer-link">Disclaimer</Link>
-          {" · "}
-          <Link to="/legal" className="find-footer-link">Privacy</Link>
-          {" · "}
-          <Link to="/legal" className="find-footer-link">Terms</Link>
-        </span>
-      </footer>
     </div>
   );
 }
 
-function OptionRow({ opt, merit }: { opt: FindOption; merit: number }) {
-  const [saved, setSaved] = useState(() => isInList(opt.choiceCode));
-  const surplus = opt.closingMerit - merit;
-  const initials = opt.collegeName
-    .split(" ")
-    .filter((w) => w.length > 2 && /^[A-Z]/.test(w))
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("");
+const FLAG_LABELS = { ews: "EWS", tfws: "TFWS", defence: "Defence", pwd: "PWD", orphan: "Orphan" } as const;
 
-  function handleSave(e: React.MouseEvent) {
-    e.preventDefault();
+interface Group {
+  code: string;
+  name: string;
+  options: FindOption[];
+  best: FindOption;
+}
+
+const STATUS_ORDER: Record<FindOption["status"], number> = { "round-I": 0, "later-round": 1, "out-of-range": 2 };
+
+function groupByCollege(options: FindOption[]): Group[] {
+  const map = new Map<string, Group>();
+  for (const o of options) {
+    const g = map.get(o.collegeCode);
+    if (g) {
+      g.options.push(o);
+      if (STATUS_ORDER[o.status] < STATUS_ORDER[g.best.status]) g.best = o;
+    } else {
+      map.set(o.collegeCode, { code: o.collegeCode, name: o.collegeName, options: [o], best: o });
+    }
+  }
+  // keep the API's order (best matches first)
+  return [...map.values()];
+}
+
+function CollegeAvatar({ code, name }: { code: string; name: string }) {
+  return (
+    <span className="college-tile" style={{ background: avatarTint(code) }} aria-hidden="true">
+      {collegeInitials(name, code)}
+    </span>
+  );
+}
+
+function CollegeGroup({ group, merit }: { group: Group; merit: number }) {
+  const [open, setOpen] = useState(false);
+  const shown = open ? group.options : group.options.slice(0, 3);
+  return (
+    <article className="college-group card">
+      <header className="college-group-head">
+        <CollegeAvatar code={group.code} name={group.name} />
+        <div className="college-group-title">
+          <h3>
+            <Link to={`/colleges/${group.code}`}>{group.name}</Link>
+          </h3>
+          <span className="college-group-meta">
+            {group.options.length} {group.options.length === 1 ? "option" : "options"} · code {group.code}
+          </span>
+        </div>
+        <StatusBadge status={group.best.status} round={group.best.round} />
+      </header>
+      <ul className="results-list results-list--nested">
+        {shown.map((opt) => (
+          <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={merit} />
+        ))}
+      </ul>
+      {group.options.length > 3 && (
+        <button type="button" className="btn btn-ghost btn-sm college-group-more" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+          {open ? "Show fewer" : `Show ${group.options.length - 3} more`}
+        </button>
+      )}
+    </article>
+  );
+}
+
+function OptionRow({ opt, merit, showCollege = false }: { opt: FindOption; merit: number; showCollege?: boolean }) {
+  const [saved, setSaved] = useState(() => isInList(opt.choiceCode));
+  const margin = opt.closingMerit - merit;
+
+  function handleSave() {
     if (saved) return;
     addToList({
       choiceCode: opt.choiceCode,
@@ -584,37 +633,44 @@ function OptionRow({ opt, merit }: { opt: FindOption; merit: number }) {
   }
 
   return (
-    <Link to={`/colleges/${opt.collegeCode}`} className="option-row" role="listitem">
-      <div className="college-tile" aria-hidden="true">{initials || opt.collegeCode.slice(-2)}</div>
+    <li className="option-row">
+      {showCollege && <CollegeAvatar code={opt.collegeCode} name={opt.collegeName} />}
       <div className="option-detail">
-        <span className="college-name">{opt.collegeName}</span>
+        {showCollege && (
+          <Link to={`/colleges/${opt.collegeCode}`} className="college-name">{opt.collegeName}</Link>
+        )}
         <span className="branch-name">{opt.branch}</span>
         <span className="seat-meta">
-          {opt.seatType} · closing {opt.closingMerit.toLocaleString("en-IN")}
-          {surplus !== 0 && (
-            <span className={`surplus${surplus > 0 ? " pos" : " neg"}`}>
-              {surplus > 0 ? `+${surplus.toLocaleString("en-IN")}` : surplus.toLocaleString("en-IN")}
+          <abbr title={seatTypeLabel(opt.seatType)}>{seatTypeShortLabel(opt.seatType)}</abbr>
+          <span aria-hidden="true">·</span>
+          closed at {formatNumber(opt.closingMerit)}
+          {margin !== 0 && (
+            <span className={`surplus${margin > 0 ? " pos" : " neg"}`}>
+              ({margin > 0 ? `${formatNumber(margin)} ranks to spare` : `${formatNumber(-margin)} ranks short`})
             </span>
           )}
         </span>
       </div>
       <StatusBadge status={opt.status} round={opt.round} />
       <button
+        type="button"
         className={`save-btn${saved ? " saved" : ""}`}
         onClick={handleSave}
-        aria-label={saved ? "Saved to list" : "Save to list"}
-        title={saved ? "Saved" : "Save to My List"}
+        aria-label={saved ? `${opt.branch} saved to your option form` : `Save ${opt.branch} at ${opt.collegeName} to your option form`}
+        title={saved ? "Saved to option form" : "Save to option form"}
       >
-        {saved ? "✓" : "+"}
+        <Icon name={saved ? "check" : "plus"} size={16} />
       </button>
-    </Link>
+    </li>
   );
 }
 
-function StatusBadge({ status, round }: { status: FindOption["status"]; round: number | null }) {
-  if (status === "round-I") return <span className="badge safe">Round I</span>;
-  if (status === "later-round") return <span className="badge later">Round {round ?? "?"}</span>;
-  return <span className="badge out">Out</span>;
+export function StatusBadge({ status, round }: { status: FindOption["status"]; round: FindOption["round"] }) {
+  if (status === "round-I")
+    return <span className="badge badge-safe"><Icon name="check" size={12} />{formatRound(1)}</span>;
+  if (status === "later-round")
+    return <span className="badge badge-later"><Icon name="clock" size={12} />{round ? formatRound(round) : "Later round"}</span>;
+  return <span className="badge badge-out"><Icon name="minus" size={12} />Out of reach</span>;
 }
 
 async function generateParentPDF(options: FindOption[], merit: number, profile: Profile) {

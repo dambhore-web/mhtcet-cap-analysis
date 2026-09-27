@@ -1,3 +1,5 @@
+import { isRecord, isStr, readJson, validArray, writeJson } from "./storage";
+
 export interface PinnedCollege {
   code: string;
   name: string;
@@ -6,17 +8,16 @@ export interface PinnedCollege {
 const KEY = "compass_compare_v1";
 const MAX = 3;
 
+function isPinnedCollege(v: unknown): v is PinnedCollege {
+  return isRecord(v) && isStr(v.code) && isStr(v.name);
+}
+
 export function loadPinned(): PinnedCollege[] {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as PinnedCollege[]) : [];
-  } catch {
-    return [];
-  }
+  return validArray(readJson(KEY), isPinnedCollege).slice(0, MAX);
 }
 
 function savePinned(list: PinnedCollege[]) {
-  localStorage.setItem(KEY, JSON.stringify(list));
+  writeJson(KEY, list);
 }
 
 export function pinCollege(college: PinnedCollege): PinnedCollege[] {

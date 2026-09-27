@@ -4,7 +4,64 @@
   min-height: 100svh;
 }
 
+/* Reserve room so the fixed compare bar never covers content */
+.layout.has-compare-bar {
+  --compare-bar-h: 64px;
+  padding-bottom: calc(var(--compare-bar-h) + var(--safe-bottom));
+}
+
 .layout-content {
   flex: 1;
-  overflow-x: hidden;
+  min-width: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 200;
+  padding: 8px 12px;
+  background: var(--navy);
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+.skip-link:focus {
+  left: 8px;
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  background: var(--white);
+}
+
+.site-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  max-width: calc(var(--content-max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 16px var(--gutter);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.site-footer-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.site-footer-links a {
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.site-footer-links a:hover {
+  color: var(--violet);
+  text-decoration: underline;
 }

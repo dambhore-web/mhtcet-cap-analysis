@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { readJson, removeKey, isRecord, isStr } from "./storage";
 
 export interface AuthUser {
   id: string;
@@ -18,12 +19,9 @@ const Ctx = createContext<AuthCtx | null>(null);
 const SESSION_KEY = "compass_session_v1";
 
 function loadSession(): AuthUser | null {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
-  } catch {
-    return null;
-  }
+  const v = readJson(SESSION_KEY);
+  if (!isRecord(v) || !isStr(v.id) || !isStr(v.email)) return null;
+  return { id: v.id, email: v.email, plan: v.plan === "paid" ? "paid" : "free" };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -36,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function signOut() {
-    localStorage.removeItem(SESSION_KEY);
+    removeKey(SESSION_KEY);
     setUser(null);
   }
 

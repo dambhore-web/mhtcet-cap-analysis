@@ -30,6 +30,12 @@ _Last updated: 2026-09-27_
 - Tests: 33 vitest tests with synthetic fixtures, incl. a privacy regression test for masking
 
 ## In progress
+- **UI audit fixes (issues #93–#108, tracking #109)** on branch `claude/magical-ritchie-wcwhc0`, for
+  review into `Dev`: design tokens (one type scale, radii, colours), one top navigation with account
+  menu and mobile menu, shared page header and container, error boundary and validated local
+  storage, grouped Find results, plain-language seat labels (NT1/2/3 = NT-B/C/D), new
+  `/estimate` page, CAP guide with How CAP works and Seat codes tabs, empty states, self-hosted fonts.
+  Checked at 360, 390, 768 and 1440 px with no horizontal overflow.
 - **TASK-0003: responsive web app** (branch `feat/web-app`), rank finder first. Start here:
   `tasks/TASK-0003.md` has the plan, the mockups link and the data findings needed for the rank finder.
 - `data/2026-initial` reviewed, merged to `main` and pushed (a841b85). Production DB not loaded (owner decision)

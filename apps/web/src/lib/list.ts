@@ -1,3 +1,5 @@
+import { isNum, isRecord, isStr, readJson, validArray, writeJson } from "./storage";
+
 export interface ListItem {
   id: string;
   choiceCode: string;
@@ -11,17 +13,20 @@ export interface ListItem {
 
 const KEY = "compass_list_v1";
 
+function isListItem(v: unknown): v is ListItem {
+  return (
+    isRecord(v) &&
+    isStr(v.id) && isStr(v.choiceCode) && isStr(v.collegeCode) && isStr(v.collegeName) &&
+    isStr(v.branch) && isStr(v.seatType) && isNum(v.closingMerit) && isNum(v.year)
+  );
+}
+
 export function loadList(): ListItem[] {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as ListItem[]) : [];
-  } catch {
-    return [];
-  }
+  return validArray(readJson(KEY), isListItem);
 }
 
 export function saveList(items: ListItem[]): void {
-  localStorage.setItem(KEY, JSON.stringify(items));
+  writeJson(KEY, items);
 }
 
 export function isInList(choiceCode: string): boolean {

@@ -2,37 +2,16 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
 import type { Category } from "../lib/api";
+import { CATEGORY_OPTIONS } from "../lib/categories";
+import { UNIVERSITIES } from "../lib/universities";
 import type { Profile } from "../lib/profile";
-import { clearProfile } from "../lib/profile";
+import { FLAG_OPTIONS } from "../lib/categories";
+import { PageHeader } from "../components/PageHeader";
+import { Icon } from "../components/Icon";
 import "./ProfilePage.css";
 
-const CATEGORIES: { value: Category | ""; label: string; desc: string }[] = [
-  { value: "", label: "Open", desc: "General" },
-  { value: "SC", label: "SC", desc: "Scheduled Caste" },
-  { value: "ST", label: "ST", desc: "Scheduled Tribe" },
-  { value: "OBC", label: "OBC", desc: "Other Backward Class" },
-  { value: "SEBC", label: "SEBC", desc: "Maratha / SEBC" },
-  { value: "VJ", label: "VJ/DT", desc: "Vimukta Jati" },
-  { value: "NT1", label: "NT-A", desc: "Nomadic Tribe A" },
-  { value: "NT2", label: "NT-B", desc: "Nomadic Tribe B" },
-  { value: "NT3", label: "NT-C", desc: "Nomadic Tribe C" },
-];
-
-const UNIVERSITIES = [
-  "University of Mumbai",
-  "Savitribai Phule Pune University",
-  "Dr. Babasaheb Ambedkar Marathwada University",
-  "Sant Gadge Baba Amravati University",
-  "Rashtrasant Tukadoji Maharaj Nagpur University",
-  "Swami Ramanand Teertha Marathwada University",
-  "North Maharashtra University",
-  "Dr. Babasaheb Ambedkar Technological University",
-  "Solapur University",
-  "Gondwana University",
-];
-
 export function ProfilePage() {
-  const { profile, setProfile, hasProfile } = useProfile();
+  const { profile, setProfile, resetProfile, hasProfile } = useProfile();
   const navigate = useNavigate();
 
   const [merit, setMerit] = useState(profile.meritNumber ? String(profile.meritNumber) : "");
@@ -71,19 +50,19 @@ export function ProfilePage() {
   }
 
   function handleReset() {
-    if (!confirm("Clear your profile? You'll need to enter your merit number again.")) return;
-    clearProfile();
+    if (!confirm("Clear your saved details? You'll need to enter your merit number again.")) return;
+    resetProfile();
     navigate("/welcome");
   }
 
   return (
-    <div className="profile-page">
-      <header className="profile-header">
-        <h1>My Profile</h1>
-        <p>Your details power the rank finder results.</p>
-      </header>
+    <div className="page page--narrow profile-page">
+      <PageHeader
+        title="My details"
+        subtitle="Used to match you to the seat types you are eligible for. Saved only in this browser."
+      />
 
-      <div className="profile-body">
+      <div className="profile-body card">
         <section className="profile-section">
           <label className="profile-label" htmlFor="merit-input">State merit number</label>
           <div className={`profile-input-wrap${meritError ? " invalid" : ""}`}>
@@ -96,16 +75,16 @@ export function ProfilePage() {
               value={merit}
               onChange={(e) => { setMerit(e.target.value); setMeritError(""); setSaved(false); }}
             />
-            <span className="profile-input-suffix">MH</span>
+            <span className="profile-input-suffix">rank</span>
           </div>
           {meritError && <div className="profile-field-error">{meritError}</div>}
-          {!hasProfile && <p className="profile-hint">You haven't set a merit number yet. Add one to use the rank finder.</p>}
+          {!hasProfile && <p className="profile-hint">No merit number yet? <Link to="/estimate">Estimate it from your percentile</Link>.</p>}
         </section>
 
         <section className="profile-section">
           <div className="profile-label">Category</div>
           <div className="profile-cat-grid">
-            {CATEGORIES.map((c) => (
+            {CATEGORY_OPTIONS.map((c) => (
               <button
                 key={c.value}
                 type="button"
@@ -152,7 +131,7 @@ export function ProfilePage() {
             value={homeUniversity}
             onChange={(e) => { setHomeUniversity(e.target.value); setSaved(false); }}
           >
-            <option value="">— Not sure / State Level only —</option>
+            <option value="">Not sure / state level only</option>
             {UNIVERSITIES.map((u) => (
               <option key={u} value={u}>{u}</option>
             ))}
@@ -162,33 +141,41 @@ export function ProfilePage() {
         <section className="profile-section">
           <div className="profile-label">Special categories</div>
           <div className="profile-flags-row">
-            {(Object.keys(flags) as (keyof typeof flags)[]).map((flag) => (
+            {FLAG_OPTIONS.map(({ key, label, desc }) => (
               <button
-                key={flag}
+                key={key}
                 type="button"
-                className={`profile-flag${flags[flag] ? " active" : ""}`}
-                onClick={() => { toggleFlag(flag); setSaved(false); }}
-                aria-pressed={flags[flag]}
+                className={`profile-flag${flags[key] ? " active" : ""}`}
+                onClick={() => { toggleFlag(key); setSaved(false); }}
+                aria-pressed={flags[key]}
+                title={desc}
               >
-                {flag.toUpperCase()}
+                {flags[key] && <Icon name="check" size={14} />}
+                {label}
               </button>
             ))}
           </div>
         </section>
 
-        <button className={`profile-save${saved ? " saved" : ""}`} onClick={handleSave}>
-          {saved ? "✓ Saved" : "Save profile"}
-        </button>
-
-        <div className="profile-account-row">
-          <Link to="/signin" className="profile-signin-link">Sign in to sync across devices</Link>
-          <Link to="/plans" className="profile-plans-link">Upgrade to Season Pass ↗</Link>
+        <div className="profile-actions">
+          <button type="button" className="btn btn-primary" onClick={handleSave}>
+            {saved && <Icon name="check" size={18} />}
+            {saved ? "Saved" : "Save details"}
+          </button>
+          <span role="status" className="sr-only">{saved ? "Details saved" : ""}</span>
+          <button type="button" className="btn btn-ghost profile-reset" onClick={handleReset}>Clear saved details</button>
         </div>
+      </div>
 
-        <div className="profile-links">
-          <Link to="/legal" className="profile-link">Disclaimer · Privacy · Terms</Link>
-          <button className="profile-reset" onClick={handleReset}>Reset profile</button>
-        </div>
+      <div className="profile-account-row">
+        <Link to="/signin" className="btn btn-secondary btn-sm">
+          <Icon name="user" size={16} />
+          Sign in to use on other devices
+        </Link>
+        <Link to="/plans" className="btn btn-ghost btn-sm">
+          See plans
+          <Icon name="arrowRight" size={16} />
+        </Link>
       </div>
     </div>
   );

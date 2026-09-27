@@ -1,0 +1,36 @@
+/**
+ * Single source for plan names, prices and limits shown anywhere in the app.
+ * Pricing is still an open decision (docs/DECISIONS.md) — change it here only.
+ */
+export const PLANS = {
+  free: {
+    name: "Free",
+    priceInr: 0,
+    askQuestions: 3,
+    features: [
+      "Rank finder: unlimited searches",
+      "All 387 colleges and their cutoff pages (every round)",
+      "Option form with up to 300 choices (the CAP limit), CSV and PDF export",
+      "Compare up to 3 colleges",
+      "Shareable result links",
+      "Parent summary PDF",
+    ],
+  },
+  seasonPass: {
+    name: "Season Pass",
+    priceInr: 299,
+    priceIsProvisional: true,
+    validity: "2026–27 CAP cycle (Rounds I–IV)",
+    askQuestions: "unlimited" as const,
+    features: [
+      "Everything in Free",
+      "Ask Compass: unlimited questions",
+      "CAP round simulator (Rounds I–III)",
+      "Freeze / Float / Slide advisor",
+    ],
+  },
+} as const;
+
+export function formatInr(n: number): string {
+  return `₹${n.toLocaleString("en-IN")}`;
+}

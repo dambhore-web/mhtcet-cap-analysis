@@ -1,50 +1,139 @@
-import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { PageHeader } from "../components/PageHeader";
+import { Icon, type IconName } from "../components/Icon";
+import { seatTypeLabel } from "../lib/seatType";
 import "./GuidePage.css";
 
-type Tab = "freeze" | "float" | "slide" | "faq";
+type Tab = "how" | "freeze" | "float" | "slide" | "codes" | "faq";
 
-interface Section {
-  id: Tab;
-  label: string;
-  emoji: string;
-}
-
-const TABS: Section[] = [
-  { id: "freeze", label: "Freeze", emoji: "🧊" },
-  { id: "float", label: "Float", emoji: "🌊" },
-  { id: "slide", label: "Slide", emoji: "⬇" },
-  { id: "faq", label: "FAQ", emoji: "?" },
+const TABS: { id: Tab; label: string; icon: IconName }[] = [
+  { id: "how", label: "How CAP works", icon: "steps" },
+  { id: "freeze", label: "Freeze", icon: "lock" },
+  { id: "float", label: "Float", icon: "arrowUp" },
+  { id: "slide", label: "Slide", icon: "arrowRight" },
+  { id: "codes", label: "Seat codes", icon: "tag" },
+  { id: "faq", label: "FAQ", icon: "help" },
 ];
 
+/** Older links used ?tab=decide for the freeze / float / slide section. */
+function parseTab(v: string | null): Tab {
+  if (v === "decide") return "freeze";
+  return TABS.some((t) => t.id === v) ? (v as Tab) : "how";
+}
+
 export function GuidePage() {
-  const [tab, setTab] = useState<Tab>("freeze");
+  const [params, setParams] = useSearchParams();
+  const tab = parseTab(params.get("tab"));
+  const setTab = (t: Tab) => setParams(t === "how" ? {} : { tab: t }, { replace: true });
 
   return (
-    <div className="guide-page">
-      <header className="guide-header">
-        <h1>CAP Allotment Guide</h1>
-        <p>Freeze · Float · Slide — explained simply</p>
-      </header>
+    <div className="page page--narrow guide-page">
+      <PageHeader
+        title="CAP guide"
+        subtitle="How the Centralised Admission Process works, what to do after each allotment, and what the seat codes mean."
+      />
 
-      <div className="guide-tabs">
+      <div className="guide-tabs" role="tablist" aria-label="Guide sections">
         {TABS.map((t) => (
           <button
             key={t.id}
+            type="button"
+            role="tab"
+            id={`guide-tab-${t.id}`}
+            aria-selected={tab === t.id}
+            aria-controls="guide-panel"
             className={`guide-tab${tab === t.id ? " active" : ""}`}
             onClick={() => setTab(t.id)}
           >
-            <span className="guide-tab-emoji">{t.emoji}</span>
+            <Icon name={t.icon} size={16} />
             {t.label}
           </button>
         ))}
       </div>
 
-      <div className="guide-body">
+      <div className="guide-body" role="tabpanel" id="guide-panel" aria-labelledby={`guide-tab-${tab}`}>
+        {tab === "how" && <HowContent />}
         {tab === "freeze" && <FreezeContent />}
         {tab === "float" && <FloatContent />}
         {tab === "slide" && <SlideContent />}
+        {tab === "codes" && <CodesContent />}
         {tab === "faq" && <FaqContent />}
       </div>
+    </div>
+  );
+}
+
+const CAP_STEPS = [
+  { title: "Register and verify documents", body: "Fill the CAP application on the CET Cell portal and get your documents verified (e-scrutiny or at a facilitation centre)." },
+  { title: "Check the merit lists", body: "A provisional merit list is published first, then the final state merit list. Your state merit number is your rank in it." },
+  { title: "Fill the option form", body: "List up to 300 choice codes (college + branch) in the order you prefer them. Order matters: you are allotted the highest choice your rank qualifies for." },
+  { title: "Round I allotment", body: "CET Cell publishes the allotment. If you got a seat, you choose to freeze, float or slide, and report online or at the institute." },
+  { title: "Rounds II and III", body: "Seats left after each round are re-allotted. You can edit your option form between rounds. Later rounds usually close at higher (easier) ranks." },
+  { title: "Report to the institute", body: "Once you freeze a seat, report to the college with original documents and pay the fees before the deadline." },
+];
+
+function HowContent() {
+  return (
+    <div className="guide-content">
+      <ol className="guide-timeline">
+        {CAP_STEPS.map((step, i) => (
+          <li key={step.title}>
+            <span className="guide-timeline-num" aria-hidden="true">{i + 1}</span>
+            <div>
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div className="guide-section guide-section--info">
+        <h3>Where Compass helps</h3>
+        <p>
+          <Link to="/">Find</Link> shows which choice codes last year's closing ranks put within reach. Save them to your{" "}
+          <Link to="/list">option form</Link>, order them, and <Link to="/simulator">test the order</Link> before you fill the
+          real form on the CET Cell portal.
+        </p>
+      </div>
+      <p className="guide-disclaimer">
+        Dates and rules change every year. Always follow the official CAP information brochure and CET Cell notices.
+      </p>
+    </div>
+  );
+}
+
+const CODE_EXAMPLES = ["GOPENS", "GOPENH", "GOPENO", "LOPENS", "GOBCH", "LSCS", "GNT2S", "DEFOPENS", "PWDOPENH", "TFWS", "EWS"];
+
+function CodesContent() {
+  return (
+    <div className="guide-content">
+      <div className="guide-section">
+        <h3>Reading a seat code</h3>
+        <p>
+          Most seat codes join three parts: <strong>who</strong> the seat is for, the <strong>category</strong>, and the{" "}
+          <strong>level</strong>. For example <code>GOPENH</code> is G (general) + OPEN + H (home university).
+        </p>
+        <dl className="guide-code-parts">
+          <div><dt>First letter(s)</dt><dd>G general · L ladies · DEF defence · PWD disability</dd></div>
+          <div><dt>Category</dt><dd>OPEN, OBC, SEBC, SC, ST, VJ, NT1 (NT-B), NT2 (NT-C), NT3 (NT-D)</dd></div>
+          <div><dt>Last letter</dt><dd>S state level · H home university · O other than home university</dd></div>
+        </dl>
+      </div>
+      <div className="guide-section">
+        <h3>Examples</h3>
+        <div className="table-scroll">
+          <table className="guide-code-table">
+            <thead>
+              <tr><th scope="col">Code</th><th scope="col">Meaning</th></tr>
+            </thead>
+            <tbody>
+              {CODE_EXAMPLES.map((c) => (
+                <tr key={c}><td><code>{c}</code></td><td>{seatTypeLabel(c)}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p className="guide-disclaimer">TFWS, EWS, minority and orphan seats have their own codes and eligibility rules.</p>
     </div>
   );
 }
@@ -53,7 +142,7 @@ function FreezeContent() {
   return (
     <div className="guide-content">
       <div className="guide-card guide-card--freeze">
-        <div className="guide-card-icon">🧊</div>
+        <div className="guide-card-icon"><Icon name="lock" size={28} /></div>
         <h2>Freeze</h2>
         <p className="guide-card-tagline">
           "I'm happy here. Lock it in."
@@ -108,7 +197,7 @@ function FloatContent() {
   return (
     <div className="guide-content">
       <div className="guide-card guide-card--float">
-        <div className="guide-card-icon">🌊</div>
+        <div className="guide-card-icon"><Icon name="arrowUp" size={28} /></div>
         <h2>Float</h2>
         <p className="guide-card-tagline">
           "Upgrade me if something better opens up — but keep me here otherwise."
@@ -165,7 +254,7 @@ function SlideContent() {
   return (
     <div className="guide-content">
       <div className="guide-card guide-card--slide">
-        <div className="guide-card-icon">⬇</div>
+        <div className="guide-card-icon"><Icon name="arrowRight" size={28} /></div>
         <h2>Slide</h2>
         <p className="guide-card-tagline">
           "Keep me at this college — but upgrade my branch if possible."
@@ -250,25 +339,21 @@ const FAQS = [
 ];
 
 function FaqContent() {
-  const [open, setOpen] = useState<number | null>(null);
   return (
     <div className="guide-content">
-      <div className="guide-section">
-        <h3>Common questions</h3>
-      </div>
       <div className="guide-faq-list">
-        {FAQS.map((faq, i) => (
-          <div key={i} className={`guide-faq-item${open === i ? " open" : ""}`}>
-            <button className="guide-faq-q" onClick={() => setOpen(open === i ? null : i)}>
+        {FAQS.map((faq) => (
+          <details key={faq.q} className="guide-faq-item">
+            <summary className="guide-faq-q">
               <span>{faq.q}</span>
-              <span className="guide-faq-chevron">{open === i ? "▲" : "▼"}</span>
-            </button>
-            {open === i && <div className="guide-faq-a">{faq.a}</div>}
-          </div>
+              <Icon name="plus" size={16} className="guide-faq-chevron" />
+            </summary>
+            <div className="guide-faq-a">{faq.a}</div>
+          </details>
         ))}
       </div>
       <p className="guide-disclaimer">
-        This guide is based on historical CAP brochures. Always verify with the official DTE/CET Cell notification for the current year.
+        Based on past CAP brochures. Always check the official CET Cell notices for the current year.
       </p>
     </div>
   );
@@ -277,13 +362,15 @@ function FaqContent() {
 function DecisionCard({ title, yes, no }: { title: string; yes: string; no: string }) {
   return (
     <div className="guide-decision">
-      <div className="guide-decision-title">{title}</div>
+      <h3 className="guide-decision-title">{title}</h3>
       <div className="guide-decision-row">
-        <span className="guide-decision-check">✓</span>
+        <span className="sr-only">Yes:</span>
+        <span className="guide-decision-check"><Icon name="check" size={16} /></span>
         <span>{yes}</span>
       </div>
       <div className="guide-decision-row">
-        <span className="guide-decision-cross">✗</span>
+        <span className="sr-only">No:</span>
+        <span className="guide-decision-cross"><Icon name="close" size={16} /></span>
         <span>{no}</span>
       </div>
     </div>
