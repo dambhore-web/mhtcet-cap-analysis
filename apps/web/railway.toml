@@ -1,7 +1,11 @@
+# Railway service: compass-web. Root directory = repo root (the web app imports packages/core);
+# set the service's config file path to apps/web/railway.toml. VITE_API_URL is read at build
+# time. See docs/09-devops/deployment.md.
 [build]
-buildCommand = "npm ci && npm run build --workspace=@mhtcet/web"
 builder = "NIXPACKS"
+buildCommand = "npm ci --include=dev && npm run build -w @mhtcet/web"
+watchPatterns = ["apps/web/**", "packages/core/**", "package.json", "package-lock.json"]
 
 [deploy]
-startCommand = "npx serve -s dist -l $PORT"
+startCommand = "npx serve -s apps/web/dist -l $PORT"
 restartPolicyType = "ON_FAILURE"

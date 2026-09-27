@@ -26,13 +26,12 @@ merit lists. See `docs/00-project/vision.md`.
 | `packages/core` | Domain logic: seat types, eligibility, rank finder |
 | `packages/pipeline` | Download → parse → validate → summarise → load |
 | `apps/api` | TypeScript API server, AI harness, prompts |
-| `apps/web` | React + Vite + Tailwind app |
+| `apps/web` | React + Vite app, plain CSS with design tokens |
 | `docs/` | Project documentation (index: `docs/README.md`) |
 | `tasks/` | One file per significant task (`TASK-NNNN.md`) |
 | `.claude/agents/` | Claude Code subagents, e.g. `data-ingestion.md` (AG-002). Registry: `docs/06-agents/agent-registry.md` |
 | `data/` | Local only, git-ignored |
 
-`packages/core` and `packages/pipeline` exist (TASK-0002); `apps/` does not yet (see `PROJECT_STATUS.md`).
 
 ## Coding conventions
 - **TypeScript only**, `strict` mode, ES modules, Node 24 (ADR-001). No Python, no plain JS files.
@@ -40,8 +39,8 @@ merit lists. See `docs/00-project/vision.md`.
   `kebab-case` file names for docs, `camelCase.ts` for source files.
 - Prefer pure functions; keep I/O at the edges (CLI entry points, API handlers).
 - No `any` without a comment saying why.
-- Web: Tailwind for styling, React Query for data fetching, all user-facing strings through the
-  i18n layer once it exists.
+- Web: plain CSS using the design tokens in `apps/web/src/tokens.css` (no Tailwind); API calls go
+  through `apps/web/src/lib/api.ts`. English only at launch (NFR-005).
 
 ## Data and privacy rules (non-negotiable, ADR-003)
 - **Never commit** PDFs, row-level CSV/NDJSON, or anything under `data/`.

@@ -4,6 +4,9 @@
   "private": true,
   "description": "Closing-rank analysis of Maharashtra first-year engineering admissions (MHT-CET CAP rounds), built from the State CET Cell's published cutoff, allotment and merit lists.",
   "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
   "workspaces": [
     "packages/*",
     "apps/*"
