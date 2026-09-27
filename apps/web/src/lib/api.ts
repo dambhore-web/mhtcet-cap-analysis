@@ -144,4 +144,14 @@ export const api = {
     ),
   collegeFees: (code: string) =>
     get<CollegeFees | CollegeFeesUnavailable>(`/api/colleges/${code}/fees`),
+  jeeEstimate: (percentile: number) =>
+    get<{
+      percentile: number;
+      estimatedRank: number;
+      rankRange: [number, number];
+      totalCandidates: number;
+      year: number;
+      method: string;
+      disclaimer: string;
+    }>(`/api/jee-estimate?percentile=${percentile}`),
 };
