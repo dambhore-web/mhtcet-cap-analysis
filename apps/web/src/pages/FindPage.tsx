@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { api, type FindOption, type Category } from "../lib/api";
+import { useProfile } from "../lib/ProfileContext";
 import "./FindPage.css";
 
 const CATEGORIES: { value: Category | ""; label: string }[] = [
@@ -60,7 +62,21 @@ const DEFAULT: FormState = {
 type Status = "idle" | "loading" | "done" | "error";
 
 export function FindPage() {
-  const [form, setForm] = useState<FormState>(DEFAULT);
+  const { profile } = useProfile();
+  const initialForm: FormState = {
+    ...DEFAULT,
+    score: profile.meritNumber ? String(profile.meritNumber) : "",
+    category: profile.category ?? "",
+    gender: profile.gender,
+    subjectGroup: profile.subjectGroup,
+    homeUniversity: profile.homeUniversity,
+    ews: profile.ews,
+    tfws: profile.tfws,
+    defence: profile.defence,
+    pwd: profile.pwd,
+    orphan: profile.orphan,
+  };
+  const [form, setForm] = useState<FormState>(initialForm);
   const [status, setStatus] = useState<Status>("idle");
   const [options, setOptions] = useState<FindOption[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
@@ -125,6 +141,7 @@ export function FindPage() {
           compass
         </div>
         <span className="find-year-badge">2026</span>
+        <Link to="/welcome" className="find-edit-profile">Edit profile</Link>
       </header>
 
       <section className="find-hero">
