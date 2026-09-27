@@ -3,6 +3,7 @@ import { ProfileProvider, useProfile } from "./lib/ProfileContext";
 import { Layout } from "./components/Layout";
 import { FindPage } from "./pages/FindPage";
 import { CollegesPage } from "./pages/CollegesPage";
+import { CollegePage } from "./pages/CollegePage";
 import { ListPage } from "./pages/ListPage";
 import { AskPage } from "./pages/AskPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
@@ -26,6 +27,7 @@ function AppRoutes() {
           }
         />
         <Route path="colleges" element={<CollegesPage />} />
+        <Route path="colleges/:code" element={<CollegePage />} />
         <Route path="list" element={<ListPage />} />
         <Route path="ask" element={<AskPage />} />
       </Route>
