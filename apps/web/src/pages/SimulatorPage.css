@@ -1,0 +1,266 @@
+.sim-page {
+  min-height: 100svh;
+  background: var(--page);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Header ─── */
+.sim-header {
+  padding: 20px 16px 16px;
+  background: linear-gradient(150deg, var(--violet) 0%, var(--violet-deep) 100%);
+}
+
+.sim-header h1 {
+  margin: 0 0 4px;
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.04em;
+}
+
+.sim-header p {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255,255,255,0.72);
+}
+
+/* ─── Body ─── */
+.sim-body {
+  padding: 16px 14px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ─── Profile card ─── */
+.sim-profile-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sim-profile-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sim-profile-row:last-child { border-bottom: none; }
+
+.sim-profile-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sim-profile-val {
+  font-family: var(--font-num);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.sim-setup-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--violet);
+  text-decoration: none;
+}
+
+.sim-setup-link:hover { text-decoration: underline; }
+
+/* ─── Prereq warning ─── */
+.sim-prereq {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--navy);
+  line-height: 1.5;
+}
+
+.sim-prereq-icon { font-size: 16px; flex-shrink: 0; }
+
+.sim-prereq strong { display: block; margin-bottom: 4px; }
+
+.sim-prereq ul {
+  margin: 0;
+  padding: 0 0 0 16px;
+}
+
+.sim-prereq a { color: var(--violet); }
+
+/* ─── Run button ─── */
+.sim-run-btn {
+  padding: 15px;
+  background: var(--violet);
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--white);
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--violet-deep);
+  transition: opacity 0.12s;
+  letter-spacing: -0.02em;
+}
+
+.sim-run-btn:hover:not(:disabled) { opacity: 0.88; }
+
+.sim-run-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.sim-run-btn.loading { opacity: 0.7; }
+
+/* ─── Error ─── */
+.sim-error {
+  padding: 12px 14px;
+  background: #fff0f0;
+  border: 1px solid #f5c6c6;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #c62828;
+}
+
+/* ─── Results ─── */
+.sim-results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sim-results-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+/* ─── Round card ─── */
+.sim-round-card {
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.sim-round-card.allotted {
+  border-color: var(--violet);
+  box-shadow: 0 3px 16px rgba(101,82,216,0.1);
+}
+
+.sim-round-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--lavender);
+  border-bottom: 1px solid var(--line);
+}
+
+.sim-round-card.allotted .sim-round-head {
+  background: linear-gradient(135deg, var(--lavender) 0%, #ede9ff 100%);
+}
+
+.sim-round-label {
+  font-family: var(--font-head);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--navy);
+  white-space: nowrap;
+}
+
+.sim-round-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+/* ─── Allotment ─── */
+.sim-round-allotment {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sim-allot-rank {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--violet);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sim-allot-college {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  text-decoration: none;
+  line-height: 1.3;
+}
+
+.sim-allot-college:hover { color: var(--violet); }
+
+.sim-allot-branch {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sim-allot-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.sim-allot-seat {
+  padding: 2px 8px;
+  background: var(--lavender);
+  border-radius: 6px;
+  font-family: var(--font-num);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--violet);
+}
+
+.sim-allot-merit {
+  font-family: var(--font-num);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ─── Vacant ─── */
+.sim-round-vacant {
+  padding: 14px;
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ─── Note ─── */
+.sim-note {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.55;
+  padding: 12px 14px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}

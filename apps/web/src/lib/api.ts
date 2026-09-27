@@ -101,8 +101,35 @@ export interface CollegeFeesUnavailable {
   code: string;
 }
 
+export interface SimulateRequest {
+  merit: number;
+  homeUniversity: string | null;
+  category: Category | null;
+  gender: "M" | "F";
+  minorityCommunity: string | null;
+  flags: { ews: boolean; tfws: boolean; defence: boolean; pwd: boolean; orphan: boolean };
+  subjectGroup: "PCM" | "PCB";
+  preferences: string[];
+}
+
+export interface SimulatedAllotment {
+  round: "I" | "II" | "III";
+  rank: number;
+  choiceCode: string;
+  collegeName: string;
+  branch: string;
+  seatType: string;
+  closingMerit: number;
+}
+
+export interface SimulateResponse {
+  allotments: SimulatedAllotment[];
+  rounds: string[];
+}
+
 export const api = {
   find: (req: FindRequest) => post<FindResponse>("/api/rank-finder", req),
+  simulate: (req: SimulateRequest) => post<SimulateResponse>("/api/simulate", req),
   colleges: (q: string, university?: string) =>
     get<{ colleges: College[]; count: number; total: number }>(
       `/api/colleges?q=${encodeURIComponent(q)}&university=${encodeURIComponent(university ?? "")}&limit=400`

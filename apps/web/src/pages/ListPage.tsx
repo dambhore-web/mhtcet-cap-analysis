@@ -251,6 +251,11 @@ export function ListPage() {
             </SortableContext>
           </DndContext>
 
+          <Link to="/simulator" className="list-sim-banner">
+            <span>⚡ Simulate your Round I, II, III allotments</span>
+            <span className="list-guide-arrow">→</span>
+          </Link>
+
           <Link to="/guide" className="list-guide-banner">
             <span>🧊 After allotment: should you Freeze, Float, or Slide?</span>
             <span className="list-guide-arrow">→</span>
