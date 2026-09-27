@@ -1,0 +1,1550 @@
+{
+  "14005": {
+    "district": "Nagpur",
+    "collegeType": "Government"
+  },
+  "16006": {
+    "district": "Pune",
+    "collegeType": "Government"
+  },
+  "16121": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "16351": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "16352": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "16354": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "16355": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "16357": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "16371": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "16372": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "16373": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "01002": {
+    "district": "Amravati",
+    "collegeType": "Government"
+  },
+  "01005": {
+    "district": "Amravati",
+    "collegeType": "Government"
+  },
+  "01012": {
+    "district": "Yavatmal",
+    "collegeType": "Government"
+  },
+  "01101": {
+    "district": "Buldhana",
+    "collegeType": "Unaided"
+  },
+  "01105": {
+    "district": "Amravati",
+    "collegeType": "Unaided"
+  },
+  "01107": {
+    "district": "Amravati",
+    "collegeType": "Unaided"
+  },
+  "01114": {
+    "district": "Amravati",
+    "collegeType": "Unaided"
+  },
+  "01116": {
+    "district": "Akola",
+    "collegeType": "Unaided"
+  },
+  "01117": {
+    "district": "Yavatmal",
+    "collegeType": "Unaided"
+  },
+  "01119": {
+    "district": "Buldhana",
+    "collegeType": "Unaided"
+  },
+  "01120": {
+    "district": "Yavatmal",
+    "collegeType": "Unaided"
+  },
+  "01121": {
+    "district": "Amravati",
+    "collegeType": "Unaided"
+  },
+  "01123": {
+    "district": "Amravati",
+    "collegeType": "Unaided"
+  },
+  "01125": {
+    "district": "Buldhana",
+    "collegeType": "Unaided"
+  },
+  "01126": {
+    "district": "Amravati",
+    "collegeType": "Unaided"
+  },
+  "01127": {
+    "district": "Yavatmal",
+    "collegeType": "Unaided"
+  },
+  "01128": {
+    "district": "Amravati",
+    "collegeType": "Unaided"
+  },
+  "01130": {
+    "district": "Buldhana",
+    "collegeType": "Unaided"
+  },
+  "01180": {
+    "district": "Washim",
+    "collegeType": "Unaided"
+  },
+  "01182": {
+    "district": "Buldhana",
+    "collegeType": "Unaided"
+  },
+  "01265": {
+    "district": "Buldhana",
+    "collegeType": "Unaided"
+  },
+  "01268": {
+    "district": "Buldhana",
+    "collegeType": "Unaided"
+  },
+  "01276": {
+    "district": "Akola",
+    "collegeType": "Unaided"
+  },
+  "01347": {
+    "district": "Amravati",
+    "collegeType": "Unaided"
+  },
+  "02008": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Government"
+  },
+  "02015": {
+    "district": "Latur",
+    "collegeType": "Government"
+  },
+  "02020": {
+    "district": "Nanded",
+    "collegeType": "Government-Aided"
+  },
+  "02021": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Government"
+  },
+  "02032": {
+    "district": "Jalna",
+    "collegeType": "Government"
+  },
+  "02037": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Government"
+  },
+  "02111": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02112": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02113": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02114": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02116": {
+    "district": "Nanded",
+    "collegeType": "Unaided"
+  },
+  "02127": {
+    "district": "Nanded",
+    "collegeType": "Unaided"
+  },
+  "02129": {
+    "district": "Latur",
+    "collegeType": "Unaided"
+  },
+  "02130": {
+    "district": "Dharashiv",
+    "collegeType": "Unaided"
+  },
+  "02131": {
+    "district": "Dharashiv",
+    "collegeType": "Unaided"
+  },
+  "02133": {
+    "district": "Beed",
+    "collegeType": "Unaided"
+  },
+  "02134": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02135": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02136": {
+    "district": "Beed",
+    "collegeType": "Unaided"
+  },
+  "02137": {
+    "district": "Beed",
+    "collegeType": "Unaided"
+  },
+  "02138": {
+    "district": "Jalna",
+    "collegeType": "Unaided"
+  },
+  "02146": {
+    "district": "Dharashiv",
+    "collegeType": "Unaided"
+  },
+  "02189": {
+    "district": "Latur",
+    "collegeType": "Unaided"
+  },
+  "02250": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02252": {
+    "district": "Parbhani",
+    "collegeType": "Unaided"
+  },
+  "02254": {
+    "district": "Latur",
+    "collegeType": "Unaided"
+  },
+  "02282": {
+    "district": "Beed",
+    "collegeType": "Unaided"
+  },
+  "02508": {
+    "district": "Nanded",
+    "collegeType": "Unaided"
+  },
+  "02516": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02522": {
+    "district": "Latur",
+    "collegeType": "Unaided"
+  },
+  "02533": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02634": {
+    "district": "Jalna",
+    "collegeType": "Unaided"
+  },
+  "02637": {
+    "district": "Nanded",
+    "collegeType": "Unaided"
+  },
+  "02641": {
+    "district": "Dharashiv",
+    "collegeType": "Unaided"
+  },
+  "02666": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02758": {
+    "district": "Chhatrapati Sambhaji Nagar",
+    "collegeType": "Unaided"
+  },
+  "02770": {
+    "district": "Beed",
+    "collegeType": "Unaided"
+  },
+  "02771": {
+    "district": "Beed",
+    "collegeType": "Unaided"
+  },
+  "02772": {
+    "district": "Latur",
+    "collegeType": "Unaided"
+  },
+  "02777": {
+    "district": "Nanded",
+    "collegeType": "Unaided"
+  },
+  "02779": {
+    "district": "Hingoli",
+    "collegeType": "Unaided"
+  },
+  "02805": {
+    "district": "Hingoli",
+    "collegeType": "Unaided"
+  },
+  "03012": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Government-Aided"
+  },
+  "03014": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Government-Aided"
+  },
+  "03025": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Government-Aided"
+  },
+  "03033": {
+    "district": "Raigad",
+    "collegeType": "Government"
+  },
+  "03035": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Government"
+  },
+  "03036": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Deemed University"
+  },
+  "03042": {
+    "district": "Ratnagiri",
+    "collegeType": "Government"
+  },
+  "03135": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03139": {
+    "district": "Mumbai-City",
+    "collegeType": "Unaided"
+  },
+  "03143": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03146": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03147": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03148": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03154": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03175": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03176": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03182": {
+    "district": "Mumbai-City",
+    "collegeType": "Unaided"
+  },
+  "03183": {
+    "district": "Mumbai-City",
+    "collegeType": "Unaided"
+  },
+  "03184": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03185": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03187": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03188": {
+    "district": "Mumbai-City",
+    "collegeType": "Unaided"
+  },
+  "03189": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03190": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03192": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03193": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03194": {
+    "district": "Palghar",
+    "collegeType": "Unaided"
+  },
+  "03196": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03197": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03198": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03199": {
+    "district": "Mumbai-City",
+    "collegeType": "Unaided"
+  },
+  "03200": {
+    "district": "Ratnagiri",
+    "collegeType": "Unaided"
+  },
+  "03201": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03202": {
+    "district": "Ratnagiri",
+    "collegeType": "Unaided"
+  },
+  "03203": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03204": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03206": {
+    "district": "Sindhudurg",
+    "collegeType": "Unaided"
+  },
+  "03208": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03209": {
+    "district": "Mumbai-City",
+    "collegeType": "Unaided"
+  },
+  "03210": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03211": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03212": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03214": {
+    "district": "Mumbai-City",
+    "collegeType": "Unaided"
+  },
+  "03215": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03216": {
+    "district": "Ratnagiri",
+    "collegeType": "Unaided"
+  },
+  "03217": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03218": {
+    "district": "Palghar",
+    "collegeType": "Unaided"
+  },
+  "03219": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03220": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03221": {
+    "district": "Palghar",
+    "collegeType": "Unaided"
+  },
+  "03222": {
+    "district": "Palghar",
+    "collegeType": "Unaided"
+  },
+  "03223": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03224": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03257": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03277": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03351": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03353": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03423": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03436": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03439": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03440": {
+    "district": "Sindhudurg",
+    "collegeType": "Unaided"
+  },
+  "03445": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03447": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03462": {
+    "district": "Ratnagiri",
+    "collegeType": "Unaided"
+  },
+  "03465": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03467": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03470": {
+    "district": "Sindhudurg",
+    "collegeType": "Unaided"
+  },
+  "03471": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03475": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03477": {
+    "district": "Raigad",
+    "collegeType": "Unaided"
+  },
+  "03503": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03546": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03723": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03724": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "03725": {
+    "district": "Thane",
+    "collegeType": "Unaided"
+  },
+  "03726": {
+    "district": "Mumbai-Suburban",
+    "collegeType": "Unaided"
+  },
+  "04004": {
+    "district": "Chandrapur",
+    "collegeType": "Government"
+  },
+  "04025": {
+    "district": "Nagpur",
+    "collegeType": "Government"
+  },
+  "04026": {
+    "district": "Nagpur",
+    "collegeType": "Government"
+  },
+  "04104": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04116": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04118": {
+    "district": "Wardha",
+    "collegeType": "Unaided"
+  },
+  "04123": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04133": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04134": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04135": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04137": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04138": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04139": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04141": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04142": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04143": {
+    "district": "Bhandara",
+    "collegeType": "Unaided"
+  },
+  "04144": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04145": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04147": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04151": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04163": {
+    "district": "Chandrapur",
+    "collegeType": "Unaided"
+  },
+  "04167": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04172": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04174": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04175": {
+    "district": "Wardha",
+    "collegeType": "Unaided"
+  },
+  "04177": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04181": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04188": {
+    "district": "Chandrapur",
+    "collegeType": "Unaided"
+  },
+  "04190": {
+    "district": "Chandrapur",
+    "collegeType": "Unaided"
+  },
+  "04192": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04193": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04196": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04197": {
+    "district": "Wardha",
+    "collegeType": "Unaided"
+  },
+  "04302": {
+    "district": "Bhandara",
+    "collegeType": "Unaided"
+  },
+  "04304": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04613": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "04648": {
+    "district": "Wardha",
+    "collegeType": "Unaided"
+  },
+  "04649": {
+    "district": "Wardha",
+    "collegeType": "Unaided"
+  },
+  "04679": {
+    "district": "Bhandara",
+    "collegeType": "Unaided"
+  },
+  "04703": {
+    "district": "Chandrapur",
+    "collegeType": "Unaided"
+  },
+  "04762": {
+    "district": "Chandrapur",
+    "collegeType": "Unaided"
+  },
+  "04766": {
+    "district": "Nagpur",
+    "collegeType": "Unaided"
+  },
+  "05003": {
+    "district": "Jalgaon",
+    "collegeType": "Government"
+  },
+  "05004": {
+    "district": "Jalgaon",
+    "collegeType": "Government"
+  },
+  "05103": {
+    "district": "Dhule",
+    "collegeType": "Unaided"
+  },
+  "05104": {
+    "district": "Jalgaon",
+    "collegeType": "Unaided"
+  },
+  "05106": {
+    "district": "Jalgaon",
+    "collegeType": "Unaided"
+  },
+  "05108": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05109": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05121": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05124": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05125": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05130": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05139": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05151": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05152": {
+    "district": "Jalgaon",
+    "collegeType": "Unaided"
+  },
+  "05160": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05161": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05162": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05164": {
+    "district": "Nandurbar",
+    "collegeType": "Unaided"
+  },
+  "05168": {
+    "district": "Jalgaon",
+    "collegeType": "Unaided"
+  },
+  "05169": {
+    "district": "Dhule",
+    "collegeType": "Unaided"
+  },
+  "05170": {
+    "district": "Jalgaon",
+    "collegeType": "Unaided"
+  },
+  "05171": {
+    "district": "Jalgaon",
+    "collegeType": "Unaided"
+  },
+  "05172": {
+    "district": "Dhule",
+    "collegeType": "Unaided"
+  },
+  "05173": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05177": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05179": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05181": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05182": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05184": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05223": {
+    "district": "Jalgaon",
+    "collegeType": "Unaided"
+  },
+  "05235": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05239": {
+    "district": "Nandurbar",
+    "collegeType": "Unaided"
+  },
+  "05244": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05249": {
+    "district": "Jalgaon",
+    "collegeType": "Unaided"
+  },
+  "05256": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05263": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05303": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05330": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05331": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05365": {
+    "district": "Dhule",
+    "collegeType": "Unaided"
+  },
+  "05370": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05380": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05381": {
+    "district": "Dhule",
+    "collegeType": "Unaided"
+  },
+  "05382": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05390": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05395": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05396": {
+    "district": "Jalgaon",
+    "collegeType": "Unaided"
+  },
+  "05399": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05401": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05408": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05409": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05411": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05413": {
+    "district": "Dhule",
+    "collegeType": "Unaided"
+  },
+  "05414": {
+    "district": "Dhule",
+    "collegeType": "Unaided"
+  },
+  "05418": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05433": {
+    "district": "Dhule",
+    "collegeType": "Unaided"
+  },
+  "05497": {
+    "district": "Nandurbar",
+    "collegeType": "Unaided"
+  },
+  "05509": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "05513": {
+    "district": "Nandurbar",
+    "collegeType": "Unaided"
+  },
+  "05545": {
+    "district": "Dhule",
+    "collegeType": "Unaided"
+  },
+  "05597": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05682": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05683": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05686": {
+    "district": "Nashik",
+    "collegeType": "Unaided"
+  },
+  "05688": {
+    "district": "Ahilyanagar",
+    "collegeType": "Unaided"
+  },
+  "06004": {
+    "district": "Pune",
+    "collegeType": "Government"
+  },
+  "06005": {
+    "district": "Satara",
+    "collegeType": "Government"
+  },
+  "06007": {
+    "district": "Sangli",
+    "collegeType": "Government-Aided"
+  },
+  "06028": {
+    "district": "Kolhapur",
+    "collegeType": "Government"
+  },
+  "06036": {
+    "district": "Kolhapur",
+    "collegeType": "Government"
+  },
+  "06041": {
+    "district": "Solapur",
+    "collegeType": "Government"
+  },
+  "06122": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06138": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06139": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06141": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06144": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06145": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06146": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06149": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06155": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06156": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06175": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06177": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06178": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06179": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06182": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06183": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06184": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06185": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06187": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06203": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06206": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06207": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06214": {
+    "district": "Sangli",
+    "collegeType": "Unaided"
+  },
+  "06217": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06219": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06220": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06222": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06223": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06250": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06265": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06267": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06268": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06269": {
+    "district": "Sangli",
+    "collegeType": "Unaided"
+  },
+  "06270": {
+    "district": "Satara",
+    "collegeType": "Unaided"
+  },
+  "06271": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06272": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06273": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06274": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06275": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06276": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06277": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06278": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06281": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06282": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06283": {
+    "district": "Sangli",
+    "collegeType": "Unaided"
+  },
+  "06284": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06285": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06288": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06293": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06298": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06303": {
+    "district": "Satara",
+    "collegeType": "Unaided"
+  },
+  "06304": {
+    "district": "Sangli",
+    "collegeType": "Unaided"
+  },
+  "06305": {
+    "district": "Satara",
+    "collegeType": "Unaided"
+  },
+  "06307": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06308": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06310": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06311": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06313": {
+    "district": "Sangli",
+    "collegeType": "Unaided"
+  },
+  "06315": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06317": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06319": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06320": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06321": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06322": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06324": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06326": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06402": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06444": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06466": {
+    "district": "Satara",
+    "collegeType": "Unaided"
+  },
+  "06467": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06468": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06545": {
+    "district": "Satara",
+    "collegeType": "Unaided"
+  },
+  "06609": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06622": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06625": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06628": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06632": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06634": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06635": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06640": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06643": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06644": {
+    "district": "Sangli",
+    "collegeType": "Unaided"
+  },
+  "06649": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06714": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06715": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06725": {
+    "district": "Satara",
+    "collegeType": "Unaided"
+  },
+  "06732": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06754": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06755": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06756": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06757": {
+    "district": "Satara",
+    "collegeType": "Unaided"
+  },
+  "06758": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06759": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06762": {
+    "district": "Sangli",
+    "collegeType": "Unaided"
+  },
+  "06766": {
+    "district": "Satara",
+    "collegeType": "Unaided"
+  },
+  "06767": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06768": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06769": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06770": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06771": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06772": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06780": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06781": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06782": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06794": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06795": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06796": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06797": {
+    "district": "Satara",
+    "collegeType": "Unaided"
+  },
+  "06799": {
+    "district": "Sangli",
+    "collegeType": "Unaided"
+  },
+  "06803": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06808": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06811": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06814": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06815": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06822": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06834": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  },
+  "06839": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06878": {
+    "district": "Kolhapur",
+    "collegeType": "Unaided"
+  },
+  "06901": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06938": {
+    "district": "Solapur",
+    "collegeType": "Unaided"
+  },
+  "06991": {
+    "district": "Pune",
+    "collegeType": "Unaided"
+  }
+}

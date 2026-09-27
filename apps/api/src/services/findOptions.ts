@@ -95,6 +95,7 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
       collegeCode: branch.collegeCode,
       collegeName: college.name,
       district: college.district ?? null,
+      collegeType: college.collegeType ?? null,
       choiceCode,
       branch: branch.name,
       list: req.candidature,

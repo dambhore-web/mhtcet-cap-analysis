@@ -25,7 +25,18 @@ for (const f of ["cutoffs.ndjson", "institutes.json", "cutoff-colleges.json", "a
   if ((await stat(join(dir, f))).mtimeMs > vTime) throw new Error(`[LOAD] ${f} changed after validation; run validate again`);
 }
 
-const institutes = await readJson<InstituteListRow[]>(join(dir, "institutes.json"));
+const rawInstitutes = await readJson<InstituteListRow[]>(join(dir, "institutes.json"));
+// Merge district + collegeType from college-meta-<year>.json if present (FR-008 / #115).
+// File lives in packages/pipeline/data/ so it's tracked in git.
+const collegeMetaPath = join(REPO_ROOT, "packages/pipeline/data", `college-meta-${year}.json`);
+const collegeMeta = await readJson<Record<string, { district: string | null; collegeType: string | null }>>(
+  collegeMetaPath,
+).catch(() => ({} as Record<string, { district: string | null; collegeType: string | null }>));
+const institutes = rawInstitutes.map((i) => ({
+  ...i,
+  district: collegeMeta[i.code]?.district ?? null,
+  collegeType: collegeMeta[i.code]?.collegeType ?? null,
+}));
 const { colleges: mhColleges, branches } = await readJson<{ colleges: MhCollege[]; branches: MhBranch[] }>(join(dir, "cutoff-colleges.json"));
 const excluded = validation.load.cutoffs;
 const excludedKeys = new Set(excluded.excludedKeys);
@@ -57,8 +68,8 @@ try {
   await client.query("insert into ingest_run (id, kind, year, git_commit, started_at, status) values ($1, 'load', $2, $3, now(), 'running')", [runId, year, gitCommit]);
 
   counts.collegeUpserts = await upsert(client, "college",
-    ["authority", "code", "exam", "name", "status", "home_university", "total_intake", "run_id", "updated_at"], ["authority", "code"],
-    institutes.map((i) => [AUTHORITY, i.code, EXAM, i.name, i.status, homeUni.get(i.code) ?? null, i.totalIntake, runId, new Date()]));
+    ["authority", "code", "exam", "name", "status", "home_university", "total_intake", "district", "college_type", "run_id", "updated_at"], ["authority", "code"],
+    institutes.map((i) => [AUTHORITY, i.code, EXAM, i.name, i.status, homeUni.get(i.code) ?? null, i.totalIntake, i.district ?? null, i.collegeType ?? null, runId, new Date()]));
 
   counts.branchUpserts = await upsert(client, "branch",
     ["authority", "choice_code", "college_code", "exam", "name", "status", "run_id", "updated_at"], ["authority", "choice_code"],

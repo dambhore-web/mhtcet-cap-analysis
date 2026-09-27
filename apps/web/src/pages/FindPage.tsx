@@ -249,6 +249,7 @@ export function FindPage() {
     return Math.max(1000, Math.ceil((m * 1.25) / 100) * 100);
   }, [options, searchedMerit]);
   const districts = useMemo(() => [...new Set(options.map((o) => o.district).filter((d): d is string => !!d))].sort(), [options]);
+  const collegeTypes = useMemo(() => [...new Set(options.map((o) => o.collegeType).filter((t): t is string => !!t))].sort(), [options]);
   const formCount = useList().length;
   const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === form.category)?.label ?? "Open";
 
@@ -575,6 +576,21 @@ export function FindPage() {
                     <option key={g} value={g}>{g}</option>
                   ))}
                 </select>
+                {(collegeTypes.length > 1 || resultFilters.collegeType) && (
+                  <>
+                    <label className="sr-only" htmlFor="rf-type">Filter by college type</label>
+                    <select
+                      id="rf-type"
+                      className="rf-select"
+                      value={resultFilters.collegeType ?? ""}
+                      onChange={(e) => applyFilter({ ...resultFilters, collegeType: e.target.value || null })}
+                      disabled={filterLoading}
+                    >
+                      <option value="">All types</option>
+                      {collegeTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </>
+                )}
                 {(districts.length > 1 || resultFilters.district) && (
                   <>
                     <label className="sr-only" htmlFor="rf-district">Filter by district</label>
@@ -591,7 +607,7 @@ export function FindPage() {
                   </>
                 )}
                 {filterLoading && <span className="rf-spinner" role="status" aria-label="Filtering" />}
-                {(resultFilters.university || resultFilters.branchGroup || resultFilters.district) && (
+                {(resultFilters.university || resultFilters.branchGroup || resultFilters.district || resultFilters.collegeType) && (
                   <button type="button" className="btn btn-ghost btn-sm" onClick={() => applyFilter({})} disabled={filterLoading}>
                     <Icon name="close" size={14} />
                     Clear filters
