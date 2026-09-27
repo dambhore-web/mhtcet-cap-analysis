@@ -69,6 +69,24 @@
   font-family: var(--font-num);
 }
 
+.cp-share-btn {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: var(--white);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+
+.cp-share-btn:hover { background: rgba(255, 255, 255, 0.28); }
+.cp-share-btn.copied { background: var(--lime); color: var(--navy); border-color: var(--lime); }
+
 .cp-pin-btn {
   flex-shrink: 0;
   padding: 6px 12px;

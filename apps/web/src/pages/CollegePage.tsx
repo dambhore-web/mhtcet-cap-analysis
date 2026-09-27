@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { api, type CollegeFees, type CollegeFeesUnavailable } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { useCompare } from "../lib/CompareContext";
@@ -70,16 +70,21 @@ function getBranchStatus(cutoffs: CutoffRow[], branch: string, merit: number): B
 
 export function CollegePage() {
   const { code } = useParams<{ code: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { profile } = useProfile();
   const { pin, unpin, isPinned: checkPinned, canPin } = useCompare();
   const [data, setData] = useState<CollegeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedBranch, setSelectedBranch] = useState<string>("");
-  const [filter, setFilter] = useState<"all" | "gopens" | "reserved">("all");
+  const [filter, setFilter] = useState<"all" | "gopens" | "reserved">(() => {
+    const s = searchParams.get("seat");
+    return (s === "gopens" || s === "reserved") ? s : "all";
+  });
   const [whatifMerit, setWhatifMerit] = useState<number>(() => profile.meritNumber ?? 10000);
   const [showWhatif, setShowWhatif] = useState(false);
   const [fees, setFees] = useState<CollegeFees | CollegeFeesUnavailable | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     if (!code) return;
@@ -178,6 +183,17 @@ export function CollegePage() {
           <h1>{data.college.name}</h1>
           <span className="cp-code">{data.college.code} · {data.year}</span>
         </div>
+        <button
+          className={`cp-share-btn${linkCopied ? " copied" : ""}`}
+          onClick={() => {
+            navigator.clipboard.writeText(window.location.href);
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 2000);
+          }}
+          title="Copy link to this page"
+        >
+          {linkCopied ? "✓" : "⤴"}
+        </button>
         {code && (() => {
           const pinned = checkPinned(code);
           return (
@@ -295,9 +311,9 @@ export function CollegePage() {
       </div>
 
       <div className="cp-filter-row">
-        <button className={`cp-filter${filter === "all" ? " active" : ""}`} onClick={() => setFilter("all")}>All seats</button>
-        <button className={`cp-filter${filter === "gopens" ? " active" : ""}`} onClick={() => setFilter("gopens")}>GOPENS only</button>
-        <button className={`cp-filter${filter === "reserved" ? " active" : ""}`} onClick={() => setFilter("reserved")}>Reserved seats</button>
+        <button className={`cp-filter${filter === "all" ? " active" : ""}`} onClick={() => { setFilter("all"); setSearchParams({}, { replace: true }); }}>All seats</button>
+        <button className={`cp-filter${filter === "gopens" ? " active" : ""}`} onClick={() => { setFilter("gopens"); setSearchParams({ seat: "gopens" }, { replace: true }); }}>GOPENS only</button>
+        <button className={`cp-filter${filter === "reserved" ? " active" : ""}`} onClick={() => { setFilter("reserved"); setSearchParams({ seat: "reserved" }, { replace: true }); }}>Reserved seats</button>
       </div>
 
       <div className="cp-table-wrap" role="region" aria-label="Cutoff table">
