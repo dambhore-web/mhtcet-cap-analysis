@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
+import { randomUUID } from "crypto";
 import { createPool } from "./db.ts";
 import { loadCache, type AppCache } from "./startup.ts";
 import { health } from "./routes/health.ts";
@@ -20,6 +21,24 @@ function createApp(cache: AppCache, pool: pg.Pool) {
 
   app.use("*", cors({ origin: "*" }));
 
+  // Request ID + structured access log
+  app.use("*", async (c, next) => {
+    const reqId = (c.req.header("x-request-id") ?? randomUUID()).slice(0, 36);
+    c.res.headers.set("x-request-id", reqId);
+    const start = Date.now();
+    await next();
+    const ms = Date.now() - start;
+    const log = {
+      ts: new Date().toISOString(),
+      reqId,
+      method: c.req.method,
+      path: new URL(c.req.url).pathname,
+      status: c.res.status,
+      ms,
+    };
+    console.log(JSON.stringify(log));
+  });
+
   app.get("/api/health", health);
   app.get("/api/colleges", (c) => getColleges(c, cache));
   app.get("/api/colleges/:code/cutoffs", (c) => getCollegeCutoffs(c, cache));
@@ -30,7 +49,8 @@ function createApp(cache: AppCache, pool: pg.Pool) {
   app.get("/api/colleges/:code/fees", getCollegeFees);
 
   app.onError((err, c) => {
-    console.error("[error]", err);
+    const reqId = c.res.headers.get("x-request-id") ?? "?";
+    console.error(JSON.stringify({ ts: new Date().toISOString(), reqId, event: "error", message: err.message }));
     return c.json({ error: "internal_error" }, 500);
   });
 
@@ -47,7 +67,7 @@ async function main() {
   const app = createApp(cache, pool);
 
   serve({ fetch: app.fetch, port: PORT }, () => {
-    console.log(`[api] listening on http://localhost:${PORT}`);
+    console.log(JSON.stringify({ ts: new Date().toISOString(), event: "startup", port: PORT, year: CACHE_YEAR }));
   });
 }
 
