@@ -12,7 +12,7 @@ const TYPICAL_COUNTS: Record<string, number> = {
 export async function getMeritEstimate(c: Context, pool: pg.Pool) {
   const percentileStr = c.req.query("percentile");
   const subjectGroup = (c.req.query("subjectGroup") ?? "PCM").toUpperCase();
-  const year = parseInt(c.req.query("year") ?? "2026", 10);
+  const yearRaw = parseInt(c.req.query("year") ?? "2026", 10);
 
   if (!percentileStr) return c.json({ error: "percentile_required" }, 400);
   const percentile = parseFloat(percentileStr);
@@ -22,6 +22,10 @@ export async function getMeritEstimate(c: Context, pool: pg.Pool) {
   if (!["PCM", "PCB"].includes(subjectGroup)) {
     return c.json({ error: "invalid_subject_group" }, 400);
   }
+  if (!Number.isInteger(yearRaw) || yearRaw < 2023 || yearRaw > 2030) {
+    return c.json({ error: "invalid_year" }, 400);
+  }
+  const year = yearRaw;
 
   // Try real data first (populated by issue #10)
   const examCode = subjectGroup === "PCM" ? "MHT-CET-PCM" : "MHT-CET-PCB";

@@ -13,13 +13,19 @@ const SUGGESTIONS = [
   "What is TFWS and how do I qualify?",
 ];
 
+const SOURCES = [
+  { label: "2026 MHT-CET Information Brochure", detail: "Eligibility, seats, reservation rules" },
+  { label: "CAP Round-wise Merit Lists", detail: "Closing merits for all branches · Rounds I–IV" },
+  { label: "ARC Order of Merit", detail: "All-round closing ranks from 2024 & 2025" },
+  { label: "MHT-CET Act & Rules", detail: "Seat matrix, freeze/float/slide definitions" },
+];
+
 interface Message {
   id: string;
   role: "user" | "assistant";
   text: string;
   streaming?: boolean;
 }
-
 
 export function AskPage() {
   const { profile } = useProfile();
@@ -41,7 +47,6 @@ export function AskPage() {
     const trimmed = text.trim();
     const userMsg: Message = { id: Date.now().toString(), role: "user", text: trimmed };
 
-    // Snapshot the full conversation history to send to the API
     const history = messages
       .filter((m) => !m.streaming)
       .map((m) => ({ role: m.role as "user" | "assistant", content: m.text }));
@@ -61,7 +66,6 @@ export function AskPage() {
 
       if (!reader) throw new Error("no_stream");
 
-      // Add empty streaming message
       setMessages((m) => [...m, { id: assistantId, role: "assistant", text: "", streaming: true }]);
       setIsTyping(false);
 
@@ -89,12 +93,11 @@ export function AskPage() {
             }
             if (payload.done || payload.error) break;
           } catch {
-            // malformed SSE line, skip
+            // malformed SSE line
           }
         }
       }
 
-      // Mark streaming complete
       setMessages((m) =>
         m.map((msg) => (msg.id === assistantId ? { ...msg, streaming: false } : msg))
       );
@@ -122,101 +125,142 @@ export function AskPage() {
     }
   }
 
-  const contextLine = profile.meritNumber
-    ? `Merit ${profile.meritNumber.toLocaleString("en-IN")}${profile.category ? ` · ${profile.category}` : ""}`
-    : null;
-
   return (
     <div className="ask-page">
-      <header className="ask-header">
-        <div className="ask-header-left">
-          <span className="ask-header-icon">✦</span>
-          <div>
-            <h1>Ask Compass</h1>
-            {contextLine && <span className="ask-context-line">{contextLine} · auto-injected</span>}
+
+      {/* Context bar */}
+      {profile.meritNumber && (
+        <div className="ask-context-bar">
+          <span className="ask-ctx-chip ask-ctx-chip-merit">
+            Merit {profile.meritNumber.toLocaleString("en-IN")}
+          </span>
+          {profile.category && <span className="ask-ctx-chip">{profile.category}</span>}
+          {profile.gender && (
+            <span className="ask-ctx-chip">{profile.gender === "M" ? "Male" : "Female"}</span>
+          )}
+          <span className="ask-ctx-label">injected as context</span>
+        </div>
+      )}
+
+      <div className="ask-body">
+
+        {/* Chat column */}
+        <div className="ask-main">
+
+          <div className="ask-messages">
+            {messages.length === 0 && (
+              <div className="ask-empty">
+                <div className="ask-empty-icon">✦</div>
+                <h2>Ask me anything about MHT-CET CAP</h2>
+                <p>Cutoffs, eligibility, documents, Freeze vs Float — I'll explain with official sources.</p>
+                <div className="ask-suggestions">
+                  {SUGGESTIONS.map((s) => (
+                    <button key={s} className="ask-suggestion" onClick={() => sendMessage(s)}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {messages.map((msg) => (
+              <div key={msg.id} className={`ask-bubble-wrap ${msg.role}`}>
+                {msg.role === "assistant" && <span className="ask-ai-dot">✦</span>}
+                <div className={`ask-bubble ${msg.role}`}>
+                  <FormattedText text={msg.text} />
+                </div>
+              </div>
+            ))}
+
+            {isTyping && (
+              <div className="ask-bubble-wrap assistant">
+                <span className="ask-ai-dot">✦</span>
+                <div className="ask-bubble assistant ask-typing">
+                  <span /><span /><span />
+                </div>
+              </div>
+            )}
+
+            <div ref={bottomRef} />
+          </div>
+
+          <div className="ask-bottom">
+            {limitReached ? (
+              <div className="ask-limit-banner">
+                <div className="ask-limit-text">
+                  <strong>You've used {FREE_LIMIT} of {FREE_LIMIT} free questions</strong>
+                  <span>Upgrade to ask unlimited questions</span>
+                </div>
+                <Link to="/plans" className="ask-limit-cta">See plans</Link>
+              </div>
+            ) : (
+              <>
+                {/* Suggestion chips when chat is active */}
+                {messages.length > 0 && !isTyping && (
+                  <div className="ask-quick-chips">
+                    {SUGGESTIONS.map((s) => (
+                      <button key={s} className="ask-quick-chip" onClick={() => sendMessage(s)}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="ask-usage-bar">
+                  <span>{FREE_LIMIT - questionCount} of {FREE_LIMIT} free questions remaining</span>
+                  {messages.length > 0 && (
+                    <button className="ask-new-chat" onClick={() => { setMessages([]); setQuestionCount(0); }}>
+                      New chat
+                    </button>
+                  )}
+                  <Link to="/plans" className="ask-upgrade-link">Upgrade</Link>
+                </div>
+                <div className="ask-input-row">
+                  <textarea
+                    ref={inputRef}
+                    className="ask-input"
+                    placeholder="Ask about MHT-CET admissions…"
+                    value={input}
+                    rows={1}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={isTyping}
+                  />
+                  <button
+                    className="ask-send"
+                    onClick={() => sendMessage(input)}
+                    disabled={!input.trim() || isTyping}
+                    aria-label="Send"
+                  >
+                    ↑
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
-        {messages.length > 0 && (
-          <button className="ask-new-chat" onClick={() => { setMessages([]); setQuestionCount(0); }}>
-            New chat
-          </button>
-        )}
-      </header>
 
-      <div className="ask-messages">
-        {messages.length === 0 && (
-          <div className="ask-empty">
-            <div className="ask-empty-icon">✦</div>
-            <h2>Ask me anything about MHT-CET CAP</h2>
-            <p>Cutoffs, eligibility, documents, Freeze vs Float — I'll explain with official sources.</p>
-            <div className="ask-suggestions">
-              {SUGGESTIONS.map((s) => (
-                <button key={s} className="ask-suggestion" onClick={() => sendMessage(s)}>
-                  {s}
-                </button>
-              ))}
-            </div>
+        {/* Sources sidebar */}
+        <aside className="ask-sources">
+          <div className="ask-sources-title">Sources</div>
+          <div className="ask-sources-list">
+            {SOURCES.map((s) => (
+              <div key={s.label} className="ask-source-item">
+                <span className="ask-source-icon">📄</span>
+                <div className="ask-source-detail">
+                  <span className="ask-source-label">{s.label}</span>
+                  <span className="ask-source-meta">{s.detail}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-
-        {messages.map((msg) => (
-          <div key={msg.id} className={`ask-bubble-wrap ${msg.role}`}>
-            {msg.role === "assistant" && <span className="ask-ai-dot">✦</span>}
-            <div className={`ask-bubble ${msg.role}`}>
-              <FormattedText text={msg.text} />
-            </div>
+          <div className="ask-sources-note">
+            All answers are based on official MHT-CET CET Cell documents.
+            <br />
+            <Link to="/guide" className="ask-sources-link">Read our guide →</Link>
           </div>
-        ))}
+        </aside>
 
-        {isTyping && (
-          <div className="ask-bubble-wrap assistant">
-            <span className="ask-ai-dot">✦</span>
-            <div className="ask-bubble assistant ask-typing">
-              <span /><span /><span />
-            </div>
-          </div>
-        )}
-
-        <div ref={bottomRef} />
-      </div>
-
-      <div className="ask-bottom">
-        {limitReached ? (
-          <div className="ask-limit-banner">
-            <div className="ask-limit-text">
-              <strong>You've used {FREE_LIMIT} of {FREE_LIMIT} free questions</strong>
-              <span>Upgrade to ask unlimited questions</span>
-            </div>
-            <Link to="/plans" className="ask-limit-cta">See plans</Link>
-          </div>
-        ) : (
-          <>
-            <div className="ask-usage-bar">
-              <span>{FREE_LIMIT - questionCount} of {FREE_LIMIT} free questions remaining</span>
-              <Link to="/plans" className="ask-upgrade-link">Upgrade</Link>
-            </div>
-            <div className="ask-input-row">
-              <textarea
-                ref={inputRef}
-                className="ask-input"
-                placeholder="Ask about MHT-CET admissions…"
-                value={input}
-                rows={1}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={isTyping}
-              />
-              <button
-                className="ask-send"
-                onClick={() => sendMessage(input)}
-                disabled={!input.trim() || isTyping}
-                aria-label="Send"
-              >
-                ↑
-              </button>
-            </div>
-          </>
-        )}
       </div>
     </div>
   );

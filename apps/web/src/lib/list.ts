@@ -22,6 +22,7 @@ export function loadList(): ListItem[] {
 
 export function saveList(items: ListItem[]): void {
   localStorage.setItem(KEY, JSON.stringify(items));
+  window.dispatchEvent(new Event("compass:list-update"));
 }
 
 export function isInList(choiceCode: string): boolean {

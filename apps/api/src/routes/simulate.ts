@@ -21,8 +21,8 @@ const RequestSchema = z.object({
   minorityCommunity: z.string().nullable().default(null),
   flags: FlagsSchema,
   subjectGroup: z.enum(["PCM", "PCB"]).default("PCM"),
-  /** Ordered preference list — first choice first. Max 300. */
-  preferences: z.array(z.string().min(1)).min(1).max(300),
+  /** Ordered preference list — first choice first. Max 300. Must be numeric choice codes. */
+  preferences: z.array(z.string().regex(/^\d{5,15}[A-Z0-9]{0,4}$/)).min(1).max(300),
 });
 
 const ROUNDS: Round[] = ["I", "II", "III"];
