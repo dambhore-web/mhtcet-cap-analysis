@@ -9,7 +9,7 @@ import "./ComparePage.css";
 interface CutoffRow {
   choiceCode: string;
   branch: string;
-  round: string;
+  round: number;
   seatType: string;
   closingMerit: number;
 }
@@ -19,14 +19,14 @@ interface CollegeData {
   cutoffs: CutoffRow[];
 }
 
-const ROUNDS = ["I", "II", "III", "IV"] as const;
-const ROUND_LABELS: Record<string, string> = { I: "Round I", II: "Round II", III: "Round III", IV: "Round IV" };
+const ROUNDS = [1, 2, 3, 4] as const;
+const ROUND_LABELS: Record<number, string> = { 1: "Round I", 2: "Round II", 3: "Round III", 4: "Round IV" };
 
 function fmt(n: number) {
   return n.toLocaleString("en-IN");
 }
 
-function gopensForBranch(cutoffs: CutoffRow[], branch: string, round: string): number | null {
+function gopensForBranch(cutoffs: CutoffRow[], branch: string, round: number): number | null {
   const row = cutoffs.find((r) => r.branch === branch && r.seatType === "GOPENS" && r.round === round);
   return row ? row.closingMerit : null;
 }
@@ -132,7 +132,7 @@ export function ComparePage() {
                         const m = gopensForBranch(data.cutoffs, branch, r);
                         const surplus = m !== null && merit > 0 ? m - merit : null;
                         return (
-                          <div key={r} className={`compare-merit-row${r === "I" ? " r1" : ""}`}>
+                          <div key={r} className={`compare-merit-row${r === 1 ? " r1" : ""}`}>
                             <span className="compare-round-label">{ROUND_LABELS[r]}</span>
                             <span className="compare-merit-val">
                               {m !== null ? fmt(m) : <span className="compare-na">—</span>}
@@ -176,7 +176,7 @@ export function ComparePage() {
 function AddCollegeBtn({ code, name, branch, cutoffs }: {
   code: string; name: string; branch: string; cutoffs: CutoffRow[];
 }) {
-  const r1 = cutoffs.find((r) => r.branch === branch && r.seatType === "GOPENS" && r.round === "I");
+  const r1 = cutoffs.find((r) => r.branch === branch && r.seatType === "GOPENS" && r.round === 1);
   const [saved, setSaved] = useState(() => r1 ? isInList(r1.choiceCode) : false);
 
   if (!r1) return null;

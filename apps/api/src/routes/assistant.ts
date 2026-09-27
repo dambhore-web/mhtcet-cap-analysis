@@ -19,6 +19,15 @@ You help candidates with:
 Be concise and accurate. Always prefer citing the CET Cell (cetcell.mahacet.org) or DTE Maharashtra as sources.
 If you are not sure about a specific number, year, or rule, say so clearly.`;
 
+// Allowed values — anything outside these is dropped before it reaches the system prompt.
+const ALLOWED_CATEGORIES = new Set([
+  "OPEN", "OBC", "SEBC", "SC", "ST", "VJ", "NT1", "NT2", "NT3",
+  "EWS", "TFWS", "MINORITY",
+]);
+
+const MAX_MESSAGES = 20;
+const MAX_MESSAGE_LEN = 3000;
+
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -28,6 +37,23 @@ interface ProfileCtx {
   merit?: number | null;
   category?: string | null;
   gender?: string | null;
+}
+
+function sanitizeProfile(raw: unknown): ProfileCtx {
+  if (!raw || typeof raw !== "object") return {};
+  const r = raw as Record<string, unknown>;
+  return {
+    merit:
+      typeof r.merit === "number" && Number.isFinite(r.merit) && r.merit > 0 && r.merit <= 500000
+        ? Math.floor(r.merit)
+        : null,
+    // Only allow known category codes — never embed arbitrary strings into the system prompt
+    category:
+      typeof r.category === "string" && ALLOWED_CATEGORIES.has(r.category.toUpperCase())
+        ? r.category.toUpperCase()
+        : null,
+    gender: r.gender === "M" || r.gender === "F" ? r.gender : null,
+  };
 }
 
 function buildSystemMessage(profile?: ProfileCtx): string {
@@ -58,17 +84,43 @@ export async function postAssistant(c: Context) {
     }, 429);
   }
 
-  let body: { messages: ChatMessage[]; profile?: ProfileCtx };
+  let rawBody: unknown;
   try {
-    body = await c.req.json();
+    rawBody = await c.req.json();
   } catch {
     return c.json({ error: "invalid_json" }, 400);
   }
 
-  const { messages, profile } = body;
-  if (!Array.isArray(messages) || messages.length === 0) {
+  if (!rawBody || typeof rawBody !== "object") {
+    return c.json({ error: "invalid_json" }, 400);
+  }
+  const body = rawBody as Record<string, unknown>;
+
+  const rawMessages = body.messages;
+  if (!Array.isArray(rawMessages) || rawMessages.length === 0) {
     return c.json({ error: "messages_required" }, 400);
   }
+  if (rawMessages.length > MAX_MESSAGES) {
+    return c.json({ error: "too_many_messages", max: MAX_MESSAGES }, 400);
+  }
+
+  // Validate and sanitize each message
+  const messages: ChatMessage[] = [];
+  for (const m of rawMessages) {
+    if (!m || typeof m !== "object") continue;
+    const msg = m as Record<string, unknown>;
+    if (msg.role !== "user" && msg.role !== "assistant") continue;
+    if (typeof msg.content !== "string") continue;
+    messages.push({
+      role: msg.role,
+      content: msg.content.slice(0, MAX_MESSAGE_LEN),
+    });
+  }
+  if (messages.length === 0) {
+    return c.json({ error: "messages_required" }, 400);
+  }
+
+  const profile = sanitizeProfile(body.profile);
 
   const groq = new Groq({ apiKey });
 

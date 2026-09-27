@@ -31,6 +31,75 @@ jobs:
       - name: Audit dependencies
         run: npm audit --audit-level=high
 
+  eval:
+    name: AI eval (assistant route)
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' &&
+      (contains(toJson(github.event.pull_request.changed_files), 'apps/api/src/routes/assistant') ||
+       contains(toJson(github.event.pull_request.changed_files), 'packages/pipeline/eval'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start API server
+        run: npm run dev:api &
+        env:
+          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
+      - name: Wait for API
+        run: npx wait-on http://localhost:3001/api/health --timeout 30000
+
+      - name: Run AI eval
+        run: npm run eval
+        env:
+          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
+  perf:
+    name: Perf tests (NFR-002/003)
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' &&
+      (contains(toJson(github.event.pull_request.changed_files), 'apps/api/src/routes/rankFinder') ||
+       contains(toJson(github.event.pull_request.changed_files), 'apps/api/src/routes/assistant') ||
+       contains(toJson(github.event.pull_request.changed_files), 'packages/pipeline/perf'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start API server
+        run: npm run dev:api &
+        env:
+          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
+      - name: Wait for API
+        run: npx wait-on http://localhost:3001/api/health --timeout 30000
+
+      - name: Run perf tests
+        run: npm run perf
+        env:
+          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
   e2e:
     name: Playwright e2e
     runs-on: ubuntu-latest

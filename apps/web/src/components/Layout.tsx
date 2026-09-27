@@ -6,7 +6,9 @@ import "./Layout.css";
 export function Layout() {
   return (
     <div className="layout">
-      <TopNav />
+      <div className="top-nav-bar">
+        <TopNav />
+      </div>
       <main className="layout-content">
         <Outlet />
       </main>

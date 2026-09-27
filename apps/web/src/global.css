@@ -13,7 +13,10 @@ html {
 
 body {
   margin: 0;
-  background: var(--page);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(214, 249, 90, 0.42), transparent 22rem),
+    radial-gradient(circle at 0% 28%, rgba(167, 118, 255, 0.14), transparent 26rem),
+    var(--page);
   color: var(--navy);
   font-family: var(--font-body);
   font-size: 15px;

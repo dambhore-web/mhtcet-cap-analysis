@@ -25,9 +25,24 @@
   --font-body: "DM Sans", Arial, sans-serif;
   --font-num: "Space Grotesk", Arial, sans-serif;
 
+  /* shadows — flat offset style */
+  --shadow-card: 0 12px 34px rgba(92, 76, 170, 0.09);
+  --shadow-flat: 4px 4px 0 var(--navy);
+  --shadow-flat-soft: 4px 4px 0 var(--violet-soft);
+  --shadow-btn: 0 3px 0 #c45845;
+
+  /* status */
+  --safe-text-2: #307752;
+  --safe-bg-2: #e4f7e8;
+  --match-text: #8e6316;
+  --match-bg: #fff1d4;
+  --reach-text: #ad5548;
+  --reach-bg: #ffe4de;
+
   /* layout */
   --top-nav-h: 56px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --page-max-w: 1200px;
 }
 
 @media (prefers-reduced-motion: reduce) {

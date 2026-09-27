@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { api, type CollegeFees, type CollegeFeesUnavailable } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { useCompare } from "../lib/CompareContext";
@@ -24,64 +24,14 @@ interface CollegeData {
   cutoffs: CutoffRow[];
 }
 
-const ROUND_LABELS: Record<number, string> = { 1: "R1", 2: "R2", 3: "R3", 4: "R4" };
-
-const SEAT_ORDER = [
-  "GOPENS", "GOPENH", "LOPENS", "LOPENH",
-  "GOBCSS", "GOBCSH", "LOBCSS", "LOBCSH",
-  "GOSCS", "GOSCSH", "GOSTS", "GOSTH",
-  "GOVJS", "GOVJIH", "GONT1S", "GONT1H",
-  "GONT2S", "GONT2H", "GONT3S", "GONT3H",
-  "GOSEBCS", "GOSEBCH",
-  "EWSS", "EWSH", "TFWS", "MI",
-  "ORPHANI", "ORPHANN", "PWDS", "PWDH",
-  "DEFS", "DEFH",
-];
-
-function seatOrder(seatType: string): number {
-  const i = SEAT_ORDER.indexOf(seatType);
-  return i === -1 ? 99 : i;
-}
-
-function seatLabel(seatType: string): string {
-  const map: Record<string, string> = {
-    GOPENS: "GOPENS (General Open)", GOPENH: "GOPENH (Ladies)",
-    LOPENS: "LOPENS (Home Univ.)", LOPENH: "LOPENH (Ladies HU)",
-    GOBCSS: "OBC State", GOBCSH: "OBC Ladies", LOBCSS: "OBC HU", LOBCSH: "OBC HU Ladies",
-    GOSCS: "SC State", GOSCSH: "SC Ladies", GOSTS: "ST State", GOSTH: "ST Ladies",
-    GOVJS: "VJ/DT State", GONT1S: "NT-A", GONT2S: "NT-B", GONT3S: "NT-C",
-    GOSEBCS: "SEBC State", GOSEBCH: "SEBC Ladies",
-    EWSS: "EWS", EWSH: "EWS Ladies", TFWS: "TFWS (Fee Waiver)",
-    MI: "Minority", ORPHANI: "Orphan (AI)", ORPHANN: "Orphan (MH)",
-    PWDS: "PWD", PWDH: "PWD Ladies", DEFS: "Defence", DEFH: "Defence Ladies",
-  };
-  return map[seatType] ?? seatType;
-}
-
-type BranchStatus = "round-I" | "later" | "out";
-
-function getBranchStatus(cutoffs: CutoffRow[], branch: string, merit: number): BranchStatus {
-  const rows = cutoffs.filter((r) => r.branch === branch && r.seatType === "GOPENS");
-  if (rows.length === 0) return "out";
-  const r1 = rows.find((r) => r.round === 1);
-  if (r1 && merit <= r1.closingMerit) return "round-I";
-  if (rows.some((r) => merit <= r.closingMerit)) return "later";
-  return "out";
-}
 
 export function CollegePage() {
   const { code } = useParams<{ code: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
   const { profile } = useProfile();
   const { pin, unpin, isPinned: checkPinned, canPin } = useCompare();
   const [data, setData] = useState<CollegeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedBranch, setSelectedBranch] = useState<string>("");
-  const [filter, setFilter] = useState<"all" | "gopens" | "reserved">(() => {
-    const s = searchParams.get("seat");
-    return (s === "gopens" || s === "reserved") ? s : "all";
-  });
   const [whatifMerit, setWhatifMerit] = useState<number>(() => profile.meritNumber ?? 10000);
   const [showWhatif, setShowWhatif] = useState(false);
   const [fees, setFees] = useState<CollegeFees | CollegeFeesUnavailable | null>(null);
@@ -96,51 +46,18 @@ export function CollegePage() {
     ])
       .then(([d, f]) => {
         setData(d as CollegeData);
-        const branches = [...new Set((d.cutoffs as CutoffRow[]).map((r) => r.branch))].sort();
-        if (branches.length > 0) setSelectedBranch(branches[0]);
         setFees(f);
       })
       .catch(() => setError("Could not load college data. Is the API running?"))
       .finally(() => setLoading(false));
   }, [code]);
 
-  const branches = useMemo(() => {
-    if (!data) return [];
-    return [...new Set(data.cutoffs.map((r) => r.branch))].sort();
-  }, [data]);
-
-  const rounds = useMemo(() => {
-    if (!data) return [];
-    return [...new Set(data.cutoffs.map((r) => r.round))].sort();
-  }, [data]);
-
-  const branchRows = useMemo(() => {
-    if (!data || !selectedBranch) return [];
-    const rows = data.cutoffs.filter((r) => r.branch === selectedBranch);
-
-    const bySeat = new Map<string, Map<number, CutoffRow>>();
-    for (const row of rows) {
-      if (!bySeat.has(row.seatType)) bySeat.set(row.seatType, new Map());
-      bySeat.get(row.seatType)!.set(row.round, row);
-    }
-
-    return [...bySeat.entries()]
-      .filter(([seatType]) => {
-        if (filter === "gopens") return seatType === "GOPENS";
-        if (filter === "reserved") {
-          return !["GOPENS", "GOPENH", "LOPENS", "LOPENH"].includes(seatType);
-        }
-        return true;
-      })
-      .sort(([a], [b]) => seatOrder(a) - seatOrder(b));
-  }, [data, selectedBranch, filter]);
-
   const best = useMemo(() => {
-    const gopens = branchRows.find(([st]) => st === "GOPENS");
-    if (!gopens) return null;
-    const round1 = gopens[1].get(1);
-    return round1 ? round1.closingMerit : null;
-  }, [branchRows]);
+    if (!data) return null;
+    const r1rows = data.cutoffs.filter((r) => r.seatType === "GOPENS" && r.round === 1);
+    if (r1rows.length === 0) return null;
+    return Math.max(...r1rows.map((r) => r.closingMerit));
+  }, [data]);
 
   const sliderMax = useMemo(() => {
     if (!data) return 140000;
@@ -289,75 +206,7 @@ export function CollegePage() {
 
       <CutoffChart cutoffs={data.cutoffs} />
 
-      <div className="cp-branches-label">Branch detail</div>
-      <div className="cp-branches">
-        <div className="cp-branches-scroll" role="tablist" aria-label="Select branch">
-          {branches.map((b) => {
-            const status = showWhatif ? getBranchStatus(data.cutoffs, b, whatifMerit) : null;
-            return (
-              <button
-                key={b}
-                role="tab"
-                aria-selected={selectedBranch === b}
-                className={[
-                  "cp-branch-chip",
-                  selectedBranch === b ? "active" : "",
-                  status ? `wi-${status}` : "",
-                ].filter(Boolean).join(" ")}
-                onClick={() => setSelectedBranch(b)}
-              >
-                {b}
-                {status && <span className={`cp-branch-dot wi-${status}`} />}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="cp-filter-row">
-        <button className={`cp-filter${filter === "all" ? " active" : ""}`} onClick={() => { setFilter("all"); setSearchParams({}, { replace: true }); }}>All seats</button>
-        <button className={`cp-filter${filter === "gopens" ? " active" : ""}`} onClick={() => { setFilter("gopens"); setSearchParams({ seat: "gopens" }, { replace: true }); }}>GOPENS only</button>
-        <button className={`cp-filter${filter === "reserved" ? " active" : ""}`} onClick={() => { setFilter("reserved"); setSearchParams({ seat: "reserved" }, { replace: true }); }}>Reserved seats</button>
-      </div>
-
-      <div className="cp-table-wrap" role="region" aria-label="Cutoff table">
-        {branchRows.length === 0 ? (
-          <div className="cp-empty">No data for this filter.</div>
-        ) : (
-          <table className="cp-table">
-            <thead>
-              <tr>
-                <th className="cp-th-seat">Seat type</th>
-                {rounds.map((r) => (
-                  <th key={r} className="cp-th-round">{ROUND_LABELS[r] ?? `R${r}`}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {branchRows.map(([seatType, roundMap]) => (
-                <tr key={seatType} className={seatType === "GOPENS" ? "cp-tr-highlight" : ""}>
-                  <td className="cp-td-seat" title={seatType}>
-                    <span className="seat-badge">{seatType}</span>
-                    <span className="seat-full">{seatLabel(seatType)}</span>
-                  </td>
-                  {rounds.map((r) => {
-                    const row = roundMap.get(r);
-                    return (
-                      <td key={r} className="cp-td-merit">
-                        {row ? (
-                          <span className="merit-val">{row.closingMerit.toLocaleString("en-IN")}</span>
-                        ) : (
-                          <span className="merit-na">—</span>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <CutoffChart cutoffs={data.cutoffs} variant="category" />
 
       <div className="cp-footnote">
         2026 official MHT-CET CAP cutoffs · DTE Maharashtra ·{" "}

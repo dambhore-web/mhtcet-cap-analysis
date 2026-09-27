@@ -1,5 +1,6 @@
 import type { Context } from "hono";
 import type { AppCache } from "../startup.ts";
+import { roundNumber, type Round } from "@mhtcet/core";
 
 /** GET /api/colleges?q=&university=&limit=400 — search by name/code, filter by homeUniversity, sorted alphabetically. */
 export function getColleges(c: Context, cache: AppCache) {
@@ -46,7 +47,7 @@ export function getCollegeCutoffs(c: Context, cache: AppCache) {
         choiceCode: r.choiceCode,
         branch: branch.name,
         list: r.list,
-        round: r.round,
+        round: roundNumber(r.round as Round),
         section: r.section,
         seatType: r.seatType,
         stage: r.stage,
