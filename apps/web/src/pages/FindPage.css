@@ -560,6 +560,8 @@
   gap: 12px;
   padding: 13px 16px;
   background: var(--white);
+  text-decoration: none;
+  color: inherit;
   transition: background 0.12s;
 }
 

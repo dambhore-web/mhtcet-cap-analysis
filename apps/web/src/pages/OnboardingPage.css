@@ -17,7 +17,25 @@
 }
 
 .ob-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 22px 24px;
+}
+
+.ob-skip {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: color 0.12s, background 0.12s;
+}
+
+.ob-skip:hover {
+  color: var(--violet);
+  background: var(--lavender);
 }
 
 .ob-logo {
