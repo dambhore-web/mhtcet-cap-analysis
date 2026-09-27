@@ -21,3 +21,7 @@ __pycache__/
 
 # reports/ IS committed: run and load reports hold only codes, counts and cutoff values
 # (no names, no application IDs). The validate step scans for EN######## before writing.
+
+# Playwright output
+apps/web/playwright-report/
+apps/web/test-results/

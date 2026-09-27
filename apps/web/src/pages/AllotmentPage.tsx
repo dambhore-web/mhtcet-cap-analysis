@@ -1,205 +1,173 @@
-import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { loadList, type ListItem } from "../lib/list";
+import { AUTO_FREEZE_TOP_N, type Round } from "@mhtcet/core";
+import { useList } from "../lib/list";
+import { useProfile } from "../lib/ProfileContext";
+import { analyseAllotment, saveAllotment, useAllotment, type Advice } from "../lib/allotment";
+import { PageHeader } from "../components/PageHeader";
+import { PlanNextStep, PlanSubnav } from "../components/PlanSubnav";
+import { Icon, type IconName } from "../components/Icon";
+import { formatNumber, formatRound } from "../lib/format";
+import { seatTypeShortLabel } from "../lib/seatType";
 import "./AllotmentPage.css";
 
-type Round = 1 | 2 | 3;
+const ROUNDS: Round[] = ["I", "II", "III", "IV"];
 
-const FREEZE_ZONE: Record<Round, number> = { 1: 1, 2: 3, 3: 6 };
+const HEADLINE: Record<Advice, string> = {
+  frozen: "This seat is frozen automatically",
+  final: "Round IV allotments are final",
+  freeze: "Freeze looks right",
+  float: "Float is worth considering",
+  slide: "Slide is worth considering",
+};
 
-function getRank(items: ListItem[], choiceCode: string): number | null {
-  const idx = items.findIndex((i) => i.choiceCode === choiceCode.trim().toUpperCase());
-  return idx === -1 ? null : idx + 1;
-}
+const CHOICES: { id: "freeze" | "float" | "slide"; title: string; icon: IconName; body: string }[] = [
+  { id: "freeze", title: "Freeze", icon: "lock", body: "Accept this seat and stop. You won't be considered for any higher choice again. Report to the college with your documents." },
+  { id: "float", title: "Float (betterment)", icon: "arrowUp", body: "Accept this seat and stay in line for your higher choices at any college. If one opens in a later round you move up; if not, you keep this seat." },
+  { id: "slide", title: "Slide", icon: "arrowRight", body: "Accept this seat and stay in line only for higher choices at the same college. You never move to another college." },
+];
 
+/** My CAP plan step 4, journey J10: "I got a seat. Freeze or float?" */
 export function AllotmentPage() {
-  const [round, setRound] = useState<Round>(1);
-  const [code, setCode] = useState("");
-  const items = useMemo(() => loadList(), []);
+  const items = useList();
+  const { profile } = useProfile();
+  const allotment = useAllotment();
+  const merit = profile.meritNumber;
+  const round = allotment?.round ?? "I";
+  const analysis = allotment ? analyseAllotment(items, allotment, merit) : null;
 
-  const rank = code.trim() ? getRank(items, code) : null;
-  const allottedItem = rank !== null ? items[rank - 1] : null;
-  const freezeZone = FREEZE_ZONE[round];
-  const hasHigherOptions = rank !== null && rank > 1;
-  const inFreezeZone = rank !== null && rank <= freezeZone;
-
-  function Decision() {
-    if (rank === null && code.trim()) {
-      return (
-        <div className="allot-not-found">
-          <strong>{code.trim().toUpperCase()}</strong> is not in your saved list.{" "}
-          <Link to="/list">Check your list →</Link>
-        </div>
-      );
-    }
-    if (rank === null) return null;
-
-    if (rank === 1) {
-      return (
-        <div className="allot-decision allot-decision-freeze">
-          <span className="allot-dec-badge">Freeze</span>
-          <p>You got your <strong>#1 choice</strong>. Freeze immediately — there's nothing better on your list to upgrade to.</p>
-        </div>
-      );
-    }
-
-    if (round === 3) {
-      return (
-        <div className="allot-decision allot-decision-slide">
-          <span className="allot-dec-badge">Slide or Freeze</span>
-          <p>Round III is the last round. You can <strong>Slide</strong> to try for a better branch at the same college, or <strong>Freeze</strong> your current seat. Floating is no longer available.</p>
-        </div>
-      );
-    }
-
-    if (inFreezeZone) {
-      return (
-        <div className="allot-decision allot-decision-float">
-          <span className="allot-dec-badge">Float</span>
-          <p>
-            You got <strong>#{rank}</strong> from your list. There {rank - 1 === 1 ? "is" : "are"} <strong>{rank - 1} option{rank - 1 !== 1 ? "s" : ""}</strong> ranked higher. Float to try for them in Round {round + 1} — you keep this seat as a fallback if nothing better comes through.
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="allot-decision allot-decision-float">
-        <span className="allot-dec-badge">Float</span>
-        <p>You got <strong>#{rank}</strong> from your list. Float to Round {round + 1} to try for your top {rank - 1} option{rank - 1 !== 1 ? "s" : ""}. Your current seat is held as a fallback.</p>
-      </div>
-    );
-  }
+  const recommended = analysis?.advice === "float" || analysis?.advice === "slide" || analysis?.advice === "freeze" ? analysis.advice : null;
 
   return (
-    <div className="allotment-page">
-      <div className="allotment-content">
+    <div className="page allotment-page">
+      <PageHeader
+        breadcrumb={[{ label: "My CAP plan", to: "/list" }, { label: "After allotment" }]}
+        title="After your allotment"
+        subtitle="Tell Compass which seat you were allotted. It shows which of your higher choices opened up last year, and what each of your three choices means."
+      />
+      <PlanSubnav />
 
-        <header className="allot-header">
-          <h1>After your allotment</h1>
-          <p>Enter what you got, and we'll tell you what to do next.</p>
-        </header>
-
-        {/* Round selector */}
-        <div className="allot-section">
-          <label className="allot-label">Which round is this?</label>
-          <div className="allot-round-btns">
-            {([1, 2, 3] as Round[]).map((r) => (
-              <button
-                key={r}
-                className={`allot-round-btn${round === r ? " active" : ""}`}
-                onClick={() => setRound(r)}
-              >
-                Round {["I", "II", "III"][r - 1]}
-              </button>
-            ))}
-          </div>
+      {items.length === 0 ? (
+        <div className="empty-state">
+          <Icon name="list" size={28} className="empty-state-icon" />
+          <h2>Add your option form first</h2>
+          <p>Compass compares your allotted seat with the choices above it on your option form.</p>
+          <Link to="/list" className="btn btn-primary">Go to option form</Link>
         </div>
+      ) : (
+        <div className="allot-layout">
+          <section className="card allot-input" aria-labelledby="allot-input-title">
+            <h2 id="allot-input-title" className="label">Your allotment</h2>
+            <fieldset className="allot-rounds">
+              <legend className="allot-legend">Round</legend>
+              {ROUNDS.map((r) => (
+                <label key={r} className={`allot-round${round === r ? " active" : ""}`}>
+                  <input type="radio" name="allot-round" checked={round === r} onChange={() => saveAllotment({ round: r, choiceCode: allotment?.choiceCode ?? "" })} />
+                  {formatRound(r)}
+                </label>
+              ))}
+            </fieldset>
+            <label className="allot-legend" htmlFor="allot-seat">Seat you were allotted</label>
+            <select
+              id="allot-seat"
+              className="allot-select"
+              value={allotment?.choiceCode ?? ""}
+              onChange={(e) => saveAllotment(e.target.value ? { round, choiceCode: e.target.value } : null)}
+            >
+              <option value="">Choose from your option form…</option>
+              {items.map((it, i) => (
+                <option key={it.id} value={it.choiceCode}>
+                  {i + 1}. {it.collegeName} · {it.branch} ({it.choiceCode})
+                </option>
+              ))}
+            </select>
+            <p className="allot-hint">Not on your list? Check the choice code on your allotment letter and <Link to="/list">your option form</Link>.</p>
+          </section>
 
-        {/* Code input */}
-        <div className="allot-section">
-          <label className="allot-label" htmlFor="allot-code">What choice code were you allotted?</label>
-          <input
-            id="allot-code"
-            type="text"
-            className="allot-code-input"
-            placeholder="e.g. 110710510"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            autoComplete="off"
-            spellCheck={false}
-          />
-          {allottedItem && (
-            <div className="allot-found-item">
-              <span className="allot-found-rank">#{rank}</span>
-              <div className="allot-found-detail">
-                <span className="allot-found-college">{allottedItem.collegeName}</span>
-                <span className="allot-found-branch">{allottedItem.branch} · {allottedItem.seatType}</span>
-              </div>
+          {analysis ? (
+            <>
+              <section className={`card allot-verdict allot-verdict--${analysis.advice}`} aria-live="polite">
+                <p className="label">{formatRound(round)} · choice {analysis.preference} on your list</p>
+                <h2>{HEADLINE[analysis.advice]}</h2>
+                <p className="allot-seat">
+                  {analysis.item.collegeName} · {analysis.item.branch} · {seatTypeShortLabel(analysis.item.seatType)}
+                </p>
+                <p>
+                  {analysis.advice === "frozen" &&
+                    `Choice ${analysis.preference} is inside the ${formatRound(round)} auto-freeze zone (choices 1–${AUTO_FREEZE_TOP_N[round]}). CAP locks this seat: accept it and report to the college.`}
+                  {analysis.advice === "final" && "There is no later CAP round to move up in. Accept the seat and report to the college, or leave it."}
+                  {analysis.advice === "freeze" &&
+                    (analysis.preference === 1
+                      ? "You got your first choice, so there is nothing higher to wait for."
+                      : "None of the choices above this one admitted your merit number in any round last year, so waiting is unlikely to help.")}
+                  {analysis.advice === "float" &&
+                    `${analysis.higher.filter((h) => h.openedLastYear).length} of the ${analysis.higher.length} choices above this seat admitted your merit number by the last round last year. Float keeps this seat and keeps you in line for them.`}
+                  {analysis.advice === "slide" &&
+                    "The higher choices that opened up last year are all at this college, so Slide keeps you in line for them without risking a move to another college."}
+                </p>
+                <p className="allot-caveat">Based on last year's closing ranks. This year will differ. The decision and the submission on the CET Cell portal are yours.</p>
+              </section>
+
+              {analysis.higher.length > 0 && (
+                <section className="card allot-higher" aria-labelledby="allot-higher-title">
+                  <h2 id="allot-higher-title" className="label">Choices above your seat, last year</h2>
+                  <ol className="allot-higher-list">
+                    {analysis.higher.map((h) => (
+                      <li key={h.item.id}>
+                        <span className="allot-pref">{h.preference}</span>
+                        <span className="allot-higher-name">
+                          <strong>{h.item.collegeName}</strong>
+                          <span>{h.item.branch}</span>
+                        </span>
+                        <span className="allot-higher-rank">
+                          last round {formatNumber(h.item.lastRoundClosing ?? h.item.closingMerit)}
+                        </span>
+                        {h.openedLastYear == null ? null : h.openedLastYear ? (
+                          <span className="badge badge-later"><Icon name="clock" size={12} />Opened for you</span>
+                        ) : (
+                          <span className="badge badge-out"><Icon name="minus" size={12} />Never reached you</span>
+                        )}
+                      </li>
+                    ))}
+                  </ol>
+                  {!merit && <p className="allot-hint"><Link to="/profile">Add your merit number</Link> to see which of these opened up for you.</p>}
+                </section>
+              )}
+            </>
+          ) : allotment?.choiceCode ? (
+            <div className="empty-state" role="alert">
+              <p>That seat isn't on your option form. <Link to="/list">Check your option form</Link>.</p>
             </div>
-          )}
-        </div>
+          ) : null}
 
-        {/* Decision */}
-        <Decision />
+          <section className="allot-choices" aria-label="Your three choices">
+            {CHOICES.map((c) => {
+              const unavailable = analysis && (analysis.advice === "frozen" || analysis.advice === "final") && c.id !== "freeze";
+              return (
+                <article key={c.id} className={`card allot-choice${recommended === c.id ? " recommended" : ""}${unavailable ? " unavailable" : ""}`}>
+                  <h3>
+                    <Icon name={c.icon} size={18} />
+                    {c.title}
+                    {recommended === c.id && <span className="badge badge-safe">Suggested</span>}
+                    {unavailable && <span className="badge badge-out">Not available for this seat</span>}
+                  </h3>
+                  <p>{c.body}</p>
+                </article>
+              );
+            })}
+          </section>
 
-        {/* Options grid */}
-        <div className="allot-options">
-
-          <div className={`allot-option-card allot-option-freeze${rank === 1 ? " allot-option-recommended" : ""}`}>
-            <div className="allot-opt-head">
-              <span className="allot-opt-icon allot-opt-icon-freeze">❄</span>
-              <div>
-                <h3>Freeze</h3>
-                {rank === 1 && <span className="allot-rec-tag">Recommended</span>}
-              </div>
-            </div>
-            <p>Accept your allotment permanently. You're done with CAP — go to the reporting centre to confirm your seat.</p>
-            <ul className="allot-opt-list">
-              <li>Safe choice — seat is guaranteed</li>
-              <li>No more upgrades possible after this</li>
-              <li>Required before reporting centre deadline</li>
+          <section className="card allot-checklist" aria-labelledby="allot-checklist-title">
+            <h2 id="allot-checklist-title" className="label">Before you accept</h2>
+            <ul>
+              <li>Pay the seat acceptance fee shown on the CET Cell portal before the deadline.</li>
+              <li>Keep your documents ready for reporting (the list is on the CET Cell portal).</li>
+              <li>Share the plan with your family: <Link to="/summary">family summary</Link>.</li>
             </ul>
-          </div>
-
-          <div className={`allot-option-card allot-option-float${hasHigherOptions && round < 3 ? " allot-option-recommended" : ""}${round === 3 ? " allot-option-disabled" : ""}`}>
-            <div className="allot-opt-head">
-              <span className="allot-opt-icon allot-opt-icon-float">↑</span>
-              <div>
-                <h3>Float</h3>
-                {hasHigherOptions && round < 3 && <span className="allot-rec-tag">Recommended</span>}
-                {round === 3 && <span className="allot-unavail-tag">Not available in Round III</span>}
-              </div>
-            </div>
-            <p>Stay in the next round for a chance at a better option from your list. Your current seat is held if no upgrade comes.</p>
-            <ul className="allot-opt-list">
-              <li>Current seat is your fallback — no risk of losing it</li>
-              <li>System automatically upgrades if a higher-ranked option opens</li>
-              <li>You can freeze any time during the next round</li>
-            </ul>
-          </div>
-
-          <div className={`allot-option-card allot-option-slide${round === 3 && hasHigherOptions ? " allot-option-recommended" : ""}`}>
-            <div className="allot-opt-head">
-              <span className="allot-opt-icon allot-opt-icon-slide">↓</span>
-              <div>
-                <h3>Slide</h3>
-                {round === 3 && hasHigherOptions && <span className="allot-rec-tag">Consider if same college</span>}
-              </div>
-            </div>
-            <p>Like Float, but only upgrades within the <strong>same college and branch</strong>. Useful if you want the college but a better seat type (e.g. GOPENS instead of GOBC).</p>
-            <ul className="allot-opt-list">
-              <li>Same-college upgrades only — won't move you to a different college</li>
-              <li>Safer than Float if you're happy with the college</li>
-              <li>Available in all rounds</li>
-            </ul>
-          </div>
-
+            <p className="allot-hint"><Link to="/guide?tab=freeze">How freeze, float and slide work</Link> · <Link to="/ask">Ask Compass about your allotment</Link></p>
+          </section>
+          <PlanNextStep current="/allotment" />
         </div>
-
-        {/* Auto-freeze reminder */}
-        <div className="allot-freeze-reminder">
-          <div className="allot-reminder-head">
-            <span className="allot-reminder-icon">⚠</span>
-            <strong>Auto-freeze rule for Round {["I", "II", "III"][round - 1]}</strong>
-          </div>
-          <p>
-            {round === 1 && "If you ranked this option #1 and it was allotted, the system auto-freezes it. You cannot float from your top choice."}
-            {round === 2 && "Options you ranked #1–3 are auto-frozen in Round II. If allotted within ranks 1–3, the system freezes automatically."}
-            {round === 3 && "Options you ranked #1–6 are auto-frozen in Round III. If allotted within ranks 1–6, the system freezes automatically."}
-          </p>
-          <Link to="/guide" className="allot-guide-link">Read the full guide →</Link>
-        </div>
-
-        {/* No list state */}
-        {items.length === 0 && (
-          <div className="allot-no-list">
-            <p>You don't have a saved list yet. Build your shortlist to get personalised advice here.</p>
-            <Link to="/" className="allot-no-list-cta">Find colleges →</Link>
-          </div>
-        )}
-
-      </div>
+      )}
     </div>
   );
 }

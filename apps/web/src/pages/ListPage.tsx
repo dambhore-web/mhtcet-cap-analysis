@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   DndContext,
@@ -9,127 +9,66 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-  arrayMove,
-} from "@dnd-kit/sortable";
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { loadList, saveList, removeFromList, type ListItem } from "../lib/list";
+import { AUTO_FREEZE_TOP_N } from "@mhtcet/core";
+import { saveList, removeFromList, useList, OPTION_FORM_MAX, type ListItem } from "../lib/list";
 import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
-import { PlanSubnav } from "../components/PlanSubnav";
+import { PlanNextStep, PlanSubnav } from "../components/PlanSubnav";
 import { Icon } from "../components/Icon";
-import { formatNumber } from "../lib/format";
+import { formatNumber, formatRound } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { CATEGORY_OPTIONS } from "../lib/categories";
+import { freezeRoundOf, listChecks, reachOf, type Reach } from "../lib/optionForm";
 import "./ListPage.css";
 
-/** CAP lets a candidate fill up to 300 choice codes in the option form. */
-const OPTION_FORM_MAX = 300;
-
-function exportCSV(items: ListItem[], merit: number) {
-  const header = ["Preference", "Choice code", "College", "Branch", "Seat type", "Closing rank", "Ranks to spare"];
-  const rows = items.map((item, i) => [
-    String(i + 1),
-    item.choiceCode,
-    item.collegeName,
-    item.branch,
-    item.seatType,
-    String(item.closingMerit),
-    String(item.closingMerit - merit),
-  ]);
-  const csv = [header, ...rows].map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
-  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "compass-preference-list.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-async function exportPDF(items: ListItem[], merit: number, category: string) {
-  const { jsPDF } = await import("jspdf");
-  const autoTable = (await import("jspdf-autotable")).default;
-
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.text("MHT-CET CAP option form", 14, 18);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(
-    `Merit: ${merit.toLocaleString("en-IN")}  ·  Category: ${category || "Open"}  ·  Generated: ${new Date().toLocaleDateString("en-IN")}`,
-    14,
-    26
-  );
-  doc.setFontSize(8);
-  doc.setTextColor(120, 120, 120);
-  doc.text("Compass · Closing ranks from official CET Cell CAP lists. A guide, not a guarantee.", 14, 32);
-  doc.setTextColor(0, 0, 0);
-
-  autoTable(doc, {
-    startY: 36,
-    head: [["#", "Choice code", "College", "Branch", "Seat type", "Closing rank", "To spare"]],
-    body: items.map((item, i) => {
-      const surplus = item.closingMerit - merit;
-      return [
-        String(i + 1),
-        item.choiceCode,
-        item.collegeName,
-        item.branch,
-        item.seatType,
-        item.closingMerit.toLocaleString("en-IN"),
-        surplus >= 0 ? `+${surplus.toLocaleString("en-IN")}` : surplus.toLocaleString("en-IN"),
-      ];
-    }),
-    styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [101, 82, 216] },
-    columnStyles: {
-      0: { cellWidth: 8 },
-      1: { cellWidth: 28, font: "courier" },
-      2: { cellWidth: 70 },
-      3: { cellWidth: 55 },
-      4: { cellWidth: 22 },
-      5: { cellWidth: 22, halign: "right" },
-      6: { cellWidth: 20, halign: "right" },
-    },
-    alternateRowStyles: { fillColor: [246, 247, 255] },
-  });
-
-  doc.save("compass-preference-list.pdf");
-}
+const REACH_TEXT: Record<Reach, string> = {
+  "round-I": "Got in Round I",
+  later: "Got in a later round",
+  out: "Out of reach",
+  unknown: "",
+};
 
 function SortableRow({
   item,
-  rank,
+  index,
+  count,
   merit,
   onRemove,
+  onMove,
 }: {
   item: ListItem;
-  rank: number;
-  merit: number;
+  index: number;
+  count: number;
+  merit: number | null;
   onRemove: (id: string) => void;
+  onMove: (from: number, to: number) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
-
-  const surplus = item.closingMerit - merit;
+  const rank = index + 1;
+  const reach = reachOf(item, merit);
+  const freeze = freezeRoundOf(rank);
+  const what = `${item.branch} at ${item.collegeName}`;
 
   return (
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`list-row${isDragging ? " dragging" : ""}`}
+      className={`list-row${isDragging ? " dragging" : ""}${freeze ? " in-freeze" : ""}`}
     >
-      <button type="button" className="drag-handle" {...attributes} {...listeners} aria-label={`Move preference ${rank}, ${item.branch} at ${item.collegeName}`}>
+      <button type="button" className="drag-handle" {...attributes} {...listeners} aria-label={`Drag to reorder choice ${rank}, ${what}`}>
         <Icon name="menu" size={16} />
       </button>
-      <span className="list-rank">{rank}</span>
+      <span className="list-rank">
+        {rank}
+        {freeze && (
+          <span className="list-freeze" title={`Auto-freezes if allotted in ${formatRound(freeze)} or later`}>
+            <Icon name="lock" size={12} />
+            <span className="sr-only">Auto-freeze zone from {formatRound(freeze)}</span>
+          </span>
+        )}
+      </span>
       <div className="list-detail">
         <Link to={`/colleges/${item.collegeCode}`} className="list-college">{item.collegeName}</Link>
         <span className="list-branch">{item.branch}</span>
@@ -139,95 +78,70 @@ function SortableRow({
         </span>
       </div>
       <div className="list-merit-col">
-        <span className="list-closing">{formatNumber(item.closingMerit)}</span>
-        {merit > 0 && (
-          <span className={`list-surplus${surplus >= 0 ? " pos" : " neg"}`}>
-            {surplus >= 0 ? `${formatNumber(surplus)} to spare` : `${formatNumber(-surplus)} short`}
-          </span>
-        )}
+        <span className="list-closing">
+          {item.firstRoundClosing != null && item.lastRoundClosing != null
+            ? `${formatNumber(item.firstRoundClosing)} → ${formatNumber(item.lastRoundClosing)}`
+            : formatNumber(item.closingMerit)}
+        </span>
+        {reach !== "unknown" && <span className={`list-reach list-reach--${reach}`}>{REACH_TEXT[reach]}</span>}
       </div>
-      <button type="button" className="list-remove" onClick={() => onRemove(item.id)} aria-label={`Remove ${item.branch} at ${item.collegeName}`}>
-        <Icon name="close" size={16} />
-      </button>
+      <div className="list-actions">
+        <button type="button" className="list-icon-btn" onClick={() => onMove(index, index - 1)} disabled={index === 0} aria-label={`Move ${what} up`}>
+          <Icon name="arrowUp" size={16} />
+        </button>
+        <button type="button" className="list-icon-btn list-down" onClick={() => onMove(index, index + 1)} disabled={index === count - 1} aria-label={`Move ${what} down`}>
+          <Icon name="arrowUp" size={16} />
+        </button>
+        <button type="button" className="list-icon-btn list-remove" onClick={() => onRemove(item.id)} aria-label={`Remove ${what}`}>
+          <Icon name="close" size={16} />
+        </button>
+      </div>
     </li>
   );
 }
 
+/** My CAP plan step 1, journey J8: order the choices that go into the CAP option form. */
 export function ListPage() {
   const { profile } = useProfile();
-  const [items, setItems] = useState<ListItem[]>(() => loadList());
-  const [copied, setCopied] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState(false);
-
-  const merit = profile.meritNumber ?? 0;
-  const category = profile.category ?? "";
+  const items = useList();
+  const merit = profile.meritNumber;
+  const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === (profile.category ?? ""))?.label ?? "Open";
+  const checks = listChecks(items, merit);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const move = useCallback(
+    (from: number, to: number) => {
+      if (to < 0 || to >= items.length) return;
+      saveList(arrayMove(items, from, to));
+    },
+    [items],
   );
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = items.findIndex((i) => i.id === active.id);
-    const newIndex = items.findIndex((i) => i.id === over.id);
-    const reordered = arrayMove(items, oldIndex, newIndex);
-    setItems(reordered);
-    saveList(reordered);
+    move(items.findIndex((i) => i.id === active.id), items.findIndex((i) => i.id === over.id));
   }
-
-  const handleRemove = useCallback((id: string) => {
-    setItems(removeFromList(id));
-  }, []);
-
-  async function handleCopyCodes() {
-    const codes = items.map((i) => i.choiceCode).join("\n");
-    try {
-      await navigator.clipboard.writeText(codes);
-    } catch {
-      return;
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  async function handlePDF() {
-    setPdfLoading(true);
-    try {
-      await exportPDF(items, merit, category);
-    } finally {
-      setPdfLoading(false);
-    }
-  }
-
-  const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === category)?.label ?? "Open";
 
   return (
     <div className="page list-page">
       <PageHeader
-        breadcrumb={[{ label: "My CAP plan" }]}
-        title="Option form"
+        breadcrumb={[{ label: "My CAP plan" }, { label: "Option form" }]}
+        title="Your CAP option form"
         subtitle={
           items.length === 0
             ? "Build the list of choice codes you will fill in the CAP option form, in order of preference."
-            : `${items.length} of ${OPTION_FORM_MAX} choices. Drag to reorder: CAP allots the first choice on your list that your rank qualifies for.`
+            : `${items.length} of ${OPTION_FORM_MAX} choices. Order matters: in each round CAP gives you the highest choice on this list that has a seat for your merit.`
         }
         actions={
-          items.length > 0 && (
-            <>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => exportCSV(items, merit)}>
-                Download CSV
-              </button>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={handlePDF} disabled={pdfLoading}>
-                {pdfLoading ? "Preparing…" : "Download PDF"}
-              </button>
-              <button type="button" className="btn btn-primary btn-sm" onClick={handleCopyCodes}>
-                <Icon name={copied ? "check" : "clipboard"} size={16} />
-                {copied ? "Codes copied" : "Copy choice codes"}
-              </button>
-            </>
-          )
+          <Link to="/list/add" className="btn btn-primary btn-sm">
+            <Icon name="plus" size={16} />
+            Add options from any college
+          </Link>
         }
       />
       <PlanSubnav />
@@ -237,67 +151,84 @@ export function ListPage() {
           <Icon name="list" size={28} className="empty-state-icon" />
           <h2>Your option form is empty</h2>
           <p>
-            Find your options, then use the <strong>+</strong> button next to any branch to add it here. You can reorder,
-            export to PDF or CSV, and copy the choice codes into the CAP portal.
+            Find your options, or browse any college, and use the <strong>+</strong> button to add a branch here. Then order
+            the list, test it in the simulator and export it for the CAP portal.
           </p>
-          <Link to="/" className="btn btn-primary">
-            <Icon name="search" size={18} />
-            Find my options
-          </Link>
+          <div className="list-empty-actions">
+            <Link to="/" className="btn btn-primary">
+              <Icon name="search" size={18} />
+              Find my options
+            </Link>
+            <Link to="/list/add" className="btn btn-secondary">Add options from any college</Link>
+          </div>
         </div>
       ) : (
-        <>
-          {merit > 0 && (
-            <p className="list-merit-bar">
-              Your merit <strong>{formatNumber(merit)}</strong>
-              <span className="badge badge-sample">{categoryLabel}</span>
-              <Link to="/profile">Change</Link>
-            </p>
-          )}
+        <div className="list-layout">
+          <div className="list-main">
+            {merit ? (
+              <p className="list-merit-bar">
+                Your merit <strong>{formatNumber(merit)}</strong>
+                <span className="badge badge-sample">{categoryLabel}</span>
+                <Link to="/profile">Change</Link>
+              </p>
+            ) : null}
 
-          <div className="list-table card">
-            <div className="list-table-head" aria-hidden="true">
-              <span />
-              <span>#</span>
-              <span>College, branch and choice code</span>
-              <span className="lth-merit">Closing rank</span>
-              <span />
+            <div className="list-table card">
+              <div className="list-table-head" aria-hidden="true">
+                <span />
+                <span>#</span>
+                <span>College, branch and choice code</span>
+                <span className="lth-merit">Closing rank, R I → last</span>
+                <span />
+              </div>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                  <ol className="list-rows" aria-label="Choices in order of preference">
+                    {items.map((item, i) => (
+                      <SortableRow key={item.id} item={item} index={i} count={items.length} merit={merit} onRemove={removeFromList} onMove={move} />
+                    ))}
+                  </ol>
+                </SortableContext>
+              </DndContext>
             </div>
+            <p className="list-footnote">
+              Closing ranks from official CET Cell CAP lists. Your option form is saved in this browser only.
+            </p>
+            <PlanNextStep current="/list" />
+          </div>
 
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-                <ol className="list-rows">
-                  {items.map((item, i) => (
-                    <SortableRow key={item.id} item={item} rank={i + 1} merit={merit} onRemove={handleRemove} />
+          <aside className="list-side" aria-label="About your option form">
+            <section className="card list-side-card">
+              <h2 className="label">The auto-freeze rule</h2>
+              <p>If you are allotted one of your top choices, the seat locks and you can't move up in later rounds.</p>
+              <ul className="list-freeze-rules">
+                {(["I", "II", "III"] as const).map((r) => {
+                  const n = AUTO_FREEZE_TOP_N[r] ?? 0;
+                  return (
+                    <li key={r}>
+                      <Icon name="lock" size={14} />
+                      {formatRound(r)}: {n === 1 ? "choice 1" : `choices 1–${n}`}
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="list-side-note">Rules as published for 2025-26. <Link to="/guide?tab=freeze">Read more</Link></p>
+            </section>
+            {checks.length > 0 && (
+              <section className="card list-side-card" aria-labelledby="list-checks-title">
+                <h2 id="list-checks-title" className="label">Checks on your list</h2>
+                <ul className="list-checks">
+                  {checks.map((c) => (
+                    <li key={c.text} className={`list-check list-check--${c.level}`}>
+                      <Icon name={c.level === "warn" ? "alert" : "help"} size={16} />
+                      {c.text}
+                    </li>
                   ))}
-                </ol>
-              </SortableContext>
-            </DndContext>
-          </div>
-
-          <div className="list-next">
-            <Link to="/simulator" className="list-next-card card">
-              <Icon name="play" size={20} />
-              <span>
-                <strong>Test this list in the simulator</strong>
-                <span>See which choice you would likely get in each round.</span>
-              </span>
-              <Icon name="arrowRight" size={18} />
-            </Link>
-            <Link to="/guide?tab=freeze" className="list-next-card card">
-              <Icon name="steps" size={20} />
-              <span>
-                <strong>After allotment: freeze, float or slide?</strong>
-                <span>What each choice means and when to use it.</span>
-              </span>
-              <Icon name="arrowRight" size={18} />
-            </Link>
-          </div>
-
-          <p className="list-footnote">
-            Closing ranks from official CET Cell CAP lists. Your list is saved in this browser only.
-          </p>
-        </>
+                </ul>
+              </section>
+            )}
+          </aside>
+        </div>
       )}
     </div>
   );

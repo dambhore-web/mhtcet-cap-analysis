@@ -277,3 +277,119 @@
   border-top: 1px solid var(--line);
   flex-shrink: 0;
 }
+
+/* ─── Overview on one scale (#92) ─── */
+.compare-overview {
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.compare-overview-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.compare-overview-head h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.compare-overview-note {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.compare-overview-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compare-overview-rows li,
+.compare-overview-axis {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.compare-overview-rows li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.compare-overview-name {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--text-sm);
+  min-width: 0;
+}
+
+.compare-overview-name a {
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.compare-overview-name span {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.compare-dots {
+  position: relative;
+  display: block;
+  height: 24px;
+}
+
+.compare-dot {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--muted-2);
+}
+
+.compare-dot.in {
+  background: var(--safe-text);
+  border-color: var(--safe-text);
+}
+
+.compare-dot.static {
+  position: static;
+  display: inline-block;
+  margin: 0 4px 0 12px;
+  vertical-align: -1px;
+}
+
+.compare-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 8px 0 0;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.compare-legend .ladder-key--you {
+  margin-left: 12px;
+}
+
+@media (max-width: 767px) {
+  .compare-overview-rows li,
+  .compare-overview-axis {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .compare-overview-axis > span:first-child {
+    display: none;
+  }
+}

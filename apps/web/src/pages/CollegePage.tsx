@@ -9,6 +9,9 @@ import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
 import { avatarTint, collegeInitials, formatNumber, formatRound, roundIndex } from "../lib/format";
 import { formatInr } from "../lib/plans";
+import { eligibleSeatTypes, type CandidateProfile } from "@mhtcet/core";
+import { AddToFormButton } from "../components/AddToFormButton";
+import { listItemFrom } from "../lib/list";
 import "./CollegePage.css";
 
 interface CutoffRow {
@@ -21,10 +24,12 @@ interface CutoffRow {
   stage: string | null;
   closingMerit: number;
   closingPercentile: number | null;
+  source?: string | null;
+  sourcePage?: number | null;
 }
 
 interface CollegeData {
-  college: { code: string; name: string };
+  college: { code: string; name: string; homeUniversity?: string | null; district?: string | null; collegeType?: string | null; totalIntake?: number | null };
   year: number;
   cutoffs: CutoffRow[];
 }
@@ -53,6 +58,7 @@ export function CollegePage() {
   const [showWhatif, setShowWhatif] = useState(false);
   const [fees, setFees] = useState<CollegeFees | CollegeFeesUnavailable | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [onlyMine, setOnlyMine] = useState(true);
 
   useEffect(() => {
     if (!code) return;
@@ -111,6 +117,58 @@ export function CollegePage() {
     return Math.ceil((max + 5000) / 1000) * 1000;
   }, [data]);
 
+  // Seat types this student can apply for at this college (packages/core eligibility rules)
+  const eligible = useMemo(() => {
+    if (!data) return null;
+    const candidate: CandidateProfile = {
+      candidature: "MH",
+      homeUniversity: profile.homeUniversity || null,
+      category: profile.category === "OPEN" ? null : profile.category,
+      gender: profile.gender,
+      ews: profile.ews,
+      tfws: profile.tfws,
+      defence: profile.defence,
+      pwd: profile.pwd,
+      orphan: profile.orphan,
+      minorityCommunity: null,
+      meritNumber: profile.meritNumber ?? 1,
+      subjectGroup: profile.subjectGroup,
+    };
+    return new Set(eligibleSeatTypes(candidate, { homeUniversity: data.college.homeUniversity ?? null, minorityCommunity: null }));
+  }, [data, profile]);
+
+  const shownCutoffs = useMemo(() => {
+    if (!data) return [];
+    if (!onlyMine || !eligible) return data.cutoffs;
+    return data.cutoffs.filter((r) => eligible.has(r.seatType));
+  }, [data, onlyMine, eligible]);
+
+  // The row the "add to option form" button uses: the student's best seat type for the branch
+  const branchChoice = useMemo(() => {
+    if (!data || !selectedBranch) return null;
+    const rows = data.cutoffs.filter((r) => r.branch === selectedBranch && r.list !== "AI" && (!eligible || eligible.has(r.seatType)));
+    if (rows.length === 0) return null;
+    const bySeat = new Map<string, CutoffRow[]>();
+    for (const r of rows) bySeat.set(r.seatType, [...(bySeat.get(r.seatType) ?? []), r]);
+    const [seatType, seatRows] = [...bySeat.entries()].sort(
+      ([, a], [, b]) => Math.max(...b.map((r) => r.closingMerit)) - Math.max(...a.map((r) => r.closingMerit)),
+    )[0];
+    const sorted = [...seatRows].sort((a, b) => roundIndex(a.round) - roundIndex(b.round));
+    const first = sorted.find((r) => roundIndex(r.round) === 1)?.closingMerit ?? null;
+    const last = sorted[sorted.length - 1].closingMerit;
+    return listItemFrom({
+      choiceCode: sorted[0].choiceCode,
+      collegeCode: data.college.code,
+      collegeName: data.college.name,
+      branch: selectedBranch,
+      seatType,
+      closingMerit: last,
+      year: data.year,
+      firstRoundClosing: first,
+      lastRoundClosing: last,
+    });
+  }, [data, selectedBranch, eligible]);
+
   const crumbs = [{ label: "Colleges", to: "/colleges" }, { label: data?.college.name ?? "College" }];
 
   if (loading) {
@@ -151,7 +209,12 @@ export function CollegePage() {
             <span>{data.college.name}</span>
           </span>
         }
-        subtitle={`College code ${data.college.code} · closing ranks from CAP ${data.year}`}
+        subtitle={[
+          `College code ${data.college.code}`,
+          data.college.district,
+          data.college.collegeType,
+          `closing ranks from CAP ${data.year}`,
+        ].filter(Boolean).join(" · ")}
         actions={
           <>
             <button
@@ -233,21 +296,42 @@ export function CollegePage() {
               </p>
             )}
             <p className="cp-fees-note">
-              As approved by the Fee Regulating Authority. Confirm with the college before paying
-              {fees.fraOrderUrl ? (
+              {fees.verified ? (
                 <>
-                  {" "}(<a href={fees.fraOrderUrl} target="_blank" rel="noreferrer">FRA order</a>).
+                  As approved by the Fee Regulating Authority
+                  {fees.fraOrderUrl ? (
+                    <>
+                      {" "}(<a href={fees.fraOrderUrl} target="_blank" rel="noreferrer">FRA order{fees.fraOrderRef ? ` ${fees.fraOrderRef}` : ""}</a>)
+                    </>
+                  ) : null}
+                  . Confirm with the college before paying.
                 </>
               ) : (
-                "."
+                <>
+                  <span className="badge badge-sample">Unverified</span> Not yet checked against the Fee Regulating Authority's order. Confirm with the college before paying.
+                </>
               )}
             </p>
           </section>
         )}
       </div>
 
+      <section className="page-section cp-glance card" aria-label="At a glance">
+        <dl>
+          <div><dt>Branches in CAP</dt><dd>{branches.length}</dd></div>
+          {data.college.totalIntake ? <div><dt>Total intake</dt><dd>{formatNumber(data.college.totalIntake)}</dd></div> : null}
+          <div><dt>Home university</dt><dd>{data.college.homeUniversity ?? "None (state level only)"}</dd></div>
+          {data.college.district ? <div><dt>District</dt><dd>{data.college.district}</dd></div> : null}
+        </dl>
+        <label className="cp-only-mine">
+          <input type="checkbox" checked={onlyMine} onChange={(e) => setOnlyMine(e.target.checked)} />
+          Only seat types I can apply for
+          <Link to="/profile" className="cp-only-mine-edit">My details</Link>
+        </label>
+      </section>
+
       <div className="page-section">
-        <CutoffChart cutoffs={data.cutoffs} />
+        <CutoffChart cutoffs={shownCutoffs} />
       </div>
 
       <section className="page-section card cp-detail" aria-labelledby="cp-detail-title">
@@ -323,7 +407,19 @@ export function CollegePage() {
           </div>
         </div>
 
-        <SeatCutoffChart cutoffs={data.cutoffs} branch={selectedBranch} selectedLevel={seatLevel} />
+        {branchChoice && (
+          <div className="cp-add">
+            <span>
+              Choice code <strong className="cp-code">{branchChoice.choiceCode}</strong> · {selectedBranch}
+            </span>
+            <span className="cp-add-actions">
+              <Link to={`/colleges/${data.college.code}/${branchChoice.choiceCode}`} className="btn btn-ghost btn-sm">Branch trends</Link>
+              <AddToFormButton item={branchChoice} variant="button" />
+            </span>
+          </div>
+        )}
+
+        <SeatCutoffChart cutoffs={shownCutoffs} branch={selectedBranch} selectedLevel={seatLevel} />
       </section>
 
       <p className="cp-footnote">

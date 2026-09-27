@@ -1,32 +1,13 @@
 import type { Context } from "hono";
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const FEE_DATA = require("../data/fees.json") as Record<string, FeeEntry | undefined>;
-
-interface FeeEntry {
-  name: string;
-  tuitionFee: number;
-  developmentFee: number;
-  otherFees: number;
-  totalAnnualFee: number;
-  tfwsAvailable: boolean;
-  tfwsSeats: number | null;
-  fraOrderRef: string | null;
-  fraOrderUrl: string | null;
-  sampleOnly: boolean;
-}
+import type { FeeIndex } from "../feeIndex.ts";
 
 /** GET /api/colleges/:code/fees */
-export function getCollegeFees(c: Context) {
+export function getCollegeFees(c: Context, index: FeeIndex) {
   const code = c.req.param("code") ?? "";
-  const entry = FEE_DATA[code];
+  const entry = index.byCollege.get(code);
+  if (!entry) return c.json({ available: false, code }, 200);
 
-  if (!entry || (entry as unknown as { _meta: unknown })._meta) {
-    return c.json({ available: false, code }, 200);
-  }
-
+  const verified = !!entry.fraOrderUrl;
   return c.json({
     available: true,
     code,
@@ -43,6 +24,9 @@ export function getCollegeFees(c: Context) {
     fraOrderRef: entry.fraOrderRef,
     fraOrderUrl: entry.fraOrderUrl,
     sampleOnly: entry.sampleOnly,
-    disclaimer: "Fee data from FRA 2025-26 approved orders. Verify with college before payment. Subject to revision.",
+    verified,
+    disclaimer: verified
+      ? "From the Fee Regulating Authority's approved fee order. Confirm with the college before paying."
+      : "Not yet checked against the Fee Regulating Authority's order. Confirm with the college before paying.",
   });
 }

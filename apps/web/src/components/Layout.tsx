@@ -24,6 +24,7 @@ export function Layout() {
           <span><strong>Compass</strong> · unofficial guide to MHT-CET CAP. Data from official CET Cell lists; past cutoffs are not a guarantee.</span>
           <nav aria-label="Footer" className="site-footer-links">
             <Link to="/guide">CAP guide</Link>
+            <Link to="/data">Where our numbers come from</Link>
             <Link to="/plans">Plans</Link>
             <Link to="/legal">Disclaimer</Link>
             <Link to="/legal?tab=privacy">Privacy</Link>

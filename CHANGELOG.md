@@ -2,6 +2,30 @@
 
 ## Unreleased
 ### Added
+- Journeys J1–J13 built and tested end to end (issues in #119). Why: the audit found most of
+  the planned product unbuilt or broken; each journey now has a passing Playwright spec.
+  - **Tests (#112):** e2e runs the real API over an invented demo dataset
+    (`npm run dev:demo -w @mhtcet/api`), so it needs no database. CI runs it on PRs into Dev
+    and main, plus a staging smoke test when `DATABASE_URL_STAGING` is set. A unit test fails
+    if any route has no link to it.
+  - **Engine and API:**
+    - Simulator replays Rounds I–IV with the auto-freeze rule, as `simulateCap` in core (#36).
+    - Rank finder: All India candidature, Round I and last-round closing, and source file/page
+      on every option (#8, #114).
+    - JEE percentile uses the All India merit list (#8).
+    - Fees are matched to real college codes and marked verified or unverified (#42).
+    - Ask Compass answers only from tools, with citations and a number check (#18).
+    - New `/api/meta` endpoint; district and type filters on colleges (#114, #115).
+  - **Web:**
+    - Navigation: six nav places with an option-form counter, and five My CAP plan steps
+      (#79, #80).
+    - Planning pages: By branch, Export with Excel, After allotment, Add options, Family summary
+      link (#81, #83, #84, #113, #116).
+    - Find, college and compare: freeze-zone markers and checks on the option form, what-if
+      slider and ladders on Find, college page eligible-seat filter and table view, Compare on
+      one scale (#86, #87, #88, #90, #92).
+    - New and reworked pages: Eligibility, "Where our numbers come from", Ask with sources,
+      Branch trends (#82, #85, #89, #91, #114).
 - `docs/02-architecture/navigation.md`: navigation rules, site map with status, the My CAP plan
   steps and the 14 user journeys from the clickable mockup, each linked to the issues that
   complete it. Why: the journeys lived only in the design canvas, and feature issues didn't say

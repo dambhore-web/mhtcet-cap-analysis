@@ -13,6 +13,10 @@ type Status = "loading" | "done" | "error";
 export function CollegesPage() {
   const [query, setQuery] = useState("");
   const [university, setUniversity] = useState("");
+  const [district, setDistrict] = useState("");
+  const [collegeType, setCollegeType] = useState("");
+  const [districts, setDistricts] = useState<string[]>([]);
+  const [collegeTypes, setCollegeTypes] = useState<string[]>([]);
   const [colleges, setColleges] = useState<College[]>([]);
   const [total, setTotal] = useState(0);
   const [status, setStatus] = useState<Status>("loading");
@@ -25,10 +29,12 @@ export function CollegesPage() {
     debounce.current = setTimeout(() => {
       setStatus("loading");
       api
-        .colleges(query, university || undefined)
+        .colleges(query, university || undefined, { district, type: collegeType })
         .then((r) => {
           setColleges(r.colleges);
           setTotal(r.total ?? r.count);
+          if (r.districts) setDistricts(r.districts);
+          if (r.collegeTypes) setCollegeTypes(r.collegeTypes);
           setStatus("done");
         })
         .catch(() => {
@@ -37,10 +43,10 @@ export function CollegesPage() {
         });
     }, 250);
     return () => { if (debounce.current) clearTimeout(debounce.current); };
-  }, [query, university, retry]);
+  }, [query, university, district, collegeType, retry]);
 
-  const hasFilter = !!query || !!university;
-  const clear = () => { setQuery(""); setUniversity(""); };
+  const hasFilter = !!query || !!university || !!district || !!collegeType;
+  const clear = () => { setQuery(""); setUniversity(""); setDistrict(""); setCollegeType(""); };
 
   return (
     <div className="page colleges-page">
@@ -57,7 +63,7 @@ export function CollegesPage() {
             id="college-search"
             type="search"
             className="colleges-search"
-            placeholder="College name, city or code"
+            placeholder="College name, code or district"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoComplete="off"
@@ -77,6 +83,25 @@ export function CollegesPage() {
             <option key={u} value={u}>{u}</option>
           ))}
         </select>
+
+        {districts.length > 0 && (
+          <>
+            <label htmlFor="college-district" className="sr-only">Filter by district</label>
+            <select id="college-district" className="colleges-uni-select" value={district} onChange={(e) => setDistrict(e.target.value)}>
+              <option value="">All districts</option>
+              {districts.map((d) => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </>
+        )}
+        {collegeTypes.length > 0 && (
+          <>
+            <label htmlFor="college-type" className="sr-only">Filter by college type</label>
+            <select id="college-type" className="colleges-uni-select" value={collegeType} onChange={(e) => setCollegeType(e.target.value)}>
+              <option value="">All types</option>
+              {collegeTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </>
+        )}
       </div>
 
       <div className="colleges-meta" aria-live="polite">
@@ -119,7 +144,9 @@ export function CollegesPage() {
                   <span className="college-item-name">{c.name}</span>
                   <span className="college-item-meta">
                     Code {c.code}
-                    {c.homeUniversity ? ` · ${c.homeUniversity}` : " · Autonomous"}
+                    {c.district ? ` · ${c.district}` : ""}
+                    {c.collegeType ? ` · ${c.collegeType}` : ""}
+                    {c.homeUniversity ? ` · ${c.homeUniversity}` : c.collegeType ? "" : " · Autonomous"}
                   </span>
                 </Link>
                 <button

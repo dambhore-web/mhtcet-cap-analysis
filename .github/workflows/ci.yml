@@ -4,7 +4,7 @@ on:
   push:
     branches: ["**"]
   pull_request:
-    branches: [main]
+    branches: [main, Dev]
 
 jobs:
   check:
@@ -34,10 +34,8 @@ jobs:
   e2e:
     name: Playwright e2e
     runs-on: ubuntu-latest
-    # Only run when web or API source changes
-    if: |
-      github.event_name == 'pull_request' &&
-      contains(toJson(github.event.pull_request.changed_files), 'apps/')
+    # Runs the real API over the demo dataset (apps/api/src/demo): no database or secrets needed.
+    if: github.event_name == 'pull_request'
 
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +53,43 @@ jobs:
 
       - name: Run Playwright tests
         run: npm run e2e -w @mhtcet/web
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7
+
+  e2e-live:
+    name: Playwright live smoke (staging data)
+    runs-on: ubuntu-latest
+    # Checks the app against the real staging Supabase data; skipped when the secret isn't set.
+    if: github.event_name == 'pull_request'
+    env:
+      DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
+
+    steps:
+      - uses: actions/checkout@v4
+        if: env.DATABASE_URL_STAGING != ''
+
+      - uses: actions/setup-node@v4
+        if: env.DATABASE_URL_STAGING != ''
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm ci
+
+      - name: Install Playwright browsers
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm run e2e:install -w @mhtcet/web
+
+      - name: Run live smoke tests
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm run e2e -w @mhtcet/web
         env:
-          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          E2E_LIVE: "1"

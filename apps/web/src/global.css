@@ -346,6 +346,8 @@ svg {
 
 /* ── Tables that may be wider than the screen ───────────────────────── */
 .table-scroll {
+  /* positioned so absolutely placed children (e.g. .sr-only labels) scroll with the table */
+  position: relative;
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -379,4 +381,59 @@ svg {
   font-size: var(--text-sm);
   color: var(--muted);
   max-width: 60ch;
+}
+
+/* ── "Next step" footer on My CAP plan pages ────────────────────────── */
+.plan-next {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+/* ── Round "add to option form" button ───────────────────────────── */
+.save-btn {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--violet);
+}
+
+.save-btn:hover:not(.saved) {
+  border-color: var(--violet);
+  background: var(--lavender-2);
+}
+
+.save-btn:disabled:not(.saved) {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.save-btn.saved {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--navy);
+  cursor: default;
+}
+
+/* ── Chips (read-only facts such as "Merit 5,200") ──────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--navy);
 }

@@ -180,3 +180,42 @@
   .cc-header { gap: 10px; }
   .cc-legend-hint { display: none; }
 }
+
+.cc-table-toggle {
+  margin-top: 8px;
+}
+
+.cc-table-toggle summary {
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--violet);
+}
+
+.cc-table th,
+.cc-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line-soft);
+  text-align: left;
+  font-size: var(--text-sm);
+}
+
+.cc-table thead th {
+  font-size: var(--text-xs);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cc-num {
+  text-align: right !important;
+  font-family: var(--font-num);
+  white-space: nowrap;
+}
+
+.cc-sources,
+.cc-note {
+  margin: 8px 0 0;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}

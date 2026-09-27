@@ -23,28 +23,28 @@ Source: the clickable mockup "Compass app mockup", board **Start here · user jo
 7. **English only** at launch (NFR-005, owner decision).
 
 ## Site map
-| Top-nav place | Page | Route | Status on Dev (571d8a9) |
+| Top-nav place | Page | Route | Status |
 |---|---|---|---|
-| Find colleges | Home and results | `/` | Built |
-| | Percentile estimate | `/estimate` | Built |
-| | All India seats (JEE Main) | — | Missing; the JEE mode is wrong (#8) |
-| | Seat eligibility | — | Missing (#82) |
-| By branch | One branch across colleges | `/branches` | Built, but not in the top nav (#79, #81) |
-| Colleges | Directory | `/colleges` | Built |
-| | College page | `/colleges/:code` | Built (#86 for layout) |
-| | Branch trends and seats left | — | Missing (#85; data #12, #40) |
-| | Compare | `/compare` | Built (#92) |
+| Find colleges | Home and results (what-if slider, ladders, district filter) | `/` | Built |
+| | Percentile estimate (CET and JEE) | `/estimate` | Built |
+| | All India seats (JEE Main) | `/?list=AI` via JEE mode | Built; needs the All India merit list in the DB |
+| | Seat eligibility | `/eligibility` | Built |
+| By branch | One branch across colleges | `/branches` | Built |
+| Colleges | Directory (district and type filters when loaded) | `/colleges` | Built |
+| | College page | `/colleges/:code` | Built |
+| | Branch trends | `/colleges/:code/:choiceCode` | Round movement built; earlier years and seats left need data (#12, #40) |
+| | Compare | `/compare` | Built |
 | My CAP plan | 1 · Option form | `/list` | Built |
-| | 1b · Add options from any college | — | Missing (#113) |
-| | 2 · Simulator | `/simulator` | Built; engine incomplete (#36, #89) |
-| | 3 · Export for CAP portal | `/export` | Built, but not linked from the plan tabs (#80, #83) |
-| | 4 · After allotment | `/allotment` | Built, but not linked from the plan tabs (#80, #84) |
-| | 5 · Family summary | — | Missing (#116) |
-| Ask Compass | Chat | `/ask` | Built; not grounded in data yet (#18, #91) |
+| | 1b · Add options from any college | `/list/add` | Built |
+| | 2 · Simulator | `/simulator` | Built |
+| | 3 · Export for CAP portal | `/export` | Built |
+| | 4 · After allotment | `/allotment` | Built |
+| | 5 · Family summary | `/summary` | Built |
+| Ask Compass | Chat with cited answers | `/ask` | Built (grounded) |
 | CAP guide | Steps, seat codes, FAQ | `/guide` | Built |
-| (footer) | Where our numbers come from | — | Missing (#114) |
+| (footer) | Where our numbers come from | `/data` | Built |
 | (footer) | Disclaimer, privacy, terms | `/legal` | Built |
-| (account) | Sign in | `/signin` | Placeholder only (#15) |
+| (account) | Sign in | `/signin` | Placeholder (#15) |
 | (account) | Account: details, saved work, CAP calendar | `/profile` | Details only (#117) |
 | (account) | Plans, checkout, receipt | `/plans` | Plans page only (#21, #34) |
 
@@ -55,7 +55,7 @@ Source: the clickable mockup "Compass app mockup", board **Start here · user jo
 4. After allotment
 5. Family summary
 
-On Dev the tabs show only steps 1 and 2 (#80).
+All five steps are linked, and each page ends with a "Next step" link.
 
 ## The 14 journeys
 The tier (Free or Plus) comes from the mockup. The free vs paid split is still
@@ -79,15 +79,15 @@ provisional.
 | J13 | "Can I trust these numbers?" | Sceptical parent | Data sources → Legal | Free | How lists are read and checked, freshness dates, the disclaimer | #114 |
 | J14 | "I want the simulator and assistant." | Student upgrading | Plans → Sign in → Checkout → Receipt → Simulator | Plus | Plans, Google sign-in, payment, and a receipt that leads into the simulator | #34, #15, #21, #22 |
 
-## Journey status on Dev (571d8a9)
-- **Walkable end to end:** none yet. J1 and J12 are closest: J1 lacks the results slider
-  (#87), and J12 lacks the eligibility step (#82) and cited answers (#18).
-- **Blocked by a bug:** J7 (#8), J9 (#36), J5 fees (#42).
-- **Blocked by an unreachable page:** J3 (By branch not in nav), and J8 and J10 (Export and
-  After allotment not in the plan tabs).
-- **Blocked by a missing page:** J6, J11, J13 and J14.
+## Journey status
+J1–J13 each have a Playwright spec in `apps/web/e2e/journeys/`, run on every PR into Dev and main
+over the demo dataset. J14 (upgrade: sign-in, checkout, receipt) is blocked on #15, #21 and #34.
+
+Still missing inside passing journeys:
+- **J4:** four-year trends and seats left need #12 and #40.
+- **J10:** the account start page needs #117.
 
 ## Testing
-Each journey gets a Playwright spec in `apps/web/e2e/journeys/` that clicks through its path
-and checks the "Done when" column (#112). A journey is only marked done in this file when its
-spec passes in CI.
+Each journey has a Playwright spec in `apps/web/e2e/journeys/` that clicks through its path and
+checks the "Done when" column (#112). `apps/web/test/routes.test.ts` fails if any route in `App.tsx`
+has no link to it (rule 3).
