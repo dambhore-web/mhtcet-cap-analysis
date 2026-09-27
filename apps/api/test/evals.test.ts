@@ -105,3 +105,12 @@ describe("scoring", () => {
     expect(fail.misses[0]).toMatch(/adversarial/);
   });
 });
+
+describe("errors", () => {
+  it("reports a model or network error as an error, not as a stray number in the answer", () => {
+    const c: EvalCase = { id: "X", group: "core", question: "q", expectTools: ["getCutoffs"] };
+    const run: CaseRun = { text: "", sources: [], grounded: false, toolCalls: [], latencyMs: 60, error: "404 model not found" };
+    const r = scoreCase(c, run, cache, UNGROUNDED_FALLBACK);
+    expect(r.failures).toEqual([{ metric: "error", reason: "404 model not found" }]);
+  });
+});

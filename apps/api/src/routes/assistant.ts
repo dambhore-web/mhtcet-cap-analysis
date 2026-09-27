@@ -6,7 +6,7 @@ import type { AppCache } from "../startup.ts";
 import { runAssistant, type ChatClient, type Profile } from "../assistant/run.ts";
 
 /** Tool-capable model; the provider and model are an open decision (#19). */
-const MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+export const MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
 // 20 questions per IP per hour: coarse protection until per-user auth is in place (#15)
 const RATE_WINDOW_MS = 60 * 60 * 1000;

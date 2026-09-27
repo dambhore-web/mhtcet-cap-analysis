@@ -14,7 +14,8 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runAssistant, UNGROUNDED_FALLBACK, type ChatClient } from "../src/assistant/run.ts";
-import { groqClient } from "../src/routes/assistant.ts";
+import Groq from "groq-sdk";
+import { groqClient, MODEL } from "../src/routes/assistant.ts";
 import type { AppCache } from "../src/startup.ts";
 import { demoCache } from "../src/demo/demoCache.ts";
 import { demoAssistant } from "../src/demo/demoAssistant.ts";
@@ -35,8 +36,23 @@ async function loadData(): Promise<{ cache: AppCache; label: string; close: () =
 function pickClient(): { client: ChatClient; label: string; gates: boolean } {
   const key = process.env.GROQ_API_KEY;
   if (arg("client") === "demo" || !key) return { client: demoAssistant, label: "demo stand-in (report only)", gates: false };
-  return { client: groqClient(key), label: `groq ${process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile"}`, gates: true };
+  return { client: groqClient(key), label: `groq ${MODEL}`, gates: true };
 }
+
+/** Stops early with the models Groq actually serves when the configured one isn't among them. */
+async function checkModel(): Promise<void> {
+  const key = process.env.GROQ_API_KEY;
+  if (!key || arg("client") === "demo") return;
+  const { data } = await new Groq({ apiKey: key }).models.list();
+  const ids = data.map((m) => m.id).sort();
+  if (!ids.includes(MODEL)) {
+    console.error(`Groq does not serve the model "${MODEL}". Set GROQ_MODEL to one of:\n  ${ids.join("\n  ")}`);
+    process.exit(1);
+  }
+}
+
+/** Consecutive errors after which the run stops: the problem is the setup, not the answers. */
+const MAX_ERRORS_IN_A_ROW = 3;
 
 /** Wraps a client to record the tools the model asked for. */
 function recording(client: ChatClient, calls: string[]): ChatClient {
@@ -51,6 +67,7 @@ function recording(client: ChatClient, calls: string[]): ChatClient {
 
 async function main() {
   const only = arg("only")?.split(",");
+  await checkModel();
   const cases = parseCases(readFileSync(join(here, "assistant.v1.jsonl"), "utf8")).filter((c) => !only || only.includes(c.id));
   const { client, label: clientLabel, gates } = pickClient();
   const data = await loadData();
@@ -67,12 +84,17 @@ async function main() {
       const out = await runAssistant({ client: recording(client, calls), cache: data.cache, profile: c.profile ?? {}, history: [{ role: "user", content: c.question }] });
       run = { ...out, toolCalls: calls, latencyMs: Date.now() - start };
     } catch (e) {
-      run = { text: `ERROR: ${e instanceof Error ? e.message : String(e)}`, sources: [], grounded: false, toolCalls: calls, latencyMs: Date.now() - start };
+      run = { text: "", sources: [], grounded: false, toolCalls: calls, latencyMs: Date.now() - start, error: e instanceof Error ? e.message : String(e) };
     }
     const r = scoreCase(c, run, data.cache, UNGROUNDED_FALLBACK);
     results.push(r);
     const mark = r.status === "pass" ? "✓" : r.status === "skipped" ? "–" : "✗";
     console.log(`${String(i + 1).padStart(2)}/${cases.length} ${mark} ${c.id} ${c.group.padEnd(12)} ${String(r.latencyMs).padStart(5)} ms  ${r.failures.map((f) => `[${f.metric}] ${f.reason}`).join("; ")}`);
+    const recent = results.slice(-MAX_ERRORS_IN_A_ROW);
+    if (recent.length === MAX_ERRORS_IN_A_ROW && recent.every((x) => x.failures.some((f) => f.metric === "error"))) {
+      console.error(`\nStopping: ${MAX_ERRORS_IN_A_ROW} errors in a row. Last error: ${recent.at(-1)!.failures[0].reason}`);
+      process.exit(1);
+    }
     if (pauseMs && i < cases.length - 1) await new Promise((res) => setTimeout(res, pauseMs));
   }
   await data.close();

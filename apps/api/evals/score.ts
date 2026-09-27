@@ -38,13 +38,15 @@ export interface CaseRun {
   grounded: boolean;
   toolCalls: string[];
   latencyMs: number;
+  /** Set when the model or a tool call threw; the case fails on this alone. */
+  error?: string;
 }
 
 export interface CaseResult {
   id: string;
   group: Group;
   status: "pass" | "fail" | "skipped";
-  failures: { metric: "tools" | "correctness" | "grounding"; reason: string }[];
+  failures: { metric: "tools" | "correctness" | "grounding" | "error"; reason: string }[];
   toolCalls: string[];
   latencyMs: number;
   fellBack: boolean;
@@ -98,7 +100,8 @@ export function scoreCase(c: EvalCase, run: CaseRun, cache: AppCache, fallbackTe
   const failures: CaseResult["failures"] = [];
   const lower = run.text.toLowerCase();
   const fellBack = run.text === fallbackText;
-  const base = { id: c.id, group: c.group, toolCalls: run.toolCalls, latencyMs: run.latencyMs, fellBack, answer: run.text };
+  const base = { id: c.id, group: c.group, toolCalls: run.toolCalls, latencyMs: run.latencyMs, fellBack, answer: run.error ? `ERROR: ${run.error}` : run.text };
+  if (run.error) return { ...base, status: "fail", failures: [{ metric: "error", reason: run.error }] };
 
   let expected: number | null = null;
   if (c.cutoff) {
