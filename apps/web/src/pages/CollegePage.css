@@ -530,6 +530,8 @@
 }
 
 .cp-disclaimer { color: var(--orange); font-weight: 600; }
+.cp-legal-link { color: var(--violet); font-weight: 600; text-decoration: none; }
+.cp-legal-link:hover { text-decoration: underline; }
 
 /* ─── Loading / Error ─── */
 .cp-header-skeleton {

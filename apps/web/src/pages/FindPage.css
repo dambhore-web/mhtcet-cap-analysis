@@ -855,6 +855,18 @@
 
 .find-footer strong { color: var(--violet); }
 
+.find-footer-link {
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: color 0.12s, text-decoration-color 0.12s;
+}
+
+.find-footer-link:hover {
+  color: var(--violet);
+  text-decoration-color: var(--violet);
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 860px) {
   .find-hero {

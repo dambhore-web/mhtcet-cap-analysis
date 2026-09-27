@@ -509,6 +509,13 @@ export function FindPage() {
       <footer className="find-footer">
         <span><strong>Compass</strong> — MHT-CET CAP cutoffs</span>
         <span>Data from official DTE Maharashtra lists. Estimates only.</span>
+        <span>
+          <Link to="/legal" className="find-footer-link">Disclaimer</Link>
+          {" · "}
+          <Link to="/legal" className="find-footer-link">Privacy</Link>
+          {" · "}
+          <Link to="/legal" className="find-footer-link">Terms</Link>
+        </span>
       </footer>
     </div>
   );

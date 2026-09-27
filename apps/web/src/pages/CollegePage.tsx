@@ -358,6 +358,8 @@ export function CollegePage() {
       <div className="cp-footnote">
         2026 official MHT-CET CAP cutoffs · DTE Maharashtra ·{" "}
         <span className="cp-disclaimer">Past data — not a guarantee</span>
+        {" · "}
+        <Link to="/legal" className="cp-legal-link">Disclaimer</Link>
       </div>
     </div>
   );
