@@ -121,7 +121,9 @@ export async function postRankFinder(c: Context, cache: AppCache) {
     const bo = b as { status: keyof typeof STATUS_ORDER; closingMerit: number };
     const sd = STATUS_ORDER[ao.status] - STATUS_ORDER[bo.status];
     if (sd !== 0) return sd;
-    return bo.closingMerit - ao.closingMerit;
+    // Within the same status, sort ascending by closing merit:
+    // lower closing merit = fewer seats/more competitive = higher-ranked college first.
+    return ao.closingMerit - bo.closingMerit;
   });
 
   return c.json({ options, count: options.length });
