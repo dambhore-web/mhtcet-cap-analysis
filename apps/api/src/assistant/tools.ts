@@ -42,10 +42,11 @@ const MAX_OPTIONS = 50;
 export const MAX_CUTOFFS = 60;
 
 const FindArgs = z.object({
-  merit: z.number().int().min(1).max(500000).optional(),
+  // Models send null for details the student hasn't given; treat it as not given
+  merit: z.number().int().min(1).max(500000).nullish(),
   candidature: z.enum(["MH", "AI"]).default("MH"),
   category: z.enum(CATEGORIES).nullable().optional(),
-  gender: z.enum(["M", "F"]).optional(),
+  gender: z.enum(["M", "F"]).nullish(),
   homeUniversity: z.string().max(120).nullable().optional(),
   flags: z.object({ ews: z.boolean(), tfws: z.boolean(), defence: z.boolean(), pwd: z.boolean(), orphan: z.boolean() }).partial().optional(),
   district: z.string().max(60).nullable().optional(),
@@ -70,13 +71,15 @@ export const TOOL_DEFS: ToolDef[] = [
     parameters: {
       type: "object",
       properties: {
-        merit: { type: "integer", description: "State merit number (candidature MH) or All India merit number (AI)" },
+        // Nullable: models send null for details the student hasn't given, and Groq rejects the
+        // whole call when that doesn't match the schema
+        merit: { type: ["integer", "null"], description: "State merit number (candidature MH) or All India merit number (AI); omit to use the student's saved merit" },
         candidature: { type: "string", enum: ["MH", "AI"] },
-        category: { type: "string", enum: [...CATEGORIES] },
-        gender: { type: "string", enum: ["M", "F"] },
-        homeUniversity: { type: "string" },
-        district: { type: "string" },
-        branchGroup: { type: "string", enum: Object.keys(BRANCH_GROUP_PATTERNS) },
+        category: { type: ["string", "null"], enum: [...CATEGORIES, null] },
+        gender: { type: ["string", "null"], enum: ["M", "F", null] },
+        homeUniversity: { type: ["string", "null"] },
+        district: { type: ["string", "null"] },
+        branchGroup: { type: ["string", "null"], enum: [...Object.keys(BRANCH_GROUP_PATTERNS), null] },
         onlyReachable: { type: "boolean", description: "Only options within reach (default true)" },
       },
     },

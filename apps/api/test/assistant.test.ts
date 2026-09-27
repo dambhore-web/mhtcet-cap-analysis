@@ -100,6 +100,12 @@ describe("assistant tools", () => {
     expect(rows.every((r) => r.kind === "option" && r.closingMerit)).toBe(true);
   });
 
+  it("findOptions treats null arguments as not given (models send them)", () => {
+    const rows = runTool("findOptions", { merit: null, gender: null, category: null, branchGroup: null }, { cache, profile: { merit: 5200 } });
+    expect(rows.length).toBeGreaterThan(0);
+    expect(() => runTool("findOptions", { merit: null }, { cache, profile: {} })).toThrow(/merit/);
+  });
+
   it("findOptions without any merit asks for it", () => {
     expect(() => runTool("findOptions", {}, { cache, profile: {} })).toThrow(/merit/);
   });
