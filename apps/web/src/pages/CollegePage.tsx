@@ -234,29 +234,17 @@ export function CollegePage() {
             )}
 
             {/* At a glance */}
-            {glance && (glance.gotIn.length > 0 || glance.needBetter.length > 0) && (
+            {glance && glance.gotIn.length > 0 && (
               <div className="cp-sidebar-card">
                 <h3 className="cp-sidebar-title">At a glance</h3>
-                {glance.gotIn.length > 0 && (
-                  <div className="cp-glance-group">
-                    <span className="cp-glance-label cp-glance-got">Branches you got into</span>
-                    <div className="cp-glance-pills">
-                      {glance.gotIn.map((br) => (
-                        <span key={br} className="cp-glance-pill cp-glance-pill-got">{br}</span>
-                      ))}
-                    </div>
+                <div className="cp-glance-group">
+                  <span className="cp-glance-label cp-glance-got">Branches you got into</span>
+                  <div className="cp-glance-pills">
+                    {glance.gotIn.map((br) => (
+                      <span key={br} className="cp-glance-pill cp-glance-pill-got">{br}</span>
+                    ))}
                   </div>
-                )}
-                {glance.needBetter.length > 0 && (
-                  <div className="cp-glance-group">
-                    <span className="cp-glance-label cp-glance-later">Reachable by later rounds</span>
-                    <div className="cp-glance-pills">
-                      {glance.needBetter.map((br) => (
-                        <span key={br} className="cp-glance-pill cp-glance-pill-later">{br}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
             )}
 

@@ -85,7 +85,7 @@ export function ComparePage() {
       </header>
 
       <div className="compare-scroll">
-        <div className="compare-grid" style={{ gridTemplateColumns: `repeat(${pinned.length}, minmax(240px, 1fr))` }}>
+        <div className="compare-grid" style={{ gridTemplateColumns: `repeat(${Math.min(pinned.length + (pinned.length < 3 ? 1 : 0), 3)}, minmax(280px, 1fr))` }}>
           {pinned.map((c) => {
             const data = dataMap[c.code];
             const fees = feesMap[c.code];
@@ -163,6 +163,12 @@ export function ComparePage() {
               </div>
             );
           })}
+          {pinned.length < 3 && (
+            <Link to="/colleges" className="compare-col-add">
+              <span className="compare-col-add-icon">+</span>
+              <span>Add college</span>
+            </Link>
+          )}
         </div>
       </div>
 

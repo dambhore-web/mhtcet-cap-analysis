@@ -79,12 +79,11 @@
 }
 .cp-action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Two-column body */
+/* Single-column body — charts full width, sidebar cards below */
 .cp-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 24px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 /* Main column */
@@ -166,18 +165,32 @@
 .cp-legal-link { color: var(--navy); font-weight: 600; text-decoration: none; }
 .cp-legal-link:hover { text-decoration: underline; }
 
-/* Sidebar */
+/* Sidebar — horizontal row of info cards below the charts */
 .cp-sidebar {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 16px;
+  align-items: flex-start;
+  margin-top: 8px;
 }
 
 .cp-sidebar-card {
+  flex: 1 1 260px;
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: 20px;
   padding: 20px;
+  min-width: 0;
+}
+
+.cp-stat-card {
+  flex: 0 0 auto;
+  min-width: 180px;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .cp-sidebar-title {
@@ -187,13 +200,6 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted);
-}
-
-/* Stat card */
-.cp-stat-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .cp-stat-label {
@@ -361,16 +367,8 @@
 /* Responsive */
 @media (max-width: 900px) {
   .cp-content { padding: 16px 20px 40px; }
-
-  .cp-body {
-    grid-template-columns: 1fr;
-  }
-
-  .cp-sidebar {
-    order: -1;
-  }
-
   .cp-stat-merit { font-size: 28px; }
+  .cp-stat-card { flex: 1 1 160px; max-width: none; }
 }
 
 @media (max-width: 600px) {

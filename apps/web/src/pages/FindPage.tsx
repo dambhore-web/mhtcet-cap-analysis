@@ -33,6 +33,16 @@ const UNIVERSITIES = [
   "Gondwana University",
 ];
 
+const DISTRICTS = [
+  "Pune", "Nagpur", "Mumbai City", "Mumbai Suburban", "Thane",
+  "Nashik", "Aurangabad", "Amravati", "Kolhapur", "Solapur",
+  "Nanded", "Latur", "Jalgaon", "Akola", "Buldhana",
+  "Yavatmal", "Washim", "Wardha", "Chandrapur", "Bhandara",
+  "Gondia", "Gadchiroli", "Raigad", "Ratnagiri", "Sangli",
+  "Satara", "Dhule", "Nandurbar", "Osmanabad", "Beed",
+  "Jalna", "Parbhani", "Hingoli", "Sindhudurg",
+];
+
 interface FormState {
   mode: "merit" | "percentile" | "jee";
   score: string;
@@ -485,8 +495,41 @@ export function FindPage() {
               </button>
             </div>
 
+            {/* Profile chips — summary of what was searched */}
+            <div className="profile-chips">
+              <span className="profile-chip profile-chip-merit">
+                Merit {searchedMerit.toLocaleString("en-IN")}
+              </span>
+              {form.category && (
+                <span className="profile-chip">{form.category}</span>
+              )}
+              <span className="profile-chip">{form.gender === "M" ? "Male" : "Female"}</span>
+              <span className="profile-chip">{form.subjectGroup}</span>
+              {form.ews && <span className="profile-chip">EWS</span>}
+              {form.tfws && <span className="profile-chip">TFWS</span>}
+              {form.defence && <span className="profile-chip">Defence</span>}
+              {form.pwd && <span className="profile-chip">PWD</span>}
+              {form.orphan && <span className="profile-chip">Orphan</span>}
+              {form.homeUniversity && (
+                <span className="profile-chip">
+                  {form.homeUniversity.replace(" University", " Univ.")}
+                </span>
+              )}
+            </div>
+
             <div className="result-filters">
               <span className="rf-label">Filter:</span>
+              <select
+                className="rf-select"
+                value={resultFilters.district ?? ""}
+                onChange={(e) => applyFilter({ ...resultFilters, district: e.target.value || null })}
+                disabled={filterLoading}
+              >
+                <option value="">All districts</option>
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
               <select
                 className="rf-select"
                 value={resultFilters.university ?? ""}
@@ -510,7 +553,7 @@ export function FindPage() {
                 ))}
               </select>
               {filterLoading && <span className="rf-spinner" aria-label="Filtering…" />}
-              {(resultFilters.university || resultFilters.branchGroup) && (
+              {(resultFilters.district || resultFilters.university || resultFilters.branchGroup) && (
                 <button
                   className="rf-clear"
                   onClick={() => applyFilter({})}

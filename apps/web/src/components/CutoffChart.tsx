@@ -41,11 +41,11 @@ const LOG_TICKS = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100
 const LABEL_W = 172;
 const RIGHT_PAD = 72;
 const ROW_H = 36;
-const ROW_GAP = 6;
+const ROW_GAP = 10;
 const DOT_R1 = 8;
 const DOT_LAST = 6;
-const SVG_TOP = 8;
-const SVG_BTM = 26;
+const SVG_TOP = 20;
+const SVG_BTM = 28;
 
 interface TooltipData {
   label: string;
@@ -240,9 +240,12 @@ export function CutoffChart({ cutoffs, variant = "branch" }: CutoffChartProps) {
               fill={DOT_COLOR} fillOpacity={0.6} stroke="white" strokeWidth={1.5}
               {...hov}
             />
+            {/* Last-round label — below the dot to avoid overlap with R1 label */}
             <text
-              x={xLast + DOT_LAST + 4} y={rowY + 3.5}
-              fontSize={9} fill={DOT_COLOR} fillOpacity={0.75}
+              x={Math.max(LABEL_W + 16, Math.min(xLast, chartW - RIGHT_PAD + 8))}
+              y={rowY + DOT_LAST + 12}
+              textAnchor="middle"
+              fontSize={9} fill={DOT_COLOR} fillOpacity={0.7}
               style={{ pointerEvents: "none" }}
             >
               {mLast.toLocaleString("en-IN")}
@@ -255,8 +258,11 @@ export function CutoffChart({ cutoffs, variant = "branch" }: CutoffChartProps) {
           fill={DOT_COLOR} stroke="white" strokeWidth={2}
           {...hov}
         />
+        {/* R1 label — above the dot so it never crowds the dumbbell line */}
         <text
-          x={x1 + DOT_R1 + 5} y={rowY + 3.5}
+          x={Math.max(LABEL_W + 16, Math.min(x1, chartW - RIGHT_PAD + 8))}
+          y={rowY - DOT_R1 - 4}
+          textAnchor="middle"
           fontSize={9.5} fontWeight={600} fill={DOT_COLOR}
           style={{ pointerEvents: "none" }}
         >
