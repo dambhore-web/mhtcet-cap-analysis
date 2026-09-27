@@ -76,13 +76,13 @@
 .top-nav-link:hover {
   color: var(--navy);
   background: var(--white);
-  box-shadow: 0 3px 12px rgba(92, 76, 170, 0.1);
+  box-shadow: 0 3px 12px rgba(15, 27, 51, 0.08);
 }
 
 .top-nav-link.active {
   color: var(--navy);
   background: var(--white);
-  box-shadow: 0 3px 12px rgba(92, 76, 170, 0.1);
+  box-shadow: 0 3px 12px rgba(15, 27, 51, 0.08);
 }
 
 /* Profile/shortlist CTA on the right */

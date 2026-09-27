@@ -35,7 +35,7 @@ const PREFERRED_SEAT_TYPES = [
   "GOSTS", "GSTS",
 ];
 
-const DOT_COLOR = "#6552d8";
+const DOT_COLOR = "#0f1b33";
 const LOG_TICKS = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 400000];
 
 const LABEL_W = 172;
@@ -214,9 +214,9 @@ export function CutoffChart({ cutoffs, variant = "branch" }: CutoffChartProps) {
         <line
           x1={LABEL_W} y1={rowY + ROW_H / 2 + ROW_GAP / 2}
           x2={chartW - RIGHT_PAD / 2} y2={rowY + ROW_H / 2 + ROW_GAP / 2}
-          stroke="#f0edf8" strokeWidth={1}
+          stroke="#e3e6ec" strokeWidth={1}
         />
-        <text x={LABEL_W - 10} y={rowY + 4} textAnchor="end" fontSize={11.5} fill="#3b3751">
+        <text x={LABEL_W - 10} y={rowY + 4} textAnchor="end" fontSize={11.5} fill="#0f1b33">
           {rowLabel.length > 26 ? rowLabel.slice(0, 25) + "…" : rowLabel}
         </text>
         {/* Invisible wider hover target */}
@@ -310,8 +310,8 @@ export function CutoffChart({ cutoffs, variant = "branch" }: CutoffChartProps) {
               const x = xOf(t);
               return (
                 <g key={t}>
-                  <line x1={x} y1={SVG_TOP} x2={x} y2={svgH - SVG_BTM} stroke="#ece9f8" strokeWidth={1} />
-                  <text x={x} y={svgH - 6} textAnchor="middle" fontSize={10} fill="#9b97b3">
+                  <line x1={x} y1={SVG_TOP} x2={x} y2={svgH - SVG_BTM} stroke="#e3e6ec" strokeWidth={1} />
+                  <text x={x} y={svgH - 6} textAnchor="middle" fontSize={10} fill="#55607a">
                     {t >= 1000 ? `${t / 1000}k` : t}
                   </text>
                 </g>

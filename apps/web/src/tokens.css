@@ -1,41 +1,39 @@
 :root {
-  --page: #f6f7ff;
-  --lavender: #ece9ff;
-  --violet: #6552d8;
-  --violet-deep: #4f46ae;
-  --violet-soft: #cbbdff;
-  --lime: #d6f95a;
+  --page: #f7f8fa;
+  --lavender: #eef0f4;
+  --violet: #0f1b33;
+  --violet-deep: #2b3f6b;
+  --violet-soft: #aab4cc;
+  --lime: #f5b301;
   --orange: #ff775b;
   --orange-shadow: #b74c39;
-  --navy: #24314d;
-  --muted: #807991;
-  --line: #ded7f6;
+  --navy: #0f1b33;
+  --muted: #55607a;
+  --line: #e3e6ec;
   --white: #ffffff;
 
   /* status */
-  --safe-text: #2d6a30;
-  --safe-bg: #e8f5e9;
-  --later-text: #7d4a00;
-  --later-bg: #fff3e0;
+  --safe-text: #166534;
+  --safe-bg: #e7f6ec;
+  --later-text: #92400e;
+  --later-bg: #fef3c7;
   --out-text: #c62828;
   --out-bg: #fce4ec;
 
   /* typography */
-  --font-head: "Syne", Arial, sans-serif;
-  --font-body: "DM Sans", Arial, sans-serif;
-  --font-num: "Space Grotesk", Arial, sans-serif;
+  --font-head: "Geist", system-ui, Arial, sans-serif;
+  --font-body: "Geist", system-ui, Arial, sans-serif;
+  --font-num: "Geist Mono", monospace;
 
-  /* shadows — flat offset style */
-  --shadow-card: 0 12px 34px rgba(92, 76, 170, 0.09);
-  --shadow-flat: 4px 4px 0 var(--navy);
-  --shadow-flat-soft: 4px 4px 0 var(--violet-soft);
+  /* shadows */
+  --shadow-card: 0 8px 24px rgba(15, 27, 51, 0.06);
   --shadow-btn: 0 3px 0 #c45845;
 
   /* status */
-  --safe-text-2: #307752;
-  --safe-bg-2: #e4f7e8;
-  --match-text: #8e6316;
-  --match-bg: #fff1d4;
+  --safe-text-2: #166534;
+  --safe-bg-2: #e7f6ec;
+  --match-text: #92400e;
+  --match-bg: #fef3c7;
   --reach-text: #ad5548;
   --reach-bg: #ffe4de;
 
