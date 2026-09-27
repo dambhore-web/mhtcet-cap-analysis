@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import {
   DndContext,
   closestCenter,
@@ -249,6 +250,11 @@ export function ListPage() {
               </div>
             </SortableContext>
           </DndContext>
+
+          <Link to="/guide" className="list-guide-banner">
+            <span>🧊 After allotment: should you Freeze, Float, or Slide?</span>
+            <span className="list-guide-arrow">→</span>
+          </Link>
 
           <div className="list-footnote">
             Drag rows to reorder · {items.length}/300 options · 2026 closing merits from official DTE Maharashtra lists
