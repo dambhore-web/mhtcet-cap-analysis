@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { api, type FindOption, type Category, type MeritEstimate } from "../lib/api";
+import { api, BRANCH_GROUPS, type FindOption, type Category, type MeritEstimate, type ResultFilters } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { addToList, isInList } from "../lib/list";
 import "./FindPage.css";
@@ -81,6 +81,9 @@ export function FindPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [options, setOptions] = useState<FindOption[]>([]);
   const [searchedMerit, setSearchedMerit] = useState<number>(0);
+  const [resultFilters, setResultFilters] = useState<ResultFilters>({});
+  const [filterLoading, setFilterLoading] = useState(false);
+  const lastRequest = useRef<Parameters<typeof api.find>[0] | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [scoreError, setScoreError] = useState("");
   const [showAll, setShowAll] = useState(false);
@@ -127,17 +130,21 @@ export function FindPage() {
     setScoreError("");
     setStatus("loading");
     setShowAll(false);
+    setResultFilters({});
+
+    const req = {
+      merit: num,
+      homeUniversity: form.homeUniversity || null,
+      category: form.category || null,
+      gender: form.gender,
+      minorityCommunity: null,
+      flags: { ews: form.ews, tfws: form.tfws, defence: form.defence, pwd: form.pwd, orphan: form.orphan },
+      subjectGroup: form.subjectGroup,
+    };
+    lastRequest.current = req;
 
     try {
-      const res = await api.find({
-        merit: num,
-        homeUniversity: form.homeUniversity || null,
-        category: form.category || null,
-        gender: form.gender,
-        minorityCommunity: null,
-        flags: { ews: form.ews, tfws: form.tfws, defence: form.defence, pwd: form.pwd, orphan: form.orphan },
-        subjectGroup: form.subjectGroup,
-      });
+      const res = await api.find(req);
       setOptions(res.options);
       setSearchedMerit(num);
       setStatus("done");
@@ -145,6 +152,21 @@ export function FindPage() {
     } catch {
       setStatus("error");
       setErrorMsg("Could not reach the server. Make sure the API is running.");
+    }
+  }
+
+  async function applyFilter(newFilters: ResultFilters) {
+    if (!lastRequest.current) return;
+    setResultFilters(newFilters);
+    setFilterLoading(true);
+    setShowAll(false);
+    try {
+      const res = await api.find({ ...lastRequest.current, filters: newFilters });
+      setOptions(res.options);
+    } catch {
+      // keep existing results on filter failure
+    } finally {
+      setFilterLoading(false);
     }
   }
 
@@ -366,6 +388,42 @@ export function FindPage() {
                 <strong>{later.length}</strong>
                 <span>later rounds</span>
               </div>
+            </div>
+
+            <div className="result-filters">
+              <span className="rf-label">Filter:</span>
+              <select
+                className="rf-select"
+                value={resultFilters.university ?? ""}
+                onChange={(e) => applyFilter({ ...resultFilters, university: e.target.value || null })}
+                disabled={filterLoading}
+              >
+                <option value="">All universities</option>
+                {UNIVERSITIES.map((u) => (
+                  <option key={u} value={u}>{u.replace("University", "Univ.")}</option>
+                ))}
+              </select>
+              <select
+                className="rf-select"
+                value={resultFilters.branchGroup ?? ""}
+                onChange={(e) => applyFilter({ ...resultFilters, branchGroup: e.target.value || null })}
+                disabled={filterLoading}
+              >
+                <option value="">All branches</option>
+                {BRANCH_GROUPS.map((g) => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+              {filterLoading && <span className="rf-spinner" aria-label="Filtering…" />}
+              {(resultFilters.university || resultFilters.branchGroup) && (
+                <button
+                  className="rf-clear"
+                  onClick={() => applyFilter({})}
+                  disabled={filterLoading}
+                >
+                  Clear ×
+                </button>
+              )}
             </div>
 
             {options.length === 0 ? (
