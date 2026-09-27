@@ -4,7 +4,7 @@
 |---|---|
 | [00-project](00-project/) | Starting out: vision, scope, glossary, discovery findings |
 | [01-requirements](01-requirements/) | Building a feature: requirements, user stories, plans |
-| [02-architecture](02-architecture/) | Changing how parts fit together; the data pipeline |
+| [02-architecture](02-architecture/) | Changing how parts fit together; the data pipeline; [navigation and user journeys](02-architecture/navigation.md) before building any screen |
 | [03-domain](03-domain/) | Touching data shapes or eligibility logic |
 | [04-api](04-api/) | Adding or changing endpoints |
 | [05-ai](05-ai/) | Touching the assistant, prompts, evals or model choice |
