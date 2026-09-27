@@ -204,3 +204,26 @@ describe("normalizeStage", () => {
     expect(normalizeStage("")).toBe("");
   });
 });
+
+describe("rankFind reuses its summary of a rows array", () => {
+  const rows: CutoffRow[] = [
+    { authority: "MH-CET-CELL", exam: "MHT-CET", year: 2026, list: "MH", round: "I", choiceCode: "0100100000", collegeCode: "01001", section: "State Level", seatType: "GOPENS", stage: "I", closingMerit: 1000, closingPercentile: null, sourceFile: "cutoff-list-round-I.pdf", sourcePage: 1 },
+    { authority: "MH-CET-CELL", exam: "MHT-CET", year: 2026, list: "MH", round: "III", choiceCode: "0100100000", collegeCode: "01001", section: "State Level", seatType: "GOPENS", stage: "I", closingMerit: 1600, closingPercentile: null, sourceFile: "cutoff-list-round-I.pdf", sourcePage: 1 },
+  ];
+  const college = { homeUniversity: null, minorityCommunity: null };
+  const candidate = (meritNumber: number): CandidateProfile => ({
+    candidature: "MH", homeUniversity: null, category: null, gender: "M", ews: false, tfws: false, defence: false,
+    pwd: false, orphan: false, minorityCommunity: null, meritNumber, subjectGroup: "PCM",
+  });
+
+  it("gives each merit number its own status on the same rows", () => {
+    expect(rankFind(candidate(900), college, rows).best?.status).toBe("round-I");
+    expect(rankFind(candidate(1500), college, rows).best).toMatchObject({ status: "later-round", round: "III", closingMerit: 1600 });
+    expect(rankFind(candidate(5000), college, rows).best).toMatchObject({ status: "out-of-range", round: "III", closingMerit: 1600 });
+  });
+
+  it("accepts a precomputed eligible list with the same result", () => {
+    const eligible = ["GOPENS", "LOPENS"];
+    expect(rankFind(candidate(1500), college, rows, eligible)).toEqual(rankFind(candidate(1500), college, rows));
+  });
+});

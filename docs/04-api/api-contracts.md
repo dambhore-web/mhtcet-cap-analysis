@@ -6,6 +6,9 @@ All routes are under `/api`, JSON in and out, request bodies schema-validated, e
 
 Implemented (apps/api, Hono). Auth and entitlements arrive with #15/#21; today every route is public.
 
+JSON responses of 1 KB or more are gzipped when the request sends `Accept-Encoding: gzip`
+(browsers always do). The assistant's event stream is never compressed (#27).
+
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/api/health` | Liveness |

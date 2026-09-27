@@ -12,6 +12,7 @@ import { postAssistant } from "./routes/assistant.ts";
 import { getMeta } from "./routes/meta.ts";
 import type { AppCache } from "./startup.ts";
 import { buildFeeIndex } from "./feeIndex.ts";
+import { compressJson } from "./compress.ts";
 import type { ChatClient } from "./assistant/run.ts";
 import type pg from "pg";
 
@@ -42,6 +43,8 @@ export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = 
     };
     console.log(JSON.stringify(log));
   });
+
+  app.use("/api/*", compressJson);
 
   app.get("/api/health", health);
   app.get("/api/meta", (c) => getMeta(c, cache, pool, fees));

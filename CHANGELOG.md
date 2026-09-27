@@ -1,6 +1,33 @@
 # Changelog
 
 ## Unreleased
+### Added
+- Assistant eval set and runner (#20). Why: a prompt, model or tool change needs a measurable gate
+  before it merges.
+  - **Eval set:** 54 cases in `apps/api/evals/assistant.v1.jsonl` across six groups, including 10
+    adversarial ones. Expected cutoffs are looked up in the loaded data, not typed in by hand.
+  - **Runner:** `npm run eval` runs the real `runAssistant` loop and scores tool calls,
+    correctness and numeric grounding. It exits 1 below the thresholds: 90% tools and factual,
+    100% adversarial and grounding.
+  - **CI:** the `Assistant eval` job runs when assistant code changes and `GROQ_API_KEY` is set.
+  - The old `packages/pipeline/eval` set is replaced. It posted the wrong request shape and
+    expected facts the tools can't provide (for example, the documents needed at reporting).
+- Performance check and fixes (#27). Why: NFR-002 and NFR-003 had no measurement. Measured at
+  full scale (390 colleges, 3,120 branches), a search took 38 ms of CPU and returned 1.7 MB.
+  - **Script:** `npm run perf` runs 50 concurrent rank-finder users for 20 s, each pausing 1–3 s
+    between searches (target p95 < 1 s). It also asks 10 assistant questions (target: first
+    streamed text p95 < 3 s). `--think-ms=0` finds the saturation point.
+  - **Faster rank finder:** `rankFind` summarises each branch's rows once and reuses the summary.
+    Eligibility is worked out once per college, not per branch. A search now takes 13 ms, and its
+    output is byte-identical to before over 400 varied requests.
+  - **Compression:** JSON responses are gzipped when the browser accepts it. A full search drops
+    from 1.7 MB to about 70 KB, which matters most on phones. The assistant's stream is not
+    compressed.
+  - **Result:** at full scale, p95 is 241 ms with 50 users. With no pause between searches, the
+    server handles about 47 searches a second on 4 cores (p95 about 1.5 s).
+  - **CI:** the `Performance (staging data)` job runs the script against the API loaded with the
+    staging cutoffs.
+
 ### Changed
 - Decision log matches the build (#118). Why: it said Tailwind and left hosting open, while the
   app uses plain CSS and the web app was deploying to Vercel.

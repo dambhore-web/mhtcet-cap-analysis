@@ -1,4 +1,4 @@
-import { rankFind, type CandidateProfile, type CollegeEligibilityContext } from "@mhtcet/core";
+import { eligibleSeatTypes, rankFind, type CandidateProfile, type CollegeEligibilityContext } from "@mhtcet/core";
 import { type AppCache, minorityCommunity } from "../startup.ts";
 
 export interface FindOptionsRequest {
@@ -65,6 +65,8 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
   const options: FoundOption[] = [];
 
   const { university, district, collegeType, branchGroup } = req.filters;
+  // Eligibility depends only on the candidate and the college, so work it out once per college
+  const eligibleByCollege = new Map<string, { ctx: CollegeEligibilityContext; types: string[] }>();
 
   for (const [choiceCode, cutoffs] of cache.cutoffsByChoiceCode) {
     const branch = cache.branches.get(choiceCode);
@@ -81,12 +83,17 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
       if (pattern && !pattern.test(branch.name)) continue;
     }
 
-    const collegeCtx: CollegeEligibilityContext = {
-      homeUniversity: college.homeUniversity,
-      minorityCommunity: minorityCommunity(college.status),
-    };
+    let eligible = eligibleByCollege.get(college.code);
+    if (!eligible) {
+      const ctx: CollegeEligibilityContext = {
+        homeUniversity: college.homeUniversity,
+        minorityCommunity: minorityCommunity(college.status),
+      };
+      eligible = { ctx, types: eligibleSeatTypes(candidate, ctx) };
+      eligibleByCollege.set(college.code, eligible);
+    }
 
-    const result = rankFind(candidate, collegeCtx, cutoffs);
+    const result = rankFind(candidate, eligible.ctx, cutoffs, eligible.types);
     if (!result.best) continue;
 
     const best = result.best;
