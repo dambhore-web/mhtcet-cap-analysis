@@ -72,8 +72,8 @@ Nothing is blocked. The paid launch is gated on the legal items in `docs/07-secu
 | 10 | Earlier years | not started |
 
 ## Product decisions (2026-09-27)
-Name **Compass** · Maharashtra first, other states later (ADR-007) · build locally, host on
-Railway · Google sign-in only · English only · free vs paid parked. UI mockups:
+Name **Compass** · Maharashtra first, other states later (ADR-007) · build locally, host web and API on
+Railway (Vercel retired, #118) · plain CSS, no Tailwind · Google sign-in only · English only · free vs paid parked. UI mockups:
 https://claude.ai/artifact/AMQz7i84DpLtphboyZUZuD (private, 30 screens + journey map; supersedes
 the earlier phone mockup). Navigation and the 14 user journeys: `docs/02-architecture/navigation.md`. All decisions: `docs/DECISIONS.md`.
 

@@ -6,7 +6,7 @@
 | 2026-09-27 | TypeScript only, no Python | Owner preference; one language | user | ADR-001 |
 | 2026-09-27 | Paid product | Owner's goal | user | ADR-005 |
 | 2026-09-27 | AI assistant in scope from the start | Owner's goal | user | ADR-004 |
-| 2026-09-27 | React + Vite + Tailwind for web | Familiar from GUPO | user | — |
+| 2026-09-27 | React + Vite for web. Styling was Tailwind; **superseded** below | Familiar from GUPO | user | — |
 | 2026-09-27 | Trimmed documentation tree | Only document what applies | user | `00-project/scope.md` |
 | 2026-09-27 | Monorepo with shared `packages/core` | One source of admissions logic | Claude, approved in plan | ADR-002 |
 | 2026-09-27 | No candidate names or IDs in the product | Privacy, minors | Claude, approved in plan | ADR-003 |
@@ -23,6 +23,8 @@
 | 2026-09-27 | Free vs paid split parked; build features ungated first | Decide later | user | `01-requirements/pricing-and-plans.md` |
 | 2026-09-27 | Cutoff key includes stage + exam; Diploma rows stored with empty seat type; `ORPHAN2` and a duplicated AI key not loaded | Source quirks | Claude, accepted by user | `02-architecture/data-pipeline.md` |
 | 2026-09-27 | "Later round" status uses the highest closing published in Rounds II–IV (round values cover only that round's allotments) | Matches how the official lists work | Claude | `03-domain/eligibility-rules.md` §6 |
+| 2026-09-27 | Web styling: plain CSS with design tokens (`apps/web/src/tokens.css`, `global.css`), no Tailwind. Replaces the Tailwind row above | Matches the build; moving to Tailwind would mean restyling every page | user (#118) | `AGENTS.md` coding conventions |
+| 2026-09-27 | Hosting: web **and** API on Railway, two services per environment. The Vercel deployment of the web app is retired | One platform; the API keeps a long-running process with an in-memory cache and streaming answers | user (#118) | `09-devops/deployment.md` |
 
 ## Open decisions
 | Decision | Needed by |

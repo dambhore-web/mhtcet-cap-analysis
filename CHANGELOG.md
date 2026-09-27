@@ -1,6 +1,18 @@
 # Changelog
 
 ## Unreleased
+### Changed
+- Decision log matches the build (#118). Why: it said Tailwind and left hosting open, while the
+  app uses plain CSS and the web app was deploying to Vercel.
+  - **Styling:** plain CSS with design tokens, no Tailwind (owner confirmed). `AGENTS.md` and the
+    architecture doc updated.
+  - **Hosting:** web and API both on Railway; Vercel retired (owner decision).
+    `09-devops/deployment.md` has the setup and the Vercel removal steps.
+  - **Railway configs fixed:** both services now build from the repo root, since the web app and
+    the API import `packages/core`. The old API config called a `build` script that core doesn't
+    have, and the web config couldn't see core.
+  - Root `package.json` requires Node 22.12 or later (Vite 7 needs it).
+
 ### Added
 - Journeys J1–J13 built and tested end to end (issues in #119). Why: the audit found most of
   the planned product unbuilt or broken; each journey now has a passing Playwright spec.
