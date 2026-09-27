@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
+import { api } from "../lib/api";
 import "./AskPage.css";
 
 const FREE_LIMIT = 3;
@@ -19,13 +20,6 @@ interface Message {
   streaming?: boolean;
 }
 
-const COMING_SOON_REPLY = `The AI admissions assistant is coming in October 2026. In the meantime:
-
-• Use the **Rank Finder** (Find tab) to see all colleges where you qualify
-• Visit any **College page** for cutoff tables by round and seat type
-• Check the **Freeze/Float/Slide** guide under your My List tab after allotment
-
-The assistant will be trained on official CET Cell notifications, DTE circulars, and past CAP brochures — and will cite every source.`;
 
 export function AskPage() {
   const { profile } = useProfile();
@@ -43,21 +37,76 @@ export function AskPage() {
 
   async function sendMessage(text: string) {
     if (!text.trim() || limitReached || isTyping) return;
-    const userMsg: Message = { id: Date.now().toString(), role: "user", text: text.trim() };
+    const trimmed = text.trim();
+    const userMsg: Message = { id: Date.now().toString(), role: "user", text: trimmed };
+
+    // Snapshot the full conversation history to send to the API
+    const history = messages
+      .filter((m) => !m.streaming)
+      .map((m) => ({ role: m.role as "user" | "assistant", content: m.text }));
+
     setMessages((m) => [...m, userMsg]);
     setInput("");
     setQuestionCount((n) => n + 1);
     setIsTyping(true);
 
-    // Simulate streaming delay — replace with real SSE from POST /api/assistant
-    await new Promise((r) => setTimeout(r, 800));
-    const assistantMsg: Message = {
-      id: (Date.now() + 1).toString(),
-      role: "assistant",
-      text: COMING_SOON_REPLY,
-    };
-    setIsTyping(false);
-    setMessages((m) => [...m, assistantMsg]);
+    const assistantId = (Date.now() + 1).toString();
+
+    try {
+      const reader = await api.assistantStream(
+        [...history, { role: "user", content: trimmed }],
+        { merit: profile.meritNumber ?? undefined, category: profile.category ?? undefined, gender: profile.gender ?? undefined },
+      );
+
+      if (!reader) throw new Error("no_stream");
+
+      // Add empty streaming message
+      setMessages((m) => [...m, { id: assistantId, role: "assistant", text: "", streaming: true }]);
+      setIsTyping(false);
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const payload = JSON.parse(line.slice(6)) as { delta?: string; done?: boolean; error?: string };
+            if (payload.delta) {
+              setMessages((m) =>
+                m.map((msg) =>
+                  msg.id === assistantId ? { ...msg, text: msg.text + payload.delta } : msg
+                )
+              );
+            }
+            if (payload.done || payload.error) break;
+          } catch {
+            // malformed SSE line, skip
+          }
+        }
+      }
+
+      // Mark streaming complete
+      setMessages((m) =>
+        m.map((msg) => (msg.id === assistantId ? { ...msg, streaming: false } : msg))
+      );
+    } catch {
+      setIsTyping(false);
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.id === assistantId
+            ? { ...msg, text: "Sorry, the assistant is unavailable right now. Please try again later.", streaming: false }
+            : msg
+        )
+      );
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {

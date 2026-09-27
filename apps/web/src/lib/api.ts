@@ -127,6 +127,17 @@ export interface SimulateResponse {
   rounds: string[];
 }
 
+export interface AssistantMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface AssistantProfile {
+  merit?: number | null;
+  category?: string | null;
+  gender?: string | null;
+}
+
 export const api = {
   find: (req: FindRequest) => post<FindResponse>("/api/rank-finder", req),
   simulate: (req: SimulateRequest) => post<SimulateResponse>("/api/simulate", req),
@@ -154,4 +165,18 @@ export const api = {
       method: string;
       disclaimer: string;
     }>(`/api/jee-estimate?percentile=${percentile}`),
+
+  /** Returns a ReadableStream of SSE chunks from POST /api/assistant. */
+  assistantStream: async (
+    messages: AssistantMessage[],
+    profile?: AssistantProfile,
+  ): Promise<ReadableStreamDefaultReader<Uint8Array> | null> => {
+    const res = await fetch(`${BASE}/api/assistant`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, profile }),
+    });
+    if (!res.ok || !res.body) return null;
+    return res.body.getReader();
+  },
 };

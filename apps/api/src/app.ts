@@ -8,6 +8,7 @@ import { getMeritEstimate } from "./routes/meritEstimate.ts";
 import { getCollegeFees } from "./routes/fees.ts";
 import { postSimulate } from "./routes/simulate.ts";
 import { getJeeEstimate } from "./routes/jeeEstimate.ts";
+import { postAssistant } from "./routes/assistant.ts";
 import type { AppCache } from "./startup.ts";
 import type pg from "pg";
 
@@ -41,6 +42,7 @@ export function createApp(cache: AppCache, pool: pg.Pool) {
   app.get("/api/merit-estimate", (c) => getMeritEstimate(c, pool));
   app.get("/api/jee-estimate", getJeeEstimate);
   app.get("/api/colleges/:code/fees", getCollegeFees);
+  app.post("/api/assistant", postAssistant);
 
   app.onError((err, c) => {
     const reqId = c.res.headers.get("x-request-id") ?? "?";
