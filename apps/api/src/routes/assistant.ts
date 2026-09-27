@@ -1,6 +1,7 @@
 import { streamSSE } from "hono/streaming";
 import type { Context } from "hono";
 import Groq from "groq-sdk";
+import { checkRateLimit, clientIp } from "../rateLimit.ts";
 
 const MODEL = "llama-3.1-8b-instant";
 
@@ -38,10 +39,23 @@ function buildSystemMessage(profile?: ProfileCtx): string {
   return `${SYSTEM_PROMPT}\n\n${lines.join("\n")}`;
 }
 
+// 20 questions per IP per hour — coarse protection until per-user auth is in place (#15)
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+const RATE_MAX = 20;
+
 export async function postAssistant(c: Context) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     return c.json({ error: "assistant_unavailable" }, 503);
+  }
+
+  const ip = clientIp(c.req);
+  if (!checkRateLimit(ip, RATE_WINDOW_MS, RATE_MAX)) {
+    return c.json({
+      error: "rate_limited",
+      message: "You've reached the free question limit for this hour. Upgrade for unlimited access.",
+      upgradeUrl: "/plans",
+    }, 429);
   }
 
   let body: { messages: ChatMessage[]; profile?: ProfileCtx };

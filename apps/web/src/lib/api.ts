@@ -166,17 +166,22 @@ export const api = {
       disclaimer: string;
     }>(`/api/jee-estimate?percentile=${percentile}`),
 
-  /** Returns a ReadableStream of SSE chunks from POST /api/assistant. */
+  /** Returns a ReadableStream reader, or throws AssistantError on known error codes. */
   assistantStream: async (
     messages: AssistantMessage[],
     profile?: AssistantProfile,
-  ): Promise<ReadableStreamDefaultReader<Uint8Array> | null> => {
+  ): Promise<ReadableStreamDefaultReader<Uint8Array>> => {
     const res = await fetch(`${BASE}/api/assistant`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages, profile }),
     });
-    if (!res.ok || !res.body) return null;
+    if (res.status === 429) {
+      const body = await res.json() as { message?: string; upgradeUrl?: string };
+      throw Object.assign(new Error(body.message ?? "rate_limited"), { code: "rate_limited", upgradeUrl: body.upgradeUrl });
+    }
+    if (res.status === 503) throw Object.assign(new Error("assistant_unavailable"), { code: "assistant_unavailable" });
+    if (!res.ok || !res.body) throw Object.assign(new Error("stream_error"), { code: "stream_error" });
     return res.body.getReader();
   },
 };
