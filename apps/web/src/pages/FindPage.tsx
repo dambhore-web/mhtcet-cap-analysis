@@ -480,7 +480,8 @@ function OptionRow({ opt, merit }: { opt: FindOption; merit: number }) {
     .map((w) => w[0])
     .join("");
 
-  function handleSave() {
+  function handleSave(e: React.MouseEvent) {
+    e.preventDefault();
     if (saved) return;
     addToList({
       choiceCode: opt.choiceCode,
@@ -495,7 +496,7 @@ function OptionRow({ opt, merit }: { opt: FindOption; merit: number }) {
   }
 
   return (
-    <div className="option-row" role="listitem">
+    <Link to={`/colleges/${opt.collegeCode}`} className="option-row" role="listitem">
       <div className="college-tile" aria-hidden="true">{initials || opt.collegeCode.slice(-2)}</div>
       <div className="option-detail">
         <span className="college-name">{opt.collegeName}</span>
@@ -518,7 +519,7 @@ function OptionRow({ opt, merit }: { opt: FindOption; merit: number }) {
       >
         {saved ? "✓" : "+"}
       </button>
-    </div>
+    </Link>
   );
 }
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
 import type { Category } from "../lib/api";
 import type { Profile } from "../lib/profile";
@@ -87,6 +87,7 @@ export function OnboardingPage() {
           <span className="ob-logo-mark">↗</span>
           compass
         </div>
+        <Link to="/colleges" className="ob-skip">Browse colleges →</Link>
       </header>
 
       <div className="ob-shell">
