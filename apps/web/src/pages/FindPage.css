@@ -668,6 +668,40 @@
   font-size: 13px;
 }
 
+/* ─── Parent PDF button ─── */
+.parent-pdf-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  margin-bottom: 14px;
+  background: var(--orange);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+  transition: opacity 0.12s, transform 0.12s;
+}
+
+.parent-pdf-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.parent-pdf-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.parent-pdf-btn.loading {
+  background: var(--muted);
+}
+
 /* ─── Result filters ─── */
 .result-filters {
   display: flex;

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { api, BRANCH_GROUPS, type FindOption, type Category, type MeritEstimate, type ResultFilters } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
+import type { Profile } from "../lib/profile";
 import { addToList, isInList } from "../lib/list";
 import "./FindPage.css";
 
@@ -88,6 +89,7 @@ export function FindPage() {
   const [scoreError, setScoreError] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [estimate, setEstimate] = useState<MeritEstimate | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const resultsRef = useRef<HTMLElement>(null);
   const estimateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -390,6 +392,18 @@ export function FindPage() {
               </div>
             </div>
 
+            <button
+              className={`parent-pdf-btn${pdfLoading ? " loading" : ""}`}
+              disabled={pdfLoading || options.length === 0}
+              onClick={async () => {
+                setPdfLoading(true);
+                try { await generateParentPDF(options, searchedMerit, profile); }
+                finally { setPdfLoading(false); }
+              }}
+            >
+              {pdfLoading ? "Generating…" : "Share with parent (PDF)"}
+            </button>
+
             <div className="result-filters">
               <span className="rf-label">Filter:</span>
               <select
@@ -512,4 +526,158 @@ function StatusBadge({ status, round }: { status: FindOption["status"]; round: n
   if (status === "round-I") return <span className="badge safe">Round I</span>;
   if (status === "later-round") return <span className="badge later">Round {round ?? "?"}</span>;
   return <span className="badge out">Out</span>;
+}
+
+async function generateParentPDF(options: FindOption[], merit: number, profile: Profile) {
+  const { jsPDF } = await import("jspdf");
+  const autoTable = (await import("jspdf-autotable")).default;
+
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const W = 297;
+
+  // ── Violet header band ──────────────────────────────────────────────────
+  doc.setFillColor(101, 82, 216);
+  doc.rect(0, 0, W, 22, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(255, 255, 255);
+  doc.text("MHT-CET CAP 2026 — College Admission Summary", 12, 14);
+
+  doc.setFontSize(11);
+  doc.setTextColor(214, 249, 90); // lime
+  doc.text("Compass", W - 12, 14, { align: "right" });
+
+  // ── Student profile row ──────────────────────────────────────────────────
+  doc.setFillColor(243, 241, 255);
+  doc.rect(0, 22, W, 20, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 120);
+  doc.text("STUDENT PROFILE", 12, 29);
+
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(20, 20, 40);
+  const meritText = merit > 0 ? merit.toLocaleString("en-IN") : "—";
+  doc.text(meritText, 12, 39);
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(80, 80, 100);
+  const cat = profile.category ?? "Open";
+  const flags: string[] = [];
+  if (profile.ews) flags.push("EWS");
+  if (profile.tfws) flags.push("TFWS");
+  if (profile.defence) flags.push("Defence");
+  if (profile.pwd) flags.push("PWD");
+  if (profile.orphan) flags.push("Orphan");
+  const profileLine = [
+    `Category: ${cat}`,
+    `Gender: ${profile.gender === "M" ? "Male" : "Female"}`,
+    `Subject: ${profile.subjectGroup}`,
+    ...(flags.length ? [`Flags: ${flags.join(", ")}`] : []),
+    ...(profile.homeUniversity ? [`Home University: ${profile.homeUniversity}`] : []),
+  ].join("   ·   ");
+  doc.text(profileLine, 55, 36);
+
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 120);
+  doc.text("State merit number", 12, 43);
+
+  // ── Top 5 options table ──────────────────────────────────────────────────
+  const top5 = [
+    ...options.filter((o) => o.status === "round-I"),
+    ...options.filter((o) => o.status === "later-round"),
+  ].slice(0, 5);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(20, 20, 40);
+  doc.text("Top College Options (2026 official cutoffs)", 12, 51);
+
+  autoTable(doc, {
+    startY: 53,
+    margin: { left: 12, right: 12 },
+    head: [["#", "College", "Branch", "Seat Type", "Closing Merit", "Your Position"]],
+    body: top5.map((o, i) => {
+      const surplus = o.closingMerit - merit;
+      const pos = surplus >= 0 ? `+${surplus.toLocaleString("en-IN")} seats to spare` : `${Math.abs(surplus).toLocaleString("en-IN")} below cutoff`;
+      return [
+        String(i + 1),
+        o.collegeName,
+        o.branch,
+        o.seatType,
+        o.closingMerit.toLocaleString("en-IN"),
+        pos,
+      ];
+    }),
+    styles: { fontSize: 8, cellPadding: 3, font: "helvetica" },
+    headStyles: { fillColor: [101, 82, 216], textColor: [255, 255, 255], fontStyle: "bold", fontSize: 8 },
+    columnStyles: {
+      0: { cellWidth: 8 },
+      1: { cellWidth: 72 },
+      2: { cellWidth: 58 },
+      3: { cellWidth: 22 },
+      4: { cellWidth: 28, halign: "right" },
+      5: { cellWidth: 44 },
+    },
+    alternateRowStyles: { fillColor: [248, 246, 255] },
+    didParseCell(data) {
+      if (data.column.index === 5 && data.section === "body") {
+        const txt = String(data.cell.raw ?? "");
+        data.cell.styles.textColor = txt.startsWith("+") ? [21, 128, 61] : [185, 28, 28];
+        data.cell.styles.fontStyle = "bold";
+      }
+    },
+  });
+
+  const afterTable = (doc as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? 110;
+
+  // ── Checklist ────────────────────────────────────────────────────────────
+  const clY = afterTable + 7;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(20, 20, 40);
+  doc.text("CAP Reporting Checklist", 12, clY);
+
+  const checklist = [
+    "Allotment letter (printed, self-attested copy)",
+    "MHT-CET 2026 scorecard / hall ticket",
+    "SSC (10th) and HSC (12th) marksheets + passing certificates",
+    "Category certificate (if applicable) — issued by competent authority",
+    "Domicile / nationality certificate",
+    "Gap certificate (if applicable)",
+    "Passport-size photographs (6–8 copies)",
+    "Original documents for verification at CAP centre",
+  ];
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(40, 40, 60);
+  checklist.forEach((item, i) => {
+    doc.text(`□  ${item}`, 14, clY + 6 + i * 6);
+  });
+
+  // ── Footer ───────────────────────────────────────────────────────────────
+  doc.setFillColor(240, 238, 255);
+  doc.rect(0, 196, W, 14, "F");
+
+  doc.setFontSize(7);
+  doc.setTextColor(100, 100, 120);
+  doc.setFont("helvetica", "normal");
+  doc.text(
+    "Data from official DTE Maharashtra / CET Cell lists. Past cutoffs are indicative only — not a guarantee of admission. Verify all details at cetcell.mahacet.org",
+    12,
+    202
+  );
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(101, 82, 216);
+  doc.text("Generated by Compass · cetcell.mahacet.org", W - 12, 202, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(130, 130, 150);
+  doc.text(`Prepared: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}`, W - 12, 207, { align: "right" });
+
+  doc.save(`compass-parent-summary-${merit}.pdf`);
 }
