@@ -9,7 +9,15 @@
   - **CI eval** runs the set on three models so they can be compared (#19). Only the default
     model's result can fail the check.
   - **Eval runner** checks that the model exists before starting, and reports API errors as
-    errors.
+    errors. It waits and retries when Groq's per-minute limit is hit.
+- Ask Compass fixes found by the first real eval run:
+  - **Initials in search:** "PICT", "COEP" and "VJTI Mumbai" now find their college. The search
+    used to need the full name, so the model kept searching until it ran out of tool rounds.
+  - **Out of tool rounds:** the model is now asked to answer from what it has. If Groq rejects a
+    stray tool call (400 `tool_use_failed`), the user gets the safe fallback, not an error.
+  - **Smaller tool results:** the model gets only each row's id and label (file and page stay
+    in the citations), and at most 60 cutoff rows with a note to narrow. This cuts tokens per
+    question, which matters under Groq's free-tier limit of 8,000 tokens a minute.
 
 ### Added
 - Assistant eval set and runner (#20). Why: a prompt, model or tool change needs a measurable gate

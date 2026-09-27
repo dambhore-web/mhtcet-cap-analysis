@@ -54,11 +54,31 @@ async function checkModel(): Promise<void> {
 /** Consecutive errors after which the run stops: the problem is the setup, not the answers. */
 const MAX_ERRORS_IN_A_ROW = 3;
 
-/** Wraps a client to record the tools the model asked for. */
+/**
+ * Free-tier Groq allows a few thousand tokens a minute per model, and one case can use most of
+ * that. On a 429, wait as long as Groq asks (plus a margin) and try again, up to a few minutes.
+ */
+async function withRateLimitRetry<T>(fn: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (!/^429\b|rate_limit_exceeded/.test(msg) || attempt >= 8) throw e;
+      const m = /try again in ([\d.]+)(ms|s)/.exec(msg);
+      const asked = m ? Number(m[1]) / (m[2] === "ms" ? 1000 : 1) : 10;
+      const waitS = Math.min(60, Math.max(5, asked * 1.5));
+      console.log(`      rate limited; waiting ${waitS.toFixed(0)} s`);
+      await new Promise((res) => setTimeout(res, waitS * 1000));
+    }
+  }
+}
+
+/** Wraps a client to record the tools the model asked for, retrying rate limits. */
 function recording(client: ChatClient, calls: string[]): ChatClient {
   return {
     async complete(args) {
-      const res = await client.complete(args);
+      const res = await withRateLimitRetry(() => client.complete(args));
       for (const t of res.toolCalls) calls.push(t.function.name);
       return res;
     },

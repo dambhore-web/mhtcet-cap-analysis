@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { demoCache } from "../src/demo/demoCache.ts";
 import { runAssistant, UNGROUNDED_FALLBACK, type ChatClient, type LlmToolCall } from "../src/assistant/run.ts";
-import { runTool } from "../src/assistant/tools.ts";
+import { collegeInitials, MAX_CUTOFFS, runTool } from "../src/assistant/tools.ts";
 import { numbersIn, ungroundedNumbers } from "../src/assistant/grounding.ts";
 
 const cache = demoCache();
@@ -117,5 +117,52 @@ describe("number parsing edge cases", () => {
   it("treats a trailing comma as punctuation", () => {
     expect(numbersIn("code 16006, Pune")).toEqual([16006]);
     expect(numbersIn("(1,781), then 2,054.")).toEqual([1781, 2054]);
+  });
+});
+
+describe("found in the first real eval run", () => {
+  it("finds colleges by the initials people use", () => {
+    expect(collegeInitials("Pune Institute of Computer Technology")).toContain("pict");
+    expect(collegeInitials("College of Engineering Pune")).toContain("coep");
+    const search = (query: string) => runTool("searchColleges", { query }, { cache, profile: {} }).map((r) => r.collegeCode);
+    expect(search("PICT")[0]).toBe("06271");
+    expect(search("PICT Maharashtra")[0]).toBe("06271");
+    expect(search("VJTI Mumbai")[0]).toBe("03012");
+    expect(search("Vishwakarma")).toEqual(["06007"]);
+  });
+
+  it("asks for an answer when the model runs out of tool rounds, and falls back if it still won't answer", async () => {
+    const seenLast: string[] = [];
+    const client: ChatClient = {
+      async complete({ messages, tools }) {
+        if (!tools.length) {
+          seenLast.push(String(messages[messages.length - 1].content));
+          return { content: null, toolCalls: [{ id: "x", type: "function", function: { name: "searchColleges", arguments: '{"query":"xyz"}' } }] };
+        }
+        return { content: null, toolCalls: [{ id: `c${messages.length}`, type: "function", function: { name: "searchColleges", arguments: '{"query":"xyz"}' } }] };
+      },
+    };
+    const res = await runAssistant({ client, cache, profile: {}, history: [{ role: "user", content: "PICT cutoff?" }] });
+    expect(seenLast[0]).toMatch(/Answer now/);
+    expect(res.text).toBe(UNGROUNDED_FALLBACK);
+  });
+
+  it("sends the model ids and labels only, and says when cutoffs were cut short", async () => {
+    let toolContent = "";
+    const client: ChatClient = {
+      async complete({ messages }) {
+        const last = messages[messages.length - 1];
+        if (last.role === "tool") {
+          toolContent = last.content;
+          return { content: "Done.", toolCalls: [] };
+        }
+        return { content: null, toolCalls: [{ id: "t", type: "function", function: { name: "getCutoffs", arguments: '{"collegeCode":"16006"}' } }] };
+      },
+    };
+    await runAssistant({ client, cache, profile: {}, history: [{ role: "user", content: "COEP cutoffs" }] });
+    const listed = JSON.parse(toolContent) as { id?: string; label?: string; note?: string; sourceFile?: string }[];
+    expect(listed.length).toBe(MAX_CUTOFFS + 1);
+    expect(listed[0]).toEqual({ id: "S1", label: expect.any(String) });
+    expect(listed.at(-1)!.note).toMatch(/narrow/);
   });
 });

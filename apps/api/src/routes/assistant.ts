@@ -35,15 +35,23 @@ export function groqClient(apiKey: string): ChatClient {
   const groq = new Groq({ apiKey });
   return {
     async complete({ messages, tools }) {
-      const res = await groq.chat.completions.create({
-        model: MODEL,
-        // The SDK's message union is structurally the same as LlmMessage
-        messages: messages as Parameters<typeof groq.chat.completions.create>[0]["messages"],
-        ...(tools.length ? { tools: tools.map((t) => ({ type: "function" as const, function: t })), tool_choice: "auto" as const } : {}),
-        temperature: 0.2,
-        max_completion_tokens: 2048,
-        ...reasoningOptions(MODEL),
-      });
+      let res;
+      try {
+        res = await groq.chat.completions.create({
+          model: MODEL,
+          // The SDK's message union is structurally the same as LlmMessage
+          messages: messages as Parameters<typeof groq.chat.completions.create>[0]["messages"],
+          ...(tools.length ? { tools: tools.map((t) => ({ type: "function" as const, function: t })), tool_choice: "auto" as const } : {}),
+          temperature: 0.2,
+          max_completion_tokens: 2048,
+          ...reasoningOptions(MODEL),
+        });
+      } catch (e) {
+        // The model produced a tool call Groq couldn't accept (malformed, or with no tools on
+        // offer). Treat it as no answer: the runner then sends the safe fallback, not a 500.
+        if (e instanceof Groq.APIError && e.status === 400 && /tool_use_failed/.test(e.message)) return { content: null, toolCalls: [] };
+        throw e;
+      }
       const msg = res.choices[0]?.message;
       return {
         content: msg?.content ?? null,

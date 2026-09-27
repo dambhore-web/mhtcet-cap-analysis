@@ -159,6 +159,8 @@ jobs:
           - model: qwen/qwen3.8-27b
             gate: false
     continue-on-error: ${{ !matrix.gate }}
+    # Free-tier Groq rate limits make a full run take 10-20 minutes per model
+    timeout-minutes: 45
     env:
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 

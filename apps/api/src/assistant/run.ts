@@ -1,5 +1,5 @@
 import type { AppCache } from "../startup.ts";
-import { TOOL_DEFS, ToolError, runTool, type SourceRow, type ToolDef } from "./tools.ts";
+import { MAX_CUTOFFS, TOOL_DEFS, ToolError, runTool, type SourceRow, type ToolDef } from "./tools.ts";
 import { allowedNumbers, ungroundedNumbers } from "./grounding.ts";
 
 /** Chat messages in the OpenAI-compatible shape Groq uses. */
@@ -54,6 +54,8 @@ export function systemMessage(profile: Profile): string {
   return lines.length ? `${SYSTEM_PROMPT}\n\nThe student's saved details:\n${lines.join("\n")}` : SYSTEM_PROMPT;
 }
 
+const ANSWER_NOW = "Answer now from the tool results above, without calling more tools. If they don't contain the answer, say what you couldn't find.";
+
 const REWRITE =
   "Your answer contains numbers that are not in any tool result. Rewrite it using only numbers from the tool results, citing their ids. If a number isn't in the data, say so instead.";
 
@@ -76,7 +78,11 @@ export async function runAssistant(args: {
 
   const answer = async (): Promise<string> => {
     for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-      const res = await client.complete({ messages, tools: round < MAX_TOOL_ROUNDS ? TOOL_DEFS : [] });
+      const last = round === MAX_TOOL_ROUNDS;
+      // Out of tool rounds: ask for an answer outright, or some models keep calling tools
+      if (last) messages.push({ role: "user", content: ANSWER_NOW });
+      const res = await client.complete({ messages, tools: last ? [] : TOOL_DEFS });
+      if (last && res.toolCalls.length) return "";
       if (!res.toolCalls.length) return res.content ?? "";
       messages.push({ role: "assistant", content: res.content, tool_calls: res.toolCalls });
       for (const call of res.toolCalls) {
@@ -84,7 +90,12 @@ export async function runAssistant(args: {
         try {
           const rows = runTool(call.function.name, JSON.parse(call.function.arguments || "{}"), { cache, profile });
           for (const r of rows) r.id = `S${sources.length + 1}`, sources.push(r);
-          content = JSON.stringify(rows.length ? rows.map(({ id, label, sourceFile, sourcePage }) => ({ id, label, sourceFile, sourcePage })) : { result: "no rows" });
+          // The model only needs the id to cite and the label; file and page stay in the sources
+          const listed: object[] = rows.map(({ id, label }) => ({ id, label }));
+          if (call.function.name === "getCutoffs" && rows.length >= MAX_CUTOFFS) {
+            listed.push({ note: `Only the first ${MAX_CUTOFFS} rows. Call getCutoffs again with branch and seatType to narrow.` });
+          }
+          content = JSON.stringify(rows.length ? listed : { result: "no rows" });
         } catch (e) {
           content = JSON.stringify({ error: e instanceof ToolError || e instanceof Error ? e.message : "tool failed" });
         }

@@ -38,7 +38,8 @@ export interface ToolDef {
 }
 
 const MAX_OPTIONS = 50;
-const MAX_CUTOFFS = 200;
+/** Enough for every round of a few seat types; the model narrows by branch or seat type for more. */
+export const MAX_CUTOFFS = 60;
 
 const FindArgs = z.object({
   merit: z.number().int().min(1).max(500000).optional(),
@@ -111,6 +112,34 @@ export const TOOL_DEFS: ToolDef[] = [
 ];
 
 export class ToolError extends Error {}
+
+const SMALL_WORDS = new Set(["of", "and", "the", "&", "for", "in"]);
+
+/** Initials people use for colleges: "Pune Institute of Computer Technology" → pict, "College of Engineering Pune" → coep. */
+export function collegeInitials(name: string): string[] {
+  const words = name.toLowerCase().replace(/[^a-z& ]/g, " ").split(/\s+/).filter(Boolean);
+  const all = words.map((w) => w[0]).join("");
+  const main = words.filter((w) => !SMALL_WORDS.has(w)).map((w) => w[0]).join("");
+  return [...new Set([all, main])];
+}
+
+/**
+ * How well a college matches a search: the whole query in the name, code or district scores
+ * highest; otherwise one point per query word found in them or equal to the college's initials.
+ * So "COEP", "PICT Pune" and "Vishwakarma" all find their college.
+ */
+function collegeMatch(c: { name: string; code: string; district?: string | null }, q: string): number {
+  const name = c.name.toLowerCase();
+  const district = (c.district ?? "").toLowerCase();
+  if (name.includes(q) || c.code.includes(q) || (district && district.includes(q))) return 100;
+  const initials = collegeInitials(c.name);
+  let score = 0;
+  for (const word of q.split(/[^a-z0-9&]+/).filter((w) => w.length >= 2)) {
+    if (initials.includes(word)) score += 3;
+    else if (word.length >= 3 && (name.includes(word) || district === word || c.code === word)) score += 1;
+  }
+  return score;
+}
 
 const QUOTA: Record<string, string> = { G: "General", L: "Ladies", PWD: "Disability (PWD)", PWDR: "Disability (PWD), common", DEF: "Defence", DEFR: "Defence, common" };
 const CATEGORY: Record<string, string> = { NT1: "NT-B", NT2: "NT-C", NT3: "NT-D", VJ: "VJ/DT", OPEN: "open" };
@@ -196,8 +225,11 @@ export function runTool(name: string, rawArgs: unknown, ctx: ToolContext): Sourc
     case "searchColleges": {
       const q = SearchArgs.parse(rawArgs ?? {}).query.toLowerCase();
       return [...cache.colleges.values()]
-        .filter((c) => c.name.toLowerCase().includes(q) || c.code.includes(q) || (c.district ?? "").toLowerCase().includes(q))
+        .map((c) => ({ c, score: collegeMatch(c, q) }))
+        .filter((x) => x.score > 0)
+        .sort((a, b) => b.score - a.score)
         .slice(0, 10)
+        .map((x) => x.c)
         .map((c) => ({ kind: "college", label: `${c.name} (code ${c.code}${c.district ? `, ${c.district}` : ""})`, collegeCode: c.code }));
     }
     case "explainSeatType": {
