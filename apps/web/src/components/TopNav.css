@@ -1,26 +1,23 @@
-.top-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: var(--top-nav-h);
-  max-width: 1160px;
-  margin: 0 auto;
-  padding: 0 28px;
-  width: 100%;
-}
-
-/* Pseudo-element for the sticky background (sits behind the max-width container) */
 .top-nav-bar {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(246, 247, 255, 0.88);
+  background: rgba(247, 248, 250, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 68px;
+  max-width: var(--page-max-w);
+  margin: 0 auto;
+  padding: 0 48px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Logo */
@@ -30,12 +27,13 @@
   gap: 8px;
   font-family: var(--font-head);
   font-size: 20px;
-  font-weight: 900;
-  letter-spacing: -1.4px;
+  font-weight: 700;
+  letter-spacing: -1.2px;
   color: var(--navy);
   text-decoration: none;
   white-space: nowrap;
-  margin-right: 12px;
+  margin-right: 16px;
+  flex-shrink: 0;
 }
 
 .top-nav-logo-mark {
@@ -49,7 +47,6 @@
   border-radius: 10px 3px 10px 3px;
   font-size: 17px;
   line-height: 1;
-  transform: rotate(-8deg);
 }
 
 /* Centre nav links */
@@ -61,77 +58,120 @@
 }
 
 .top-nav-link {
-  padding: 7px 12px;
-  border-radius: 7px;
+  padding: 6px 12px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
   font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--muted);
   text-decoration: none;
-  transition: color 0.12s, background 0.12s, box-shadow 0.12s;
-  border: 0;
-  background: transparent;
+  white-space: nowrap;
+  transition: color 0.12s, background 0.12s;
 }
 
 .top-nav-link:hover {
   color: var(--navy);
-  background: var(--white);
-  box-shadow: 0 3px 12px rgba(15, 27, 51, 0.08);
+  background: var(--lavender);
 }
 
 .top-nav-link.active {
-  color: var(--navy);
-  background: var(--white);
-  box-shadow: 0 3px 12px rgba(15, 27, 51, 0.08);
+  background: var(--navy);
+  color: #ffffff;
 }
 
-/* Profile/shortlist CTA on the right */
+/* Right side */
 .top-nav-right {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-.top-nav-profile {
+/* Shortlist badge */
+.top-nav-shortlist {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 12px;
-  border-radius: 7px;
+  padding: 6px 12px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--white);
   font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--navy);
   text-decoration: none;
-  border: 1.5px solid var(--navy);
-  background: var(--white);
-  transition: opacity 0.12s;
+  white-space: nowrap;
+  transition: border-color 0.12s, background 0.12s;
 }
 
-.top-nav-profile:hover {
-  opacity: 0.82;
-}
-
-.top-nav-profile.active {
-  background: var(--lime);
+.top-nav-shortlist:hover {
   border-color: var(--navy);
 }
 
-/* Responsive */
-@media (max-width: 620px) {
+.top-nav-shortlist.active {
+  background: var(--navy);
+  color: #ffffff;
+  border-color: var(--navy);
+}
+
+/* Profile avatar button */
+.top-nav-profile {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--white);
+  color: var(--navy);
+  text-decoration: none;
+  transition: border-color 0.12s;
+}
+
+.top-nav-profile:hover {
+  border-color: var(--navy);
+}
+
+.top-nav-profile.active {
+  background: var(--navy);
+  color: #ffffff;
+  border-color: var(--navy);
+}
+
+/* Responsive — collapse labels on small screens */
+@media (max-width: 900px) {
   .top-nav {
-    padding: 0 16px;
-    gap: 4px;
+    padding: 0 20px;
   }
 
   .top-nav-link {
+    font-size: 12px;
     padding: 6px 9px;
-    font-size: 11px;
+  }
+}
+
+@media (max-width: 680px) {
+  .top-nav {
+    padding: 0 16px;
+    height: 56px;
   }
 
-  .top-nav-profile span {
+  .top-nav-link:not(.active) {
     display: none;
   }
 
-  .top-nav-profile {
-    padding: 7px 10px;
+  .top-nav-shortlist span {
+    display: none;
+  }
+
+  .top-nav-shortlist {
+    padding: 6px 10px;
+    gap: 0;
   }
 }

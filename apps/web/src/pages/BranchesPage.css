@@ -1,0 +1,24 @@
+.branches-page {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.branches-coming-soon {
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.branches-coming-soon h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 8px;
+}
+
+.branches-coming-soon p {
+  color: var(--muted);
+  font-size: 15px;
+  margin: 0;
+}

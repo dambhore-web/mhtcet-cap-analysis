@@ -38,7 +38,7 @@
   --reach-bg: #ffe4de;
 
   /* layout */
-  --top-nav-h: 56px;
+  --top-nav-h: 68px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --page-max-w: 1200px;
 }
