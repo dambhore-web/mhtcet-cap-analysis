@@ -11,6 +11,12 @@ const FlagsSchema = z.object({
   orphan: z.boolean().default(false),
 }).default({});
 
+const ResultFiltersSchema = z.object({
+  university: z.string().nullable().default(null),
+  district: z.string().nullable().default(null),
+  branchGroup: z.string().nullable().default(null),
+}).default({});
+
 const RequestSchema = z.object({
   year: z.number().int().min(2023).max(2030).default(2026),
   merit: z.number().int().min(1),
@@ -20,7 +26,19 @@ const RequestSchema = z.object({
   minorityCommunity: z.string().nullable().default(null),
   flags: FlagsSchema,
   subjectGroup: z.enum(["PCM", "PCB"]).default("PCM"),
+  filters: ResultFiltersSchema,
 });
+
+const BRANCH_GROUP_PATTERNS: Record<string, RegExp> = {
+  "Computer & IT":        /computer|information\s+tech|data\s+sc|artificial\s+int|machine\s+learn|cyber/i,
+  "Electronics & Telecom": /electronics|e\.?\s*t\.?\s*c|telecom/i,
+  "Mechanical":           /mechanical/i,
+  "Civil":                /civil/i,
+  "Electrical":           /electrical/i,
+  "Chemical":             /chemical|petroleum|plastic/i,
+  "Instrumentation":      /instrument/i,
+  "Aerospace":            /aeronautical|aerospace/i,
+};
 
 const STATUS_ORDER = { "round-I": 0, "later-round": 1, "out-of-range": 2 } as const;
 
@@ -61,11 +79,21 @@ export async function postRankFinder(c: Context, cache: AppCache) {
 
   const options: object[] = [];
 
+  const { university, district, branchGroup } = req.filters;
+
   for (const [choiceCode, cutoffs] of cache.cutoffsByChoiceCode) {
     const branch = cache.branches.get(choiceCode);
     if (!branch) continue;
     const college = cache.colleges.get(branch.collegeCode);
     if (!college) continue;
+
+    // Result filters — applied before the eligibility/rank computation
+    if (university && college.homeUniversity !== university) continue;
+    if (district && (college as { district?: string }).district !== district) continue;
+    if (branchGroup) {
+      const pattern = BRANCH_GROUP_PATTERNS[branchGroup];
+      if (pattern && !pattern.test(branch.name)) continue;
+    }
 
     const collegeCtx: CollegeEligibilityContext = {
       homeUniversity: college.homeUniversity,

@@ -1,6 +1,23 @@
 export type Category = "OPEN" | "OBC" | "SEBC" | "SC" | "ST" | "VJ" | "NT1" | "NT2" | "NT3";
 export type RankStatus = "round-I" | "later-round" | "out-of-range";
 
+export interface ResultFilters {
+  university?: string | null;
+  district?: string | null;
+  branchGroup?: string | null;
+}
+
+export const BRANCH_GROUPS = [
+  "Computer & IT",
+  "Electronics & Telecom",
+  "Mechanical",
+  "Civil",
+  "Electrical",
+  "Chemical",
+  "Instrumentation",
+  "Aerospace",
+] as const;
+
 export interface FindRequest {
   year?: number;
   merit: number;
@@ -10,6 +27,7 @@ export interface FindRequest {
   minorityCommunity: string | null;
   flags: { ews: boolean; tfws: boolean; defence: boolean; pwd: boolean; orphan: boolean };
   subjectGroup: "PCM" | "PCB";
+  filters?: ResultFilters;
 }
 
 export interface FindOption {
