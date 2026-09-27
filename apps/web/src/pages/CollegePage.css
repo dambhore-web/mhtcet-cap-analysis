@@ -69,6 +69,36 @@
   font-family: var(--font-num);
 }
 
+.cp-pin-btn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.13s;
+}
+
+.cp-pin-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.cp-pin-btn.pinned {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--navy);
+}
+
+.cp-pin-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ─── Best bar ─── */
 .cp-best-bar {
   display: flex;

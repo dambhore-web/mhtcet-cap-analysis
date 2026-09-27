@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api, type CollegeFees, type CollegeFeesUnavailable } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
+import { useCompare } from "../lib/CompareContext";
 import "./CollegePage.css";
 
 interface CutoffRow {
@@ -70,6 +71,7 @@ function getBranchStatus(cutoffs: CutoffRow[], branch: string, merit: number): B
 export function CollegePage() {
   const { code } = useParams<{ code: string }>();
   const { profile } = useProfile();
+  const { pin, unpin, isPinned: checkPinned, canPin } = useCompare();
   const [data, setData] = useState<CollegeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -176,6 +178,19 @@ export function CollegePage() {
           <h1>{data.college.name}</h1>
           <span className="cp-code">{data.college.code} · {data.year}</span>
         </div>
+        {code && (() => {
+          const pinned = checkPinned(code);
+          return (
+            <button
+              className={`cp-pin-btn${pinned ? " pinned" : ""}`}
+              onClick={() => pinned ? unpin(code) : pin({ code, name: data.college.name })}
+              disabled={!pinned && !canPin}
+              title={pinned ? "Remove from comparison" : canPin ? "Pin to compare" : "Max 3 colleges"}
+            >
+              {pinned ? "◈ Pinned" : "◇ Compare"}
+            </button>
+          );
+        })()}
       </header>
 
       {best !== null && (
