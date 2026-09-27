@@ -160,6 +160,6 @@ describe("colleges and meta (#114, #115)", () => {
     const body = (await (await app.request("http://localhost/api/meta")).json()) as Record<string, any>;
     expect(body).toMatchObject({ year: 2026, colleges: 6, branches: 24 });
     expect(body.lists.map((l: { list: string; round: string }) => `${l.list}-${l.round}`)).toContain("MH-IV");
-    expect(body.fees.colleges).toBe(1);
+    expect(body.fees.colleges).toBe(2);
   });
 });

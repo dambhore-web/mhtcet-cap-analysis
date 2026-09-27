@@ -2,11 +2,12 @@
   "_meta": {
     "source": "DTE Maharashtra / FRA (Fee Regulating Authority) approved fee orders",
     "year": "2025-26",
-    "note": "Keys are legacy; each entry is matched to a college by collegeCode (5-digit CAP code) or by exact name. Amounts are verified only when fraOrderUrl links the FRA order. Replace with FRA 2025-26 orders (#42).",
+    "note": "All entries keyed by a legacy internal id but matched to colleges via collegeCode (5-digit CAP code). Amounts are verified only when fraOrderUrl links the FRA order. Replace with FRA 2025-26 orders (#42).",
     "lastUpdated": "2026-09-27"
   },
   "6299": {
     "name": "College of Engineering, Pune",
+    "collegeCode": "16006",
     "tuitionFee": 125840,
     "developmentFee": 10000,
     "otherFees": 14160,
@@ -15,11 +16,11 @@
     "tfwsSeats": null,
     "fraOrderRef": "FRA/2025-26/MH/6299",
     "fraOrderUrl": null,
-    "sampleOnly": false,
-    "collegeCode": "16006"
+    "sampleOnly": false
   },
   "1099": {
-    "name": "Veermata Jijabai Technological Institute, Mumbai",
+    "name": "Veermata Jijabai Technological Institute(VJTI), Matunga, Mumbai",
+    "collegeCode": "03012",
     "tuitionFee": 54600,
     "developmentFee": 5000,
     "otherFees": 10400,
@@ -31,7 +32,8 @@
     "sampleOnly": false
   },
   "1058": {
-    "name": "Institute of Chemical Technology, Mumbai",
+    "name": "Institute of Chemical Technology, Matunga, Mumbai",
+    "collegeCode": "03036",
     "tuitionFee": 47000,
     "developmentFee": 5000,
     "otherFees": 8000,
@@ -43,7 +45,8 @@
     "sampleOnly": false
   },
   "1115": {
-    "name": "Sardar Patel College of Engineering, Mumbai",
+    "name": "Sardar Patel College of Engineering, Andheri",
+    "collegeCode": "03014",
     "tuitionFee": 204000,
     "developmentFee": 12000,
     "otherFees": 14000,
@@ -55,7 +58,8 @@
     "sampleOnly": false
   },
   "1116": {
-    "name": "Sardar Patel Institute of Technology, Mumbai",
+    "name": "Bhartiya Vidya Bhavan's Sardar Patel Institute of Technology, Andheri, Mumbai",
+    "collegeCode": "03215",
     "tuitionFee": 185000,
     "developmentFee": 10000,
     "otherFees": 15000,
