@@ -101,6 +101,109 @@
   margin-left: auto;
 }
 
+/* ─── What-if slider ─── */
+.cp-whatif {
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+
+.cp-whatif-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--violet);
+  cursor: pointer;
+  text-align: left;
+}
+
+.cp-whatif-icon { font-size: 15px; }
+.cp-whatif-chevron { margin-left: auto; font-size: 11px; }
+
+.cp-whatif-toggle:hover { background: var(--lavender); }
+
+.cp-whatif-body {
+  padding: 0 16px 14px;
+}
+
+.cp-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cp-slider-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.cp-slider {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--violet);
+  cursor: pointer;
+}
+
+.cp-slider-val {
+  font-family: var(--font-num);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--violet);
+  white-space: nowrap;
+  min-width: 64px;
+  text-align: right;
+}
+
+.cp-whatif-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cp-wl-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.wi-round-I .cp-wl-dot, .cp-wl-dot.wi-r1 { background: #2d6a30; }
+.wi-later .cp-wl-dot, .cp-wl-dot.wi-later { background: #b36200; }
+.wi-out .cp-wl-dot, .cp-wl-dot.wi-out { background: #c62828; }
+
+/* ─── Branch chip what-if states ─── */
+.cp-branch-chip {
+  position: relative;
+}
+
+.cp-branch-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+
+.cp-branch-dot.wi-round-I { background: #2d6a30; }
+.cp-branch-dot.wi-later { background: #b36200; }
+.cp-branch-dot.wi-out { background: #c62828; }
+
 /* ─── Branch chips ─── */
 .cp-branches {
   border-bottom: 1px solid var(--line);

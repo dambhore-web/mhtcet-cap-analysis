@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../lib/api";
+import { useProfile } from "../lib/ProfileContext";
 import "./CollegePage.css";
 
 interface CutoffRow {
@@ -55,13 +56,27 @@ function seatLabel(seatType: string): string {
   return map[seatType] ?? seatType;
 }
 
+type BranchStatus = "round-I" | "later" | "out";
+
+function getBranchStatus(cutoffs: CutoffRow[], branch: string, merit: number): BranchStatus {
+  const rows = cutoffs.filter((r) => r.branch === branch && r.seatType === "GOPENS");
+  if (rows.length === 0) return "out";
+  const r1 = rows.find((r) => r.round === 1);
+  if (r1 && merit <= r1.closingMerit) return "round-I";
+  if (rows.some((r) => merit <= r.closingMerit)) return "later";
+  return "out";
+}
+
 export function CollegePage() {
   const { code } = useParams<{ code: string }>();
+  const { profile } = useProfile();
   const [data, setData] = useState<CollegeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedBranch, setSelectedBranch] = useState<string>("");
   const [filter, setFilter] = useState<"all" | "gopens" | "reserved">("all");
+  const [whatifMerit, setWhatifMerit] = useState<number>(() => profile.meritNumber ?? 10000);
+  const [showWhatif, setShowWhatif] = useState(false);
 
   useEffect(() => {
     if (!code) return;
@@ -115,6 +130,12 @@ export function CollegePage() {
     return round1 ? round1.closingMerit : null;
   }, [branchRows]);
 
+  const sliderMax = useMemo(() => {
+    if (!data) return 140000;
+    const max = Math.max(...data.cutoffs.map((r) => r.closingMerit));
+    return Math.ceil((max + 5000) / 1000) * 1000;
+  }, [data]);
+
   if (loading) {
     return (
       <div className="college-page">
@@ -161,19 +182,61 @@ export function CollegePage() {
         </div>
       )}
 
+      <div className="cp-whatif">
+        <button
+          className={`cp-whatif-toggle${showWhatif ? " open" : ""}`}
+          onClick={() => setShowWhatif((v) => !v)}
+        >
+          <span className="cp-whatif-icon">◈</span>
+          What if my merit was…
+          <span className="cp-whatif-chevron">{showWhatif ? "▾" : "▸"}</span>
+        </button>
+        {showWhatif && (
+          <div className="cp-whatif-body">
+            <div className="cp-slider-row">
+              <span className="cp-slider-label">Merit</span>
+              <input
+                type="range"
+                min={1}
+                max={sliderMax}
+                step={50}
+                value={whatifMerit}
+                onChange={(e) => setWhatifMerit(parseInt(e.target.value, 10))}
+                className="cp-slider"
+                aria-label="What-if merit number"
+              />
+              <span className="cp-slider-val">{whatifMerit.toLocaleString("en-IN")}</span>
+            </div>
+            <div className="cp-whatif-legend">
+              <span className="cp-wl-dot wi-r1" />Round I
+              <span className="cp-wl-dot wi-later" />Later round
+              <span className="cp-wl-dot wi-out" />Not accessible
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="cp-branches">
         <div className="cp-branches-scroll" role="tablist" aria-label="Select branch">
-          {branches.map((b) => (
-            <button
-              key={b}
-              role="tab"
-              aria-selected={selectedBranch === b}
-              className={`cp-branch-chip${selectedBranch === b ? " active" : ""}`}
-              onClick={() => setSelectedBranch(b)}
-            >
-              {b}
-            </button>
-          ))}
+          {branches.map((b) => {
+            const status = showWhatif ? getBranchStatus(data.cutoffs, b, whatifMerit) : null;
+            return (
+              <button
+                key={b}
+                role="tab"
+                aria-selected={selectedBranch === b}
+                className={[
+                  "cp-branch-chip",
+                  selectedBranch === b ? "active" : "",
+                  status ? `wi-${status}` : "",
+                ].filter(Boolean).join(" ")}
+                onClick={() => setSelectedBranch(b)}
+              >
+                {b}
+                {status && <span className={`cp-branch-dot wi-${status}`} />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
