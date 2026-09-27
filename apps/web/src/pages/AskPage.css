@@ -1,7 +1,7 @@
 .ask-page {
   display: flex;
   flex-direction: column;
-  height: 100svh;
+  height: calc(100svh - var(--top-nav-h));
   background: var(--page);
   overflow: hidden;
 }

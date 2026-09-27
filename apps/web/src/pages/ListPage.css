@@ -1,5 +1,5 @@
 .list-page {
-  padding: 0 0 calc(var(--bottom-nav-h) + 16px);
+  padding: 0 0 24px;
   min-height: 100%;
   background: var(--page);
 }

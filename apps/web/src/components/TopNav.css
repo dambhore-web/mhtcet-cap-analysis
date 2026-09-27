@@ -1,0 +1,122 @@
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--top-nav-h);
+  padding: 0 20px;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Logo */
+.top-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-head);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--navy);
+  text-decoration: none;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+.top-nav-logo:hover {
+  color: var(--violet);
+}
+
+.top-nav-logo-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--violet);
+  color: var(--lime);
+  border-radius: 7px;
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* Centre nav links */
+.top-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.top-nav-link {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+}
+
+.top-nav-link:hover {
+  color: var(--violet);
+  background: var(--lavender);
+}
+
+.top-nav-link.active {
+  color: var(--violet);
+  background: var(--lavender);
+}
+
+/* Profile on the right */
+.top-nav-right {
+  margin-left: auto;
+}
+
+.top-nav-profile {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+}
+
+.top-nav-profile:hover {
+  color: var(--violet);
+  background: var(--lavender);
+}
+
+.top-nav-profile.active {
+  color: var(--violet);
+  background: var(--lavender);
+}
+
+/* Responsive: on narrow viewports, hide link labels to save space */
+@media (max-width: 480px) {
+  .top-nav {
+    padding: 0 12px;
+    gap: 4px;
+  }
+
+  .top-nav-link {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .top-nav-profile span {
+    display: none;
+  }
+
+  .top-nav-profile {
+    padding: 6px 10px;
+  }
+}
