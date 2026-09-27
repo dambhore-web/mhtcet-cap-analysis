@@ -30,7 +30,9 @@ _Last updated: 2026-09-27_
 - Tests: 33 vitest tests with synthetic fixtures, incl. a privacy regression test for masking
 
 ## In progress
-- Operator review of branch `data/2026-initial`
+- **TASK-0003: responsive web app** (branch `feat/web-app`), rank finder first. Start here:
+  `tasks/TASK-0003.md` has the plan, the mockups link and the data findings needed for the rank finder.
+- `data/2026-initial` reviewed, merged to `main` and pushed (a841b85). Production DB not loaded (owner decision)
 
 ## Blocked
 Nothing is blocked. The paid launch is gated on the legal items in `docs/07-security/legal-open-items.md`.
