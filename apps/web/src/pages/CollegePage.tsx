@@ -234,7 +234,7 @@ export function CollegePage() {
             )}
 
             {/* At a glance */}
-            {glance && (
+            {glance && (glance.gotIn.length > 0 || glance.needBetter.length > 0) && (
               <div className="cp-sidebar-card">
                 <h3 className="cp-sidebar-title">At a glance</h3>
                 {glance.gotIn.length > 0 && (
@@ -256,9 +256,6 @@ export function CollegePage() {
                       ))}
                     </div>
                   </div>
-                )}
-                {glance.gotIn.length === 0 && glance.needBetter.length === 0 && (
-                  <p className="cp-glance-none">No GOPENS branches in range at merit {merit?.toLocaleString("en-IN")}.</p>
                 )}
               </div>
             )}
