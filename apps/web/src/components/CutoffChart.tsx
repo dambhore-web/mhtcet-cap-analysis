@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { seatTypeLabel, seatTypeShortLabel, seatTypeSortKey } from "../lib/seatType";
+import { seatCategoryLabel, seatTypeShortLabel, seatLevelCode, seatTypeSortKey, LEVEL_LABELS } from "../lib/seatType";
 import { formatNumber, formatRound, roundIndex } from "../lib/format";
 import "./CutoffChart.css";
 
@@ -10,14 +10,15 @@ interface CutoffRow {
   closingMerit: number;
 }
 
-interface BranchSeries {
-  branch: string;
+interface ChartSeries {
+  label: string;
   roundValues: (number | null)[];
   firstMerit: number;
   lastMerit: number;
 }
 
 const LOG_TICKS = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 400000];
+const LEVEL_ORDER = ["S", "H", "O"] as const;
 
 function bestLogBounds(min: number, max: number) {
   const a = LOG_TICKS.filter((t) => t <= min).at(-1) ?? LOG_TICKS[0];
@@ -34,13 +35,17 @@ function tickLabel(t: number) {
   return String(t);
 }
 
+// ─── Shared SVG renderer ──────────────────────────────────────────────────────
+
 interface ChartSvgProps {
-  series: BranchSeries[];
-  availableRounds: (number | string)[];
+  series: ChartSeries[];
   svgWidth: number;
+  hoveredIdx: number | null;
+  onRowEnter: (idx: number) => void;
+  onRowLeave: () => void;
 }
 
-function ChartSvg({ series, svgWidth }: ChartSvgProps) {
+function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave }: ChartSvgProps) {
   const narrow = svgWidth < 520;
   const LEFT = narrow ? 112 : 170;
   const RIGHT = narrow ? 60 : 90;
@@ -55,7 +60,6 @@ function ChartSvg({ series, svgWidth }: ChartSvgProps) {
   const { a, z } = bestLogBounds(Math.min(...allMerits), Math.max(...allMerits));
   const xOf = (v: number) => xScale(v, a, z, LEFT, CW);
   const allTicks = LOG_TICKS.filter((t) => t >= a && t <= z);
-  // on narrow screens keep every other tick so labels never collide
   const ticks = narrow ? allTicks.filter((_, i) => i % 2 === 0 || i === allTicks.length - 1) : allTicks;
 
   return (
@@ -64,82 +68,78 @@ function ChartSvg({ series, svgWidth }: ChartSvgProps) {
       viewBox={`0 0 ${svgWidth} ${H}`}
       style={{ height: H }}
       role="img"
-      aria-label="Closing merit by branch"
+      aria-label="Closing merit chart"
     >
-      {/* Grid lines */}
       {ticks.map((t) => (
         <g key={t}>
-          <line
-            x1={xOf(t)} x2={xOf(t)}
-            y1={TOP} y2={H - BTM}
-            stroke="var(--line)"
-          />
-          <text
-            x={xOf(t)} y={H - 8}
-            textAnchor="middle"
-            fontSize={12}
-            fill="var(--muted)"
-            fontFamily="var(--font-num)"
-          >
+          <line x1={xOf(t)} x2={xOf(t)} y1={TOP} y2={H - BTM} stroke="var(--line)" />
+          <text x={xOf(t)} y={H - 8} textAnchor="middle" fontSize={12} fill="var(--muted)" fontFamily="var(--font-num)">
             {tickLabel(t)}
           </text>
         </g>
       ))}
 
-      {/* Branch rows */}
       {series.map((s, i) => {
         const cy = TOP + i * ROW_H + ROW_H / 2;
         const x1 = xOf(s.firstMerit);
         const x2 = xOf(s.lastMerit);
-        const labelX = Math.max(x1, x2) + 10;
         const hasRange = s.firstMerit !== s.lastMerit;
         const maxChars = narrow ? 14 : 22;
-        const branchLabel = s.branch.length > maxChars ? s.branch.slice(0, maxChars - 1) + "…" : s.branch;
+        const rowLabel = s.label.length > maxChars ? s.label.slice(0, maxChars - 1) + "…" : s.label;
+        const isHov = hoveredIdx === i;
 
         return (
-          <g key={s.branch}>
+          <g key={s.label}>
+            <rect
+              x={0} y={cy - ROW_H / 2}
+              width={svgWidth} height={ROW_H}
+              fill="transparent"
+              onMouseEnter={() => onRowEnter(i)}
+              onMouseLeave={onRowLeave}
+            />
+            {isHov && (
+              <rect
+                x={0} y={cy - ROW_H / 2}
+                width={svgWidth} height={ROW_H}
+                fill="var(--lavender)" opacity={0.6}
+                style={{ pointerEvents: "none" }}
+              />
+            )}
+
             <text
-              x={LEFT - 10}
-              y={cy + 4}
-              textAnchor="end"
-              fontSize={12}
-              fill="var(--navy)"
+              x={LEFT - 10} y={cy + 4}
+              textAnchor="end" fontSize={12}
+              fill={isHov ? "var(--violet)" : "var(--navy)"}
               fontFamily="var(--font-body)"
+              style={{ pointerEvents: "none" }}
             >
-              <title>{s.branch}</title>
-              {branchLabel}
+              <title>{s.label}</title>
+              {rowLabel}
             </text>
 
             {hasRange && (
               <line
-                x1={x1} x2={x2}
-                y1={cy} y2={cy}
-                stroke="var(--orange)"
-                strokeWidth={3}
-                strokeLinecap="round"
-                opacity={0.45}
+                x1={x1} x2={x2} y1={cy} y2={cy}
+                stroke="var(--orange)" strokeWidth={3} strokeLinecap="round" opacity={0.45}
+                style={{ pointerEvents: "none" }}
               />
             )}
 
-            {/* Round I circle — outlined */}
-            <circle cx={x1} cy={cy} r={5.5} fill="var(--white)" stroke="var(--violet)" strokeWidth={2}>
+            <circle cx={x1} cy={cy} r={5.5} fill="var(--white)" stroke="var(--violet)" strokeWidth={2} style={{ pointerEvents: "none" }}>
               <title>{formatRound(1)}: {formatNumber(s.firstMerit)}</title>
             </circle>
 
-            {/* Last round circle — filled (only if different from R1) */}
             {hasRange && (
-              <circle cx={x2} cy={cy} r={5.5} fill="var(--orange)">
+              <circle cx={x2} cy={cy} r={5.5} fill="var(--orange)" style={{ pointerEvents: "none" }}>
                 <title>Last round: {formatNumber(s.lastMerit)}</title>
               </circle>
             )}
 
             <text
-              x={labelX}
-              y={cy + 4}
-              fontSize={12}
-              fill="var(--navy)"
-              fontFamily="var(--font-num)"
-              fontWeight={600}
+              x={LEFT + CW + 8} y={cy + 4}
+              fontSize={11} fill="var(--muted)"
+              fontFamily="var(--font-num)" fontWeight={600}
+              style={{ pointerEvents: "none" }}
             >
               {formatNumber(s.lastMerit)}
             </text>
@@ -150,61 +150,116 @@ function ChartSvg({ series, svgWidth }: ChartSvgProps) {
   );
 }
 
+// ─── Tooltip ──────────────────────────────────────────────────────────────────
+
+interface TooltipProps {
+  series: ChartSeries;
+  rounds: (number | string)[];
+  x: number;
+  y: number;
+  maxX: number;
+}
+
+function ChartTooltip({ series, rounds, x, y, maxX }: TooltipProps) {
+  const TW = 180;
+  const left = x + 14 + TW > maxX ? x - TW - 6 : x + 14;
+  return (
+    <div className="cc-tooltip" style={{ left, top: Math.max(y - 8, 0) }}>
+      <div className="cc-tooltip-label">{series.label}</div>
+      {rounds.map((r, i) => {
+        const v = series.roundValues[i];
+        return v !== null ? (
+          <div key={i} className="cc-tooltip-row">
+            <span>{formatRound(r)}</span>
+            <span className="cc-tooltip-val">{formatNumber(v)}</span>
+          </div>
+        ) : null;
+      })}
+    </div>
+  );
+}
+
+// ─── Shared hooks ─────────────────────────────────────────────────────────────
+
+function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
+  const [width, setWidth] = useState(600);
+  const update = useCallback(() => {
+    if (ref.current) setWidth(Math.max(ref.current.clientWidth, 260));
+  }, [ref]);
+  useEffect(() => {
+    update();
+    const ro = new ResizeObserver(update);
+    if (ref.current) ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, [update]);
+  return width;
+}
+
+function useTooltip() {
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }, []);
+  const onMouseLeave = useCallback(() => setHovered(null), []);
+  return { hovered, setHovered, pos, onMouseMove, onMouseLeave };
+}
+
+// ─── CutoffChart — branches, two filters: level + reservation category ────────
+
 interface CutoffChartProps {
   cutoffs: CutoffRow[];
 }
 
 export function CutoffChart({ cutoffs }: CutoffChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [svgWidth, setSvgWidth] = useState(600);
+  const svgWidth = useContainerWidth(containerRef);
+  const { hovered, setHovered, pos, onMouseMove, onMouseLeave } = useTooltip();
 
-  const updateWidth = useCallback(() => {
-    if (containerRef.current) {
-      setSvgWidth(Math.max(containerRef.current.clientWidth, 260));
-    }
-  }, []);
-
-  useEffect(() => {
-    updateWidth();
-    const ro = new ResizeObserver(updateWidth);
-    if (containerRef.current) ro.observe(containerRef.current);
-    return () => ro.disconnect();
-  }, [updateWidth]);
-
-  const availableSeatTypes = useMemo(() => {
-    const set = new Set(cutoffs.map((r) => r.seatType));
-    return [...set].sort((x, y) => seatTypeSortKey(x) - seatTypeSortKey(y));
+  const availableLevels = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of cutoffs) set.add(seatLevelCode(r.seatType) ?? "S");
+    return LEVEL_ORDER.filter((l) => set.has(l));
   }, [cutoffs]);
 
-  const [selectedSeatType, setSelectedSeatType] = useState<string>(() =>
-    availableSeatTypes[0] ?? ""
-  );
+  const [selectedLevel, setSelectedLevel] = useState<string>("all");
 
-  // Keep selectedSeatType valid when data changes
+  // Seat types available at the selected level (for the category dropdown)
+  const seatTypesAtLevel = useMemo(() => {
+    return [...new Set(
+      cutoffs
+        .filter((r) => selectedLevel === "all" || (seatLevelCode(r.seatType) ?? "S") === selectedLevel)
+        .map((r) => r.seatType)
+    )].sort((a, b) => seatTypeSortKey(a) - seatTypeSortKey(b));
+  }, [cutoffs, selectedLevel]);
+
+  const [selectedSeatType, setSelectedSeatType] = useState<string>(() => seatTypesAtLevel[0] ?? "");
+
+  // Keep selectedSeatType valid when level changes
   useEffect(() => {
-    if (!availableSeatTypes.includes(selectedSeatType) && availableSeatTypes.length > 0) {
-      setSelectedSeatType(availableSeatTypes[0]);
+    if (!seatTypesAtLevel.includes(selectedSeatType) && seatTypesAtLevel.length > 0) {
+      setSelectedSeatType(seatTypesAtLevel[0]);
     }
-  }, [availableSeatTypes, selectedSeatType]);
+  }, [seatTypesAtLevel, selectedSeatType]);
 
   const availableRounds = useMemo(() => {
     return [...new Set(cutoffs.map((r) => r.round))].sort((a, b) => roundIndex(a) - roundIndex(b));
   }, [cutoffs]);
 
-  const series = useMemo((): BranchSeries[] => {
+  const series = useMemo((): ChartSeries[] => {
     const rows = cutoffs.filter((r) => r.seatType === selectedSeatType);
-    const branchMap = new Map<string, Map<number | string, number>>();
+    const byBranch = new Map<string, Map<number | string, number>>();
     for (const row of rows) {
-      if (!branchMap.has(row.branch)) branchMap.set(row.branch, new Map());
-      branchMap.get(row.branch)!.set(row.round, row.closingMerit);
+      if (!byBranch.has(row.branch)) byBranch.set(row.branch, new Map());
+      byBranch.get(row.branch)!.set(row.round, row.closingMerit);
     }
-
-    return [...branchMap.entries()]
+    return [...byBranch.entries()]
       .map(([branch, roundMap]) => {
         const roundValues = availableRounds.map((r) => roundMap.get(r) ?? null);
         const merits = roundValues.filter((v): v is number => v !== null);
         return {
-          branch,
+          label: branch,
           roundValues,
           firstMerit: merits[0] ?? 0,
           lastMerit: merits.at(-1) ?? 0,
@@ -214,98 +269,161 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
       .sort((a, b) => a.firstMerit - b.firstMerit);
   }, [cutoffs, selectedSeatType, availableRounds]);
 
-  if (availableSeatTypes.length === 0) return null;
+  if (availableLevels.length === 0) return null;
+
+  const hoveredSeries = hovered !== null ? series[hovered] ?? null : null;
+  const levelLabel = selectedLevel === "all" ? "all levels" : (LEVEL_LABELS[selectedLevel] ?? selectedLevel);
+  const catLabel = seatTypeShortLabel(selectedSeatType);
 
   return (
-    <section className="cutoff-chart" aria-label="Cutoff visualization">
+    <section className="cutoff-chart card" aria-label="Cutoff visualization">
       <div className="cc-header">
         <h2 className="cc-title">Closing rank by branch</h2>
-        <p className="cc-desc">
-          The last merit number admitted to each branch. A lower number means the branch is harder to get.
-          Choose the seat type that matches you.
-        </p>
+        <p className="cc-desc">Last merit number admitted to each branch. Lower = harder to get.</p>
       </div>
 
-      {/* Seat type chips */}
-      <div className="cc-chips" role="group" aria-label="Seat type">
-        {availableSeatTypes.map((st) => (
-          <button
-            key={st}
-            type="button"
-            className={`cc-chip${selectedSeatType === st ? " active" : ""}`}
-            aria-pressed={selectedSeatType === st}
-            onClick={() => setSelectedSeatType(st)}
-            title={seatTypeLabel(st)}
+      <div className="cc-filters">
+        <div className="cc-filter-row">
+          <label className="label" htmlFor="cc-level-select">University</label>
+          <select
+            id="cc-level-select"
+            className="cc-select"
+            value={selectedLevel}
+            onChange={(e) => { setSelectedLevel(e.target.value); setHovered(null); }}
           >
-            {seatTypeShortLabel(st)}
-          </button>
-        ))}
+            <option value="all">All levels</option>
+            {availableLevels.map((l) => (
+              <option key={l} value={l}>{LEVEL_LABELS[l]}</option>
+            ))}
+          </select>
+        </div>
+        <div className="cc-filter-row">
+          <label className="label" htmlFor="cc-seat-select">Category</label>
+          <select
+            id="cc-seat-select"
+            className="cc-select"
+            value={selectedSeatType}
+            onChange={(e) => { setSelectedSeatType(e.target.value); setHovered(null); }}
+          >
+            {seatTypesAtLevel.map((st) => (
+              <option key={st} value={st}>{seatTypeShortLabel(st)}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {series.length === 0 ? (
-        <div className="cc-empty">No closing ranks for {seatTypeLabel(selectedSeatType)}</div>
+        <div className="cc-empty">No closing ranks for {catLabel} · {levelLabel}</div>
       ) : (
         <>
-          {/* Legend */}
           <div className="cc-legend">
-            <span className="cc-legend-item">
-              <span className="cc-dot cc-dot-r1" aria-hidden="true" />
-              {formatRound(1)}
-            </span>
-            <span className="cc-legend-item">
-              <span className="cc-dot cc-dot-last" aria-hidden="true" />
-              Latest round
-            </span>
+            <span className="cc-legend-item"><span className="cc-dot cc-dot-r1" aria-hidden="true" />{formatRound(1)}</span>
+            <span className="cc-legend-item"><span className="cc-dot cc-dot-last" aria-hidden="true" />Latest round</span>
+            <span className="cc-legend-hint">Hover a row to see all rounds</span>
           </div>
-
-          {/* Chart */}
-          <div className="cc-chart-wrap" ref={containerRef}>
-            <ChartSvg series={series} availableRounds={availableRounds} svgWidth={svgWidth} />
-          </div>
-
-          {/* Table: branches × rounds */}
-          <div className="cc-table-wrap table-scroll">
-            <table className="cc-table">
-              <thead>
-                <tr>
-                  <th className="cc-th-branch">Branch</th>
-                  {availableRounds.map((r) => (
-                    <th key={r} className="cc-th-round">{formatRound(r)}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {series.map((s) => (
-                  <tr key={s.branch}>
-                    <td className="cc-td-branch">{s.branch}</td>
-                    {s.roundValues.map((v, i) => {
-                      const prevVal = i > 0 ? s.roundValues.slice(0, i).findLast((x) => x !== null) : undefined;
-                      const prev = prevVal ?? null;
-                      const delta = v !== null && prev !== null ? v - prev : null;
-                      return (
-                        <td key={i} className="cc-td-merit">
-                          {v !== null ? (
-                            <>
-                              <span className="cc-merit-num">{formatNumber(v)}</span>
-                              {delta !== null && delta !== 0 && (
-                                <span className={`cc-delta${delta > 0 ? " up" : " dn"}`} title="Change from the previous round">
-                                  {delta > 0 ? `+${formatNumber(delta)}` : formatNumber(delta)}
-                                </span>
-                              )}
-                            </>
-                          ) : (
-                            <span className="cc-merit-na">—</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div
+            className="cc-chart-wrap"
+            ref={containerRef}
+            onMouseMove={onMouseMove}
+            onMouseLeave={onMouseLeave}
+          >
+            <ChartSvg
+              series={series}
+              svgWidth={svgWidth}
+              hoveredIdx={hovered}
+              onRowEnter={setHovered}
+              onRowLeave={() => setHovered(null)}
+            />
+            {hoveredSeries && (
+              <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
+            )}
           </div>
         </>
       )}
     </section>
+  );
+}
+
+// ─── SeatCutoffChart — seat types for one branch, filtered by level ───────────
+
+interface SeatCutoffChartProps {
+  cutoffs: CutoffRow[];
+  branch: string;
+  selectedLevel: string;
+}
+
+export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const svgWidth = useContainerWidth(containerRef);
+  const { hovered, setHovered, pos, onMouseMove, onMouseLeave } = useTooltip();
+
+  const availableRounds = useMemo(() => {
+    return [...new Set(cutoffs.map((r) => r.round))].sort((a, b) => roundIndex(a) - roundIndex(b));
+  }, [cutoffs]);
+
+  const series = useMemo((): ChartSeries[] => {
+    const filtered = cutoffs.filter((r) => {
+      if (r.branch !== branch) return false;
+      if (selectedLevel === "all") return true;
+      return (seatLevelCode(r.seatType) ?? "S") === selectedLevel;
+    });
+
+    const byType = new Map<string, Map<number | string, number>>();
+    for (const row of filtered) {
+      if (!byType.has(row.seatType)) byType.set(row.seatType, new Map());
+      byType.get(row.seatType)!.set(row.round, row.closingMerit);
+    }
+
+    return [...byType.entries()]
+      .sort(([a], [b]) => seatTypeSortKey(a) - seatTypeSortKey(b))
+      .map(([seatType, roundMap]) => {
+        const roundValues = availableRounds.map((r) => roundMap.get(r) ?? null);
+        const merits = roundValues.filter((v): v is number => v !== null);
+        return {
+          label: seatCategoryLabel(seatType),
+          roundValues,
+          firstMerit: merits[0] ?? 0,
+          lastMerit: merits.at(-1) ?? 0,
+        };
+      })
+      .filter((s) => s.firstMerit > 0);
+  }, [cutoffs, branch, selectedLevel, availableRounds]);
+
+  const hoveredSeries = hovered !== null ? series[hovered] ?? null : null;
+  const levelDesc = selectedLevel === "all" ? "all levels" : (LEVEL_LABELS[selectedLevel] ?? selectedLevel);
+
+  if (!branch) return null;
+
+  return (
+    <div className="seat-chart">
+      {series.length === 0 ? (
+        <div className="cc-empty">No closing ranks for this branch · {levelDesc}</div>
+      ) : (
+        <>
+          <div className="cc-legend">
+            <span className="cc-legend-item"><span className="cc-dot cc-dot-r1" aria-hidden="true" />{formatRound(1)}</span>
+            <span className="cc-legend-item"><span className="cc-dot cc-dot-last" aria-hidden="true" />Latest round</span>
+            <span className="cc-legend-hint">Hover a row to see all rounds</span>
+          </div>
+          <div
+            className="cc-chart-wrap"
+            ref={containerRef}
+            onMouseMove={onMouseMove}
+            onMouseLeave={onMouseLeave}
+          >
+            <ChartSvg
+              series={series}
+              svgWidth={svgWidth}
+              hoveredIdx={hovered}
+              onRowEnter={setHovered}
+              onRowLeave={() => setHovered(null)}
+            />
+            {hoveredSeries && (
+              <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 }

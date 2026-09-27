@@ -1,8 +1,4 @@
 .cutoff-chart {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 20px;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -10,8 +6,14 @@
 }
 
 /* Header */
+.cc-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .cc-title {
-  margin: 0 0 6px;
+  margin: 0;
   font-size: var(--text-lg);
   font-weight: 700;
 }
@@ -22,41 +24,51 @@
   margin: 0;
 }
 
-/* Chips */
-.cc-chips {
+/* Filter area — wraps one or two label+select pairs, equal-width columns */
+.cc-filters {
   display: flex;
+  align-items: flex-end;
+  gap: 16px;
   flex-wrap: wrap;
-  gap: 6px;
 }
 
-.cc-chip {
-  min-height: 32px;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--line);
-  background: var(--white);
-  color: var(--navy);
-  cursor: pointer;
-  transition: background 0.12s, border-color 0.12s, color 0.12s;
+.cc-filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cc-filter-row .label {
   white-space: nowrap;
+  font-size: var(--text-xs);
 }
 
-.cc-chip:hover {
-  border-color: var(--violet);
-  color: var(--violet);
+.cc-select {
+  height: 36px;
+  padding: 0 10px;
+  width: 180px;
+  background: var(--page);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--navy);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.12s;
 }
 
-.cc-chip.active {
-  background: var(--violet);
-  border-color: var(--violet);
-  color: var(--white);
+/* Wider variant for long-text options (branch names) */
+.cc-select-branch {
+  width: 280px;
 }
+
+.cc-select:focus { border-color: var(--navy); }
 
 /* Legend */
 .cc-legend {
   display: flex;
+  align-items: center;
   gap: 20px;
   flex-wrap: wrap;
   font-size: var(--text-xs);
@@ -67,6 +79,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.cc-legend-hint {
+  margin-left: auto;
+  font-size: 11px;
+  font-style: italic;
+  opacity: 0.7;
 }
 
 .cc-dot {
@@ -87,8 +106,9 @@
   background: var(--orange);
 }
 
-/* Chart */
+/* Chart wrapper — relative so tooltip positions inside it */
 .cc-chart-wrap {
+  position: relative;
   min-width: 0;
 }
 
@@ -106,94 +126,57 @@
   font-size: var(--text-sm);
 }
 
-/* Table */
-.cc-table-wrap {
-  overflow-x: auto;
-  border-top: 1px solid var(--line);
-  padding-top: 14px;
+/* Hover tooltip */
+.cc-tooltip {
+  position: absolute;
+  z-index: 10;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  box-shadow: var(--shadow-raised);
+  min-width: 160px;
+  pointer-events: none;
 }
 
-.cc-table {
-  border-collapse: collapse;
-  width: 100%;
-  font-size: var(--text-sm);
-}
-
-.cc-th-branch,
-.cc-td-branch {
-  text-align: left;
-  padding: 8px 12px 8px 0;
-  font-weight: 600;
+.cc-tooltip-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
   color: var(--navy);
-  min-width: 140px;
-}
-
-.cc-th-round {
-  text-align: right;
-  padding: 8px 8px;
-  font-family: var(--font-num);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-  border-bottom: 1px solid var(--navy);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
-.cc-th-branch {
-  font-family: var(--font-num);
+.cc-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--muted);
-  border-bottom: 1px solid var(--navy);
+  padding: 2px 0;
 }
 
-.cc-td-merit {
-  text-align: right;
-  padding: 8px 8px;
-  border-bottom: 1px solid var(--line);
-  vertical-align: middle;
-}
-
-.cc-td-branch {
-  border-bottom: 1px solid var(--line);
-}
-
-.cc-merit-num {
+.cc-tooltip-val {
   font-family: var(--font-num);
-  font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--navy);
 }
 
-.cc-merit-na {
-  color: var(--muted);
-}
-
-.cc-delta {
-  display: inline-block;
-  margin-left: 5px;
-  font-family: var(--font-num);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  padding: 2px 5px;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-/* change since the previous round: shown neutrally (a higher closing rank means the branch got easier) */
-.cc-delta.up,
-.cc-delta.dn {
-  color: var(--out-text);
-  background: var(--out-bg);
+/* SeatCutoffChart wrapper */
+.seat-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 @media (max-width: 639px) {
-  .cutoff-chart {
-    padding: 16px;
-  }
+  .cutoff-chart { padding: 16px; }
+  .cc-header { gap: 10px; }
+  .cc-legend-hint { display: none; }
 }

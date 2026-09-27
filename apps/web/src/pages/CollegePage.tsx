@@ -1,14 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { api, type CollegeFees, type CollegeFeesUnavailable } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { useCompare } from "../lib/CompareContext";
-import { CutoffChart } from "../components/CutoffChart";
+import { CutoffChart, SeatCutoffChart } from "../components/CutoffChart";
+import { seatLevelCode, LEVEL_LABELS } from "../lib/seatType";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
 import { avatarTint, collegeInitials, formatNumber, formatRound, roundIndex } from "../lib/format";
 import { formatInr } from "../lib/plans";
-import { isOpenSeat, seatTypeLabel, seatTypeShortLabel, seatTypeSortKey } from "../lib/seatType";
 import "./CollegePage.css";
 
 interface CutoffRow {
@@ -42,17 +42,13 @@ function getBranchStatus(cutoffs: CutoffRow[], branch: string, merit: number): B
 
 export function CollegePage() {
   const { code } = useParams<{ code: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
   const { profile } = useProfile();
   const { pin, unpin, isPinned: checkPinned, canPin } = useCompare();
   const [data, setData] = useState<CollegeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedBranch, setSelectedBranch] = useState<string>("");
-  const [filter, setFilter] = useState<"all" | "gopens" | "reserved">(() => {
-    const s = searchParams.get("seat");
-    return (s === "gopens" || s === "reserved") ? s : "all";
-  });
+  const [seatLevel, setSeatLevel] = useState<string>("all");
   const [whatifMerit, setWhatifMerit] = useState<number>(() => profile.meritNumber ?? 10000);
   const [showWhatif, setShowWhatif] = useState(false);
   const [fees, setFees] = useState<CollegeFees | CollegeFeesUnavailable | null>(null);
@@ -80,31 +76,15 @@ export function CollegePage() {
     return [...new Set(data.cutoffs.map((r) => r.branch))].sort();
   }, [data]);
 
-  const rounds = useMemo(() => {
-    if (!data) return [];
-    return [...new Set(data.cutoffs.map((r) => r.round))].sort((a, b) => roundIndex(a) - roundIndex(b));
-  }, [data]);
-
-  const branchRows = useMemo(() => {
+  const availableSeatLevels = useMemo(() => {
     if (!data || !selectedBranch) return [];
-    const rows = data.cutoffs.filter((r) => r.branch === selectedBranch);
-
-    const bySeat = new Map<string, Map<number | string, CutoffRow>>();
-    for (const row of rows) {
-      if (!bySeat.has(row.seatType)) bySeat.set(row.seatType, new Map());
-      bySeat.get(row.seatType)!.set(row.round, row);
+    const set = new Set<string>();
+    for (const r of data.cutoffs) {
+      if (r.branch !== selectedBranch) continue;
+      set.add(seatLevelCode(r.seatType) ?? "S");
     }
-
-    return [...bySeat.entries()]
-      .filter(([seatType]) => {
-        if (filter === "gopens") return seatType === "GOPENS";
-        if (filter === "reserved") {
-          return !isOpenSeat(seatType);
-        }
-        return true;
-      })
-      .sort(([a], [b]) => seatTypeSortKey(a) - seatTypeSortKey(b));
-  }, [data, selectedBranch, filter]);
+    return (["S", "H", "O"] as const).filter((l) => set.has(l));
+  }, [data, selectedBranch]);
 
   // Round I closing rank for general open (state level) seats: the student-facing headline
   const headline = useMemo(() => {
@@ -311,78 +291,39 @@ export function CollegePage() {
           </div>
         )}
 
-        <label className="label" htmlFor="cp-branch-select">Branch</label>
         <div className="cp-branch-picker">
-          <select
-            id="cp-branch-select"
-            className="cp-select"
-            value={selectedBranch}
-            onChange={(e) => setSelectedBranch(e.target.value)}
-          >
-            {branches.map((b) => {
-              const st = showWhatif ? getBranchStatus(data.cutoffs, b, whatifMerit) : null;
-              const tag = st === "round-I" ? ` — ${formatRound(1)}` : st === "later" ? " — later round" : st === "out" ? " — out of reach" : "";
-              return <option key={b} value={b}>{b}{tag}</option>;
-            })}
-          </select>
-          <div className="cp-filter-row" role="group" aria-label="Seat types">
-            {([
-              ["all", "All seats"],
-              ["gopens", "General open"],
-              ["reserved", "Reserved"],
-            ] as const).map(([f, label]) => (
-              <button
-                key={f}
-                type="button"
-                className={`cp-filter${filter === f ? " active" : ""}`}
-                aria-pressed={filter === f}
-                onClick={() => {
-                  setFilter(f);
-                  setSearchParams(f === "all" ? {} : { seat: f }, { replace: true });
-                }}
-              >
-                {label}
-              </button>
-            ))}
+          <div className="cc-filter-row">
+            <label className="label" htmlFor="cp-level-select">University</label>
+            <select
+              id="cp-level-select"
+              className="cc-select"
+              value={seatLevel}
+              onChange={(e) => setSeatLevel(e.target.value)}
+            >
+              <option value="all">All levels</option>
+              {availableSeatLevels.map((l) => (
+                <option key={l} value={l}>{LEVEL_LABELS[l]}</option>
+              ))}
+            </select>
+          </div>
+          <div className="cc-filter-row">
+            <label className="label" htmlFor="cp-branch-select">Branch</label>
+            <select
+              id="cp-branch-select"
+              className="cc-select cc-select-branch"
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(e.target.value)}
+            >
+              {branches.map((b) => {
+                const st = showWhatif ? getBranchStatus(data.cutoffs, b, whatifMerit) : null;
+                const tag = st === "round-I" ? ` — ${formatRound(1)}` : st === "later" ? " — later round" : st === "out" ? " — out of reach" : "";
+                return <option key={b} value={b}>{b}{tag}</option>;
+              })}
+            </select>
           </div>
         </div>
 
-        {branchRows.length === 0 ? (
-          <div className="empty-state">
-            <p>No closing ranks for this branch and seat filter.</p>
-          </div>
-        ) : (
-          <div className="table-scroll" role="region" aria-label={`Closing ranks for ${selectedBranch}`} tabIndex={0}>
-            <table className="cp-table">
-              <thead>
-                <tr>
-                  <th scope="col" className="cp-th-seat">Seat type</th>
-                  {rounds.map((r) => (
-                    <th scope="col" key={r} className="cp-th-round">{formatRound(r)}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {branchRows.map(([seatType, roundMap]) => (
-                  <tr key={seatType} className={seatType === "GOPENS" ? "cp-tr-highlight" : ""}>
-                    <th scope="row" className="cp-td-seat">
-                      <span className="seat-full">{seatTypeShortLabel(seatType)}</span>
-                      <span className="seat-code" title={seatTypeLabel(seatType)}>{seatType}</span>
-                    </th>
-                    {rounds.map((r) => {
-                      const row = roundMap.get(r);
-                      return (
-                        <td key={r} className="cp-td-merit">
-                          {row ? formatNumber(row.closingMerit) : <span className="merit-na" aria-label="no seat allotted">—</span>}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <SeatCutoffChart cutoffs={data.cutoffs} branch={selectedBranch} selectedLevel={seatLevel} />
       </section>
 
       <p className="cp-footnote">

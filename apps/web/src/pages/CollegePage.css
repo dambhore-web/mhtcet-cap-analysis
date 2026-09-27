@@ -210,8 +210,8 @@
 
 .cp-branch-picker {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-end;
+  gap: 16px;
   flex-wrap: wrap;
   margin: 6px 0 16px;
 }
@@ -227,6 +227,13 @@
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--navy);
+}
+
+/* Compact variant for secondary filters alongside the branch select */
+.cp-select.cp-select-sm {
+  flex: 0 1 auto;
+  min-height: 44px;
+  min-width: 140px;
 }
 
 .cp-filter-row {
