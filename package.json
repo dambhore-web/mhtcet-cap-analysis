@@ -23,7 +23,8 @@
     "migrate": "npm run migrate -w @mhtcet/pipeline --",
     "load": "npm run load -w @mhtcet/pipeline --",
     "db:checksum": "npm run db:checksum -w @mhtcet/pipeline --",
-    "eval": "node --env-file=.env --import tsx/esm packages/pipeline/eval/runner.ts"
+    "eval": "node --env-file=.env --import tsx/esm packages/pipeline/eval/runner.ts",
+    "e2e": "npm run e2e -w @mhtcet/web"
   },
   "repository": {
     "type": "git",
