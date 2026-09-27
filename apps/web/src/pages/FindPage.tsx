@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { api, type FindOption, type Category, type MeritEstimate } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
+import { addToList, isInList } from "../lib/list";
 import "./FindPage.css";
 
 const CATEGORIES: { value: Category | ""; label: string }[] = [
@@ -398,6 +399,7 @@ export function FindPage() {
 }
 
 function OptionRow({ opt, merit }: { opt: FindOption; merit: number }) {
+  const [saved, setSaved] = useState(() => isInList(opt.choiceCode));
   const surplus = opt.closingMerit - merit;
   const initials = opt.collegeName
     .split(" ")
@@ -405,6 +407,20 @@ function OptionRow({ opt, merit }: { opt: FindOption; merit: number }) {
     .slice(0, 2)
     .map((w) => w[0])
     .join("");
+
+  function handleSave() {
+    if (saved) return;
+    addToList({
+      choiceCode: opt.choiceCode,
+      collegeCode: opt.collegeCode,
+      collegeName: opt.collegeName,
+      branch: opt.branch,
+      seatType: opt.seatType,
+      closingMerit: opt.closingMerit,
+      year: opt.year,
+    });
+    setSaved(true);
+  }
 
   return (
     <div className="option-row" role="listitem">
@@ -422,6 +438,14 @@ function OptionRow({ opt, merit }: { opt: FindOption; merit: number }) {
         </span>
       </div>
       <StatusBadge status={opt.status} round={opt.round} />
+      <button
+        className={`save-btn${saved ? " saved" : ""}`}
+        onClick={handleSave}
+        aria-label={saved ? "Saved to list" : "Save to list"}
+        title={saved ? "Saved" : "Save to My List"}
+      >
+        {saved ? "✓" : "+"}
+      </button>
     </div>
   );
 }

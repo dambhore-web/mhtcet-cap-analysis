@@ -639,6 +639,35 @@
 .badge.later { background: var(--later-bg); color: var(--later-text); }
 .badge.out { background: var(--out-bg); color: var(--out-text); }
 
+.save-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--lime);
+  background: transparent;
+  color: var(--navy);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  line-height: 1;
+}
+
+.save-btn:hover:not(.saved) {
+  background: var(--lime);
+}
+
+.save-btn.saved {
+  background: var(--lime);
+  border-color: var(--lime);
+  cursor: default;
+  font-size: 13px;
+}
+
 .no-results {
   padding: 32px 20px;
   background: var(--white);
