@@ -6,11 +6,13 @@ import { loadCache, type AppCache } from "./startup.ts";
 import { health } from "./routes/health.ts";
 import { getColleges, getCollegeCutoffs } from "./routes/colleges.ts";
 import { postRankFinder } from "./routes/rankFinder.ts";
+import { getMeritEstimate } from "./routes/meritEstimate.ts";
+import type pg from "pg";
 
 const CACHE_YEAR = 2026;
 const PORT = parseInt(process.env.PORT ?? "3001", 10);
 
-function createApp(cache: AppCache) {
+function createApp(cache: AppCache, pool: pg.Pool) {
   const app = new Hono();
 
   app.use("*", cors({ origin: "*" }));
@@ -19,6 +21,7 @@ function createApp(cache: AppCache) {
   app.get("/api/colleges", (c) => getColleges(c, cache));
   app.get("/api/colleges/:code/cutoffs", (c) => getCollegeCutoffs(c, cache));
   app.post("/api/rank-finder", (c) => postRankFinder(c, cache));
+  app.get("/api/merit-estimate", (c) => getMeritEstimate(c, pool));
 
   app.onError((err, c) => {
     console.error("[error]", err);
@@ -33,9 +36,9 @@ function createApp(cache: AppCache) {
 async function main() {
   const pool = createPool();
   const cache = await loadCache(pool, CACHE_YEAR);
-  await pool.end();
+  // pool stays open — used by merit-estimate and future on-demand queries
 
-  const app = createApp(cache);
+  const app = createApp(cache, pool);
 
   serve({ fetch: app.fetch, port: PORT }, () => {
     console.log(`[api] listening on http://localhost:${PORT}`);

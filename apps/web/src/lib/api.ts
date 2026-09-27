@@ -54,6 +54,16 @@ async function get<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export interface MeritEstimate {
+  percentile: number;
+  subjectGroup: string;
+  year: number;
+  estimatedMeritRange: [number, number];
+  sampleSize: number | null;
+  method: "data" | "statistical";
+  disclaimer: string;
+}
+
 export const api = {
   find: (req: FindRequest) => post<FindResponse>("/api/rank-finder", req),
   colleges: (q: string) =>
@@ -61,5 +71,9 @@ export const api = {
   collegeCutoffs: (code: string) =>
     get<{ college: { code: string; name: string }; year: number; cutoffs: object[] }>(
       `/api/colleges/${code}/cutoffs`
+    ),
+  meritEstimate: (percentile: number, subjectGroup: "PCM" | "PCB") =>
+    get<MeritEstimate>(
+      `/api/merit-estimate?percentile=${percentile}&subjectGroup=${subjectGroup}`
     ),
 };

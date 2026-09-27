@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { api, type FindOption, type Category } from "../lib/api";
+import { api, type FindOption, type Category, type MeritEstimate } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import "./FindPage.css";
 
@@ -82,7 +82,20 @@ export function FindPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [scoreError, setScoreError] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [estimate, setEstimate] = useState<MeritEstimate | null>(null);
   const resultsRef = useRef<HTMLElement>(null);
+  const estimateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (form.mode !== "percentile") { setEstimate(null); return; }
+    const pct = parseFloat(form.score);
+    if (isNaN(pct) || pct <= 0 || pct > 100) { setEstimate(null); return; }
+    if (estimateTimer.current) clearTimeout(estimateTimer.current);
+    estimateTimer.current = setTimeout(() => {
+      api.meritEstimate(pct, form.subjectGroup).then(setEstimate).catch(() => setEstimate(null));
+    }, 400);
+    return () => { if (estimateTimer.current) clearTimeout(estimateTimer.current); };
+  }, [form.mode, form.score, form.subjectGroup]);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -96,13 +109,18 @@ export function FindPage() {
     e.preventDefault();
     const rawScore = form.score.replace(/,/g, "").trim();
     if (!rawScore) {
-      setScoreError("Enter your merit number to continue.");
+      setScoreError(`Enter your ${form.mode === "merit" ? "merit number" : "percentile"} to continue.`);
       return;
     }
-    const num = parseInt(rawScore, 10);
-    if (isNaN(num) || num < 1) {
-      setScoreError("Enter a valid merit number.");
-      return;
+    let num: number;
+    if (form.mode === "percentile") {
+      const pct = parseFloat(rawScore);
+      if (isNaN(pct) || pct <= 0 || pct > 100) { setScoreError("Enter a valid percentile (1–100)."); return; }
+      if (!estimate) { setScoreError("Waiting for merit estimate… try again in a moment."); return; }
+      num = Math.round((estimate.estimatedMeritRange[0] + estimate.estimatedMeritRange[1]) / 2);
+    } else {
+      num = parseInt(rawScore, 10);
+      if (isNaN(num) || num < 1) { setScoreError("Enter a valid merit number."); return; }
     }
     setScoreError("");
     setStatus("loading");
@@ -205,6 +223,15 @@ export function FindPage() {
           {scoreError && (
             <div id="score-error" className="field-error" role="alert">
               {scoreError}
+            </div>
+          )}
+
+          {form.mode === "percentile" && estimate && (
+            <div className="estimate-hint">
+              <span className="estimate-range">
+                ≈ merit {estimate.estimatedMeritRange[0].toLocaleString("en-IN")}–{estimate.estimatedMeritRange[1].toLocaleString("en-IN")}
+              </span>
+              {estimate.method === "statistical" && <span className="estimate-stat-badge">estimate</span>}
             </div>
           )}
 

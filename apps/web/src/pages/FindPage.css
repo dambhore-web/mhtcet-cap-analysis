@@ -276,6 +276,36 @@
   min-height: 14px;
 }
 
+.estimate-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 7px 10px;
+  background: rgba(214, 249, 90, 0.12);
+  border: 1px solid rgba(214, 249, 90, 0.4);
+  border-radius: 7px;
+}
+
+.estimate-range {
+  font-family: var(--font-num);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--lime);
+  letter-spacing: -0.02em;
+}
+
+.estimate-stat-badge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(214, 249, 90, 0.6);
+  border: 1px solid rgba(214, 249, 90, 0.3);
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
