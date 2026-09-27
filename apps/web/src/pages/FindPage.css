@@ -50,6 +50,22 @@
   transform: rotate(-8deg);
 }
 
+.find-edit-profile {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--violet);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1.5px solid var(--line);
+  background: var(--white);
+  transition: border-color 0.13s;
+}
+
+.find-edit-profile:hover {
+  border-color: var(--violet);
+}
+
 .find-year-badge {
   padding: 6px 10px;
   background: var(--white);
