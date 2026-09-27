@@ -17,6 +17,9 @@ import { PlansPage } from "./pages/PlansPage";
 import { GuidePage } from "./pages/GuidePage";
 import { SimulatorPage } from "./pages/SimulatorPage";
 import { EstimatePage } from "./pages/EstimatePage";
+import { AllotmentPage } from "./pages/AllotmentPage";
+import { ExportPage } from "./pages/ExportPage";
+import { BranchesPage } from "./pages/BranchesPage";
 
 function RequireProfile({ children }: { children: React.ReactNode }) {
   const { hasProfile } = useProfile();
@@ -48,6 +51,9 @@ function AppRoutes() {
         <Route path="guide" element={<GuidePage />} />
         <Route path="simulator" element={<SimulatorPage />} />
         <Route path="estimate" element={<EstimatePage />} />
+        <Route path="allotment" element={<AllotmentPage />} />
+        <Route path="export" element={<ExportPage />} />
+        <Route path="branches" element={<BranchesPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
