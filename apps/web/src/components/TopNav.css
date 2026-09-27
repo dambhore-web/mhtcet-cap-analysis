@@ -159,7 +159,7 @@
 }
 
 /* Tablet and phone: collapse the links into a menu */
-@media (max-width: 899px) {
+@media (max-width: 1099px) {
   .top-nav-links,
   .top-nav-profile,
   .top-nav-signin,
@@ -211,4 +211,27 @@
   .top-nav-sheet .btn {
     margin-top: 8px;
   }
+}
+
+.top-nav-shortlist {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  color: var(--violet);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.top-nav-shortlist:hover {
+  border-color: var(--violet);
+  background: var(--lavender-2);
+}
+
+.top-nav-shortlist-count {
+  font-family: var(--font-num);
 }

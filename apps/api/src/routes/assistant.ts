@@ -2,52 +2,50 @@ import { streamSSE } from "hono/streaming";
 import type { Context } from "hono";
 import Groq from "groq-sdk";
 import { checkRateLimit, clientIp } from "../rateLimit.ts";
+import type { AppCache } from "../startup.ts";
+import { runAssistant, type ChatClient, type Profile } from "../assistant/run.ts";
 
-const MODEL = "llama-3.1-8b-instant";
+/** Tool-capable model; the provider and model are an open decision (#19). */
+const MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
 
-const SYSTEM_PROMPT = `You are Compass, an AI assistant for MHT-CET CAP 2026 engineering admissions in Maharashtra, India.
-
-You help candidates with:
-- Reading and understanding cutoff tables (merit numbers, seat types, CAP rounds I/II/III)
-- Seat types: GOPENS (Open/General), GOPENH (Home University), LOPENS (Ladies), GOBCS (OBC), GOBCSH (OBC Home University), EWS, TFWS, PWD, Defence, Orphan, Minority
-- Eligibility: MH State candidature vs AI (All India), Home University seats, ladies seats at Stage I/II
-- What Freeze, Float, and Slide mean and when to choose each
-- Documents to carry to a CAP reporting centre (Aadhaar, HSC marksheet, caste certificate if applicable, JEE scorecard for AI seats)
-- Timeline: Round I allotment → Freeze/Float/Slide → Round II → Round III → spot round
-- Understanding the merit list (lower merit number = better rank)
-
-Be concise and accurate. Always prefer citing the CET Cell (cetcell.mahacet.org) or DTE Maharashtra as sources.
-If you are not sure about a specific number, year, or rule, say so clearly.`;
+// 20 questions per IP per hour: coarse protection until per-user auth is in place (#15)
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+const RATE_MAX = 20;
+const MAX_HISTORY = 12;
 
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
 }
 
-interface ProfileCtx {
-  merit?: number | null;
-  category?: string | null;
-  gender?: string | null;
+export function groqClient(apiKey: string): ChatClient {
+  const groq = new Groq({ apiKey });
+  return {
+    async complete({ messages, tools }) {
+      const res = await groq.chat.completions.create({
+        model: MODEL,
+        // The SDK's message union is structurally the same as LlmMessage
+        messages: messages as Parameters<typeof groq.chat.completions.create>[0]["messages"],
+        ...(tools.length ? { tools: tools.map((t) => ({ type: "function" as const, function: t })), tool_choice: "auto" as const } : {}),
+        temperature: 0.2,
+        max_tokens: 900,
+      });
+      const msg = res.choices[0]?.message;
+      return {
+        content: msg?.content ?? null,
+        toolCalls: (msg?.tool_calls ?? []).map((t) => ({ id: t.id, type: "function" as const, function: { name: t.function.name, arguments: t.function.arguments } })),
+      };
+    },
+  };
 }
 
-function buildSystemMessage(profile?: ProfileCtx): string {
-  if (!profile?.merit && !profile?.category) return SYSTEM_PROMPT;
-  const lines: string[] = [];
-  if (profile.merit) lines.push(`Candidate's MHT-CET state merit number: ${profile.merit.toLocaleString("en-IN")} (lower = better rank)`);
-  if (profile.category) lines.push(`Candidate's category: ${profile.category}`);
-  if (profile.gender) lines.push(`Gender: ${profile.gender === "M" ? "Male" : "Female"}`);
-  return `${SYSTEM_PROMPT}\n\n${lines.join("\n")}`;
-}
-
-// 20 questions per IP per hour — coarse protection until per-user auth is in place (#15)
-const RATE_WINDOW_MS = 60 * 60 * 1000;
-const RATE_MAX = 20;
-
-export async function postAssistant(c: Context) {
+/** POST /api/assistant: grounded answer streamed as SSE events {sources} · {delta}* · {done}. */
+export async function postAssistant(c: Context, cache: AppCache, injected?: ChatClient) {
   const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
+  if (!injected && !apiKey) {
     return c.json({ error: "assistant_unavailable" }, 503);
   }
+  const client = injected ?? groqClient(apiKey!);
 
   const ip = clientIp(c.req);
   if (!checkRateLimit(ip, RATE_WINDOW_MS, RATE_MAX)) {
@@ -58,7 +56,7 @@ export async function postAssistant(c: Context) {
     }, 429);
   }
 
-  let body: { messages: ChatMessage[]; profile?: ProfileCtx };
+  let body: { messages: ChatMessage[]; profile?: Profile };
   try {
     body = await c.req.json();
   } catch {
@@ -69,32 +67,24 @@ export async function postAssistant(c: Context) {
   if (!Array.isArray(messages) || messages.length === 0) {
     return c.json({ error: "messages_required" }, 400);
   }
-
-  const groq = new Groq({ apiKey });
+  const history = messages
+    .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+    .slice(-MAX_HISTORY)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
 
   return streamSSE(c, async (stream) => {
     try {
-      const completion = await groq.chat.completions.create({
-        model: MODEL,
-        messages: [
-          { role: "system", content: buildSystemMessage(profile) },
-          ...messages.map((m) => ({ role: m.role, content: m.content })),
-        ],
-        stream: true,
-        max_tokens: 800,
-        temperature: 0.4,
-      });
-
-      for await (const chunk of completion) {
-        const delta = chunk.choices[0]?.delta?.content ?? "";
-        if (delta) {
-          await stream.writeSSE({ data: JSON.stringify({ delta }) });
-        }
+      const result = await runAssistant({ client, cache, profile: profile ?? {}, history });
+      await stream.writeSSE({ data: JSON.stringify({ sources: result.sources, grounded: result.grounded }) });
+      // Chunk the checked answer so the page can render it progressively
+      for (const piece of result.text.match(/[\s\S]{1,48}(\s|$)/g) ?? [result.text]) {
+        await stream.writeSSE({ data: JSON.stringify({ delta: piece }) });
       }
       await stream.writeSSE({ data: JSON.stringify({ done: true }) });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "unknown";
-      await stream.writeSSE({ data: JSON.stringify({ error: msg }) });
+      console.error(JSON.stringify({ ts: new Date().toISOString(), event: "assistant_error", message: msg }));
+      await stream.writeSSE({ data: JSON.stringify({ error: "The assistant couldn't answer just now. Please try again." }) });
     }
   });
 }

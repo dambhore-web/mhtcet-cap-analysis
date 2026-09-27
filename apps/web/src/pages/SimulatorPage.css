@@ -80,86 +80,6 @@
   font-weight: 600;
 }
 
-.sim-results {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.sim-round-card {
-  overflow: hidden;
-}
-
-.sim-round-head {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 12px 16px;
-  background: var(--lavender-2);
-  border-bottom: 1px solid var(--line-soft);
-}
-
-.sim-round-card.allotted .sim-round-head {
-  background: var(--lavender);
-}
-
-.sim-round-label {
-  font-family: var(--font-head);
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--violet);
-}
-
-.sim-round-desc {
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-
-.sim-round-allotment {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  padding: 16px;
-}
-
-.sim-allot-college {
-  margin-top: 4px;
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--navy);
-  text-decoration: none;
-}
-
-.sim-allot-college:hover {
-  color: var(--violet);
-  text-decoration: underline;
-}
-
-.sim-allot-branch {
-  font-size: var(--text-sm);
-}
-
-.sim-allot-meta {
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-
-.sim-allot-meta abbr {
-  text-decoration: none;
-  cursor: help;
-}
-
-.sim-round-vacant {
-  margin: 0;
-  padding: 16px;
-  font-size: var(--text-sm);
-  color: var(--muted);
-}
-
 .sim-note {
   margin: 4px 0 0;
   font-size: var(--text-xs);
@@ -173,5 +93,187 @@
 
   .sim-setup {
     position: static;
+  }
+}
+
+.sim-headline {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.sim-rounds {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sim-round {
+  overflow: hidden;
+}
+
+.sim-round-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  background: var(--lavender-2);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.sim-round.allotted .sim-round-head {
+  background: var(--lavender);
+}
+
+.sim-round-label {
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--violet);
+}
+
+.sim-round-zone {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.sim-round-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+}
+
+.sim-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sim-college {
+  font-weight: 700;
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.sim-college:hover {
+  color: var(--violet);
+  text-decoration: underline;
+}
+
+.sim-branch {
+  font-size: var(--text-sm);
+}
+
+.sim-meta {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.sim-meta abbr {
+  text-decoration: none;
+}
+
+.sim-empty {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.sim-grid,
+.sim-next {
+  padding: 16px 20px;
+}
+
+.sim-grid h2,
+.sim-next h2 {
+  margin: 0 0 6px;
+  font-size: var(--text-lg);
+}
+
+.sim-next p {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.sim-grid table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.sim-grid th,
+.sim-grid td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.sim-grid th {
+  font-size: var(--text-xs);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sim-grid .num {
+  text-align: right;
+  font-family: var(--font-num);
+  white-space: nowrap;
+}
+
+.sim-grid-college {
+  display: block;
+  font-weight: 700;
+}
+
+.sim-grid-branch {
+  display: block;
+  color: var(--muted);
+}
+
+.sim-cell.open {
+  background: var(--safe-bg);
+  color: var(--safe-text);
+}
+
+.sim-cell.held {
+  background: var(--violet);
+  color: var(--white);
+  font-weight: 700;
+}
+
+.sim-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.sim-key {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.sim-key.held { background: var(--violet); }
+.sim-key.open { background: var(--safe-bg); border: 1px solid var(--safe-text); }
+
+@media (max-width: 1199px) {
+  .sim-rounds {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .sim-rounds {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -1,0 +1,88 @@
+.elig-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.elig-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.elig-item input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--violet);
+}
+
+.elig-item.checked {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 1px var(--violet);
+}
+
+.elig-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--text-sm);
+}
+
+.elig-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+}
+
+.elig-title code {
+  font-family: var(--font-num);
+  font-size: var(--text-xs);
+  color: var(--violet);
+}
+
+.elig-who {
+  color: var(--navy);
+}
+
+.elig-proof {
+  color: var(--muted);
+}
+
+.elig-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.elig-result p {
+  margin: 0;
+}
+
+.elig-h2 {
+  margin: 0 0 8px;
+  font-size: var(--text-lg);
+}
+
+.elig-always {
+  margin: 0;
+  padding-left: 20px;
+  font-size: var(--text-sm);
+}
+
+.elig-always li {
+  margin-bottom: 8px;
+}
+
+.elig-note {
+  margin-top: 16px;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}

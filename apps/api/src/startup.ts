@@ -24,7 +24,8 @@ export async function loadCache(pool: pg.Pool, year: number): Promise<AppCache> 
   const cutoffsByChoiceCode = new Map<string, CutoffRow[]>();
 
   const [colRes, brRes, cuRes] = await Promise.all([
-    pool.query(`SELECT authority, exam, code, name, status, home_university, total_intake FROM college`),
+    // SELECT * so the cache still loads before migration 002 adds district and college_type
+    pool.query(`SELECT * FROM college`),
     pool.query(`SELECT authority, exam, choice_code, college_code, name FROM branch`),
     pool.query(
       `SELECT authority, exam, year, list, round, choice_code, college_code, section,
@@ -44,6 +45,8 @@ export async function loadCache(pool: pg.Pool, year: number): Promise<AppCache> 
       status: r.status ?? null,
       homeUniversity: rawHU === "Autonomous Institute" ? null : rawHU,
       totalIntake: r.total_intake ?? null,
+      district: r.district ?? null,
+      collegeType: r.college_type ?? null,
     });
   }
 

@@ -8,7 +8,7 @@ import { formatNumber } from "../lib/format";
 import "./EstimatePage.css";
 
 type Mode = "cet" | "jee";
-interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; }
+interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; kind?: "all-india-merit" | "jee-rank"; }
 
 /** Estimate a state merit number (from the MHT-CET percentile) or a JEE Main rank before the lists are out. */
 export function EstimatePage() {
@@ -122,7 +122,7 @@ export function EstimatePage() {
             {cet.disclaimer}
           </p>
           <div className="estimate-actions">
-            <button type="button" className="btn btn-primary" onClick={() => navigate(`/?merit=${mid}`)}>
+            <button type="button" className="btn btn-primary" onClick={() => navigate(`/?merit=${mid}&est=1`)}>
               <Icon name="search" size={18} />
               Find options for {formatNumber(mid)}
             </button>
@@ -133,13 +133,19 @@ export function EstimatePage() {
 
       {jee && (
         <section className="estimate-result card" aria-live="polite" aria-labelledby="est-jee-title">
-          <h2 id="est-jee-title" className="label">Likely JEE Main rank</h2>
+          <h2 id="est-jee-title" className="label">{jee.kind === "all-india-merit" ? "Likely All India merit number" : "Rough JEE Main rank"}</h2>
           <p className="estimate-range">
             {formatNumber(jee.rankRange[0])} – {formatNumber(jee.rankRange[1])}
           </p>
-          <p className="estimate-note">
-            Used for All India seats in Maharashtra colleges. {jee.disclaimer}
-          </p>
+          <p className="estimate-note">{jee.disclaimer}</p>
+          {jee.kind === "all-india-merit" && (
+            <div className="estimate-actions">
+              <button type="button" className="btn btn-primary" onClick={() => navigate(`/?merit=${jee.estimatedRank}&list=AI&est=1`)}>
+                <Icon name="search" size={18} />
+                Find All India seats for {formatNumber(jee.estimatedRank)}
+              </button>
+            </div>
+          )}
         </section>
       )}
 

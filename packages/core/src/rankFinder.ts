@@ -34,12 +34,22 @@ const AI_SECTION = "AI to AI";
 
 export type RankStatus = "round-I" | "later-round" | "out-of-range";
 
+/** The closing merit of one seat type in one round, with the official list it came from. */
+export interface RoundClosing {
+  round: Round;
+  closingMerit: number;
+  sourceFile: string | null;
+  sourcePage: number | null;
+}
+
 export interface RankOption {
   seatType: string;
   status: RankStatus;
   /** The round whose closing merit decided this status. */
   round: Round;
   closingMerit: number;
+  /** Closing merit in every published round for this seat type, Round I first. */
+  rounds: RoundClosing[];
 }
 
 export interface RankFinderResult {
@@ -107,7 +117,7 @@ export function rankFind(
     if (rows.length === 0) continue;
 
     const option = deriveStatus(candidate.meritNumber, rows);
-    if (option) options.push({ seatType: seatTypeCode, ...option });
+    if (option) options.push({ seatType: seatTypeCode, ...option, rounds: roundClosings(rows) });
   }
 
   let best: RankOption | null = null;
@@ -130,7 +140,7 @@ export function rankFind(
 function deriveStatus(
   meritNumber: number,
   rows: readonly CutoffRow[],
-): Omit<RankOption, "seatType"> | null {
+): Omit<RankOption, "seatType" | "rounds"> | null {
   if (rows.length === 0) return null;
 
   const roundIRows = rows.filter((r) => r.round === "I");
@@ -155,4 +165,20 @@ function deriveStatus(
   if (allRows.length === 0) return null;
   const loosest = allRows.reduce((a, b) => (b.closingMerit > a.closingMerit ? b : a));
   return { status: "out-of-range", round: loosest.round, closingMerit: loosest.closingMerit };
+}
+
+/**
+ * One value per round, Round I first. Round I keeps the tightest value and later rounds the
+ * loosest, matching deriveStatus. The row's source file and page travel with the value (NFR-001).
+ */
+export function roundClosings(rows: readonly CutoffRow[]): RoundClosing[] {
+  const byRound = new Map<Round, CutoffRow>();
+  for (const r of rows) {
+    const cur = byRound.get(r.round);
+    const better = !cur || (r.round === "I" ? r.closingMerit < cur.closingMerit : r.closingMerit > cur.closingMerit);
+    if (better) byRound.set(r.round, r);
+  }
+  return [...byRound.values()]
+    .sort((a, b) => roundNumber(a.round) - roundNumber(b.round))
+    .map((r) => ({ round: r.round, closingMerit: r.closingMerit, sourceFile: r.sourceFile ?? null, sourcePage: r.sourcePage ?? null }));
 }

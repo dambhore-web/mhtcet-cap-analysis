@@ -30,6 +30,11 @@ _Last updated: 2026-09-27_
 - Tests: 33 vitest tests with synthetic fixtures, incl. a privacy regression test for masking
 
 ## In progress
+- **Journeys J1–J13 (tracking #119)** on branch `claude/magical-ritchie-wcwhc0`, for review into
+  `Dev`. All 13 pass end to end on the demo dataset (`apps/web/e2e/journeys`). Blocked:
+  - J14 and accounts: need sign-in and payment decisions/credentials (#15, #21, #34, #117).
+  - Earlier years, seats left, districts and real FRA fees: need the data runs (#12, #40, #115,
+    #42 data), which can't reach the CET Cell or FRA sites from cloud sessions.
 - **UI audit fixes (issues #93–#108, tracking #109)** on branch `claude/magical-ritchie-wcwhc0`, for
   review into `Dev`: design tokens (one type scale, radii, colours), one top navigation with account
   menu and mobile menu, shared page header and container, error boundary and validated local

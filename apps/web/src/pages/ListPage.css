@@ -24,7 +24,7 @@
 .list-table-head,
 .list-row {
   display: grid;
-  grid-template-columns: 36px 28px minmax(0, 1fr) 128px 36px;
+  grid-template-columns: 36px 36px minmax(0, 1fr) 150px 112px;
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
@@ -161,7 +161,13 @@
 .list-surplus.pos { color: var(--safe-text); }
 .list-surplus.neg { color: var(--danger-text); }
 
-.list-remove {
+.list-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.list-icon-btn {
   display: grid;
   place-items: center;
   width: 36px;
@@ -172,46 +178,120 @@
   color: var(--muted);
 }
 
-.list-remove:hover {
+.list-icon-btn:hover:not(:disabled) {
+  background: var(--lavender-2);
+  color: var(--violet);
+}
+
+.list-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.list-down svg {
+  transform: rotate(180deg);
+}
+
+.list-remove:hover:not(:disabled) {
   background: var(--danger-bg);
   color: var(--danger-text);
 }
 
-.list-next {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.list-next-card {
+.list-rank {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
-  color: var(--navy);
-  text-decoration: none;
+  gap: 2px;
 }
 
-.list-next-card > svg:first-child {
-  flex: none;
+.list-freeze {
+  display: inline-grid;
+  place-items: center;
   color: var(--violet);
 }
 
-.list-next-card > span {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.list-row.in-freeze {
+  background: var(--lavender-2);
+}
+
+.list-reach {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.list-reach--round-I { color: var(--safe-text); }
+.list-reach--later { color: var(--later-text); }
+.list-reach--out { color: var(--muted); }
+
+.list-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+}
+
+.list-main {
+  min-width: 0;
+}
+
+.list-side {
+  display: grid;
+  gap: 12px;
+  position: sticky;
+  top: calc(var(--top-nav-h) + 16px);
+}
+
+.list-side-card {
+  padding: 16px;
   font-size: var(--text-sm);
 }
 
-.list-next-card > span span {
+.list-side-card h2 {
+  margin: 0 0 8px;
+}
+
+.list-side-card p {
+  margin: 0 0 8px;
+}
+
+.list-side-note {
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 
-.list-next-card:hover {
-  border-color: var(--violet);
+.list-freeze-rules,
+.list-checks {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.list-freeze-rules li,
+.list-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.list-freeze-rules svg {
+  margin-top: 3px;
+  color: var(--violet);
+}
+
+.list-check svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.list-check--warn { color: var(--warn-text); }
+
+.list-empty-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .list-footnote {
@@ -224,6 +304,16 @@
   color: var(--violet);
 }
 
+@media (max-width: 1023px) {
+  .list-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .list-side {
+    position: static;
+  }
+}
+
 @media (max-width: 639px) {
   .list-table-head {
     display: none;
@@ -231,7 +321,7 @@
 
   .list-table-head,
   .list-row {
-    grid-template-columns: 32px 20px minmax(0, 1fr) 32px;
+    grid-template-columns: 32px 28px minmax(0, 1fr);
     gap: 8px;
     padding: 10px 8px;
   }
@@ -243,18 +333,14 @@
     gap: 8px;
   }
 
-  .list-remove {
-    grid-column: 4;
-    grid-row: 1;
+  .list-actions {
+    grid-column: 3;
+    grid-row: 3;
+    justify-content: flex-start;
   }
 
-  .drag-handle,
-  .list-remove {
+  .drag-handle {
     width: 32px;
     height: 32px;
-  }
-
-  .list-next {
-    grid-template-columns: minmax(0, 1fr);
   }
 }

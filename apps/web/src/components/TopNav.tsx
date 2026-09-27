@@ -1,24 +1,27 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
+import { useList } from "../lib/list";
 import { Icon, type IconName } from "./Icon";
 import "./TopNav.css";
 
-type SectionId = "find" | "colleges" | "plan" | "ask" | "guide" | "account";
+type SectionId = "find" | "branches" | "colleges" | "plan" | "ask" | "guide" | "account";
 
 const LINKS: { id: SectionId; to: string; label: string; icon: IconName }[] = [
-  { id: "find", to: "/", label: "Find", icon: "search" },
+  { id: "find", to: "/", label: "Find colleges", icon: "search" },
+  { id: "branches", to: "/branches", label: "By branch", icon: "steps" },
   { id: "colleges", to: "/colleges", label: "Colleges", icon: "building" },
   { id: "plan", to: "/list", label: "My CAP plan", icon: "list" },
-  { id: "ask", to: "/ask", label: "Ask", icon: "chat" },
+  { id: "ask", to: "/ask", label: "Ask Compass", icon: "chat" },
   { id: "guide", to: "/guide", label: "CAP guide", icon: "book" },
 ];
 
 /** Which top-level section a route belongs to, so exactly one nav item is active. */
 export function sectionFor(pathname: string): SectionId | null {
-  if (pathname === "/" || pathname.startsWith("/estimate")) return "find";
+  if (pathname === "/" || pathname.startsWith("/estimate") || pathname.startsWith("/eligibility")) return "find";
+  if (pathname.startsWith("/branches")) return "branches";
   if (pathname.startsWith("/colleges") || pathname.startsWith("/compare")) return "colleges";
-  if (pathname.startsWith("/list") || pathname.startsWith("/simulator")) return "plan";
+  if (["/list", "/simulator", "/export", "/allotment", "/summary"].some((p) => pathname.startsWith(p))) return "plan";
   if (pathname.startsWith("/ask")) return "ask";
   if (pathname.startsWith("/guide")) return "guide";
   if (pathname.startsWith("/profile") || pathname.startsWith("/plans") || pathname.startsWith("/signin") || pathname.startsWith("/legal")) return "account";
@@ -29,6 +32,7 @@ export function TopNav() {
   const { pathname } = useLocation();
   const { user, signOut } = useAuth();
   const active = sectionFor(pathname);
+  const listCount = useList().length;
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
@@ -64,18 +68,29 @@ export function TopNav() {
 
         <nav className="top-nav-links" aria-label="Main navigation">
           {LINKS.map(({ id, to, label }) => (
-            <NavLink
+            <Link
               key={id}
               to={to}
               className={`top-nav-link${active === id ? " active" : ""}`}
               aria-current={active === id ? "page" : undefined}
             >
               {label}
-            </NavLink>
+            </Link>
           ))}
         </nav>
 
         <div className="top-nav-right" ref={accountRef}>
+          {listCount > 0 && (
+            <Link
+              to="/list"
+              className="top-nav-shortlist"
+              aria-label={`Option form: ${listCount} ${listCount === 1 ? "choice" : "choices"}`}
+              title="Your option form"
+            >
+              <Icon name="list" size={16} />
+              <span className="top-nav-shortlist-count">{listCount}</span>
+            </Link>
+          )}
           {user ? (
             <button
               type="button"
@@ -89,9 +104,9 @@ export function TopNav() {
             </button>
           ) : (
             <>
-              <NavLink to="/profile" className={`top-nav-link top-nav-profile${pathname.startsWith("/profile") ? " active" : ""}`}>
+              <Link to="/profile" className={`top-nav-link top-nav-profile${pathname.startsWith("/profile") ? " active" : ""}`} aria-current={pathname.startsWith("/profile") ? "page" : undefined}>
                 My details
-              </NavLink>
+              </Link>
               <Link to="/signin" className="btn btn-primary btn-sm top-nav-signin">Sign in</Link>
             </>
           )}
@@ -118,7 +133,7 @@ export function TopNav() {
       </div>
 
       {menuOpen && (
-        <nav id="mobile-menu" className="top-nav-sheet" aria-label="Main navigation">
+        <nav id="mobile-menu" className="top-nav-sheet" aria-label="Menu">
           {LINKS.map(({ id, to, label, icon }) => (
             <Link key={id} to={to} className={`top-nav-sheet-link${active === id ? " active" : ""}`} aria-current={active === id ? "page" : undefined}>
               <Icon name={icon} />

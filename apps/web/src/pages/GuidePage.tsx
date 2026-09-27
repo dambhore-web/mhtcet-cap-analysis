@@ -133,7 +133,9 @@ function CodesContent() {
           </table>
         </div>
       </div>
-      <p className="guide-disclaimer">TFWS, EWS, minority and orphan seats have their own codes and eligibility rules.</p>
+      <p className="guide-disclaimer">
+        TFWS, EWS, minority and orphan seats have their own codes and eligibility rules. <Link to="/eligibility">Check which seats you can apply for</Link>.
+      </p>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import type { Context } from "hono";
 import { z } from "zod";
-import { CATEGORIES, rankFind, type CandidateProfile, type CollegeEligibilityContext } from "@mhtcet/core";
-import { type AppCache, minorityCommunity } from "../startup.ts";
+import { CATEGORIES } from "@mhtcet/core";
+import type { AppCache } from "../startup.ts";
+import { findOptions } from "../services/findOptions.ts";
 
 const FlagsSchema = z.object({
   ews: z.boolean().default(false),
@@ -14,12 +15,15 @@ const FlagsSchema = z.object({
 const ResultFiltersSchema = z.object({
   university: z.string().nullable().default(null),
   district: z.string().nullable().default(null),
+  collegeType: z.string().nullable().default(null),
   branchGroup: z.string().nullable().default(null),
 }).default({});
 
 const RequestSchema = z.object({
   year: z.number().int().min(2023).max(2030).default(2026),
   merit: z.number().int().min(1),
+  /** MH = state merit number against state-quota seats; AI = All India merit number against AI seats (JEE Main). */
+  candidature: z.enum(["MH", "AI"]).default("MH"),
   homeUniversity: z.string().nullable().default(null),
   category: z.enum(CATEGORIES).nullable().default(null),
   gender: z.enum(["M", "F"]),
@@ -28,19 +32,6 @@ const RequestSchema = z.object({
   subjectGroup: z.enum(["PCM", "PCB"]).default("PCM"),
   filters: ResultFiltersSchema,
 });
-
-const BRANCH_GROUP_PATTERNS: Record<string, RegExp> = {
-  "Computer & IT":        /computer|information\s+tech|data\s+sc|artificial\s+int|machine\s+learn|cyber/i,
-  "Electronics & Telecom": /electronics|e\.?\s*t\.?\s*c|telecom/i,
-  "Mechanical":           /mechanical/i,
-  "Civil":                /civil/i,
-  "Electrical":           /electrical/i,
-  "Chemical":             /chemical|petroleum|plastic/i,
-  "Instrumentation":      /instrument/i,
-  "Aerospace":            /aeronautical|aerospace/i,
-};
-
-const STATUS_ORDER = { "round-I": 0, "later-round": 1, "out-of-range": 2 } as const;
 
 /** POST /api/rank-finder */
 export async function postRankFinder(c: Context, cache: AppCache) {
@@ -62,69 +53,6 @@ export async function postRankFinder(c: Context, cache: AppCache) {
     return c.json({ error: "year_not_loaded", message: `Only year ${cache.year} is available` }, 404);
   }
 
-  const candidate: CandidateProfile = {
-    candidature: "MH",
-    homeUniversity: req.homeUniversity,
-    category: req.category,
-    gender: req.gender,
-    ews: req.flags.ews,
-    tfws: req.flags.tfws,
-    defence: req.flags.defence,
-    pwd: req.flags.pwd,
-    orphan: req.flags.orphan,
-    minorityCommunity: req.minorityCommunity,
-    meritNumber: req.merit,
-    subjectGroup: req.subjectGroup,
-  };
-
-  const options: object[] = [];
-
-  const { university, district, branchGroup } = req.filters;
-
-  for (const [choiceCode, cutoffs] of cache.cutoffsByChoiceCode) {
-    const branch = cache.branches.get(choiceCode);
-    if (!branch) continue;
-    const college = cache.colleges.get(branch.collegeCode);
-    if (!college) continue;
-
-    // Result filters — applied before the eligibility/rank computation
-    if (university && college.homeUniversity !== university) continue;
-    if (district && (college as { district?: string }).district !== district) continue;
-    if (branchGroup) {
-      const pattern = BRANCH_GROUP_PATTERNS[branchGroup];
-      if (pattern && !pattern.test(branch.name)) continue;
-    }
-
-    const collegeCtx: CollegeEligibilityContext = {
-      homeUniversity: college.homeUniversity,
-      minorityCommunity: minorityCommunity(college.status),
-    };
-
-    const result = rankFind(candidate, collegeCtx, cutoffs);
-    if (!result.best) continue;
-
-    options.push({
-      collegeCode: branch.collegeCode,
-      collegeName: college.name,
-      choiceCode,
-      branch: branch.name,
-      seatType: result.best.seatType,
-      status: result.best.status,
-      round: result.best.round,
-      closingMerit: result.best.closingMerit,
-      year: req.year,
-    });
-  }
-
-  options.sort((a, b) => {
-    const ao = a as { status: keyof typeof STATUS_ORDER; closingMerit: number };
-    const bo = b as { status: keyof typeof STATUS_ORDER; closingMerit: number };
-    const sd = STATUS_ORDER[ao.status] - STATUS_ORDER[bo.status];
-    if (sd !== 0) return sd;
-    // Within the same status, sort ascending by closing merit:
-    // lower closing merit = fewer seats/more competitive = higher-ranked college first.
-    return ao.closingMerit - bo.closingMerit;
-  });
-
+  const options = findOptions(cache, req);
   return c.json({ options, count: options.length });
 }

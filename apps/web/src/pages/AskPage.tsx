@@ -18,12 +18,31 @@ const SUGGESTIONS = [
   "What is TFWS and how do I qualify?",
 ];
 
+interface Source {
+  id: string;
+  kind: string;
+  label: string;
+  collegeCode?: string;
+  round?: string;
+  list?: string;
+  year?: number;
+  sourceFile?: string | null;
+  sourcePage?: number | null;
+}
+
 interface Message {
   id: string;
   role: "user" | "assistant";
   text: string;
   streaming?: boolean;
+  sources?: Source[];
 }
+
+const FOLLOW_UPS = [
+  "Which of my options were safest in Round I?",
+  "Explain my seat type in plain words",
+  "Should I float or freeze after Round I?",
+];
 
 
 export function AskPage() {
@@ -61,7 +80,12 @@ export function AskPage() {
     try {
       const reader = await api.assistantStream(
         [...history, { role: "user", content: trimmed }],
-        { merit: profile.meritNumber ?? undefined, category: profile.category ?? undefined, gender: profile.gender ?? undefined },
+        {
+          merit: profile.meritNumber ?? undefined,
+          category: profile.category ?? undefined,
+          gender: profile.gender ?? undefined,
+          homeUniversity: profile.homeUniversity || undefined,
+        },
       );
 
       if (!reader) throw new Error("no_stream");
@@ -84,7 +108,15 @@ export function AskPage() {
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
           try {
-            const payload = JSON.parse(line.slice(6)) as { delta?: string; done?: boolean; error?: string };
+            const payload = JSON.parse(line.slice(6)) as { delta?: string; done?: boolean; error?: string; sources?: Source[] };
+            if (payload.sources) {
+              const sources = payload.sources;
+              setMessages((m) => m.map((msg) => (msg.id === assistantId ? { ...msg, sources } : msg)));
+            }
+            if (payload.error) {
+              const err = payload.error;
+              setMessages((m) => m.map((msg) => (msg.id === assistantId ? { ...msg, text: err } : msg)));
+            }
             if (payload.delta) {
               setMessages((m) =>
                 m.map((msg) =>
@@ -128,15 +160,20 @@ export function AskPage() {
   }
 
   const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === (profile.category ?? ""))?.label ?? "Open";
-  const contextLine = profile.meritNumber
-    ? `Answers use your merit ${formatNumber(profile.meritNumber)} and ${categoryLabel} category.`
-    : "Add your merit number in My details for answers about your own chances.";
+
+  const latestSources = [...messages].reverse().find((m) => m.role === "assistant" && m.sources?.length)?.sources ?? [];
+  const chips = [
+    profile.meritNumber ? `Merit ${formatNumber(profile.meritNumber)}` : null,
+    categoryLabel,
+    profile.gender === "F" ? "Female" : "Male",
+    profile.homeUniversity || null,
+  ].filter(Boolean) as string[];
 
   return (
-    <div className="page page--narrow ask-page">
+    <div className="page ask-page">
       <PageHeader
         title="Ask Compass"
-        subtitle={contextLine}
+        subtitle="Answers come from the official cutoff lists, and every number is cited. Past cutoffs are not a guarantee of admission."
         actions={
           messages.length > 0 && (
             <button type="button" className="btn btn-secondary btn-sm" onClick={() => setMessages([])}>
@@ -147,12 +184,20 @@ export function AskPage() {
         }
       />
 
+      <div className="ask-context" aria-label="Answering for">
+        <span className="label">Answering for</span>
+        {chips.map((c) => <span key={c} className="ask-chip">{c}</span>)}
+        <Link to="/profile" className="ask-context-edit">{profile.meritNumber ? "Edit" : "Add your merit number"}</Link>
+      </div>
+
+      <div className="ask-layout">
+      <div className="ask-main">
       <div className="ask-messages" aria-live="polite">
         {messages.length === 0 && (
           <div className="ask-empty">
             <Icon name="chat" size={28} className="ask-empty-icon" />
             <h2>Ask anything about MHT-CET CAP</h2>
-            <p>Cutoffs, eligibility, documents, freeze or float. Answers point to official sources. Try one of these:</p>
+            <p>Cutoffs, your chances, seat types, freeze or float. Try one of these:</p>
             <div className="ask-suggestions">
               {SUGGESTIONS.map((s) => (
                 <button key={s} type="button" className="ask-suggestion" onClick={() => sendMessage(s)}>
@@ -167,10 +212,24 @@ export function AskPage() {
           <div key={msg.id} className={`ask-bubble-wrap ${msg.role}`}>
             {msg.role === "assistant" && <span className="ask-ai-dot" aria-hidden="true"><Icon name="sparkle" size={14} /></span>}
             <div className={`ask-bubble ${msg.role}`}>
-              <FormattedText text={msg.text} />
+              <FormattedText text={msg.text} messageId={msg.id} />
+              {msg.role === "assistant" && !msg.streaming && msg.sources && msg.sources.length > 0 && (
+                <details className="ask-sources">
+                  <summary>{msg.sources.length} {msg.sources.length === 1 ? "source" : "sources"}</summary>
+                  <SourceList sources={msg.sources} messageId={msg.id} />
+                </details>
+              )}
             </div>
           </div>
         ))}
+
+        {!isTyping && messages.length > 0 && messages[messages.length - 1].role === "assistant" && !limitReached && (
+          <div className="ask-suggestions ask-followups" aria-label="Suggested follow-ups">
+            {FOLLOW_UPS.map((s) => (
+              <button key={s} type="button" className="ask-suggestion" onClick={() => sendMessage(s)}>{s}</button>
+            ))}
+          </div>
+        )}
 
         {isTyping && (
           <div className="ask-bubble-wrap assistant">
@@ -225,21 +284,66 @@ export function AskPage() {
           </>
         )}
       </div>
+      </div>
+
+      <aside className="ask-side" aria-label="Sources and how answers work">
+        <section className="card ask-side-card">
+          <h2 className="label">Sources in the latest answer</h2>
+          {latestSources.length ? <SourceList sources={latestSources} /> : <p>Sources appear here after an answer.</p>}
+        </section>
+        <section className="card ask-side-card">
+          <h2 className="label">How Ask Compass works</h2>
+          <p>It looks up the official cutoff lists for you, then explains the result. If a number isn't in the data, it says so instead of guessing.</p>
+          <p>It can't tell you this year's cutoffs: nobody knows them yet.</p>
+        </section>
+      </aside>
+      </div>
     </div>
   );
 }
 
-function FormattedText({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+function SourceList({ sources, messageId }: { sources: Source[]; messageId?: string }) {
+  return (
+    <ol className="ask-source-list">
+      {sources.map((s) => (
+        <li key={s.id} id={messageId ? `${messageId}-${s.id}` : undefined}>
+          <span className="ask-source-id">{s.id}</span>
+          <span>
+            {s.collegeCode ? <Link to={`/colleges/${s.collegeCode}`}>{s.label}</Link> : s.label}
+            {s.sourceFile && (
+              <span className="ask-source-file">
+                {s.sourceFile}
+                {s.sourcePage ? `, page ${s.sourcePage}` : ""}
+              </span>
+            )}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/** Bold, line breaks and [S3]-style citations that jump to the source list. */
+function FormattedText({ text, messageId }: { text: string; messageId: string }) {
+  const lines = text.split("\n");
   return (
     <>
-      {parts.map((part, i) =>
-        part.startsWith("**") && part.endsWith("**")
-          ? <strong key={i}>{part.slice(2, -2)}</strong>
-          : part.split("\n").map((line, j) => (
-              <span key={`${i}-${j}`}>{line}{j < part.split("\n").length - 1 ? <br /> : null}</span>
-            ))
-      )}
+      {lines.map((line, li) => (
+        <span key={li}>
+          {line.split(/(\*\*[^*]+\*\*|\[S\d+\])/g).map((part, i) => {
+            if (part.startsWith("**") && part.endsWith("**")) return <strong key={i}>{part.slice(2, -2)}</strong>;
+            const cite = /^\[(S\d+)\]$/.exec(part);
+            if (cite)
+              return (
+                <a key={i} className="ask-cite" href={`#${messageId}-${cite[1]}`} aria-label={`source ${cite[1]}`}>
+                  {cite[1]}
+                </a>
+              );
+            return <span key={i}>{part}</span>;
+          })}
+          {li < lines.length - 1 ? <br /> : null}
+        </span>
+      ))}
     </>
   );
 }

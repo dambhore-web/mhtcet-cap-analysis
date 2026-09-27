@@ -5,3 +5,5 @@ export * from "./authority.ts";
 export * from "./cutoff.ts";
 export * from "./eligibility.ts";
 export * from "./rankFinder.ts";
+export * from "./capRules.ts";
+export * from "./simulate.ts";

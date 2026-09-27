@@ -667,29 +667,6 @@
 .surplus.pos { color: var(--safe-text); }
 .surplus.neg { color: var(--danger-text); }
 
-.save-btn {
-  flex: none;
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  background: var(--white);
-  color: var(--violet);
-}
-
-.save-btn:hover:not(.saved) {
-  border-color: var(--violet);
-  background: var(--lavender-2);
-}
-
-.save-btn.saved {
-  background: var(--lime);
-  border-color: var(--lime);
-  color: var(--navy);
-  cursor: default;
-}
 
 .show-more {
   margin-top: 12px;
@@ -759,5 +736,122 @@
   /* the college name is on the row already; the avatar only costs width here */
   .option-row .college-tile {
     display: none;
+  }
+}
+
+.results-estimated {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 8px 0 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+/* ─── Profile recap, layout, sidebar (#87, #88) ─── */
+.results-profile {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.results-profile-link {
+  margin-left: auto;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.results-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 20px;
+  align-items: start;
+}
+
+.results-main {
+  min-width: 0;
+}
+
+.results-side {
+  display: grid;
+  gap: 12px;
+  position: sticky;
+  top: calc(var(--top-nav-h) + 16px);
+}
+
+.results-side-card {
+  padding: 16px;
+  font-size: var(--text-sm);
+}
+
+.results-side-card h2 {
+  margin: 0 0 6px;
+}
+
+.results-side-card p {
+  margin: 0 0 8px;
+}
+
+.results-side-card input[type="range"] {
+  width: 100%;
+  accent-color: var(--violet);
+}
+
+.results-whatif-value {
+  font-family: var(--font-num);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--orange-shadow);
+}
+
+.results-side-note {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.results-side-links {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.results-legend {
+  margin: 0 0 10px;
+}
+
+.option-ladder {
+  flex: 0 0 180px;
+}
+
+.results-axis {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .results-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .results-side {
+    position: static;
+    grid-row: 1;
+  }
+
+  .results-side-card:not(:first-child) {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .option-ladder {
+    display: none;
+  }
+
+  .results-profile-link {
+    margin-left: 0;
   }
 }

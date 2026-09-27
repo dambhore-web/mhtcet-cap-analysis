@@ -4,8 +4,12 @@ export type RankStatus = "round-I" | "later-round" | "out-of-range";
 export interface ResultFilters {
   university?: string | null;
   district?: string | null;
+  collegeType?: string | null;
   branchGroup?: string | null;
 }
+
+/** MH: state merit number, state-quota seats. AI: All India merit number, All India seats (JEE Main). */
+export type Candidature = "MH" | "AI";
 
 export const BRANCH_GROUPS = [
   "Computer & IT",
@@ -21,6 +25,7 @@ export const BRANCH_GROUPS = [
 export interface FindRequest {
   year?: number;
   merit: number;
+  candidature?: Candidature;
   homeUniversity: string | null;
   category: Category | null;
   gender: "M" | "F";
@@ -30,15 +35,29 @@ export interface FindRequest {
   filters?: ResultFilters;
 }
 
+export interface SourceRef {
+  file: string;
+  page: number | null;
+}
+
 export interface FindOption {
   collegeCode: string;
   collegeName: string;
+  district?: string | null;
   choiceCode: string;
   branch: string;
+  list?: Candidature;
   seatType: string;
   status: RankStatus;
   round: number | string | null;
   closingMerit: number;
+  /** Round I closing for this seat type (null if it had no Round I value). */
+  firstRoundClosing?: number | null;
+  /** Closing in the last published round. */
+  lastRoundClosing?: number | null;
+  rounds?: { round: string; closingMerit: number }[];
+  /** Official list and page behind closingMerit (NFR-001). */
+  source?: SourceRef | null;
   year: number;
 }
 
@@ -52,6 +71,19 @@ export interface College {
   name: string;
   status: string | null;
   homeUniversity: string | null;
+  district?: string | null;
+  collegeType?: string | null;
+}
+
+export interface DataMeta {
+  year: number;
+  colleges: number;
+  branches: number;
+  cutoffRows: number;
+  lists: { list: string; round: string; rows: number; files: string[] }[];
+  districtsLoaded: number;
+  fees: { colleges: number; verified: number };
+  loads: { id: string; startedAt: string; finishedAt: string | null; status: string }[];
 }
 
 const BASE = import.meta.env.VITE_API_URL ?? "";
@@ -93,6 +125,8 @@ export interface CollegeFees {
   fraOrderRef: string | null;
   fraOrderUrl: string | null;
   sampleOnly: boolean;
+  /** True when the amounts link to the Fee Regulating Authority's order. */
+  verified?: boolean;
   disclaimer: string;
 }
 
@@ -109,22 +143,34 @@ export interface SimulateRequest {
   minorityCommunity: string | null;
   flags: { ews: boolean; tfws: boolean; defence: boolean; pwd: boolean; orphan: boolean };
   subjectGroup: "PCM" | "PCB";
+  candidature?: Candidature;
   preferences: string[];
 }
 
-export interface SimulatedAllotment {
-  round: "I" | "II" | "III";
-  rank: number;
+export interface SimulatedChoice {
   choiceCode: string;
-  collegeName: string;
-  branch: string;
-  seatType: string;
-  closingMerit: number;
+  collegeCode: string | null;
+  collegeName: string | null;
+  branch: string | null;
+  known: boolean;
+}
+
+export interface SimulatedRound {
+  round: "I" | "II" | "III" | "IV";
+  preference: number | null;
+  seatType: string | null;
+  closingMerit: number | null;
+  movedUp: boolean;
+  frozen: boolean;
+  frozenEarlier: boolean;
+  choice: SimulatedChoice | null;
 }
 
 export interface SimulateResponse {
-  allotments: SimulatedAllotment[];
-  rounds: string[];
+  rounds: SimulatedRound[];
+  grid: (SimulatedChoice & { preference: number; byRound: Partial<Record<SimulatedRound["round"], { seatType: string; closingMerit: number } | null>> })[];
+  freezeZones: Partial<Record<SimulatedRound["round"], number>>;
+  assumptions: string;
 }
 
 export interface AssistantMessage {
@@ -136,17 +182,24 @@ export interface AssistantProfile {
   merit?: number | null;
   category?: string | null;
   gender?: string | null;
+  homeUniversity?: string | null;
 }
 
 export const api = {
   find: (req: FindRequest) => post<FindResponse>("/api/rank-finder", req),
   simulate: (req: SimulateRequest) => post<SimulateResponse>("/api/simulate", req),
-  colleges: (q: string, university?: string) =>
-    get<{ colleges: College[]; count: number; total: number }>(
-      `/api/colleges?q=${encodeURIComponent(q)}&university=${encodeURIComponent(university ?? "")}&limit=400`
+  colleges: (q: string, university?: string, filters: { district?: string; type?: string } = {}) =>
+    get<{ colleges: College[]; count: number; total: number; districts?: string[]; collegeTypes?: string[] }>(
+      `/api/colleges?q=${encodeURIComponent(q)}&university=${encodeURIComponent(university ?? "")}` +
+        `&district=${encodeURIComponent(filters.district ?? "")}&type=${encodeURIComponent(filters.type ?? "")}&limit=400`
     ),
+  meta: () => get<DataMeta>("/api/meta"),
   collegeCutoffs: (code: string) =>
-    get<{ college: { code: string; name: string }; year: number; cutoffs: object[] }>(
+    get<{
+      college: { code: string; name: string; status?: string | null; homeUniversity?: string | null; district?: string | null; collegeType?: string | null; totalIntake?: number | null };
+      year: number;
+      cutoffs: object[];
+    }>(
       `/api/colleges/${code}/cutoffs`
     ),
   meritEstimate: (percentile: number, subjectGroup: "PCM" | "PCB") =>

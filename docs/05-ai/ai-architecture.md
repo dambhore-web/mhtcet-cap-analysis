@@ -18,6 +18,13 @@ invite the model to do arithmetic. The model calls the same functions the app us
 | Context window | Small needs: system prompt + profile + trimmed history + tool results. No long documents |
 | Cost and latency | Measured per model in Phase 7; see `cost.md` |
 
+## Implementation status (#18)
+Built in `apps/api/src/assistant/`: `tools.ts` (the five read-only tools, argument schemas, size caps),
+`run.ts` (tool loop ≤ 4 rounds, system prompt, one rewrite on ungrounded numbers, safe fallback),
+`grounding.ts` (number check: every 3+ digit number must be in a tool result, the profile or the
+student's own words). Model: Groq, `GROQ_MODEL` (default `llama-3.3-70b-versatile`) until #19 decides.
+Not yet: per-user entitlement and usage (needs #15, #22), telemetry events.
+
 ## Harness responsibilities (in `apps/api`)
 1. Authenticate; check entitlement and remaining usage budget.
 2. Assemble context: versioned system prompt, the user's saved profile fields relevant to the

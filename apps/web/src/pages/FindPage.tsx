@@ -1,17 +1,26 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api, BRANCH_GROUPS, type FindOption, type Category, type MeritEstimate, type ResultFilters } from "../lib/api";
+import { api, BRANCH_GROUPS, type Candidature, type FindOption, type Category, type MeritEstimate, type ResultFilters } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import type { Profile } from "../lib/profile";
-import { addToList, isInList } from "../lib/list";
+import { listItemFrom, useList } from "../lib/list";
+import { AddToFormButton } from "../components/AddToFormButton";
+import { LadderAxis, LadderLegend, MeritLadder, ladderDomain } from "../components/MeritLadder";
 import { Icon } from "../components/Icon";
+import { StatusBadge } from "../components/StatusBadge";
 import { avatarTint, collegeInitials, formatNumber, formatRound } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { UNIVERSITIES } from "../lib/universities";
 import { CATEGORY_OPTIONS } from "../lib/categories";
 import "./FindPage.css";
 
-interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; }
+interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; kind?: "all-india-merit" | "jee-rank"; }
+
+/** What the last search was run with, so results can say "All India" or "estimated". */
+interface SearchKind {
+  candidature: Candidature;
+  estimated: boolean;
+}
 
 interface FormState {
   mode: "merit" | "percentile" | "jee";
@@ -66,6 +75,7 @@ export function FindPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [options, setOptions] = useState<FindOption[]>([]);
   const [searchedMerit, setSearchedMerit] = useState<number>(0);
+  const [searchKind, setSearchKind] = useState<SearchKind>({ candidature: "MH", estimated: false });
   const [resultFilters, setResultFilters] = useState<ResultFilters>({});
   const [filterLoading, setFilterLoading] = useState(false);
   const lastRequest = useRef<Parameters<typeof api.find>[0] | null>(null);
@@ -73,6 +83,7 @@ export function FindPage() {
   const [scoreError, setScoreError] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [view, setView] = useState<"college" | "all">("college");
+  const [whatIf, setWhatIf] = useState<number | null>(null);
   const [estimate, setEstimate] = useState<MeritEstimate | null>(null);
   const [jeeEstimate, setJeeEstimate] = useState<JeeEstimate | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -113,13 +124,15 @@ export function FindPage() {
     setForm((f) => ({ ...f, [flag]: !f[flag] }));
   }
 
-  const doSearch = useCallback(async (merit: number, f: FormState) => {
+  const doSearch = useCallback(async (merit: number, f: FormState, kind: SearchKind = { candidature: "MH", estimated: false }) => {
     setStatus("loading");
     setShowAll(false);
     setResultFilters({});
 
     // Push shareable URL
     const p: Record<string, string> = { merit: String(merit) };
+    if (kind.candidature === "AI") p.list = "AI";
+    if (kind.estimated) p.est = "1";
     if (f.category) p.cat = f.category;
     if (f.gender !== "M") p.gen = f.gender;
     if (f.subjectGroup !== "PCM") p.subj = f.subjectGroup;
@@ -133,6 +146,7 @@ export function FindPage() {
 
     const req = {
       merit,
+      candidature: kind.candidature,
       homeUniversity: f.homeUniversity || null,
       category: f.category || null,
       gender: f.gender,
@@ -146,6 +160,8 @@ export function FindPage() {
       const res = await api.find(req);
       setOptions(res.options);
       setSearchedMerit(merit);
+      setWhatIf(null);
+      setSearchKind(kind);
       setStatus("done");
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     } catch {
@@ -162,7 +178,10 @@ export function FindPage() {
     const merit = parseInt(meritParam, 10);
     if (isNaN(merit) || merit < 1) return;
     autoSubmittedRef.current = true;
-    doSearch(merit, initialForm);
+    doSearch(merit, initialForm, {
+      candidature: searchParams.get("list") === "AI" ? "AI" : "MH",
+      estimated: searchParams.get("est") === "1",
+    });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSubmit(e: React.FormEvent) {
@@ -173,22 +192,29 @@ export function FindPage() {
       return;
     }
     let num: number;
+    let kind: SearchKind = { candidature: "MH", estimated: false };
     if (form.mode === "percentile") {
       const pct = parseFloat(rawScore);
       if (isNaN(pct) || pct <= 0 || pct > 100) { setScoreError("Enter a valid percentile (1–100)."); return; }
       if (!estimate) { setScoreError("Waiting for merit estimate… try again in a moment."); return; }
       num = Math.round((estimate.estimatedMeritRange[0] + estimate.estimatedMeritRange[1]) / 2);
+      kind = { candidature: "MH", estimated: true };
     } else if (form.mode === "jee") {
       const pct = parseFloat(rawScore);
       if (isNaN(pct) || pct <= 0 || pct > 100) { setScoreError("Enter a valid JEE percentile (1–100)."); return; }
-      if (!jeeEstimate) { setScoreError("Waiting for rank estimate… try again in a moment."); return; }
+      if (!jeeEstimate) { setScoreError("Waiting for the All India merit estimate… try again in a moment."); return; }
+      if (jeeEstimate.kind !== "all-india-merit") {
+        setScoreError("The All India merit list isn't loaded yet, so Compass can't match JEE percentiles to All India seats.");
+        return;
+      }
       num = jeeEstimate.estimatedRank;
+      kind = { candidature: "AI", estimated: true };
     } else {
       num = parseInt(rawScore, 10);
       if (isNaN(num) || num < 1) { setScoreError("Enter a valid merit number."); return; }
     }
     setScoreError("");
-    await doSearch(num, form);
+    await doSearch(num, form, kind);
   }
 
   async function applyFilter(newFilters: ResultFilters) {
@@ -206,11 +232,25 @@ export function FindPage() {
     }
   }
 
-  const roundI = options.filter((o) => o.status === "round-I");
-  const later = options.filter((o) => o.status === "later-round");
-  const groups = useMemo(() => groupByCollege(options), [options]);
+  // "What if my merit were…" (#87): re-mark statuses from each option's Round I and last-round closing
+  const effMerit = whatIf ?? searchedMerit;
+  const shown = useMemo(() => (whatIf == null ? options : options.map((o) => withStatusFor(o, whatIf))), [options, whatIf]);
+  const roundI = shown.filter((o) => o.status === "round-I");
+  const later = shown.filter((o) => o.status === "later-round");
+  const groups = useMemo(() => groupByCollege(shown), [shown]);
   const PAGE = view === "college" ? 12 : 30;
-  const total = view === "college" ? groups.length : options.length;
+  const total = view === "college" ? groups.length : shown.length;
+  const domain = useMemo(
+    () => ladderDomain(options.flatMap((o) => [o.firstRoundClosing ?? o.closingMerit, o.lastRoundClosing ?? o.closingMerit]).concat(effMerit ? [effMerit] : [])),
+    [options, effMerit],
+  );
+  const sliderMax = useMemo(() => {
+    const m = Math.max(searchedMerit, ...options.map((o) => o.lastRoundClosing ?? o.closingMerit));
+    return Math.max(1000, Math.ceil((m * 1.25) / 100) * 100);
+  }, [options, searchedMerit]);
+  const districts = useMemo(() => [...new Set(options.map((o) => o.district).filter((d): d is string => !!d))].sort(), [options]);
+  const formCount = useList().length;
+  const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === form.category)?.label ?? "Open";
 
   return (
     <div className="find-page">
@@ -304,9 +344,9 @@ export function FindPage() {
           {form.mode === "jee" && jeeEstimate && (
             <div className="estimate-hint">
               <span className="estimate-range">
-                ≈ JEE rank {formatNumber(jeeEstimate.rankRange[0])}–{formatNumber(jeeEstimate.rankRange[1])}
+                {jeeEstimate.kind === "all-india-merit" ? "≈ All India merit" : "≈ JEE rank"} {formatNumber(jeeEstimate.rankRange[0])}–{formatNumber(jeeEstimate.rankRange[1])}
               </span>
-              <span className="estimate-stat-badge">All India seats</span>
+              <span className="estimate-stat-badge">{jeeEstimate.kind === "all-india-merit" ? "All India seats" : "list not loaded"}</span>
             </div>
           )}
 
@@ -421,9 +461,24 @@ export function FindPage() {
             <div className="results-header">
               <div>
                 <h2 id="results-title">
-                  {options.length === 0 ? "No options found" : `${formatNumber(options.length)} options for merit ${formatNumber(searchedMerit)}`}
+                  {options.length === 0
+                    ? "No options found"
+                    : `${formatNumber(roundI.length + later.length)} options for ${searchKind.candidature === "AI" ? "All India merit" : "merit"} ${searchKind.estimated ? "≈ " : ""}${formatNumber(effMerit)}`}
                 </h2>
-                <p>Based on last year's official closing ranks. A guide, not a guarantee.</p>
+                <p>
+                  {searchKind.candidature === "AI" ? "All India seats, from last year's All India cutoff lists. " : "Based on last year's official closing ranks. "}
+                  A guide, not a guarantee.
+                </p>
+                {searchKind.estimated && (
+                  <p className="results-estimated" role="note">
+                    <span className="badge badge-sample">Estimated</span>
+                    {searchKind.candidature === "AI"
+                      ? " This All India merit number is estimated from your JEE percentile."
+                      : " This merit number is estimated from your percentile. "}
+                    {searchKind.candidature === "MH" && <Link to="/profile">Enter your real merit number</Link>}
+                    {searchKind.candidature === "MH" && " once the merit list is out."}
+                  </p>
+                )}
               </div>
               <div className="results-actions">
                 <button
@@ -454,10 +509,25 @@ export function FindPage() {
               </div>
             </div>
 
+            <div className="results-profile" aria-label="Searched with">
+              <span className="label">You</span>
+              <span className="chip">{searchKind.candidature === "AI" ? "All India merit" : "Merit"} {formatNumber(searchedMerit)}</span>
+              {searchKind.candidature === "MH" && <span className="chip">{categoryLabel}</span>}
+              <span className="chip">{form.gender === "F" ? "Female" : "Male"}</span>
+              {form.homeUniversity && <span className="chip">Home university: {form.homeUniversity}</span>}
+              {(Object.keys(FLAG_LABELS) as (keyof typeof FLAG_LABELS)[]).filter((f) => form[f]).map((f) => (
+                <span key={f} className="chip">{FLAG_LABELS[f]}</span>
+              ))}
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Edit</button>
+              <Link to="/eligibility" className="results-profile-link">Could other seat types add options?</Link>
+            </div>
+
+            <div className="results-layout">
+            <div className="results-main">
             <div className="results-stats">
               <div className="stat-card">
-                <strong>{formatNumber(options.length)}</strong>
-                <span>options in {formatNumber(groups.length)} colleges</span>
+                <strong>{formatNumber(roundI.length + later.length)}</strong>
+                <span>options within reach, in {formatNumber(new Set([...roundI, ...later].map((o) => o.collegeCode)).size)} colleges</span>
               </div>
               <div className="stat-card safe">
                 <strong>{formatNumber(roundI.length)}</strong>
@@ -505,8 +575,23 @@ export function FindPage() {
                     <option key={g} value={g}>{g}</option>
                   ))}
                 </select>
+                {(districts.length > 1 || resultFilters.district) && (
+                  <>
+                    <label className="sr-only" htmlFor="rf-district">Filter by district</label>
+                    <select
+                      id="rf-district"
+                      className="rf-select"
+                      value={resultFilters.district ?? ""}
+                      onChange={(e) => applyFilter({ ...resultFilters, district: e.target.value || null })}
+                      disabled={filterLoading}
+                    >
+                      <option value="">All districts</option>
+                      {districts.map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </>
+                )}
                 {filterLoading && <span className="rf-spinner" role="status" aria-label="Filtering" />}
-                {(resultFilters.university || resultFilters.branchGroup) && (
+                {(resultFilters.university || resultFilters.branchGroup || resultFilters.district) && (
                   <button type="button" className="btn btn-ghost btn-sm" onClick={() => applyFilter({})} disabled={filterLoading}>
                     <Icon name="close" size={14} />
                     Clear filters
@@ -515,7 +600,13 @@ export function FindPage() {
               </div>
             </div>
 
-            {options.length === 0 ? (
+            {shown.length > 0 && (
+              <div className="results-legend">
+                <LadderLegend showYou />
+              </div>
+            )}
+
+            {shown.length === 0 ? (
               <div className="empty-state">
                 <h3>No seats matched this profile</h3>
                 <p>Check your category and gender, add your home university, or turn on special categories such as EWS or TFWS if they apply to you.</p>
@@ -525,13 +616,13 @@ export function FindPage() {
                 {view === "college" ? (
                   <div className="college-groups">
                     {(showAll ? groups : groups.slice(0, PAGE)).map((g) => (
-                      <CollegeGroup key={g.code} group={g} merit={searchedMerit} />
+                      <CollegeGroup key={g.code} group={g} merit={effMerit} domain={domain} />
                     ))}
                   </div>
                 ) : (
                   <ul className="results-list">
-                    {(showAll ? options : options.slice(0, PAGE)).map((opt) => (
-                      <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={searchedMerit} showCollege />
+                    {(showAll ? shown : shown.slice(0, PAGE)).map((opt) => (
+                      <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={effMerit} domain={domain} showCollege />
                     ))}
                   </ul>
                 )}
@@ -540,8 +631,49 @@ export function FindPage() {
                     Show all {formatNumber(total)} {view === "college" ? "colleges" : "options"}
                   </button>
                 )}
+                <div className="results-axis"><LadderAxis domain={domain} /></div>
               </>
             )}
+            </div>
+
+            <aside className="results-side" aria-label="Explore your results">
+              <section className="card results-side-card">
+                <h2 className="label"><label htmlFor="whatif">What if my merit were…</label></h2>
+                <p className="results-whatif-value">{formatNumber(effMerit)}</p>
+                <input
+                  id="whatif"
+                  type="range"
+                  min={1}
+                  max={sliderMax}
+                  step={Math.max(10, Math.round(sliderMax / 400 / 10) * 10)}
+                  value={effMerit}
+                  onChange={(e) => setWhatIf(parseInt(e.target.value, 10))}
+                  aria-valuetext={`merit ${formatNumber(effMerit)}`}
+                />
+                <p className="results-side-note">
+                  {whatIf == null ? "Move it to see how the results change." : `${formatNumber(roundI.length)} in Round I, ${formatNumber(later.length)} in a later round.`}
+                </p>
+                {whatIf != null && (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => setWhatIf(null)}>
+                    Back to {formatNumber(searchedMerit)}
+                  </button>
+                )}
+              </section>
+              <section className="card results-side-card">
+                <h2 className="label">Your option form</h2>
+                <p>{formCount ? `${formCount} ${formCount === 1 ? "choice" : "choices"} saved.` : "Use + on any branch to add it."}</p>
+                <Link to="/list" className="btn btn-primary btn-block btn-sm">Build my option form</Link>
+              </section>
+              <section className="card results-side-card">
+                <h2 className="label">Next</h2>
+                <ul className="results-side-links">
+                  <li><Link to="/compare">Compare colleges side by side</Link></li>
+                  <li><Link to="/branches">See one branch across all colleges</Link></li>
+                  <li><Link to="/ask">Ask Compass which is safest</Link></li>
+                </ul>
+              </section>
+            </aside>
+            </div>
           </div>
         </section>
       )}
@@ -583,7 +715,7 @@ function CollegeAvatar({ code, name }: { code: string; name: string }) {
   );
 }
 
-function CollegeGroup({ group, merit }: { group: Group; merit: number }) {
+function CollegeGroup({ group, merit, domain }: { group: Group; merit: number; domain: [number, number] }) {
   const [open, setOpen] = useState(false);
   const shown = open ? group.options : group.options.slice(0, 3);
   return (
@@ -602,7 +734,7 @@ function CollegeGroup({ group, merit }: { group: Group; merit: number }) {
       </header>
       <ul className="results-list results-list--nested">
         {shown.map((opt) => (
-          <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={merit} />
+          <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={merit} domain={domain} />
         ))}
       </ul>
       {group.options.length > 3 && (
@@ -614,23 +746,8 @@ function CollegeGroup({ group, merit }: { group: Group; merit: number }) {
   );
 }
 
-function OptionRow({ opt, merit, showCollege = false }: { opt: FindOption; merit: number; showCollege?: boolean }) {
-  const [saved, setSaved] = useState(() => isInList(opt.choiceCode));
-  const margin = opt.closingMerit - merit;
-
-  function handleSave() {
-    if (saved) return;
-    addToList({
-      choiceCode: opt.choiceCode,
-      collegeCode: opt.collegeCode,
-      collegeName: opt.collegeName,
-      branch: opt.branch,
-      seatType: opt.seatType,
-      closingMerit: opt.closingMerit,
-      year: opt.year,
-    });
-    setSaved(true);
-  }
+function OptionRow({ opt, merit, domain, showCollege = false }: { opt: FindOption; merit: number; domain: [number, number]; showCollege?: boolean }) {
+  const margin = (opt.lastRoundClosing ?? opt.closingMerit) - merit;
 
   return (
     <li className="option-row">
@@ -643,7 +760,9 @@ function OptionRow({ opt, merit, showCollege = false }: { opt: FindOption; merit
         <span className="seat-meta">
           <abbr title={seatTypeLabel(opt.seatType)}>{seatTypeShortLabel(opt.seatType)}</abbr>
           <span aria-hidden="true">·</span>
-          closed at {formatNumber(opt.closingMerit)}
+          {opt.firstRoundClosing != null && opt.lastRoundClosing != null
+            ? `closed ${formatNumber(opt.firstRoundClosing)} → ${formatNumber(opt.lastRoundClosing)}`
+            : `closed at ${formatNumber(opt.closingMerit)}`}
           {margin !== 0 && (
             <span className={`surplus${margin > 0 ? " pos" : " neg"}`}>
               ({margin > 0 ? `${formatNumber(margin)} ranks to spare` : `${formatNumber(-margin)} ranks short`})
@@ -651,26 +770,24 @@ function OptionRow({ opt, merit, showCollege = false }: { opt: FindOption; merit
           )}
         </span>
       </div>
+      <span className="option-ladder">
+        <MeritLadder first={opt.firstRoundClosing ?? null} last={opt.lastRoundClosing ?? opt.closingMerit} you={merit} domain={domain} label={`${opt.collegeName}, ${opt.branch}`} />
+      </span>
       <StatusBadge status={opt.status} round={opt.round} />
-      <button
-        type="button"
-        className={`save-btn${saved ? " saved" : ""}`}
-        onClick={handleSave}
-        aria-label={saved ? `${opt.branch} saved to your option form` : `Save ${opt.branch} at ${opt.collegeName} to your option form`}
-        title={saved ? "Saved to option form" : "Save to option form"}
-      >
-        <Icon name={saved ? "check" : "plus"} size={16} />
-      </button>
+      <AddToFormButton item={listItemFrom(opt)} />
     </li>
   );
 }
 
-export function StatusBadge({ status, round }: { status: FindOption["status"]; round: FindOption["round"] }) {
-  if (status === "round-I")
-    return <span className="badge badge-safe"><Icon name="check" size={12} />{formatRound(1)}</span>;
-  if (status === "later-round")
-    return <span className="badge badge-later"><Icon name="clock" size={12} />{round ? formatRound(round) : "Later round"}</span>;
-  return <span className="badge badge-out"><Icon name="minus" size={12} />Out of reach</span>;
+/** Status for a different merit number, from the option's per-round closings. */
+function withStatusFor(o: FindOption, merit: number): FindOption {
+  const rounds = o.rounds ?? [];
+  const first = o.firstRoundClosing ?? null;
+  if (first != null && merit <= first) return { ...o, status: "round-I", round: "I" };
+  const later = rounds.filter((r) => r.round !== "I" && merit <= r.closingMerit);
+  if (later.length) return { ...o, status: "later-round", round: later[0].round };
+  if (!rounds.length && merit <= o.closingMerit) return o;
+  return { ...o, status: "out-of-range" };
 }
 
 async function generateParentPDF(options: FindOption[], merit: number, profile: Profile) {

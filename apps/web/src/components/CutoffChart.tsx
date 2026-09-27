@@ -8,6 +8,52 @@ interface CutoffRow {
   seatType: string;
   round: number | string;
   closingMerit: number;
+  list?: string;
+  source?: string | null;
+  sourcePage?: number | null;
+}
+
+/** The same values as a chart, as a table: reachable by keyboard, touch and screen readers. */
+function SeriesTable({ series, rounds, rowHeader, sources }: { series: ChartSeries[]; rounds: (number | string)[]; rowHeader: string; sources: string[] }) {
+  return (
+    <details className="cc-table-toggle">
+      <summary>Show as a table</summary>
+      <div className="table-scroll">
+        <table className="cc-table">
+          <thead>
+            <tr>
+              <th scope="col">{rowHeader}</th>
+              {rounds.map((r) => <th key={String(r)} scope="col" className="cc-num">{formatRound(r)}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {series.map((s) => (
+              <tr key={s.label}>
+                <th scope="row">{s.label}</th>
+                {s.roundValues.map((v, i) => <td key={i} className="cc-num">{v == null ? "—" : formatNumber(v)}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {sources.length > 0 && (
+        <p className="cc-sources">Source: {sources.join("; ")}</p>
+      )}
+    </details>
+  );
+}
+
+/** "file.pdf (pages 12, 14)" for the rows behind a chart (NFR-001). */
+function sourceNotes(rows: CutoffRow[]): string[] {
+  const pages = new Map<string, Set<number>>();
+  for (const r of rows) {
+    if (!r.source) continue;
+    if (!pages.has(r.source)) pages.set(r.source, new Set());
+    if (r.sourcePage != null) pages.get(r.source)!.add(r.sourcePage);
+  }
+  return [...pages.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([file, ps]) => (ps.size ? `${file} (page ${[...ps].sort((a, b) => a - b).join(", ")})` : file));
 }
 
 interface ChartSeries {
@@ -319,7 +365,7 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
           <div className="cc-legend">
             <span className="cc-legend-item"><span className="cc-dot cc-dot-r1" aria-hidden="true" />{formatRound(1)}</span>
             <span className="cc-legend-item"><span className="cc-dot cc-dot-last" aria-hidden="true" />Latest round</span>
-            <span className="cc-legend-hint">Hover a row to see all rounds</span>
+            <span className="cc-legend-hint">Hover a row, or open the table below, to see every round</span>
           </div>
           <div
             className="cc-chart-wrap"
@@ -338,6 +384,12 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
               <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
             )}
           </div>
+          <SeriesTable
+            series={series}
+            rounds={availableRounds}
+            rowHeader="Branch"
+            sources={sourceNotes(cutoffs.filter((r) => r.seatType === selectedSeatType))}
+          />
         </>
       )}
     </section>
@@ -364,6 +416,8 @@ export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffCh
   const series = useMemo((): ChartSeries[] => {
     const filtered = cutoffs.filter((r) => {
       if (r.branch !== branch) return false;
+      // All India values are All India merit numbers: a different scale from state merit
+      if (r.seatType === "AI" || r.list === "AI") return false;
       if (selectedLevel === "all") return true;
       return (seatLevelCode(r.seatType) ?? "S") === selectedLevel;
     });
@@ -403,7 +457,7 @@ export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffCh
           <div className="cc-legend">
             <span className="cc-legend-item"><span className="cc-dot cc-dot-r1" aria-hidden="true" />{formatRound(1)}</span>
             <span className="cc-legend-item"><span className="cc-dot cc-dot-last" aria-hidden="true" />Latest round</span>
-            <span className="cc-legend-hint">Hover a row to see all rounds</span>
+            <span className="cc-legend-hint">Hover a row, or open the table below, to see every round</span>
           </div>
           <div
             className="cc-chart-wrap"
@@ -422,6 +476,15 @@ export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffCh
               <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
             )}
           </div>
+          <SeriesTable
+            series={series}
+            rounds={availableRounds}
+            rowHeader="Seat type"
+            sources={sourceNotes(cutoffs.filter((r) => r.branch === branch && r.seatType !== "AI"))}
+          />
+          {cutoffs.some((r) => r.branch === branch && r.seatType === "AI") && (
+            <p className="cc-note">All India seats use the All India merit number, so they aren't on this chart. Pick “All India” in the chart above.</p>
+          )}
         </>
       )}
     </div>

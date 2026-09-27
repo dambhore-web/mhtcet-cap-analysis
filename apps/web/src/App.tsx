@@ -17,6 +17,11 @@ import { PlansPage } from "./pages/PlansPage";
 import { GuidePage } from "./pages/GuidePage";
 import { SimulatorPage } from "./pages/SimulatorPage";
 import { EstimatePage } from "./pages/EstimatePage";
+import { AddOptionsPage } from "./pages/AddOptionsPage";
+import { SummaryPage } from "./pages/SummaryPage";
+import { DataPage } from "./pages/DataPage";
+import { EligibilityPage } from "./pages/EligibilityPage";
+import { BranchTrendsPage } from "./pages/BranchTrendsPage";
 import { AllotmentPage } from "./pages/AllotmentPage";
 import { ExportPage } from "./pages/ExportPage";
 import { BranchesPage } from "./pages/BranchesPage";
@@ -41,8 +46,10 @@ function AppRoutes() {
         />
         <Route path="colleges" element={<CollegesPage />} />
         <Route path="colleges/:code" element={<CollegePage />} />
+        <Route path="colleges/:code/:choiceCode" element={<BranchTrendsPage />} />
         <Route path="compare" element={<ComparePage />} />
         <Route path="list" element={<ListPage />} />
+        <Route path="list/add" element={<AddOptionsPage />} />
         <Route path="ask" element={<AskPage />} />
         <Route path="legal" element={<LegalPage />} />
         <Route path="profile" element={<ProfilePage />} />
@@ -54,6 +61,9 @@ function AppRoutes() {
         <Route path="allotment" element={<AllotmentPage />} />
         <Route path="export" element={<ExportPage />} />
         <Route path="branches" element={<BranchesPage />} />
+        <Route path="summary" element={<SummaryPage />} />
+        <Route path="data" element={<DataPage />} />
+        <Route path="eligibility" element={<EligibilityPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

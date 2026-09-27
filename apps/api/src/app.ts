@@ -9,11 +9,20 @@ import { getCollegeFees } from "./routes/fees.ts";
 import { postSimulate } from "./routes/simulate.ts";
 import { getJeeEstimate } from "./routes/jeeEstimate.ts";
 import { postAssistant } from "./routes/assistant.ts";
+import { getMeta } from "./routes/meta.ts";
 import type { AppCache } from "./startup.ts";
+import { buildFeeIndex } from "./feeIndex.ts";
+import type { ChatClient } from "./assistant/run.ts";
 import type pg from "pg";
 
-export function createApp(cache: AppCache, pool: pg.Pool) {
+export interface AppOptions {
+  /** Replaces the Groq client (demo mode and tests); no API key needed when set. */
+  assistantClient?: ChatClient;
+}
+
+export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = {}) {
   const app = new Hono();
+  const fees = buildFeeIndex(cache);
 
   app.use("*", cors({ origin: "*" }));
 
@@ -35,14 +44,15 @@ export function createApp(cache: AppCache, pool: pg.Pool) {
   });
 
   app.get("/api/health", health);
+  app.get("/api/meta", (c) => getMeta(c, cache, pool, fees));
   app.get("/api/colleges", (c) => getColleges(c, cache));
   app.get("/api/colleges/:code/cutoffs", (c) => getCollegeCutoffs(c, cache));
   app.post("/api/rank-finder", (c) => postRankFinder(c, cache));
   app.post("/api/simulate", (c) => postSimulate(c, cache));
   app.get("/api/merit-estimate", (c) => getMeritEstimate(c, pool));
-  app.get("/api/jee-estimate", getJeeEstimate);
-  app.get("/api/colleges/:code/fees", getCollegeFees);
-  app.post("/api/assistant", postAssistant);
+  app.get("/api/jee-estimate", (c) => getJeeEstimate(c, pool));
+  app.get("/api/colleges/:code/fees", (c) => getCollegeFees(c, fees));
+  app.post("/api/assistant", (c) => postAssistant(c, cache, options.assistantClient));
 
   app.onError((err, c) => {
     const reqId = c.res.headers.get("x-request-id") ?? "?";
