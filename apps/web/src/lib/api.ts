@@ -82,6 +82,25 @@ export interface MeritEstimate {
   disclaimer: string;
 }
 
+export interface CollegeFees {
+  available: true;
+  code: string;
+  name: string;
+  year: string;
+  fees: { tuitionFee: number; developmentFee: number; otherFees: number; totalAnnualFee: number };
+  tfwsAvailable: boolean;
+  tfwsSeats: number | null;
+  fraOrderRef: string | null;
+  fraOrderUrl: string | null;
+  sampleOnly: boolean;
+  disclaimer: string;
+}
+
+export interface CollegeFeesUnavailable {
+  available: false;
+  code: string;
+}
+
 export const api = {
   find: (req: FindRequest) => post<FindResponse>("/api/rank-finder", req),
   colleges: (q: string) =>
@@ -94,4 +113,6 @@ export const api = {
     get<MeritEstimate>(
       `/api/merit-estimate?percentile=${percentile}&subjectGroup=${subjectGroup}`
     ),
+  collegeFees: (code: string) =>
+    get<CollegeFees | CollegeFeesUnavailable>(`/api/colleges/${code}/fees`),
 };

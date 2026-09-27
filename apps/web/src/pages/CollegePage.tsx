@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { api } from "../lib/api";
+import { api, type CollegeFees, type CollegeFeesUnavailable } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import "./CollegePage.css";
 
@@ -77,16 +77,20 @@ export function CollegePage() {
   const [filter, setFilter] = useState<"all" | "gopens" | "reserved">("all");
   const [whatifMerit, setWhatifMerit] = useState<number>(() => profile.meritNumber ?? 10000);
   const [showWhatif, setShowWhatif] = useState(false);
+  const [fees, setFees] = useState<CollegeFees | CollegeFeesUnavailable | null>(null);
 
   useEffect(() => {
     if (!code) return;
     setLoading(true);
-    api
-      .collegeCutoffs(code)
-      .then((d) => {
+    Promise.all([
+      api.collegeCutoffs(code),
+      api.collegeFees(code).catch(() => null),
+    ])
+      .then(([d, f]) => {
         setData(d as CollegeData);
         const branches = [...new Set((d.cutoffs as CutoffRow[]).map((r) => r.branch))].sort();
         if (branches.length > 0) setSelectedBranch(branches[0]);
+        setFees(f);
       })
       .catch(() => setError("Could not load college data. Is the API running?"))
       .finally(() => setLoading(false));
@@ -179,6 +183,41 @@ export function CollegePage() {
           <span className="cp-best-label">GOPENS Round I</span>
           <span className="cp-best-merit">{best.toLocaleString("en-IN")}</span>
           <span className="cp-best-desc">best cutoff this college</span>
+        </div>
+      )}
+
+      {fees && fees.available && (
+        <div className="cp-fees-card">
+          <div className="cp-fees-head">
+            <span className="cp-fees-title">Annual fees (FRA {fees.year})</span>
+            {fees.sampleOnly && <span className="cp-fees-sample-badge">sample data</span>}
+          </div>
+          <div className="cp-fees-grid">
+            <div className="cp-fees-row">
+              <span>Tuition fee</span>
+              <span className="cp-fees-val">₹{fees.fees.tuitionFee.toLocaleString("en-IN")}</span>
+            </div>
+            <div className="cp-fees-row">
+              <span>Development fee</span>
+              <span className="cp-fees-val">₹{fees.fees.developmentFee.toLocaleString("en-IN")}</span>
+            </div>
+            <div className="cp-fees-row">
+              <span>Other fees</span>
+              <span className="cp-fees-val">₹{fees.fees.otherFees.toLocaleString("en-IN")}</span>
+            </div>
+            <div className="cp-fees-row cp-fees-total">
+              <span>Total per year</span>
+              <span className="cp-fees-val">₹{fees.fees.totalAnnualFee.toLocaleString("en-IN")}</span>
+            </div>
+          </div>
+          {fees.tfwsAvailable && (
+            <div className="cp-fees-tfws">
+              TFWS seats available — no tuition fee (pay non-tuition fees only)
+              {fees.tfwsSeats !== null && <span> · {fees.tfwsSeats} seats</span>}
+            </div>
+          )}
+          <div className="cp-fees-disclaimer">{fees.disclaimer}</div>
+          {fees.fraOrderRef && <div className="cp-fees-ref">Ref: {fees.fraOrderRef}</div>}
         </div>
       )}
 

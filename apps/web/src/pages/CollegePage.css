@@ -101,6 +101,101 @@
   margin-left: auto;
 }
 
+/* ─── Fees card ─── */
+.cp-fees-card {
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+
+.cp-fees-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cp-fees-title {
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cp-fees-sample-badge {
+  padding: 2px 7px;
+  background: #fff3e0;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #b36200;
+}
+
+.cp-fees-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.cp-fees-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--navy);
+  border-bottom: 1px solid var(--line);
+}
+
+.cp-fees-row:last-child { border-bottom: none; }
+
+.cp-fees-row span:first-child { color: var(--muted); }
+
+.cp-fees-total {
+  background: var(--lavender);
+  font-weight: 700;
+}
+
+.cp-fees-total span:first-child {
+  color: var(--violet) !important;
+  font-weight: 700;
+}
+
+.cp-fees-val {
+  font-family: var(--font-num);
+  font-weight: 700;
+}
+
+.cp-fees-tfws {
+  margin-top: 10px;
+  padding: 7px 10px;
+  background: #e8f5e9;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #2d6a30;
+  font-weight: 600;
+}
+
+.cp-fees-disclaimer {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.cp-fees-ref {
+  margin-top: 4px;
+  font-size: 10px;
+  font-family: var(--font-num);
+  color: #aaa;
+}
+
 /* ─── What-if slider ─── */
 .cp-whatif {
   background: var(--white);

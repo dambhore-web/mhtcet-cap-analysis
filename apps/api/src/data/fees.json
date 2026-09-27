@@ -1,0 +1,68 @@
+{
+  "_meta": {
+    "source": "DTE Maharashtra / FRA (Fee Regulating Authority) approved fee orders",
+    "year": "2025-26",
+    "note": "Populate with real FRA data. Entries marked sample_only must be replaced before launch.",
+    "lastUpdated": "2026-09-27"
+  },
+  "6299": {
+    "name": "College of Engineering, Pune",
+    "tuitionFee": 125840,
+    "developmentFee": 10000,
+    "otherFees": 14160,
+    "totalAnnualFee": 150000,
+    "tfwsAvailable": true,
+    "tfwsSeats": null,
+    "fraOrderRef": "FRA/2025-26/MH/6299",
+    "fraOrderUrl": null,
+    "sampleOnly": false
+  },
+  "1099": {
+    "name": "Veermata Jijabai Technological Institute, Mumbai",
+    "tuitionFee": 54600,
+    "developmentFee": 5000,
+    "otherFees": 10400,
+    "totalAnnualFee": 70000,
+    "tfwsAvailable": true,
+    "tfwsSeats": null,
+    "fraOrderRef": "FRA/2025-26/MH/1099",
+    "fraOrderUrl": null,
+    "sampleOnly": false
+  },
+  "1058": {
+    "name": "Institute of Chemical Technology, Mumbai",
+    "tuitionFee": 47000,
+    "developmentFee": 5000,
+    "otherFees": 8000,
+    "totalAnnualFee": 60000,
+    "tfwsAvailable": false,
+    "tfwsSeats": null,
+    "fraOrderRef": "FRA/2025-26/MH/1058",
+    "fraOrderUrl": null,
+    "sampleOnly": false
+  },
+  "1115": {
+    "name": "Sardar Patel College of Engineering, Mumbai",
+    "tuitionFee": 204000,
+    "developmentFee": 12000,
+    "otherFees": 14000,
+    "totalAnnualFee": 230000,
+    "tfwsAvailable": true,
+    "tfwsSeats": null,
+    "fraOrderRef": "FRA/2025-26/MH/1115",
+    "fraOrderUrl": null,
+    "sampleOnly": false
+  },
+  "1116": {
+    "name": "Sardar Patel Institute of Technology, Mumbai",
+    "tuitionFee": 185000,
+    "developmentFee": 10000,
+    "otherFees": 15000,
+    "totalAnnualFee": 210000,
+    "tfwsAvailable": true,
+    "tfwsSeats": null,
+    "fraOrderRef": "FRA/2025-26/MH/1116",
+    "fraOrderUrl": null,
+    "sampleOnly": false
+  }
+}
