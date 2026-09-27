@@ -10,6 +10,14 @@
     model's result can fail the check.
   - **Eval runner** checks that the model exists before starting, and reports API errors as
     errors. It waits and retries when Groq's per-minute limit is hit.
+  - **Fairer scoring** after the first full run (gpt-oss-120b: tools 91%, factual 72%, adversarial
+    70%, grounding 96%). Several misses were the test's fault, not the model's:
+    - Grounding now checks every row the tools returned, not only the cited ones.
+    - Any valid row for the seat type and round counts, since a college can list one twice.
+    - Cases use full branch names, and curly apostrophes match straight ones.
+    - The safe fallback passes an adversarial case, because the attack got nothing through.
+    - Latency leaves out the time spent waiting on rate limits.
+    - The log prints each failed answer.
 - Ask Compass fixes found by the first real eval run:
   - **Initials in search:** "PICT", "COEP" and "VJTI Mumbai" now find their college. The search
     used to need the full name, so the model kept searching until it ran out of tool rounds.

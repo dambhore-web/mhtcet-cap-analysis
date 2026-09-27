@@ -28,8 +28,11 @@ export interface Profile {
 
 export interface AssistantResult {
   text: string;
+  /** The rows the answer cites (all rows when it cites none by id). */
   sources: SourceRow[];
   grounded: boolean;
+  /** Every row the tools returned this turn: what the grounding check allowed. */
+  toolRows: SourceRow[];
 }
 
 const MAX_TOOL_ROUNDS = 4;
@@ -114,7 +117,7 @@ export async function runAssistant(args: {
     text = await answer();
   }
   const grounded = ungroundedNumbers(text, allowed()).length === 0 && text.trim().length > 0;
-  return { text: grounded ? text : UNGROUNDED_FALLBACK, sources: grounded ? usedSources(text, sources) : [], grounded };
+  return { text: grounded ? text : UNGROUNDED_FALLBACK, sources: grounded ? usedSources(text, sources) : [], grounded, toolRows: sources };
 }
 
 /** Sources the answer actually cites; all sources if it cites none by id. */

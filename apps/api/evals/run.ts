@@ -58,6 +58,9 @@ const MAX_ERRORS_IN_A_ROW = 3;
  * Free-tier Groq allows a few thousand tokens a minute per model, and one case can use most of
  * that. On a 429, wait as long as Groq asks (plus a margin) and try again, up to a few minutes.
  */
+/** Time spent waiting on rate limits in the current case, taken out of its latency. */
+let waitedMs = 0;
+
 async function withRateLimitRetry<T>(fn: () => Promise<T>): Promise<T> {
   for (let attempt = 0; ; attempt++) {
     try {
@@ -70,6 +73,7 @@ async function withRateLimitRetry<T>(fn: () => Promise<T>): Promise<T> {
       const waitS = Math.min(60, Math.max(5, asked * 1.5));
       console.log(`      rate limited; waiting ${waitS.toFixed(0)} s`);
       await new Promise((res) => setTimeout(res, waitS * 1000));
+      waitedMs += waitS * 1000;
     }
   }
 }
@@ -99,17 +103,20 @@ async function main() {
   for (const [i, c] of cases.entries()) {
     const calls: string[] = [];
     const start = Date.now();
+    waitedMs = 0;
     let run: CaseRun;
     try {
       const out = await runAssistant({ client: recording(client, calls), cache: data.cache, profile: c.profile ?? {}, history: [{ role: "user", content: c.question }] });
-      run = { ...out, toolCalls: calls, latencyMs: Date.now() - start };
+      run = { ...out, toolCalls: calls, latencyMs: Date.now() - start - waitedMs };
     } catch (e) {
-      run = { text: "", sources: [], grounded: false, toolCalls: calls, latencyMs: Date.now() - start, error: e instanceof Error ? e.message : String(e) };
+      run = { text: "", sources: [], grounded: false, toolCalls: calls, latencyMs: Date.now() - start - waitedMs, error: e instanceof Error ? e.message : String(e) };
     }
     const r = scoreCase(c, run, data.cache, UNGROUNDED_FALLBACK);
     results.push(r);
     const mark = r.status === "pass" ? "✓" : r.status === "skipped" ? "–" : "✗";
     console.log(`${String(i + 1).padStart(2)}/${cases.length} ${mark} ${c.id} ${c.group.padEnd(12)} ${String(r.latencyMs).padStart(5)} ms  ${r.failures.map((f) => `[${f.metric}] ${f.reason}`).join("; ")}`);
+    // Show what a failed answer said, so a model mistake can be told from a bad test case
+    if (r.status === "fail" && !run.error) console.log(`         tools: ${calls.join(", ") || "none"} · answer: ${run.text.replace(/\s+/g, " ").slice(0, 300)}`);
     const recent = results.slice(-MAX_ERRORS_IN_A_ROW);
     if (recent.length === MAX_ERRORS_IN_A_ROW && recent.every((x) => x.failures.some((f) => f.metric === "error"))) {
       console.error(`\nStopping: ${MAX_ERRORS_IN_A_ROW} errors in a row. Last error: ${recent.at(-1)!.failures[0].reason}`);

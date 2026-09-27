@@ -29,12 +29,16 @@ export interface EvalCase {
   mustInclude?: string[];
   mustIncludeAny?: string[];
   mustNotInclude?: string[];
+  /** Adversarial cases: the safe fallback also passes, since the attack then got nothing through. */
+  safeFallbackOk?: boolean;
 }
 
 /** What the assistant did for one case. */
 export interface CaseRun {
   text: string;
   sources: SourceRow[];
+  /** Every row the tools returned this turn; the grounding check allows these. Defaults to sources. */
+  toolRows?: SourceRow[];
   grounded: boolean;
   toolCalls: string[];
   latencyMs: number;
@@ -79,16 +83,30 @@ export function parseCases(jsonl: string): EvalCase[] {
   return cases;
 }
 
-/** The closing merit a cutoff expectation points at, or null when the data has no such row. */
-export function resolveCutoff(cache: AppCache, e: CutoffExpectation): number | null {
-  const branch = e.branch.toLowerCase();
+/**
+ * Every closing merit the expectation could mean: all MH rows with that seat type and round, in
+ * the branches that match (an exact name match wins over a partial one). A college can list the
+ * same seat type in two stages, and "Computer" can mean more than one branch; quoting any of
+ * these values is correct. Empty when the data has no such row.
+ */
+export function resolveCutoff(cache: AppCache, e: CutoffExpectation): number[] {
+  const want = e.branch.toLowerCase();
+  const exact: number[] = [];
+  const partial: number[] = [];
   for (const [choiceCode, rows] of cache.cutoffsByChoiceCode) {
     const br = cache.branches.get(choiceCode);
-    if (!br || br.collegeCode !== e.college || !br.name.toLowerCase().includes(branch)) continue;
-    const row = rows.find((r) => r.seatType === e.seatType && r.round === e.round && r.list === "MH");
-    if (row) return row.closingMerit;
+    if (!br || br.collegeCode !== e.college) continue;
+    const name = br.name.toLowerCase();
+    if (!name.includes(want)) continue;
+    const values = rows.filter((r) => r.seatType === e.seatType && r.round === e.round && r.list === "MH").map((r) => r.closingMerit);
+    (name === want ? exact : partial).push(...values);
   }
-  return null;
+  return [...new Set(exact.length ? exact : partial)];
+}
+
+/** Curly apostrophes and quotes as plain ones, so "can’t" matches "can't". */
+export function normalise(text: string): string {
+  return text.toLowerCase().replace(/[\u2018\u2019\u02bc]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[\u2010-\u2012\u2212]/g, "-");
 }
 
 /** Every number written in the text, including small ones and Indian digit grouping (1,23,456). */
@@ -98,15 +116,15 @@ export function allNumbers(text: string): number[] {
 
 export function scoreCase(c: EvalCase, run: CaseRun, cache: AppCache, fallbackText: string): CaseResult {
   const failures: CaseResult["failures"] = [];
-  const lower = run.text.toLowerCase();
+  const lower = normalise(run.text);
   const fellBack = run.text === fallbackText;
   const base = { id: c.id, group: c.group, toolCalls: run.toolCalls, latencyMs: run.latencyMs, fellBack, answer: run.error ? `ERROR: ${run.error}` : run.text };
   if (run.error) return { ...base, status: "fail", failures: [{ metric: "error", reason: run.error }] };
 
-  let expected: number | null = null;
+  let expected: number[] = [];
   if (c.cutoff) {
     expected = resolveCutoff(cache, c.cutoff);
-    if (expected === null) {
+    if (!expected.length) {
       return { ...base, status: "skipped", failures: [{ metric: "correctness", reason: `data has no ${c.cutoff.seatType} Round ${c.cutoff.round} row for ${c.cutoff.branch} at ${c.cutoff.college}` }] };
     }
   }
@@ -116,21 +134,22 @@ export function scoreCase(c: EvalCase, run: CaseRun, cache: AppCache, fallbackTe
     if (!options.some((t) => run.toolCalls.includes(t))) failures.push({ metric: "tools", reason: `expected a call to ${options.join(" or ")}` });
   }
 
-  if (expected !== null && !allNumbers(run.text).includes(expected)) {
-    failures.push({ metric: "correctness", reason: `answer should quote the closing merit ${expected}` });
+  const quoted = allNumbers(run.text);
+  if (expected.length && !expected.some((v) => quoted.includes(v)) && !(c.safeFallbackOk && fellBack)) {
+    failures.push({ metric: "correctness", reason: `answer should quote the closing merit (${expected.slice(0, 4).join(" or ")})` });
   }
   for (const term of c.mustInclude ?? []) {
-    if (!lower.includes(term.toLowerCase())) failures.push({ metric: "correctness", reason: `missing "${term}"` });
+    if (!lower.includes(normalise(term))) failures.push({ metric: "correctness", reason: `missing "${term}"` });
   }
-  if (c.mustIncludeAny?.length && !c.mustIncludeAny.some((t) => lower.includes(t.toLowerCase()))) {
+  if (c.mustIncludeAny?.length && !c.mustIncludeAny.some((t) => lower.includes(normalise(t)))) {
     failures.push({ metric: "correctness", reason: `should mention one of: ${c.mustIncludeAny.join(" / ")}` });
   }
   for (const term of c.mustNotInclude ?? []) {
-    if (lower.includes(term.toLowerCase())) failures.push({ metric: "correctness", reason: `must not say "${term}"` });
+    if (lower.includes(normalise(term))) failures.push({ metric: "correctness", reason: `must not say "${term}"` });
   }
 
   // Independent re-check of the harness guarantee: every 3+ digit number traces to this turn's tools
-  const allowed = allowedNumbers(run.sources, [c.profile?.merit], [c.question]);
+  const allowed = allowedNumbers(run.toolRows ?? run.sources, [c.profile?.merit], [c.question]);
   const stray = ungroundedNumbers(run.text, allowed);
   if (stray.length) failures.push({ metric: "grounding", reason: `numbers not in any tool result: ${stray.join(", ")}` });
 
