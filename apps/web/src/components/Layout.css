@@ -6,6 +6,5 @@
 
 .layout-content {
   flex: 1;
-  padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom));
   overflow-x: hidden;
 }

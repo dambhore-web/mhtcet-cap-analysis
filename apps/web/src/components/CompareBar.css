@@ -1,6 +1,6 @@
 .compare-bar {
   position: fixed;
-  bottom: calc(var(--bottom-nav-h) + var(--safe-bottom));
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 100;

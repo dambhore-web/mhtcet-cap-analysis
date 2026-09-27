@@ -26,7 +26,7 @@
   --font-num: "Space Grotesk", Arial, sans-serif;
 
   /* layout */
-  --bottom-nav-h: 64px;
+  --top-nav-h: 56px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
