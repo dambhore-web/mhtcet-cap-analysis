@@ -103,8 +103,10 @@ export interface CollegeFeesUnavailable {
 
 export const api = {
   find: (req: FindRequest) => post<FindResponse>("/api/rank-finder", req),
-  colleges: (q: string) =>
-    get<{ colleges: College[]; count: number }>(`/api/colleges?q=${encodeURIComponent(q)}&limit=50`),
+  colleges: (q: string, university?: string) =>
+    get<{ colleges: College[]; count: number; total: number }>(
+      `/api/colleges?q=${encodeURIComponent(q)}&university=${encodeURIComponent(university ?? "")}&limit=400`
+    ),
   collegeCutoffs: (code: string) =>
     get<{ college: { code: string; name: string }; year: number; cutoffs: object[] }>(
       `/api/colleges/${code}/cutoffs`

@@ -1,25 +1,28 @@
 import type { Context } from "hono";
 import type { AppCache } from "../startup.ts";
 
-/** GET /api/colleges?q=&limit=50 — case-insensitive search on name or code. */
+/** GET /api/colleges?q=&university=&limit=400 — search by name/code, filter by homeUniversity, sorted alphabetically. */
 export function getColleges(c: Context, cache: AppCache) {
   const q = (c.req.query("q") ?? "").toLowerCase().trim();
-  const limit = Math.min(parseInt(c.req.query("limit") ?? "50", 10) || 50, 200);
+  const university = (c.req.query("university") ?? "").trim();
+  const limit = Math.min(parseInt(c.req.query("limit") ?? "400", 10) || 400, 400);
 
-  const results = [];
+  const results: { code: string; name: string; status: string | null; homeUniversity: string | null }[] = [];
   for (const college of cache.colleges.values()) {
-    if (!q || college.name.toLowerCase().includes(q) || college.code.includes(q)) {
-      results.push({
-        code: college.code,
-        name: college.name,
-        status: college.status,
-        homeUniversity: college.homeUniversity,
-      });
-      if (results.length >= limit) break;
-    }
+    if (q && !college.name.toLowerCase().includes(q) && !college.code.toLowerCase().includes(q)) continue;
+    if (university && college.homeUniversity !== university) continue;
+    results.push({
+      code: college.code,
+      name: college.name,
+      status: college.status,
+      homeUniversity: college.homeUniversity,
+    });
   }
 
-  return c.json({ colleges: results, count: results.length });
+  results.sort((a, b) => a.name.localeCompare(b.name, "en"));
+  const paged = results.slice(0, limit);
+
+  return c.json({ colleges: paged, count: paged.length, total: results.length });
 }
 
 /** GET /api/colleges/:code/cutoffs?year= — all cutoff rows for one college (all branches, rounds, seat types). */
