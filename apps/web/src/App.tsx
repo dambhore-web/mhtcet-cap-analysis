@@ -14,6 +14,7 @@ import { LegalPage } from "./pages/LegalPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SignInPage } from "./pages/SignInPage";
 import { PlansPage } from "./pages/PlansPage";
+import { GuidePage } from "./pages/GuidePage";
 
 function RequireProfile({ children }: { children: React.ReactNode }) {
   const { hasProfile } = useProfile();
@@ -42,6 +43,7 @@ function AppRoutes() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="signin" element={<SignInPage />} />
         <Route path="plans" element={<PlansPage />} />
+        <Route path="guide" element={<GuidePage />} />
       </Route>
     </Routes>
   );
