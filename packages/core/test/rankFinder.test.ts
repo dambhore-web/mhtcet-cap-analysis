@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rankFind, type CandidateProfile, type CollegeEligibilityContext, type CutoffRow } from "../src/index.ts";
+import { rankFind, normalizeStage, type CandidateProfile, type CollegeEligibilityContext, type CutoffRow } from "../src/index.ts";
 
 const BASE_ROW: Omit<CutoffRow, "round" | "seatType" | "closingMerit" | "section" | "stage"> = {
   authority: "MH-CET-CELL", exam: "MHT-CET", year: 2026, list: "MH",
@@ -158,5 +158,49 @@ describe("rankFind", () => {
     const types = result.options.map((o) => o.seatType);
     expect(types).toContain("GOPENS");
     expect(types).toContain("GOBCS");
+  });
+
+  it('matches a row whose stage is "I-Non PWD" as Stage I', () => {
+    const rows = [mhRow("GOPENS", 6000, "I", "State Level", "I-Non PWD")];
+    const result = rankFind(openMale, autoCollege, rows);
+    expect(result.best).toMatchObject({ status: "round-I", closingMerit: 6000 });
+  });
+
+  it('matches a row whose stage is "I-Non Defence" as Stage I', () => {
+    const rows = [mhRow("GOPENS", 6000, "I", "State Level", "I-Non Defence")];
+    const result = rankFind(openMale, autoCollege, rows);
+    expect(result.best).toMatchObject({ status: "round-I", closingMerit: 6000 });
+  });
+
+  it('does not match rows with unknown stage code "VII"', () => {
+    const rows = [mhRow("GOPENS", 6000, "I", "State Level", "VII")];
+    const result = rankFind(openMale, autoCollege, rows);
+    expect(result.best).toBeNull();
+  });
+});
+
+// ─── normalizeStage ───────────────────────────────────────────────────────────
+
+describe("normalizeStage", () => {
+  it('passes canonical values through', () => {
+    expect(normalizeStage("I")).toBe("I");
+    expect(normalizeStage("II")).toBe("II");
+  });
+
+  it('normalises "I-Non …" variants to "I"', () => {
+    expect(normalizeStage("I-Non PWD")).toBe("I");
+    expect(normalizeStage("I-Non Defence")).toBe("I");
+    expect(normalizeStage("I-Non EWS")).toBe("I");
+  });
+
+  it('normalises "II-Non …" variants to "II"', () => {
+    expect(normalizeStage("II-Non PWD")).toBe("II");
+    expect(normalizeStage("II-Non Defence")).toBe("II");
+  });
+
+  it("leaves unknown codes unchanged", () => {
+    expect(normalizeStage("VII")).toBe("VII");
+    expect(normalizeStage("MH")).toBe("MH");
+    expect(normalizeStage("")).toBe("");
   });
 });

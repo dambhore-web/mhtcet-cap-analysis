@@ -4,6 +4,24 @@ import { roundNumber } from "./rounds.ts";
 import { parseSeatType } from "./seatType.ts";
 import { eligibleSeatTypes, type CandidateProfile, type CollegeEligibilityContext } from "./eligibility.ts";
 
+/**
+ * Normalises the stage label printed on a cutoff row to one of the canonical values
+ * used by rank-finder logic ("I", "II", null).
+ *
+ * The CET Cell sometimes prints extended labels on the same row:
+ *   "I-Non PWD"       → "I"   (Stage I seats after PWD reserved quota is filled)
+ *   "I-Non Defence"   → "I"   (Stage I seats after Defence reserved quota is filled)
+ *   "II-Non …"        → "II"  (same pattern for Stage II)
+ *
+ * Unknown codes (e.g. "VII", "MH") are left as-is so they fall through the filter
+ * and are logged separately for investigation.
+ */
+export function normalizeStage(stage: string): string {
+  if (stage === "I" || stage.startsWith("I-")) return "I";
+  if (stage === "II" || stage.startsWith("II-")) return "II";
+  return stage;
+}
+
 /** Section labels as printed on the MH official cutoff lists. */
 const MH_SECTION: Record<string, string> = {
   S: "State Level",
@@ -82,7 +100,7 @@ export function rankFind(
     const rows = listRows.filter((r) => {
       if (r.seatType !== seatTypeCode) return false;
       if (r.section !== section) return false;
-      if (stageFilter !== null && r.stage !== stageFilter) return false;
+      if (stageFilter !== null && normalizeStage(r.stage) !== stageFilter) return false;
       return true;
     });
 
