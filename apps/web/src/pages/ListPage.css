@@ -316,6 +316,25 @@
   color: #c62828;
 }
 
+/* Simulator banner */
+.list-sim-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 12px 0;
+  padding: 12px 14px;
+  background: var(--violet);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  text-decoration: none;
+  gap: 8px;
+  box-shadow: 3px 3px 0 var(--violet-deep);
+}
+
+.list-sim-banner:hover { opacity: 0.9; }
+
 /* Guide banner */
 .list-guide-banner {
   display: flex;
