@@ -1,0 +1,218 @@
+.plans-page {
+  min-height: 100svh;
+  background: var(--page);
+}
+
+.plans-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 16px 18px;
+  background: linear-gradient(150deg, var(--violet) 0%, var(--violet-deep) 100%);
+}
+
+.plans-back {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: var(--white);
+  text-decoration: none;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.plans-header-text h1 {
+  margin: 0 0 3px;
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--white);
+}
+
+.plans-header-text p {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+}
+
+.plans-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ─── Plan card ─── */
+.plan-card {
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.plan-card.pro {
+  border-color: var(--violet);
+  box-shadow: 0 4px 20px rgba(101,82,216,0.12);
+}
+
+.plan-card.pro.active {
+  border-color: #2d6a30;
+  box-shadow: 0 4px 20px rgba(45,106,48,0.12);
+}
+
+.plan-card-head {
+  padding: 16px 18px;
+  background: var(--lavender);
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2px 8px;
+}
+
+.plan-card.pro .plan-card-head {
+  background: linear-gradient(135deg, var(--lavender) 0%, #ede9ff 100%);
+}
+
+.plan-name {
+  font-family: var(--font-head);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy);
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.plan-current-badge {
+  padding: 3px 8px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  white-space: nowrap;
+}
+
+.plan-current-badge.pro {
+  background: #e8f5e9;
+  color: #2d6a30;
+}
+
+.plan-price {
+  font-family: var(--font-num);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--violet);
+  grid-column: 1;
+  grid-row: 2;
+  letter-spacing: -0.04em;
+}
+
+.plan-card.free .plan-price { color: var(--muted); }
+
+.plan-price-note {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0;
+}
+
+/* ─── Features ─── */
+.plan-features {
+  list-style: none;
+  margin: 0;
+  padding: 12px 0;
+}
+
+.plan-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 18px;
+  font-size: 13px;
+  color: var(--navy);
+  line-height: 1.4;
+}
+
+.plan-features li.pro-feature { font-weight: 600; }
+
+.pf-check {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  background: var(--lavender);
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--violet);
+  margin-top: 1px;
+}
+
+.pf-check.pro {
+  background: var(--lime);
+  color: var(--navy);
+}
+
+/* ─── CTA ─── */
+.plan-cta {
+  display: block;
+  width: calc(100% - 36px);
+  margin: 0 18px 18px;
+  padding: 14px;
+  background: var(--violet);
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--violet-deep);
+  transition: opacity 0.12s;
+}
+
+.plan-cta:hover { opacity: 0.9; }
+
+.plan-active-msg {
+  margin: 0 18px 18px;
+  padding: 12px 16px;
+  background: #e8f5e9;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d6a30;
+  text-align: center;
+}
+
+/* ─── Note ─── */
+.plans-note {
+  padding: 14px 16px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.plans-note p {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.plans-note p:last-of-type { margin-bottom: 10px; }
+
+.plans-legal-link {
+  font-size: 11px;
+  color: var(--violet);
+  text-decoration: none;
+}
+
+.plans-legal-link:hover { text-decoration: underline; }

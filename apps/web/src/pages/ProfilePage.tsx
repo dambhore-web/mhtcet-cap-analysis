@@ -180,6 +180,11 @@ export function ProfilePage() {
           {saved ? "✓ Saved" : "Save profile"}
         </button>
 
+        <div className="profile-account-row">
+          <Link to="/signin" className="profile-signin-link">Sign in to sync across devices</Link>
+          <Link to="/plans" className="profile-plans-link">Upgrade to Season Pass ↗</Link>
+        </div>
+
         <div className="profile-links">
           <Link to="/legal" className="profile-link">Disclaimer · Privacy · Terms</Link>
           <button className="profile-reset" onClick={handleReset}>Reset profile</button>

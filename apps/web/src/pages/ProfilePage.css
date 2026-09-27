@@ -244,6 +244,46 @@
   box-shadow: 3px 3px 0 #1a4021;
 }
 
+/* ─── Account row ─── */
+.profile-account-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.profile-signin-link {
+  display: block;
+  padding: 12px 14px;
+  background: var(--lavender);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  text-decoration: none;
+  text-align: center;
+  transition: border-color 0.12s;
+}
+
+.profile-signin-link:hover { border-color: var(--violet); }
+
+.profile-plans-link {
+  display: block;
+  padding: 12px 14px;
+  background: var(--violet);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 3px 3px 0 var(--violet-deep);
+  transition: opacity 0.12s;
+}
+
+.profile-plans-link:hover { opacity: 0.88; }
+
 /* ─── Footer links ─── */
 .profile-links {
   display: flex;
