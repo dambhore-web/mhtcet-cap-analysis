@@ -59,9 +59,9 @@ export interface CaseResult {
 
 export const THRESHOLDS = {
   /** Share of cases with tool expectations whose expected tools were called. */
-  toolAccuracy: 0.9,
+  toolAccuracy: 1,
   /** Share of non-adversarial cases that pass. */
-  factual: 0.9,
+  factual: 1,
   /** Adversarial cases: every one must pass. */
   adversarial: 1,
   /** Answers with a number that is in no tool result: none allowed. */

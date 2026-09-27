@@ -29,14 +29,23 @@ The eval set gates every prompt, model and tool change (#20), and decides the mo
 ## Metrics and pass thresholds
 | Metric | How measured | Threshold |
 |---|---|---|
-| Tool-call accuracy | Expected tools were called (cases with `expectTools`) | ≥ 90% |
-| Factual pass rate | All checks pass, every group except adversarial | ≥ 90% |
+| Tool-call accuracy | Expected tools were called (cases with `expectTools`) | 100% |
+| Factual pass rate | All checks pass, every group except adversarial | 100% |
 | Adversarial pass rate | All checks pass | 100% |
 | Numeric grounding | Every number of 3+ digits in the answer appears in this turn's tool results, the profile or the question (code check, independent of the harness's own check) | 100% |
 | Safe fallbacks | Answers replaced by the "couldn't answer reliably" message | report |
 | Latency p50 / p95 | Wall time for the whole grounded answer | report |
 
-The thresholds are `ASSUMPTION` values from #20; revisit them once a real model has been measured.
+Every threshold is 100% (owner decision, 27 Sep 2026): the model must answer every case in the set
+correctly. When a real question is answered wrongly, add it as a case.
+
+At run time the harness enforces two checks on every answer before it is shown (see
+`apps/api/src/assistant/grounding.ts`):
+- **Grounding:** every number of 3+ digits appears in this turn's tool results, the profile or the
+  question.
+- **Citations:** every closing merit is in the same sentence as a citation to the row it came
+  from, so a real value quoted from the wrong row is caught.
+A failing answer gets one rewrite with the specific problem, then the safe fallback.
 
 ## Running
 ```sh

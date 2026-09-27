@@ -18,6 +18,10 @@
     - The safe fallback passes an adversarial case, because the attack got nothing through.
     - Latency leaves out the time spent waiting on rate limits.
     - The log prints each failed answer.
+  - **100% pass marks** (owner decision): the eval fails unless the model gets every case right.
+  - **Citation check** on every answer: each closing merit must share a sentence with a citation
+    to the row it came from. This catches a real value quoted from the wrong row. A failing
+    answer gets one rewrite with the exact problem, then the safe fallback.
 - Ask Compass fixes found by the first real eval run:
   - **Initials in search:** "PICT", "COEP" and "VJTI Mumbai" now find their college. The search
     used to need the full name, so the model kept searching until it ran out of tool rounds.

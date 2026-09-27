@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { demoCache } from "../src/demo/demoCache.ts";
 import { runAssistant, UNGROUNDED_FALLBACK, type ChatClient, type LlmToolCall } from "../src/assistant/run.ts";
 import { collegeInitials, MAX_CUTOFFS, runTool } from "../src/assistant/tools.ts";
-import { numbersIn, ungroundedNumbers } from "../src/assistant/grounding.ts";
+import { miscitedNumbers, numbersIn, ungroundedNumbers } from "../src/assistant/grounding.ts";
 
 const cache = demoCache();
 
@@ -170,5 +170,36 @@ describe("found in the first real eval run", () => {
     expect(listed.length).toBe(MAX_CUTOFFS + 1);
     expect(listed[0]).toEqual({ id: "S1", label: expect.any(String) });
     expect(listed.at(-1)!.note).toMatch(/narrow/);
+  });
+});
+
+describe("citation check", () => {
+  const rows = [
+    { id: "S1", kind: "cutoff" as const, label: "COEP · Computer · GOPENS · Round I · closing 150", closingMerit: 150 },
+    { id: "S2", kind: "cutoff" as const, label: "COEP · Computer · GOPENS · Round II · closing 170", closingMerit: 170 },
+  ];
+
+  it("passes a closing merit cited to its own row, including in a table line", () => {
+    expect(miscitedNumbers("Round I closed at 150 [S1]. Round II closed at 170 [S2].", rows, [], [])).toEqual([]);
+    expect(miscitedNumbers("| Round I | 150 | [S1] |\n| Round II | 170 | [S2] |", rows, [], [])).toEqual([]);
+  });
+
+  it("flags a real value quoted from the wrong row or with no citation", () => {
+    expect(miscitedNumbers("Round I closed at 170 [S1].", rows, [], [])).toEqual([170]);
+    expect(miscitedNumbers("It closed at 150.", rows, [], [])).toEqual([150]);
+  });
+
+  it("leaves the student's own numbers alone", () => {
+    expect(miscitedNumbers("With merit 170 you are close.", rows, [170], [])).toEqual([]);
+  });
+
+  it("sends a wrongly cited answer back once, then falls back", async () => {
+    const client = scripted([
+      { tool: "getCutoffs", args: { collegeCode: "16006", branch: "Computer", seatType: "GOPENS" } },
+      "It closed at 600 [S2].",
+      "It closed at 600 [S2].",
+    ]);
+    const res = await runAssistant({ client, cache, profile: {}, history: [{ role: "user", content: "COEP computer GOPENS Round I?" }] });
+    expect(res.text).toBe(UNGROUNDED_FALLBACK);
   });
 });
