@@ -79,6 +79,7 @@ export function FindPage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [status, setStatus] = useState<Status>("idle");
   const [options, setOptions] = useState<FindOption[]>([]);
+  const [searchedMerit, setSearchedMerit] = useState<number>(0);
   const [errorMsg, setErrorMsg] = useState("");
   const [scoreError, setScoreError] = useState("");
   const [showAll, setShowAll] = useState(false);
@@ -137,6 +138,7 @@ export function FindPage() {
         subjectGroup: form.subjectGroup,
       });
       setOptions(res.options);
+      setSearchedMerit(num);
       setStatus("done");
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     } catch {
@@ -373,7 +375,7 @@ export function FindPage() {
               <>
                 <div className="results-list" role="list">
                   {visible.map((opt) => (
-                    <OptionRow key={opt.choiceCode} opt={opt} merit={parseInt(form.score.replace(/,/g, ""), 10)} />
+                    <OptionRow key={opt.choiceCode} opt={opt} merit={searchedMerit} />
                   ))}
                 </div>
                 {!showAll && options.length > 30 && (

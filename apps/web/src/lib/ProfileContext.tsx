@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { loadProfile, saveProfile, type Profile, DEFAULT_PROFILE } from "./profile";
 
 interface ProfileCtx {
@@ -10,16 +10,8 @@ interface ProfileCtx {
 const Ctx = createContext<ProfileCtx | null>(null);
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
-  const [profile, setProfileState] = useState<Profile>(DEFAULT_PROFILE);
-  const [hasProfile, setHasProfile] = useState(false);
-
-  useEffect(() => {
-    const saved = loadProfile();
-    if (saved) {
-      setProfileState(saved);
-      setHasProfile(true);
-    }
-  }, []);
+  const [profile, setProfileState] = useState<Profile>(() => loadProfile() ?? DEFAULT_PROFILE);
+  const [hasProfile, setHasProfile] = useState(() => loadProfile() !== null);
 
   function setProfile(p: Profile) {
     saveProfile(p);
