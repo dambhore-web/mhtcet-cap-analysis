@@ -1,0 +1,311 @@
+.compare-page {
+  min-height: 100svh;
+  background: var(--page);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Header ─── */
+.compare-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  background: linear-gradient(150deg, var(--violet) 0%, var(--violet-deep) 100%);
+  flex-shrink: 0;
+}
+
+.compare-back {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: var(--white);
+  text-decoration: none;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.compare-header h1 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--white);
+  flex: 1;
+}
+
+.compare-count {
+  font-family: var(--font-num);
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ─── Empty state ─── */
+.compare-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 10px;
+}
+
+.compare-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.compare-empty-link {
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: var(--violet);
+  border-radius: 10px;
+  color: var(--white);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+/* ─── Scrollable column grid ─── */
+.compare-scroll {
+  flex: 1;
+  overflow-x: auto;
+  padding: 16px;
+  scrollbar-width: thin;
+}
+
+.compare-grid {
+  display: grid;
+  gap: 12px;
+  min-width: max-content;
+}
+
+/* ─── College column ─── */
+.compare-col {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+}
+
+.compare-col-head {
+  padding: 14px 14px 10px;
+  background: var(--lavender);
+  border-bottom: 1px solid var(--line);
+}
+
+.compare-col-name {
+  font-family: var(--font-head);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.3;
+  margin-bottom: 3px;
+}
+
+.compare-col-code {
+  font-family: var(--font-num);
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.compare-col-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.compare-view-btn {
+  padding: 5px 10px;
+  background: var(--violet);
+  border-radius: 7px;
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.12s;
+}
+
+.compare-view-btn:hover { opacity: 0.85; }
+
+.compare-unpin-btn {
+  padding: 5px 10px;
+  background: rgba(0,0,0,0.06);
+  border: none;
+  border-radius: 7px;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.compare-unpin-btn:hover { background: #fce4ec; color: #c62828; }
+
+.compare-loading,
+.compare-error {
+  padding: 24px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ─── Branch selector ─── */
+.compare-branch-row {
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.compare-branch-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.compare-branch-select {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--navy);
+  background: var(--page);
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 6px;
+}
+
+/* ─── Section titles ─── */
+.compare-section-title {
+  padding: 8px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  background: var(--page);
+  border-bottom: 1px solid var(--line);
+}
+
+/* ─── Merit rows ─── */
+.compare-merit-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.compare-merit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.compare-merit-row.r1 {
+  background: var(--lavender);
+}
+
+.compare-round-label {
+  flex: 1;
+  color: var(--muted);
+}
+
+.compare-merit-row.r1 .compare-round-label {
+  color: var(--violet);
+  font-weight: 700;
+}
+
+.compare-merit-val {
+  font-family: var(--font-num);
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.compare-na { color: #ccc; }
+
+.compare-surplus {
+  font-family: var(--font-num);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.compare-surplus.pos { color: #2d6a30; }
+.compare-surplus.neg { color: #c62828; }
+
+/* ─── Fee row ─── */
+.compare-fee-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.compare-fee-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.compare-fee-val {
+  font-family: var(--font-num);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.compare-na-row {
+  padding: 9px 12px;
+  font-size: 11px;
+  color: #ccc;
+  border-bottom: 1px solid var(--line);
+}
+
+/* ─── Add to list button ─── */
+.compare-add-btn {
+  margin: 10px 12px 12px;
+  padding: 9px 14px;
+  background: var(--lime);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  width: calc(100% - 24px);
+  transition: opacity 0.12s;
+}
+
+.compare-add-btn.saved {
+  background: #e8f5e9;
+  color: #2d6a30;
+  cursor: default;
+}
+
+.compare-add-btn:hover:not(.saved) { opacity: 0.85; }
+
+/* ─── Footer ─── */
+.compare-footnote {
+  padding: 12px 16px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
