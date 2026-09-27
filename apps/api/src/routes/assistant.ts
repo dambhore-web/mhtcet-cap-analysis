@@ -5,8 +5,21 @@ import { checkRateLimit, clientIp } from "../rateLimit.ts";
 import type { AppCache } from "../startup.ts";
 import { runAssistant, type ChatClient, type Profile } from "../assistant/run.ts";
 
-/** Tool-capable model; the provider and model are an open decision (#19). */
-export const MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+/**
+ * Tool-capable Groq model; the provider and model are an open decision (#19). The previous
+ * default, llama-3.3-70b-versatile, was withdrawn by Groq (404). Chosen on the eval set.
+ */
+export const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+
+/**
+ * Reasoning models think before answering. Keep that short, hide it from the response, and leave
+ * room for it in the token budget, or the visible answer can come back empty.
+ */
+export function reasoningOptions(model: string): { reasoning_effort?: "none" | "low"; include_reasoning?: boolean } {
+  if (model.startsWith("openai/gpt-oss")) return { reasoning_effort: "low", include_reasoning: false };
+  if (model.startsWith("qwen/qwen3")) return { reasoning_effort: "none" };
+  return {};
+}
 
 // 20 questions per IP per hour: coarse protection until per-user auth is in place (#15)
 const RATE_WINDOW_MS = 60 * 60 * 1000;
@@ -28,7 +41,8 @@ export function groqClient(apiKey: string): ChatClient {
         messages: messages as Parameters<typeof groq.chat.completions.create>[0]["messages"],
         ...(tools.length ? { tools: tools.map((t) => ({ type: "function" as const, function: t })), tool_choice: "auto" as const } : {}),
         temperature: 0.2,
-        max_tokens: 900,
+        max_completion_tokens: 2048,
+        ...reasoningOptions(MODEL),
       });
       const msg = res.choices[0]?.message;
       return {

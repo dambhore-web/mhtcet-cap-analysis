@@ -10,7 +10,7 @@
  * rows came back. Writes apps/api/evals/results/<timestamp>.json and exits 1 when a threshold is
  * missed (real model only).
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runAssistant, UNGROUNDED_FALLBACK, type ChatClient } from "../src/assistant/run.ts";
@@ -114,6 +114,17 @@ Skipped         ${s.skipped} (expected row not in this data)`);
   const file = join(outDir, `${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
   writeFileSync(file, JSON.stringify({ model: clientLabel, data: data.label, summary: s, results }, null, 2));
   console.log(`\nResults: ${file}`);
+
+  // In CI, a table on the job page makes models easy to compare side by side
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    const failed = results.filter((r) => r.status === "fail").map((r) => `${r.id} (${r.failures.map((f) => f.reason).join("; ")})`);
+    appendFileSync(
+      process.env.GITHUB_STEP_SUMMARY,
+      `### Assistant eval: ${clientLabel}\n\n| Tool accuracy | Factual | Adversarial | Grounding | Fallbacks | p50 | p95 | Skipped |\n|---|---|---|---|---|---|---|---|\n` +
+        `| ${pct(s.toolAccuracy)} | ${pct(s.factual)} | ${pct(s.adversarial)} | ${pct(s.grounding)} | ${s.fellBack} | ${s.latencyP50Ms} ms | ${s.latencyP95Ms} ms | ${s.skipped} |\n\n` +
+        (failed.length ? `<details><summary>${failed.length} failed</summary>\n\n${failed.map((f) => `- ${f}`).join("\n")}\n</details>\n` : "All scored cases passed.\n"),
+    );
+  }
 
   if (!gates) {
     console.log("\nDemo stand-in model: results are a harness check only and do not gate.");

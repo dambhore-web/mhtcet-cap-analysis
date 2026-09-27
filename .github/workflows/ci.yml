@@ -142,11 +142,23 @@ jobs:
           retention-days: 30
 
   eval:
-    name: Assistant eval
+    name: Assistant eval (${{ matrix.model }})
     runs-on: ubuntu-latest
     # Gates prompt, model and tool changes (#20). Runs only when the assistant's code or eval set
     # changed and GROQ_API_KEY is set; uses the staging data when that secret is set too.
+    # The default model (apps/api/src/routes/assistant.ts) gates; the others are compared (#19).
     if: github.event_name == 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - model: openai/gpt-oss-120b
+            gate: true
+          - model: openai/gpt-oss-20b
+            gate: false
+          - model: qwen/qwen3.8-27b
+            gate: false
+    continue-on-error: ${{ !matrix.gate }}
     env:
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
@@ -181,14 +193,13 @@ jobs:
         if: steps.changes.outputs.run == 'true'
         env:
           DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
-          # Optional repository variable (not a secret) to try another model without a code change
-          GROQ_MODEL: ${{ vars.GROQ_MODEL }}
+          GROQ_MODEL: ${{ matrix.model }}
         run: npm run eval
 
       - name: Upload results
         if: always() && steps.changes.outputs.run == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: eval-results
+          name: eval-results-${{ strategy.job-index }}
           path: apps/api/evals/results
           retention-days: 30

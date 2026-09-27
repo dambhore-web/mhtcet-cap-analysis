@@ -1,6 +1,16 @@
 # Changelog
 
 ## Unreleased
+### Fixed
+- Ask Compass was down. Groq withdrew `llama-3.3-70b-versatile`, so every question returned a
+  404. Found by the first eval run with a real key.
+  - **New default model:** `openai/gpt-oss-120b`, with short, hidden reasoning and a larger token
+    budget so the visible answer isn't cut off.
+  - **CI eval** runs the set on three models so they can be compared (#19). Only the default
+    model's result can fail the check.
+  - **Eval runner** checks that the model exists before starting, and reports API errors as
+    errors.
+
 ### Added
 - Assistant eval set and runner (#20). Why: a prompt, model or tool change needs a measurable gate
   before it merges.
