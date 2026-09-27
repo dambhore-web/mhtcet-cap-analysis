@@ -22,7 +22,8 @@
     "validate": "npm run validate -w @mhtcet/pipeline --",
     "migrate": "npm run migrate -w @mhtcet/pipeline --",
     "load": "npm run load -w @mhtcet/pipeline --",
-    "db:checksum": "npm run db:checksum -w @mhtcet/pipeline --"
+    "db:checksum": "npm run db:checksum -w @mhtcet/pipeline --",
+    "eval": "node --env-file=.env --import tsx/esm packages/pipeline/eval/runner.ts"
   },
   "repository": {
     "type": "git",
