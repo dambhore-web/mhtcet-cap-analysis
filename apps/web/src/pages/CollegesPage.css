@@ -1,0 +1,146 @@
+.colleges-page {
+  padding: 0 0 16px;
+}
+
+.colleges-header {
+  padding: 28px 20px 16px;
+  background: linear-gradient(160deg, var(--violet) 0%, var(--violet-deep) 100%);
+  color: var(--white);
+}
+
+.colleges-header h1 {
+  margin: 0 0 6px;
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.06em;
+}
+
+.colleges-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+}
+
+.colleges-search-wrap {
+  position: relative;
+  padding: 14px 16px;
+  background: var(--lavender);
+  border-bottom: 1px solid var(--line);
+}
+
+.colleges-search {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--navy);
+  outline: none;
+  transition: border-color 0.14s;
+}
+
+.colleges-search:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(101, 82, 216, 0.12);
+}
+
+.search-spinner {
+  position: absolute;
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--line);
+  border-top-color: var(--violet);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+.colleges-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.college-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  transition: background 0.12s;
+}
+
+.college-item:hover {
+  background: #f7f6ff;
+}
+
+.college-item-tile {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: var(--violet);
+  color: var(--white);
+  border-radius: 10px 3px 10px 3px;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: var(--font-num);
+}
+
+.college-item:nth-child(3n+2) .college-item-tile { background: var(--orange); }
+.college-item:nth-child(3n+3) .college-item-tile { background: #2d9a6b; }
+
+.college-item-detail {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.college-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.college-item-meta {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.college-item-arrow {
+  color: var(--muted);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.no-colleges {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
