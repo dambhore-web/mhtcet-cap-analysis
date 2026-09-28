@@ -9,12 +9,19 @@ import { REPO_ROOT } from "../paths.ts";
 
 /** Years the product shows (BR-005: 2026 plus three earlier years). */
 const YEARS = [2023, 2024, 2025, 2026];
-/** Official cutoff lists published per year: MH and AI for Rounds I–IV, Diploma for Round IV. */
-const EXPECTED_LISTS: Array<[list: string, round: string]> = [
-  ["MH", "I"], ["MH", "II"], ["MH", "III"], ["MH", "IV"],
-  ["AI", "I"], ["AI", "II"], ["AI", "III"], ["AI", "IV"],
-  ["Diploma", "IV"],
-];
+/**
+ * Official cutoff lists published per year: MH and AI for each CAP round, Diploma for the last one.
+ * 2023 and 2024 had three CAP rounds (Diploma list in Round III); 2025 and 2026 had four.
+ */
+const ROUNDS: Record<number, string[]> = { 2023: ["I", "II", "III"], 2024: ["I", "II", "III"] };
+const expectedLists = (year: number): Array<[list: string, round: string]> => {
+  const rounds = ROUNDS[year] ?? ["I", "II", "III", "IV"];
+  return [
+    ...rounds.map((r): [string, string] => ["MH", r]),
+    ...rounds.map((r): [string, string] => ["AI", r]),
+    ["Diploma", rounds[rounds.length - 1]],
+  ];
+};
 /** Merit lists the estimators read: state merit (FE<year>_PCMMH, #10) and All India (FE<year>_PCMAI). */
 const EXPECTED_MERIT: Array<[list: string, use: string]> = [
   ["PCMMH", "MHT-CET percentile → state merit (#10)"],
@@ -67,23 +74,23 @@ try {
        from cutoff group by year, list, round`,
   );
   const cutKey = new Map(cut.map((r) => [`${r.year}|${r.list}|${r.round}`, r]));
-  line("## Cutoff lists (expected: MH + AI Rounds I–IV, Diploma Round IV, for 2023–2026)");
+  line("## Cutoff lists (expected: MH + AI per CAP round, Diploma in the last round, for 2023–2026)");
   const cutRows: unknown[][] = [];
   let missingLists = 0;
   for (const y of YEARS) {
-    for (const [list, round] of EXPECTED_LISTS) {
+    for (const [list, round] of expectedLists(y)) {
       const r = cutKey.get(`${y}|${list}|${round}`);
       if (!r) missingLists++;
       cutRows.push([y, list, round, r ? n(r.rows) : "MISSING", r ? n(r.colleges) : "–", r ? n(r.branches) : "–"]);
     }
   }
   for (const r of cut) {
-    if (!YEARS.includes(r.year) || !EXPECTED_LISTS.some(([l, ro]) => l === r.list && ro === r.round)) {
+    if (!YEARS.includes(r.year) || !expectedLists(r.year).some(([l, ro]) => l === r.list && ro === r.round)) {
       cutRows.push([r.year, r.list, r.round, `${n(r.rows)} (unexpected)`, n(r.colleges), n(r.branches)]);
     }
   }
   table(["year", "list", "round", "rows", "colleges", "branches"], cutRows);
-  line(`Missing cutoff lists: **${missingLists} of ${YEARS.length * EXPECTED_LISTS.length}**.`);
+  line(`Missing cutoff lists: **${missingLists} of ${YEARS.reduce((t, y) => t + expectedLists(y).length, 0)}**.`);
   line();
 
   // 3. Merit lookup lists
