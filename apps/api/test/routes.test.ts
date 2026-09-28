@@ -322,7 +322,7 @@ describe("GET /api/branches/:choiceCode/history", () => {
 // ─── Rank finder: earlier years on each option ───────────────────────────────
 
 describe("POST /api/rank-finder pastYears", () => {
-  it("adds Round I and last-round closing ranks of earlier years for the same seat type", async () => {
+  it("adds last-round closing ranks of earlier years for the same seat type", async () => {
     const cache = seedCache();
     cache.history.set("1002119110", [
       { year: 2024, round: "I", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 140, closingPercentile: null },
@@ -339,8 +339,8 @@ describe("POST /api/rank-finder pastYears", () => {
     const vjti = body.options.find((o) => o.choiceCode === "1002119110")!;
     expect(vjti.seatType).toBe("GOPENH");
     expect(vjti.pastYears).toEqual([
-      { year: 2024, firstRoundClosing: 140, lastRoundClosing: 190 },
-      { year: 2025, firstRoundClosing: 145, lastRoundClosing: 145 },
+      { year: 2024, lastRoundClosing: 190 },
+      { year: 2025, lastRoundClosing: 145 },
     ]);
   });
 });

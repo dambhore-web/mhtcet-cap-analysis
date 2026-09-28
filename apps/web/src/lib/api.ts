@@ -70,7 +70,7 @@ export interface FindOption {
 
 export interface PastYear {
   year: number;
-  firstRoundClosing: number | null;
+  /** Closing rank in that year's last round. */
   lastRoundClosing: number;
 }
 
