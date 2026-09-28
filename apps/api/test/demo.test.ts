@@ -116,11 +116,29 @@ describe("JEE estimate (#8)", () => {
 });
 
 describe("fees (#42)", () => {
-  it("resolves fee entries to 5-digit college codes and marks unverified amounts", async () => {
+  it("resolves fee entries to 5-digit college codes and names the FRA portal as the source", async () => {
     const res = await app.request("http://localhost/api/colleges/16006/fees");
     const body = (await res.json()) as Record<string, any>;
-    expect(body).toMatchObject({ available: true, code: "16006", verified: false });
-    expect(body.disclaimer).toMatch(/Not yet checked/);
+    expect(body).toMatchObject({ available: true, code: "16006", verified: false, year: "2025-26" });
+    expect(body.source.url).toMatch(/mahafraportal/);
+    expect(body.disclaimer).toMatch(/Fee Regulating Authority's portal for 2025-26/);
+  });
+
+  it("reads TFWS availability from the official cutoff lists, per branch", async () => {
+    const body = (await (await app.request("http://localhost/api/colleges/16006/fees")).json()) as Record<string, any>;
+    expect(body.tfws.offered).toBe(true);
+    expect(body.tfws.branches).toHaveLength(4);
+    expect(body.tfws.branches[0]).toMatchObject({ branch: expect.any(String), roundIClosing: expect.any(Number) });
+    // Sorted by Round I closing, most competitive first
+    const closings = body.tfws.branches.map((b: { roundIClosing: number }) => b.roundIClosing);
+    expect(closings).toEqual([...closings].sort((a: number, b: number) => a - b));
+  });
+
+  it("still says where to look, and what TFWS the lists show, when a college has no fee entry", async () => {
+    const body = (await (await app.request("http://localhost/api/colleges/01012/fees")).json()) as Record<string, any>;
+    expect(body.available).toBe(false);
+    expect(body.source.url).toMatch(/mahafraportal/);
+    expect(body.tfws.offered).toBe(true);
   });
 
   it("never serves fees under a legacy 4-digit key", async () => {

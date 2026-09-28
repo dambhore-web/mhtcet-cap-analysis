@@ -54,7 +54,7 @@ export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = 
   app.post("/api/simulate", (c) => postSimulate(c, cache));
   app.get("/api/merit-estimate", (c) => getMeritEstimate(c, pool));
   app.get("/api/jee-estimate", (c) => getJeeEstimate(c, pool));
-  app.get("/api/colleges/:code/fees", (c) => getCollegeFees(c, fees));
+  app.get("/api/colleges/:code/fees", (c) => getCollegeFees(c, cache, fees));
   app.post("/api/assistant", (c) => postAssistant(c, cache, options.assistantClient));
 
   app.onError((err, c) => {
