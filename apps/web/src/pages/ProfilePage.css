@@ -35,7 +35,7 @@
 
 .profile-input-wrap:focus-within {
   border-color: var(--violet);
-  box-shadow: 0 0 0 3px rgba(101, 82, 216, 0.12);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
 }
 
 .profile-input-wrap.invalid {
@@ -165,7 +165,7 @@
 
 .profile-select:focus {
   border-color: var(--violet);
-  box-shadow: 0 0 0 3px rgba(101, 82, 216, 0.12);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
 }
 
 /* ─── Flags ─── */

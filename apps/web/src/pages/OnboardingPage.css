@@ -10,8 +10,8 @@
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(circle at 90% 10%, rgba(214, 249, 90, 0.5), transparent 18rem),
-    radial-gradient(circle at 5% 80%, rgba(101, 82, 216, 0.15), transparent 20rem),
+    radial-gradient(circle at 90% 10%, rgba(255, 140, 0, 0.5), transparent 18rem),
+    radial-gradient(circle at 5% 80%, rgba(30, 58, 138, 0.15), transparent 20rem),
     var(--page);
   pointer-events: none;
 }
@@ -145,12 +145,12 @@
 
 .ob-input-wrap:focus-within {
   border-color: var(--violet);
-  box-shadow: 0 0 0 3px rgba(101, 82, 216, 0.1);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
 }
 
 .ob-input-wrap.invalid {
   border-color: var(--orange);
-  box-shadow: 0 0 0 3px rgba(255, 119, 91, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.15);
 }
 
 .ob-input {
@@ -317,7 +317,7 @@
 .ob-select:focus {
   border-color: var(--violet);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(101, 82, 216, 0.1);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
 }
 
 /* Flags */

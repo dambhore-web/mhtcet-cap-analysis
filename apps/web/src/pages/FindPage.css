@@ -8,8 +8,8 @@
   height: 720px;
   z-index: -1;
   background:
-    radial-gradient(circle at 85% 5%, rgba(214, 249, 90, 0.45), transparent 20rem),
-    radial-gradient(circle at 5% 50%, rgba(101, 82, 216, 0.14), transparent 22rem);
+    radial-gradient(circle at 85% 5%, rgba(255, 140, 0, 0.45), transparent 20rem),
+    radial-gradient(circle at 5% 50%, rgba(30, 58, 138, 0.14), transparent 22rem);
   pointer-events: none;
 }
 
@@ -126,7 +126,7 @@
   gap: 4px;
   margin: 20px 0 16px;
   padding: 4px;
-  background: rgba(26, 36, 56, 0.35);
+  background: rgba(14, 24, 56, 0.35);
   border-radius: var(--radius-sm);
 }
 
@@ -162,7 +162,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(26, 36, 56, 0.28);
+  background: rgba(14, 24, 56, 0.28);
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: var(--radius-sm);
 }
@@ -227,8 +227,8 @@
   gap: 8px;
   margin-top: 8px;
   padding: 8px 10px;
-  background: rgba(214, 249, 90, 0.12);
-  border: 1px solid rgba(214, 249, 90, 0.4);
+  background: rgba(255, 140, 0, 0.12);
+  border: 1px solid rgba(255, 140, 0, 0.4);
   border-radius: var(--radius-sm);
 }
 
@@ -242,8 +242,8 @@
 .estimate-stat-badge {
   font-size: var(--text-xs);
   font-weight: 700;
-  color: rgba(214, 249, 90, 0.85);
-  border: 1px solid rgba(214, 249, 90, 0.4);
+  color: rgba(255, 140, 0, 0.85);
+  border: 1px solid rgba(255, 140, 0, 0.4);
   border-radius: var(--radius-pill);
   padding: 1px 8px;
 }
@@ -259,7 +259,7 @@
   width: 100%;
   min-height: 44px;
   padding: 0 12px;
-  background: rgba(26, 36, 56, 0.28);
+  background: rgba(14, 24, 56, 0.28);
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: var(--radius-sm);
   color: var(--white);
@@ -309,7 +309,7 @@
 }
 
 .gender-chip.active {
-  background: rgba(214, 249, 90, 0.15);
+  background: rgba(255, 140, 0, 0.15);
   border-color: var(--lime);
   color: var(--lime);
 }
@@ -361,7 +361,7 @@
 }
 
 .flag-chip.active {
-  background: rgba(214, 249, 90, 0.15);
+  background: rgba(255, 140, 0, 0.15);
   border-color: var(--lime);
   color: var(--lime);
 }
