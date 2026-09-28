@@ -34,12 +34,20 @@ const collegeMetaPath = join(REPO_ROOT, "packages/pipeline/data", `college-meta-
 const collegeMeta = await readJson<Record<string, { district: string | null; collegeType: string | null }>>(
   collegeMetaPath,
 ).catch(() => ({} as Record<string, { district: string | null; collegeType: string | null }>));
-const institutes = rawInstitutes.map((i) => ({
+const { colleges: mhColleges, branches } = await readJson<{ colleges: MhCollege[]; branches: MhBranch[] }>(join(dir, "cutoff-colleges.json"));
+const institutesByCode = new Map(rawInstitutes.map((i) => [i.code, i]));
+// For historical years the institute list may be a proxy from a different year; supplement it
+// with any colleges found in the MH cutoff PDFs so branch FK constraints are satisfied.
+for (const c of mhColleges) {
+  if (!institutesByCode.has(c.code)) {
+    institutesByCode.set(c.code, { code: c.code, name: c.name, status: "", totalIntake: null });
+  }
+}
+const institutes = [...institutesByCode.values()].map((i) => ({
   ...i,
   district: collegeMeta[i.code]?.district ?? null,
   collegeType: collegeMeta[i.code]?.collegeType ?? null,
 }));
-const { colleges: mhColleges, branches } = await readJson<{ colleges: MhCollege[]; branches: MhBranch[] }>(join(dir, "cutoff-colleges.json"));
 const excluded = validation.load.cutoffs;
 const excludedKeys = new Set(excluded.excludedKeys);
 const allCutoffs = await readNdjson<CutoffRow>(join(dir, "cutoffs.ndjson"));
