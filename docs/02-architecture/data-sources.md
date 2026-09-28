@@ -10,7 +10,7 @@ AG-002 re-discovers these from the page before each run; don't hard-code them.
 | Cutoffs 2026, state | `blob/documents/2026ENGG_CAP1_MH_CutOff_V1.pdf`, `…CAP2_MH_CutOff.pdf`, `…CAP3_MH_CutOff.pdf`, `…CAP4_MH_CutOff.pdf` | No | Core cutoffs |
 | Cutoffs 2026, All India | `blob/documents/2026ENGG_CAP{1..4}_AI_CutOff.pdf` | No | All India cutoffs |
 | Cutoffs 2026, Diploma | `blob/documents/2026ENGG_CAP4_Diploma_CutOff.pdf` | No | Diploma seats |
-| Seat matrix 2026 (Round I) | `blob/documents/2026_fe_seatmatrix_V1.pdf` | No | Seats per seat type per branch |
+| Seat matrix 2026 (Round I) | `blob/documents/2026_fe_seatmatrix_V1.pdf` | No | Seats per seat type per branch (parsed for 2023–2026: `parse:seatmatrix`, table `seat_matrix`) |
 | Colleges with intake | page `StaticPages/frmInstituteList.aspx?did=1884` | No | College master: code, name, district, university, type, intake |
 | Dr. BATU affiliated colleges | page `StaticPages/frmInstituteList_BATU.aspx?did=62354` | No | Colleges under BATU (university for HU) |
 | Off-campus institutes | `blob/documents/FE2026_OffCampus_Institutes.pdf` | No | College master |

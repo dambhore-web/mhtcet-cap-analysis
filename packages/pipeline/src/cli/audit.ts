@@ -65,7 +65,9 @@ try {
   for (const t of ["college", "branch", "cutoff", "merit_lookup", "ingest_run"]) {
     counts.push([t, present.has(t) ? n((await rows(`select count(*) c from ${t}`))[0].c) : "MISSING"]);
   }
-  for (const [t, need] of PLANNED_TABLES) counts.push([t, present.has(t) ? "present" : `not created — ${need}`]);
+  for (const [t, need] of PLANNED_TABLES) {
+    counts.push([t, present.has(t) ? n((await rows(`select count(*) c from ${t}`))[0].c) : `not created — ${need}`]);
+  }
   table(["table", "rows"], counts);
 
   // 2. Cutoff lists by year / list / round
@@ -92,6 +94,18 @@ try {
   table(["year", "list", "round", "rows", "colleges", "branches"], cutRows);
   line(`Missing cutoff lists: **${missingLists} of ${YEARS.reduce((t, y) => t + expectedLists(y).length, 0)}**.`);
   line();
+
+  // 2b. Seat matrix by year
+  if (present.has("seat_matrix")) {
+    line("## Seat matrix");
+    const sm = await rows<{ year: number; rows: string; branches: string; colleges: string }>(
+      "select year, count(*) rows, count(distinct choice_code) branches, count(distinct college_code) colleges from seat_matrix group by year order by year",
+    );
+    table(["year", "rows", "branches", "colleges"], YEARS.map((y) => {
+      const r = sm.find((x) => x.year === y);
+      return [y, r ? n(r.rows) : "MISSING", r ? n(r.branches) : "–", r ? n(r.colleges) : "–"];
+    }));
+  }
 
   // 3. Merit lookup lists
   const merit = await rows<{ year: number; list: string; exam: string; rows: string; lo: string; hi: string }>(

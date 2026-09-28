@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Apply pending migrations
+        run: npm run migrate -w @mhtcet/pipeline
+
       - name: Remove rows stored under old codes
         working-directory: packages/pipeline
         run: |
@@ -52,6 +55,20 @@ jobs:
             npm run -s parse:cutoffs -- "$year"
             npm run -s validate -- "$year"
             npm run -s load -- "$year"
+            echo "::endgroup::"
+          done
+
+      - name: Seat matrix
+        working-directory: packages/pipeline
+        run: |
+          for year in $(jq -r '.seatMatrix.years // [] | sort | .[]' staging-load.json); do
+            echo "::group::seat matrix $year"
+            npm run -s discover -- "$year"
+            npm run -s download -- "$year" --seat-matrix
+            npm run -s parse:institutes -- "$year"
+            npm run -s parse:cutoffs -- "$year"
+            npm run -s parse:seatmatrix -- "$year"
+            npm run -s load:seatmatrix -- "$year"
             echo "::endgroup::"
           done
 

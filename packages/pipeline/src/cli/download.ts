@@ -1,7 +1,7 @@
 // Download the files listed in data/raw/<year>/manifest.json (cached, polite, %PDF-checked).
-// Usage: npm run download -- [year] [--colleges 16006,03012,...] [--merit PCMAI]
+// Usage: npm run download -- [year] [--colleges 16006,03012,...] [--merit PCMAI] [--seat-matrix]
 //   Cutoff lists and the institute list are always fetched. Allotment PDFs only for --colleges.
-//   Merit lists only for --merit (Final stage).
+//   Merit lists only for --merit (Final stage). The seat matrix only with --seat-matrix.
 import { mkdir, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { downloadPdf, politeGet, type DownloadResult } from "../http.ts";
@@ -16,6 +16,7 @@ const opt = (name: string): string[] => {
 };
 const colleges = new Set(opt("colleges"));
 const merit = new Set(opt("merit"));
+const seatMatrix = args.includes("--seat-matrix");
 
 const manifest = await readManifest(year);
 const dir = rawDir(year);
@@ -48,6 +49,7 @@ try {
 
 for (const f of manifest.cutoffLists) await get(f);
 for (const f of manifest.meritLists.filter((m) => m.stage === "Final" && merit.has(m.list))) await get(f);
+if (seatMatrix) for (const f of manifest.seatMatrix ?? []) await get(f);
 for (const f of manifest.allotmentPdfs.filter((a) => colleges.has(a.collegeCode))) await get(f);
 
 const missing = [...colleges].filter((c) => !manifest.allotmentPdfs.some((a) => a.collegeCode === c));

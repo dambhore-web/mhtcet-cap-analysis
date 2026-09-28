@@ -33,12 +33,15 @@ _Last updated: 2026-09-27_
 - **Journeys J1–J13 (tracking #119)** on branch `claude/magical-ritchie-wcwhc0`, for review into
   `Dev`. All 13 pass end to end on the demo dataset (`apps/web/e2e/journeys`). Blocked:
   - J14 and accounts: need sign-in and payment decisions/credentials (#15, #21, #34, #117).
-  - Earlier years, seats left and districts: need the data runs (#12, #40, #115), which can't
-    reach the CET Cell site from cloud sessions.
+  - Earlier years (2023–2025) and districts: loaded to staging on 2026-09-28 through the
+    "Staging data load" workflow (codes normalised to the 2026 form). Seats left (#40) still open.
   - FRA fees (#42): done 2026-09-28 with `npm run fees -w @mhtcet/pipeline`: 319 of 387 current
     colleges (313 FRA 2026-27, 6 FRA 2025-26). The 27 government/aided/university colleges and 41
     unaided colleges not on the FRA report have no fees. The FRA report has no TFWS data or order
     links, so no entry is "verified".
+- **Seat matrix data (#40, first half):** parser, checks, migration `003_seat_matrix.sql` and
+  staging loader for 2023–2026 (1,900 / 2,055 / 2,181 / 2,307 branches; every branch's printed
+  totals add up). The "seats left" half of #40 is still open.
 - **UI audit fixes (issues #93–#108, tracking #109)** on branch `claude/magical-ritchie-wcwhc0`, for
   review into `Dev`: design tokens (one type scale, radii, colours), one top navigation with account
   menu and mobile menu, shared page header and container, error boundary and validated local
