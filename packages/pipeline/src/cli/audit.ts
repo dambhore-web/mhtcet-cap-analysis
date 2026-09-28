@@ -162,7 +162,22 @@ try {
       where not exists (select 1 from cutoff k where k.choice_code = b.choice_code and k.year = $1)`,
     [latest],
   ))[0].c);
+  // Fully autonomous colleges have only State Level seats, so an empty home university is correct
+  // for them; a real gap is a college with home-university seats but no home university.
+  const huGap = n((await rows<{ c: string }>(
+    `select count(distinct k.college_code) c from cutoff k join college c on c.code = k.college_code
+      where k.year = $1 and k.list = 'MH' and k.section ilike '%home university%' and c.home_university is null`,
+    [latest],
+  ))[0].c);
+  const stateLevelOnly = n((await rows<{ c: string }>(
+    `select count(*) c from college c
+      where exists (select 1 from cutoff k where k.college_code = c.code and k.year = $1 and k.list = 'MH')
+        and not exists (select 1 from cutoff k where k.college_code = c.code and k.year = $1 and k.list = 'MH' and k.section ilike '%home university%')`,
+    [latest],
+  ))[0].c);
   table(["check", "count"], [
+    ["colleges with home-university seats but no home university (gap)", huGap],
+    ["colleges with State Level seats only (no home university; correct)", stateLevelOnly],
     ["colleges with no cutoff rows at all", noCutoff.length],
     ["colleges with no MH Round I cutoffs", noRoundIMh],
     ["branches with no cutoff rows", branchNoCutoff],
