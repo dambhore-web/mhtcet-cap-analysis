@@ -35,6 +35,9 @@ _Last updated: 2026-09-27_
   - J14 and accounts: need sign-in and payment decisions/credentials (#15, #21, #34, #117).
   - Earlier years, seats left, districts and real FRA fees: need the data runs (#12, #40, #115,
     #42 data), which can't reach the CET Cell or FRA sites from cloud sessions.
+- **Seat matrix data (#40, first half):** parser, checks, migration `003_seat_matrix.sql` and
+  staging loader for 2023–2026 (1,900 / 2,055 / 2,181 / 2,307 branches; every branch's printed
+  totals add up). Not yet in the staging workflow; the "seats left" half of #40 is still open.
 - **UI audit fixes (issues #93–#108, tracking #109)** on branch `claude/magical-ritchie-wcwhc0`, for
   review into `Dev`: design tokens (one type scale, radii, colours), one top navigation with account
   menu and mobile menu, shared page header and container, error boundary and validated local

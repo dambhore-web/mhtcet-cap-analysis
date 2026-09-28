@@ -12,12 +12,14 @@
     "parse:merit": "tsx src/cli/parseMerit.ts",
     "parse:merit:mh": "tsx src/cli/parseMerit.ts PCMMH",
     "parse:institutes": "tsx src/cli/parseInstitutes.ts",
+    "parse:seatmatrix": "tsx src/cli/parseSeatMatrix.ts",
     "validate": "tsx src/cli/validate.ts",
     "migrate": "tsx --env-file=../../.env src/cli/migrate.ts",
     "load": "tsx --env-file-if-exists=../../.env src/cli/load.ts",
     "db:checksum": "tsx --env-file=../../.env src/cli/dbChecksum.ts",
     "db:cleanup-codes": "tsx --env-file-if-exists=../../.env src/cli/cleanupCodes.ts",
     "load:merit": "tsx --env-file-if-exists=../../.env src/cli/loadMerit.ts",
+    "load:seatmatrix": "tsx --env-file-if-exists=../../.env src/cli/loadSeatMatrix.ts",
     "data:audit": "tsx --env-file-if-exists=../../.env src/cli/audit.ts"
   },
   "dependencies": {

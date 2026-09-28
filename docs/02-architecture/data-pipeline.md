@@ -17,14 +17,16 @@ flowchart LR
 | Command | Does | Output |
 |---|---|---|
 | `npm run discover -- 2026` | Reads the home page and the institute-wise allotment page | `data/raw/2026/manifest.json`, `data/raw/2026/html/*.html` |
-| `npm run download -- 2026 --colleges 16006,03012 --merit PCMAI` | Cutoff lists + institute list always; allotment PDFs only for `--colleges`; merit lists only for `--merit` | `data/raw/2026/{cutoff,allotment,merit}/…`, `download-log.json` |
+| `npm run download -- 2026 --colleges 16006,03012 --merit PCMAI --seat-matrix` | Cutoff lists + institute list always; allotment PDFs only for `--colleges`; merit lists only for `--merit`; the seat matrix only with `--seat-matrix` | `data/raw/2026/{cutoff,allotment,merit,seatmatrix}/…`, `download-log.json` |
 | `npm run parse:institutes` | Institute list HTML | `data/processed/2026/institutes.json` |
 | `npm run parse:cutoffs` | All official cutoff lists in the manifest | `cutoffs.ndjson`, `cutoff-colleges.json`, `cutoff-parse.json` |
 | `npm run parse:allotment` | All downloaded allotment PDFs | `allotment.ndjson`, `allotment-branches.json` |
 | `npm run parse:merit` | All India merit list (7,278 pages, ~3 min) | `ai_merit.ndjson`, `ai_merit-check.json` |
+| `npm run parse:seatmatrix -- <year>` | Seat matrix PDF (one branch per page, ~10 s) and its checks | `seat_matrix.ndjson`, `seat_matrix-check.json` |
 | `npm run validate` | Every check below; runs typecheck + tests | `reports/run-<ts>.json`, `data/processed/2026/validation.json` |
 | `npm run migrate` | Applies `packages/pipeline/migrations/NNN_*.sql` to **staging** | `schema_migrations` table |
 | `npm run load` | Upserts validated data into **staging** | DB rows, `ingest_run` row, `reports/load-<ts>.json` |
+| `npm run load:seatmatrix -- <year>` | Replaces that year's `seat_matrix` rows in **staging** (one transaction); refuses when a blocking seat matrix check failed | DB rows, `ingest_run` row, `reports/load-seat-matrix-<ts>.json` |
 | `npm run db:checksum` | Row counts + content hashes per table (idempotency proof) | console |
 
 Layout study: `npx tsx packages/pipeline/src/cli/dumpPage.ts <pdf> <page|all> --raw` prints word
@@ -44,8 +46,52 @@ at a time, ≥ 1.1 s apart, cached, `%PDF` header checked. The DB loader connect
 | Institute list | `…/StaticPages/frmInstituteList.aspx?did=1884`: code, name, status, total intake (387 rows) |
 | All India (PCM) merit list | `https://cappublicdocs2026.blob.core.windows.net/meritlists/final/FE2026_PCMAI_MeritList_Final.pdf` |
 | Other merit lists | PCB/PCM × AI/MH/DEF/JK, provisional and final, listed in the manifest (not parsed) |
-| Seat matrix | `…/documents/2026_fe_seatmatrix_V1.pdf` (in the manifest, not parsed) |
+| Seat matrix | `…/documents/2026_fe_seatmatrix_V1.pdf`; 2023–2025: `https://fe2026.mahacet.org/<year>/<year>SeatMatrix.pdf` (parsed, see below) |
 | Earlier years | The 2026 home page links 2023–2025 cutoff lists and seat matrices (26 links, recorded in the manifest) |
+
+## Seat matrix layout (2023–2026, issue #40)
+"Provisional Seat Matrix for CAP Round I". One branch per page, same layout every year
+(2023: 1,900 pages, 2024: 2,055, 2025: 2,181, 2026: 2,307). Parser: `src/parse/seatMatrix.ts`.
+
+| Line | Content |
+|---|---|
+| `01002 - Government College of Engineering, Amravati` | college (2023: 4-digit code, normalised with `codes.ts`) |
+| `Government Autonomous CAP Seats:60` | status label + the branch's CAP seats |
+| `Choice Code Course Name SI MS Seats Minority Seats All India Institute Seats OrphanI OrphanN` | 2023–2025: one `Orphan` column |
+| `0100219110 Civil Engineering 60 60 0 0 0 1 0` | choice code (2023: 9 digits; suffixes F, K, L, LK, U, E kept), course name (may wrap to the next line), SI, MS, minority, All India, institute, orphan |
+| `Category OPEN SC ST VJ/DT NTB NTC NTD OBC SEBC Total` | 2023: no SEBC |
+| `State Level 16 6 6 2 …  55`, or `HU …` and `OHU …` | G and L per category, then the row total |
+| `PWD 1 0 0 0 0 0 0 1 0 2` / `DEF …` | per category, then the row total (no G/L split) |
+| `PWD Common Reserved Seats : 1` / `DEF …` | seats common to all reserved categories |
+| `Economically Weaker Section (EWS) Seats: 6 Tution Fee Waiver Scheme Choice Code: 0100219111T : Seats: 3` | EWS and TFWS (2023: no `:` before `Seats`; empty code when TFWS = 0) |
+
+Observed arithmetic (every branch, all four years): SI = MS + minority + All India + institute;
+CAP Seats = MS + minority + All India; MS = level-row totals + PWD + DEF + orphan, except four
+2026 branches of 06281 (Wadia College, pages 794–797) whose level rows are far smaller than the
+printed MS (source inconsistency; loaded as printed, reported by `seat-matrix-ms-split`). EWS and
+TFWS are outside SI (supernumerary). Common reserved seats are not part of the MS sum
+(`ASSUMPTION`: they overlap the category seats).
+
+Seat-type mapping (to the codes the cutoff lists use; checked against the 2023–2026 cutoff lists):
+
+| Matrix | `seat_type` | `pool` |
+|---|---|---|
+| State Level / HU / OHU row, G or L column, category C | `G<C>S`, `G<C>H`, `G<C>O`, `L<C>…`; OPEN, SC, ST, VJ/DT → VJ, NTB → NT1, NTC → NT2, NTD → NT3, OBC, SEBC | state |
+| PWD row, category C | `PWD<C>H` when the branch has HU/OHU rows, else `PWD<C>S` (the cutoff lists never print `PWD…O`) | state |
+| DEF row, category C | `DEF<C>S` (the cutoff lists only print `DEF…S`) | state |
+| OrphanI / OrphanN (2026); Orphan (2023–2025) | `ORPHANI` / `ORPHANN`; `ORPHANN` (as the cutoff parser maps `ORPHAN`) | state |
+| Minority Seats | `MI` | minority |
+| All India | `AI` | all-india |
+| Institute Seats | `INSTITUTE` (not a CAP seat type) | institute |
+| EWS / TFWS | `EWS` / `TFWS` (on the branch choice code, as in the cutoff lists) | supernumerary |
+| PWD / DEF Common Reserved | `PWDR` / `DEFR` (the cutoff lists print `PWDR<C><L>` with the allotted candidate's category) | common-reserved |
+
+Only cells with seats > 0 become rows. Checks (`seat_matrix-check.json`): blocking — every page
+parsed, no duplicate choice codes, every category row adds up to its printed Total, the SI and CAP
+Seats splits, seats > 0, seat types in the grammar (plus `PWDR`, `DEFR`, `INSTITUTE`), no personal
+data. Informational — the MS split, choice codes missing from that year's cutoff lists, and each
+college's summed SI against `institutes.json` total intake (for 2023–2025 that file is the 2026
+institute list, so differences there mostly show intake growth).
 
 ## Official cutoff list layouts (2026)
 **MH lists** (`Cut Off List for Maharashtra & Minority Seats`, landscape): per college
