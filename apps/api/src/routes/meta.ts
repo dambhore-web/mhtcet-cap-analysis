@@ -45,7 +45,7 @@ export async function getMeta(c: Context, cache: AppCache, pool: pg.Pool, fees: 
       .sort((a, b) => a.list.localeCompare(b.list) || a.round.localeCompare(b.round))
       .map((e) => ({ list: e.list, round: e.round, rows: e.rows, files: [...e.files].sort() })),
     districtsLoaded: [...cache.colleges.values()].filter((c) => c.district).length,
-    fees: { colleges: fees.byCollege.size, verified: fees.verified, source: fees.source },
+    fees: { colleges: fees.byCollege.size, verified: fees.verified },
     loads,
   });
 }

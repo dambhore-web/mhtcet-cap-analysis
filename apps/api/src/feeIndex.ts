@@ -19,23 +19,12 @@ export interface FeeEntry {
   sampleOnly: boolean;
 }
 
-/** Where the fee amounts come from (the `_meta` block of fees.json). */
-export interface FeeSource {
-  name: string;
-  url: string | null;
-  year: string;
-  lastUpdated: string | null;
-}
-
 export interface FeeIndex {
   byCollege: Map<string, FeeEntry>;
   unmatched: string[];
   /** Entries whose amounts link to an FRA order. */
   verified: number;
-  source: FeeSource;
 }
-
-const DEFAULT_SOURCE: FeeSource = { name: "Fee Regulating Authority (FRA), Maharashtra", url: null, year: "2025-26", lastUpdated: null };
 
 const norm = (s: string) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, " ").trim();
 
@@ -64,9 +53,5 @@ export function buildFeeIndex(cache: AppCache, raw: Record<string, unknown> = RA
   if (unmatched.length) {
     console.log(JSON.stringify({ ts: new Date().toISOString(), event: "fees_unmatched", count: unmatched.length, names: unmatched }));
   }
-  const m = raw._meta as { source?: string; url?: string; year?: string; lastUpdated?: string } | undefined;
-  const source: FeeSource = m
-    ? { name: m.source ?? DEFAULT_SOURCE.name, url: m.url ?? null, year: m.year ?? DEFAULT_SOURCE.year, lastUpdated: m.lastUpdated ?? null }
-    : DEFAULT_SOURCE;
-  return { byCollege, unmatched, verified, source };
+  return { byCollege, unmatched, verified };
 }
