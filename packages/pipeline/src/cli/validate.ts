@@ -152,6 +152,18 @@ if (existsSync(meritPath)) {
   });
 }
 
+// ---------- state merit list (PCMMH) ----------
+const mhMeritPath = join(dir, "mh_merit.ndjson");
+if (existsSync(mhMeritPath)) {
+  const mhMerit = await readNdjson<MeritRow>(mhMeritPath);
+  const mc = checkMeritList(mhMerit);
+  add({
+    name: "mh-merit-list", blocking: false, pass: mc.rows > 0 && mc.gaps.length === 0 && mc.duplicates === 0 && mc.monotoneViolations.length === 0,
+    summary: `${mc.rows} rows (merit ${mc.minMerit}-${mc.maxMerit}, gaps ${mc.gaps.length}, duplicates ${mc.duplicates}); monotone violations ${mc.monotoneViolations.length}`,
+    details: { gaps: mc.gaps.slice(0, 100), monotoneViolations: mc.monotoneViolations.slice(0, 20) },
+  });
+}
+
 // ---------- personal data ----------
 const scanned: string[] = [];
 const hits: string[] = [];

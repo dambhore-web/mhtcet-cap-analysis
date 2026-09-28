@@ -3,6 +3,7 @@
 // Refuses to run unless data/processed/<year>/validation.json allows the load and is newer than
 // the processed files. Excluded files, colleges and keys from the validation report are skipped.
 import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { stat } from "node:fs/promises";
 import { join } from "node:path";
 import type { AuthorityId, CutoffRow, MeritRow } from "@mhtcet/core";
@@ -55,6 +56,8 @@ const cutoffs = allCutoffs.filter(
   (c) => !excluded.excludedFiles.includes(c.sourceFile) && !excluded.excludedColleges.includes(c.collegeCode) && !excludedKeys.has(cutoffKey(c)),
 );
 const merit = validation.load.merit.allowed ? await readNdjson<MeritRow>(join(dir, "ai_merit.ndjson")) : [];
+const mhMeritPath = join(dir, "mh_merit.ndjson");
+const mhMerit = existsSync(mhMeritPath) ? await readNdjson<MeritRow>(mhMeritPath) : [];
 
 // Last line of defence: nothing that looks like an application ID goes to the database.
 if (findPersonalData(JSON.stringify([institutes, mhColleges, branches])) || cutoffs.some((c) => findPersonalData(JSON.stringify(c)))) {
@@ -95,6 +98,11 @@ try {
     ["authority", "year", "list", "merit", "exam", "score", "run_id"], ["authority", "year", "list", "merit"],
     merit.map((m) => [AUTHORITY, year, "PCMAI", m.merit, m.exam, m.score, runId]),
     5000);
+
+  counts.mhMeritUpserts = mhMerit.length > 0 ? await upsert(client, "merit_lookup",
+    ["authority", "year", "list", "merit", "exam", "score", "run_id"], ["authority", "year", "list", "merit"],
+    mhMerit.map((m) => [AUTHORITY, year, "PCMMH", m.merit, m.exam, m.score, runId]),
+    5000) : 0;
 
   const q = async (sql: string, p: unknown[] = []): Promise<number> => Number((await client.query<{ n: string }>(sql, p)).rows[0].n);
   const tables = {

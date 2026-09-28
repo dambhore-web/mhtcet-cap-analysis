@@ -21,6 +21,7 @@
     "parse:cutoffs": "npm run parse:cutoffs -w @mhtcet/pipeline --",
     "parse:allotment": "npm run parse:allotment -w @mhtcet/pipeline --",
     "parse:merit": "npm run parse:merit -w @mhtcet/pipeline --",
+    "parse:merit:mh": "npm run parse:merit:mh -w @mhtcet/pipeline --",
     "parse:institutes": "npm run parse:institutes -w @mhtcet/pipeline --",
     "validate": "npm run validate -w @mhtcet/pipeline --",
     "migrate": "npm run migrate -w @mhtcet/pipeline --",
