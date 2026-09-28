@@ -295,3 +295,26 @@ describe("GET /api/colleges/:code/fees with fees loaded from the database", () =
     expect(((await other.json()) as { available: boolean }).available).toBe(false);
   });
 });
+
+// ─── Branch history (year-on-year) ───────────────────────────────────────────
+
+describe("GET /api/branches/:choiceCode/history", () => {
+  it("merges earlier years from the history cache with the cache year's state rows", async () => {
+    const cache = seedCache();
+    cache.history.set("1002119110", [
+      { year: 2024, round: "I", seatType: "GOPENS", section: "State Level", stage: "I", closingMerit: 180, closingPercentile: null },
+      { year: 2025, round: "I", seatType: "GOPENS", section: "State Level", stage: "I", closingMerit: 165, closingPercentile: null },
+    ]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/branches/1002119110/history");
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { years: number[]; collegeCode: string; rows: { year: number; round: string; closingMerit: number }[] };
+    expect(body.collegeCode).toBe("1002");
+    expect(body.years).toEqual([2024, 2025, 2026]);
+    expect(body.rows.filter((r) => r.round === "I").map((r) => [r.year, r.closingMerit])).toEqual([[2024, 180], [2025, 165], [2026, 150]]);
+  });
+
+  it("returns 404 for an unknown choice code", async () => {
+    const { status } = await get("/api/branches/9999999999/history");
+    expect(status).toBe(404);
+  });
+});

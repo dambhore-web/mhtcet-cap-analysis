@@ -75,7 +75,11 @@ test("J4 · What were the cutoffs at COEP?", async ({ page }) => {
   await page.getByRole("link", { name: "Branch trends" }).click();
   await expect(page).toHaveURL(/\/colleges\/16006\/1600601910/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Computer Engineering at COEP");
-  await expect(page.getByRole("heading", { name: "Earlier years" })).toBeVisible();
+  // Year-on-year trend (CAP 2023–2026) with a plain-language verdict, and a round switch
+  await expect(page.getByRole("heading", { name: "Closing rank by year" })).toBeVisible();
+  await expect(page.getByText(/General open, state level got (harder|easier)|stayed about the same/).first()).toBeVisible();
+  await page.getByRole("combobox", { name: "Round" }).selectOption("last");
+  await expect(page.getByText(/2023 and 2024 had three rounds/)).toBeVisible();
 });
 
 test("J5 · Is COEP or VIT better for me?", async ({ page }) => {

@@ -1,3 +1,4 @@
+import type { HistoryRow } from "./yearTrend";
 export type Category = "OPEN" | "OBC" | "SEBC" | "SC" | "ST" | "VJ" | "NT1" | "NT2" | "NT3";
 export type RankStatus = "round-I" | "later-round" | "out-of-range";
 
@@ -84,6 +85,8 @@ export interface DataMeta {
   cutoffRows: number;
   lists: { list: string; round: string; rows: number; files: string[] }[];
   districtsLoaded: number;
+  /** Earlier CAP years loaded for year-on-year trends, e.g. [2023, 2024, 2025]. */
+  earlierYears?: number[];
   fees: { colleges: number; verified: number };
   loads: { id: string; startedAt: string; finishedAt: string | null; status: string }[];
 }
@@ -200,6 +203,11 @@ export const api = {
         `&district=${encodeURIComponent(filters.district ?? "")}&type=${encodeURIComponent(filters.type ?? "")}&limit=400`
     ),
   branches: () => get<{ branches: string[] }>("/api/branches"),
+  /** State closing ranks for one branch across the loaded years (year-on-year trends). */
+  branchHistory: (choiceCode: string) =>
+    get<{ choiceCode: string; collegeCode: string; collegeName: string | null; branch: string; years: number[]; rows: HistoryRow[] }>(
+      `/api/branches/${encodeURIComponent(choiceCode)}/history`,
+    ),
   meta: () => get<DataMeta>("/api/meta"),
   collegeCutoffs: (code: string) =>
     get<{
