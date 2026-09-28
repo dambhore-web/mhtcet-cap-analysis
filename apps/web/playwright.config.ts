@@ -30,6 +30,8 @@ export default defineConfig({
     {
       command: LIVE ? "npm run start -w @mhtcet/api" : "npm run dev:demo -w @mhtcet/api",
       url: "http://localhost:3001/api/health",
+      // every test shares one IP; the API's per-IP budgets would throttle the suite itself
+      env: { ...process.env, RATE_LIMITS: "off" } as Record<string, string>,
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },

@@ -1,5 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { secureHeaders } from "hono/secure-headers";
+import { bodyLimit } from "hono/body-limit";
+import { rateLimit } from "./rateLimit.ts";
 import { randomUUID } from "crypto";
 import { health } from "./routes/health.ts";
 import { getColleges, getCollegeCutoffs } from "./routes/colleges.ts";
@@ -22,14 +25,36 @@ export interface AppOptions {
   assistantClient?: ChatClient;
 }
 
+/**
+ * Browser origins allowed to call the API, from CORS_ORIGINS (comma-separated, e.g. the web app's
+ * https://… URL). Unset means any origin, which is fine while the API is public and cookie-less
+ * (local dev, demo, tests); production must set it before sign-in adds credentials (#15).
+ */
+export function corsOrigin(value = process.env.CORS_ORIGINS): string | string[] {
+  const list = (value ?? "").split(",").map((s) => s.trim().replace(/\/$/, "")).filter(Boolean);
+  return list.length ? list : "*";
+}
+
+/** Largest request body accepted: the assistant's history (12 × 2,000 characters) fits well within it. */
+export const MAX_BODY_BYTES = 64 * 1024;
+
 export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = {}) {
   const app = new Hono();
   const fees = buildFeeIndex(cache, cache.fees);
 
-  app.use("*", cors({ origin: "*" }));
+  app.use("*", cors({ origin: corsOrigin() }));
+  // API responses are JSON only: no framing, no MIME sniffing, no referrer, HTTPS pinned (HSTS).
+  app.use("*", secureHeaders({ contentSecurityPolicy: { defaultSrc: ["'none'"], frameAncestors: ["'none'"] }, crossOriginResourcePolicy: "cross-origin" }));
+  app.use("/api/*", bodyLimit({ maxSize: MAX_BODY_BYTES, onError: (c) => c.json({ error: "payload_too_large" }, 413) }));
+  // Per-IP budgets: searches are CPU-heavy and return the whole state, so they get a tighter one.
+  app.use("/api/rank-finder", rateLimit("search", 60_000, 60));
+  app.use("/api/simulate", rateLimit("search", 60_000, 60));
+  app.use("/api/*", rateLimit("api", 60_000, 600));
 
   app.use("*", async (c, next) => {
-    const reqId = (c.req.header("x-request-id") ?? randomUUID()).slice(0, 36);
+    // Only a plain token from the client is echoed and logged, never arbitrary text.
+    const sent = c.req.header("x-request-id") ?? "";
+    const reqId = /^[A-Za-z0-9-]{1,64}$/.test(sent) ? sent : randomUUID();
     c.res.headers.set("x-request-id", reqId);
     const start = Date.now();
     await next();

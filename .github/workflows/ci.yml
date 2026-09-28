@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main, Dev]
 
+# Read-only GITHUB_TOKEN: no job pushes, comments or releases.
+permissions:
+  contents: read
+
 jobs:
   check:
     name: Typecheck & test
@@ -150,6 +154,8 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_MODEL: ${{ vars.GROQ_MODEL }}
+          # 50 simulated users share one IP here; per-IP budgets would throttle the load test itself
+          RATE_LIMITS: "off"
         run: |
           npm run start -w @mhtcet/api > api.log 2>&1 &
           for i in $(seq 1 120); do curl -sf http://localhost:3001/api/health > /dev/null && exit 0; sleep 1; done

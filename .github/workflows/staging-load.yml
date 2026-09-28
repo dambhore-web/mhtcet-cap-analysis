@@ -9,6 +9,10 @@ on:
     paths:
       - "packages/pipeline/staging-load.json"
 
+# Read-only GITHUB_TOKEN: the job only reads the repo; the database secret is separate.
+permissions:
+  contents: read
+
 concurrency:
   group: staging-load
   cancel-in-progress: false

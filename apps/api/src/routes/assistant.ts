@@ -1,4 +1,6 @@
 import { streamSSE } from "hono/streaming";
+import { z } from "zod";
+import { CATEGORIES } from "@mhtcet/core";
 import type { Context } from "hono";
 import Groq from "groq-sdk";
 import { checkRateLimit, clientIp } from "../rateLimit.ts";
@@ -27,10 +29,20 @@ const RATE_WINDOW_MS = 60 * 60 * 1000;
 const RATE_MAX = 20;
 const MAX_HISTORY = 12;
 
-interface ChatMessage {
-  role: "user" | "assistant";
-  content: string;
-}
+/**
+ * The request body. The profile is written into the model's prompt, so every field is held to a
+ * strict shape: no free text that could smuggle instructions (newlines, markup) into it.
+ */
+const PlainText = z.string().trim().max(120).regex(/^[^\n\r<>{}]*$/, "plain text only");
+export const AssistantRequest = z.object({
+  messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(20_000) })).min(1).max(50),
+  profile: z.object({
+    merit: z.number().int().min(1).max(1_000_000).nullish(),
+    category: z.enum(CATEGORIES).nullish(),
+    gender: z.enum(["M", "F"]).nullish(),
+    homeUniversity: PlainText.nullish(),
+  }).default({}),
+});
 
 export function groqClient(apiKey: string): ChatClient {
   const groq = new Groq({ apiKey });
@@ -71,7 +83,7 @@ export async function postAssistant(c: Context, cache: AppCache, injected?: Chat
   const client = injected ?? groqClient(apiKey!);
 
   const ip = clientIp(c.req);
-  if (!checkRateLimit(ip, RATE_WINDOW_MS, RATE_MAX)) {
+  if (!checkRateLimit(`assistant:${ip}`, RATE_WINDOW_MS, RATE_MAX)) {
     return c.json({
       error: "rate_limited",
       message: "You've reached the free question limit for this hour. Upgrade for unlimited access.",
@@ -79,25 +91,24 @@ export async function postAssistant(c: Context, cache: AppCache, injected?: Chat
     }, 429);
   }
 
-  let body: { messages: ChatMessage[]; profile?: Profile };
+  let raw: unknown;
   try {
-    body = await c.req.json();
+    raw = await c.req.json();
   } catch {
     return c.json({ error: "invalid_json" }, 400);
   }
-
-  const { messages, profile } = body;
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return c.json({ error: "messages_required" }, 400);
+  const parsed = AssistantRequest.safeParse(raw);
+  if (!parsed.success) {
+    const noMessages = parsed.error.issues.some((i) => i.path[0] === "messages");
+    return c.json({ error: noMessages ? "messages_required" : "invalid_request" }, 400);
   }
-  const history = messages
-    .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-    .slice(-MAX_HISTORY)
-    .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
+
+  const { messages, profile } = parsed.data;
+  const history = messages.slice(-MAX_HISTORY).map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }));
 
   return streamSSE(c, async (stream) => {
     try {
-      const result = await runAssistant({ client, cache, profile: profile ?? {}, history });
+      const result = await runAssistant({ client, cache, profile: profile as Profile, history });
       await stream.writeSSE({ data: JSON.stringify({ sources: result.sources, grounded: result.grounded }) });
       // Chunk the checked answer so the page can render it progressively
       for (const piece of result.text.match(/[\s\S]{1,48}(\s|$)/g) ?? [result.text]) {
