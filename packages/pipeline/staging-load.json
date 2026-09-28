@@ -4,9 +4,14 @@
     "cleanupYears": [],
     "years": []
   },
-  "merit": [],
+  "merit": [
+    {
+      "year": 2026,
+      "list": "PCMMH"
+    }
+  ],
   "seatMatrix": {
     "years": []
   },
-  "fees": true
+  "fees": false
 }
