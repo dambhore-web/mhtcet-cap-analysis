@@ -1,4 +1,4 @@
-import type { AppCache } from "../startup.ts";
+import type { AppCache, HistoryRow } from "../startup.ts";
 import type { Branch, College, CutoffRow, Round } from "@mhtcet/core";
 
 /**
@@ -65,6 +65,27 @@ function closingMerit(ci: number, bi: number, si: number, ri: number): number {
   return 600 + ci * 3200 + bi * 1400 + si * 450 + ri * 380;
 }
 
+/**
+ * Invented earlier years for the demo: three rounds in 2023–2024, four in 2025, with closing ranks
+ * that drift by college and branch so some branches get harder and some easier over the years.
+ */
+function demoHistory(ci: number, bi: number, seatTypes: string[]): HistoryRow[] {
+  const out: HistoryRow[] = [];
+  for (const [yi, year] of [DEMO_YEAR - 3, DEMO_YEAR - 2, DEMO_YEAR - 1].entries()) {
+    const drift = 1 + ((bi % 2 === 0 ? 0.07 : -0.05) * (3 - yi));
+    const rounds = year < DEMO_YEAR - 1 ? ROUNDS.slice(0, 3) : ROUNDS;
+    seatTypes.forEach((seatType, si) => {
+      rounds.forEach((round, ri) => {
+        out.push({
+          year, round, seatType, section: "State Level", stage: "I",
+          closingMerit: Math.round(closingMerit(ci, bi, si, ri) * drift), closingPercentile: null,
+        });
+      });
+    });
+  }
+  return out;
+}
+
 export function demoChoiceCode(collegeCode: string, branchIndex: number): string {
   return `${collegeCode}${String(branchIndex + 1).padStart(2, "0")}910`;
 }
@@ -73,6 +94,7 @@ export function demoCache(): AppCache {
   const colleges = new Map<string, College>();
   const branches = new Map<string, Branch>();
   const cutoffsByChoiceCode = new Map<string, CutoffRow[]>();
+  const history = new Map<string, HistoryRow[]>();
 
   DEMO_COLLEGES.forEach((c, ci) => {
     colleges.set(c.code, {
@@ -110,8 +132,9 @@ export function demoCache(): AppCache {
         });
       });
       cutoffsByChoiceCode.set(choiceCode, rows);
+      history.set(choiceCode, demoHistory(ci, bi, seatTypesFor(c).map((s) => s.seatType)));
     });
   });
 
-  return { year: DEMO_YEAR, colleges, branches, cutoffsByChoiceCode };
+  return { year: DEMO_YEAR, colleges, branches, cutoffsByChoiceCode, history };
 }

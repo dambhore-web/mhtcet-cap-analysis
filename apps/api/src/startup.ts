@@ -10,6 +10,11 @@ export interface AppCache {
   /** Cutoff rows keyed by choiceCode — all lists (MH + AI) for the cache year. */
   cutoffsByChoiceCode: Map<string, CutoffRow[]>;
   /**
+   * State (MH) cutoff rows of the years before `year`, keyed by choiceCode, for year-on-year trends.
+   * Kept separate so everything else keeps working on the cache year only.
+   */
+  history: Map<string, HistoryRow[]>;
+  /**
    * Fees from the `fee` table (latest academic year per college), in the fees.json entry shape.
    * Undefined when the table is missing or empty; the API then falls back to the bundled fees.json.
    */
@@ -23,6 +28,17 @@ export interface AppCache {
  * Autonomous institutes have home_university = 'Autonomous Institute' in the DB.
  * We normalise that to null so the eligibility function treats them as State Level only.
  */
+/** One earlier-year state cutoff: only what the year-on-year view needs. */
+export interface HistoryRow {
+  year: number;
+  round: string;
+  seatType: string;
+  section: string;
+  stage: string;
+  closingMerit: number;
+  closingPercentile: number | null;
+}
+
 export async function loadCache(pool: pg.Pool, year: number): Promise<AppCache> {
   const colleges = new Map<string, College>();
   const branches = new Map<string, Branch>();
@@ -87,13 +103,34 @@ export async function loadCache(pool: pg.Pool, year: number): Promise<AppCache> 
     else cutoffsByChoiceCode.set(row.choiceCode, [row]);
   }
 
+  const history = await loadHistory(pool, year);
   const fees = await loadFees(pool, colleges);
 
   console.log(
     `[cache] ${colleges.size} colleges · ${branches.size} branches · ` +
-    `${cuRes.rows.length} cutoff rows (year ${year}) · fees ${fees ? `${Object.keys(fees).length} from the fee table` : "from fees.json"}`,
+    `${cuRes.rows.length} cutoff rows (year ${year}) · ${[...history.values()].reduce((n, r) => n + r.length, 0)} earlier-year rows · fees ${fees ? `${Object.keys(fees).length} from the fee table` : "from fees.json"}`,
   );
-  return { year, colleges, branches, cutoffsByChoiceCode, fees };
+  return { year, colleges, branches, cutoffsByChoiceCode, history, fees };
+}
+
+/** State (MH) cutoffs of the years before `year` (2023–2025 for CAP 2026), keyed by choiceCode. */
+async function loadHistory(pool: pg.Pool, year: number): Promise<Map<string, HistoryRow[]>> {
+  const history = new Map<string, HistoryRow[]>();
+  const { rows } = await pool.query(
+    `SELECT year, round, choice_code, section, seat_type, stage, closing_merit, closing_percentile
+     FROM cutoff WHERE list = 'MH' AND year < $1 AND year >= $1 - 3`,
+    [year],
+  );
+  for (const r of rows) {
+    const row: HistoryRow = {
+      year: r.year, round: r.round, seatType: r.seat_type, section: r.section, stage: r.stage ?? "",
+      closingMerit: r.closing_merit, closingPercentile: r.closing_percentile == null ? null : Number(r.closing_percentile),
+    };
+    const bucket = history.get(r.choice_code);
+    if (bucket) bucket.push(row);
+    else history.set(r.choice_code, [row]);
+  }
+  return history;
 }
 
 /** Latest academic year's fee per college from the `fee` table (migration 004), keyed by college code. */

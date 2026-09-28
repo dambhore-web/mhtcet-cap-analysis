@@ -91,7 +91,13 @@ export function DataPage() {
                 <strong>Districts:</strong>{" "}
                 {meta.districtsLoaded ? `${meta.districtsLoaded} of ${meta.colleges} colleges` : "not loaded yet, so district filters are hidden"}.
               </li>
-              <li><strong>Earlier years (2023–2025) and seats left per round:</strong> not loaded yet.</li>
+              <li>
+                <strong>Earlier years:</strong>{" "}
+                {meta.earlierYears?.length
+                  ? `${meta.earlierYears.join(", ")} state-level cutoffs, shown as year-by-year trends on each branch page`
+                  : "not loaded yet, so year-by-year trends are hidden"}.
+              </li>
+              <li><strong>Seats left per round:</strong> not shown.</li>
             </ul>
 
             {meta.loads.length > 0 && (

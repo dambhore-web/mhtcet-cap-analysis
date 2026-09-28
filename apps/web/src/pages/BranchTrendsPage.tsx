@@ -9,6 +9,8 @@ import { listItemFrom } from "../lib/list";
 import { formatNumber, formatRound, roundIndex } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel, seatTypeSortKey } from "../lib/seatType";
 import "./BranchTrendsPage.css";
+import { YearTrend } from "../components/YearTrend";
+import type { HistoryRow } from "../lib/yearTrend";
 
 interface Row {
   choiceCode: string;
@@ -31,6 +33,7 @@ export function BranchTrendsPage() {
   const [college, setCollege] = useState<{ code: string; name: string } | null>(null);
   const [year, setYear] = useState<number | null>(null);
   const [status, setStatus] = useState<Status>("loading");
+  const [history, setHistory] = useState<HistoryRow[] | null>(null);
   const merit = profile.meritNumber;
 
   useEffect(() => {
@@ -44,6 +47,9 @@ export function BranchTrendsPage() {
         setStatus("done");
       })
       .catch(() => setStatus("error"));
+    // Earlier years are optional: the page still works if the history call fails.
+    setHistory(null);
+    api.branchHistory(choiceCode).then((h) => setHistory(h.rows)).catch(() => setHistory([]));
   }, [code, choiceCode]);
 
   const branch = rows[0]?.branch ?? "Branch";
@@ -104,6 +110,8 @@ export function BranchTrendsPage() {
         </p>
       )}
 
+      {history && history.length > 0 && <YearTrend rows={history} merit={merit ?? null} />}
+
       <section className="card trends-table" aria-labelledby="trends-title">
         <div className="trends-head">
           <h2 id="trends-title">Closing rank by round</h2>
@@ -139,12 +147,8 @@ export function BranchTrendsPage() {
 
       <div className="trends-missing">
         <section className="card">
-          <h2 className="label">Earlier years</h2>
-          <p>2023–2025 cutoffs aren't loaded yet, so four-year trends aren't shown. <Link to="/data">What's loaded</Link></p>
-        </section>
-        <section className="card">
           <h2 className="label">Seats left after each round</h2>
-          <p>The seat matrix and vacancy lists aren't loaded yet. <Link to="/data">What's loaded</Link></p>
+          <p>Vacancies after each round aren't shown. <Link to="/data">What's loaded</Link></p>
         </section>
       </div>
     </div>
