@@ -13,6 +13,7 @@ import { processedDir, REPO_ROOT, REPORTS_DIR } from "../paths.ts";
 import type { MhBranch, MhCollege } from "../parse/cutoffMh.ts";
 import type { InstituteListRow } from "../parse/instituteList.ts";
 import { cutoffKey, findPersonalData, type RunReport } from "../validate/report.ts";
+import { checkMeritList } from "../parse/merit.ts";
 
 const AUTHORITY: AuthorityId = "MH-CET-CELL";
 const EXAM = "MHT-CET";
@@ -61,7 +62,13 @@ const cutoffs = allCutoffs.filter(
 );
 const merit = validation.load.merit.allowed ? await readNdjson<MeritRow>(join(dir, "ai_merit.ndjson")) : [];
 const mhMeritPath = join(dir, "mh_merit.ndjson");
-const mhMerit = existsSync(mhMeritPath) ? await readNdjson<MeritRow>(mhMeritPath) : [];
+const mhMeritAll = existsSync(mhMeritPath) ? await readNdjson<MeritRow>(mhMeritPath) : [];
+// The state list loads only when it is clean: merit 1..N, no duplicates, no score increases within
+// an exam (a mislabelled Diploma block, for example, shows up as increases).
+const mhCheck = checkMeritList(mhMeritAll);
+const mhMeritOk = mhMeritAll.length > 0 && mhCheck.minMerit === 1 && mhCheck.gaps.length === 0 && mhCheck.duplicates === 0 && mhCheck.monotoneViolations.length === 0;
+if (mhMeritAll.length > 0 && !mhMeritOk) console.warn(`[LOAD] mh_merit.ndjson fails its checks (gaps ${mhCheck.gaps.length}, duplicates ${mhCheck.duplicates}, score increases ${mhCheck.monotoneViolations.length}); state merit list not loaded`);
+const mhMerit = mhMeritOk ? mhMeritAll : [];
 
 // Last line of defence: nothing that looks like an application ID goes to the database.
 if (findPersonalData(JSON.stringify([institutes, mhColleges, branches])) || cutoffs.some((c) => findPersonalData(JSON.stringify(c)))) {

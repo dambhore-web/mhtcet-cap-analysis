@@ -71,6 +71,7 @@ erDiagram
 | `branch` | (authority, choice_code) | college_code (FK → college), exam, name, status, run_id, updated_at |
 | `cutoff` | (authority, exam, year, list, round, choice_code, section, seat_type, stage) | college_code, closing_merit, closing_percentile, source (file), source_page, run_id, updated_at |
 | `merit_lookup` | (authority, year, list, merit) | exam, score, run_id. `list` = `PCMAI` for the All India PCM list |
+| `seat_matrix` | (authority, exam, year, choice_code, seat_type) | college_code, pool, seats (> 0), source, source_page, run_id, updated_at. Index (year, college_code). Migration `003_seat_matrix.sql`; seat types and pools in `docs/02-architecture/data-pipeline.md` ("Seat matrix layout"). Sum of pools state + minority + all-india + institute = sanctioned intake; never add `common-reserved` |
 | `schema_migrations` | name | applied_at (written by `npm run migrate`) |
 
 `cutoff` has no foreign key to `branch`: AI and Diploma list choice codes are not all printed in the

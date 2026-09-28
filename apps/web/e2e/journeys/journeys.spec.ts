@@ -87,7 +87,7 @@ test("J5 · Is COEP or VIT better for me?", async ({ page }) => {
   await page.goto("/compare");
   await expect(page.getByRole("heading", { name: /your line across all 2/i })).toBeVisible();
   await expect(page.getByText(/best for you:/i).first()).toBeVisible();
-  await expect(page.getByText(/a year/).first()).toBeVisible(); // COEP fee
+  await expect(page.getByText(/a year/).first()).toBeVisible(); // 06007 fee (COEP is not on the FRA report)
 });
 
 test("J6 · Do TFWS, EWS or Defence seats help me?", async ({ page }) => {

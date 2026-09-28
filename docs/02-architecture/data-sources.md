@@ -10,7 +10,7 @@ AG-002 re-discovers these from the page before each run; don't hard-code them.
 | Cutoffs 2026, state | `blob/documents/2026ENGG_CAP1_MH_CutOff_V1.pdf`, `…CAP2_MH_CutOff.pdf`, `…CAP3_MH_CutOff.pdf`, `…CAP4_MH_CutOff.pdf` | No | Core cutoffs |
 | Cutoffs 2026, All India | `blob/documents/2026ENGG_CAP{1..4}_AI_CutOff.pdf` | No | All India cutoffs |
 | Cutoffs 2026, Diploma | `blob/documents/2026ENGG_CAP4_Diploma_CutOff.pdf` | No | Diploma seats |
-| Seat matrix 2026 (Round I) | `blob/documents/2026_fe_seatmatrix_V1.pdf` | No | Seats per seat type per branch |
+| Seat matrix 2026 (Round I) | `blob/documents/2026_fe_seatmatrix_V1.pdf` | No | Seats per seat type per branch (parsed for 2023–2026: `parse:seatmatrix`, table `seat_matrix`) |
 | Colleges with intake | page `StaticPages/frmInstituteList.aspx?did=1884` | No | College master: code, name, district, university, type, intake |
 | Dr. BATU affiliated colleges | page `StaticPages/frmInstituteList_BATU.aspx?did=62354` | No | Colleges under BATU (university for HU) |
 | Off-campus institutes | `blob/documents/FE2026_OffCampus_Institutes.pdf` | No | College master |
@@ -39,7 +39,7 @@ AG-002 re-discovers these from the page before each run; don't hard-code them.
 ## Outside the CET Cell
 | Data | Source | Notes |
 |---|---|---|
-| **District + approved fees** | FRA engineering report: `https://ay26-27.mahafraportal.org/ssi_prp_25/admin/reports/ajax/get_report_ajax.php?district=all&institute=&sub_type=ENGG&type=HT` (HTML table). Search page: `…/outer.php?q=fee_search_report`. 2025-26: `ay25-26.mahafraportal.org/ssi_prp_24/…` | Columns: Inst ID, name, **District**, status, tuition fee, development fee, total fee, review values. `EN<code>` = CAP code (zero-pad to 5 digits). **306 of 387 CAP colleges match** (checked 2026-09-27). Unmatched: 26 government/aided/university (FRA doesn't set their fees) + 54 unaided (to investigate: other `type` values, or 2025-26 report) |
+| **District + approved fees** | FRA engineering report: `https://ay26-27.mahafraportal.org/ssi_prp_25/admin/reports/ajax/get_report_ajax.php?district=all&institute=&sub_type=ENGG&type=HT` (HTML table). Search page: `…/outer.php?q=fee_search_report`. 2025-26: `ay25-26.mahafraportal.org/ssi_prp_24/…` | Titles say **Academic Year 2026-27** (ay26-27) and **2025-26** (ay25-26); CAP 2026 admits pay 2026-27 fees. Columns: Inst ID, name, **District**, stream, status (`Approved`, `No Upward Revision`, `Interim Order of High Court`), date of meeting, tuition fee, development fee, total fee (review columns are commented out). No TFWS data, no order reference or URL. `type` is ignored for H&T; `institute=<Inst ID>` narrows to one row. Inst ID digits = CAP code (zero-pad, then `normaliseCollegeCode`), usually `EN`, sometimes `AR`/`MB`/`MC`/`HM` for an institute registered under another course. `npm run fees -w @mhtcet/pipeline -- [--refresh]` caches both in `data/raw/fra/` and rebuilds `apps/api/src/data/fees.json`. **319 of 387 match** (fetched 2026-09-28): 313 from 2026-27 (one by exact name), 6 only on 2025-26. Unmatched: 27 government/aided/university/deemed (FRA doesn't set their fees) + 41 unaided not on either report; list in `data/processed/2026/fees-match-report.json` |
 | NIRF rankings | `https://www.nirfindia.org` | Engineering category; 2025 is the latest confirmed; check for 2026 |
 | NBA-accredited programmes | `https://www.nbaind.org/accreditationprogram` | Per programme (branch), by tier |
 | NAAC grades | `http://www.naac.gov.in/index.php/en/19-quick-links/62-accreditationresults` | Per institution |

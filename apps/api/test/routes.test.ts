@@ -46,6 +46,18 @@ describe("GET /api/colleges", () => {
     expect(colleges[0].name.localeCompare(colleges[1].name, "en")).toBeLessThanOrEqual(0);
   });
 
+  it("skips colleges with no cutoffs in the cache year (earlier-year-only colleges)", async () => {
+    const cache = seedCache();
+    cache.colleges.set("09999", {
+      authority: "MH-CET-CELL", exam: "MHT-CET", code: "09999", name: "Aaa Closed College",
+      status: null, homeUniversity: null, totalIntake: null,
+    });
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges");
+    const body = (await res.json()) as { colleges: { code: string }[] };
+    expect(body.colleges.map((c) => c.code)).not.toContain("09999");
+    expect(body.colleges).toHaveLength(2);
+  });
+
   it("filters by query string", async () => {
     const { status, body } = await get("/api/colleges?q=jijabai");
     expect(status).toBe(200);
@@ -181,6 +193,25 @@ describe("GET /api/merit-estimate", () => {
     expect(hi).toBeGreaterThan(lo);
   });
 
+  it("reads only the state merit list, never MHT-CET rows from the All India list", async () => {
+    const calls: { sql: string; params: unknown[] }[] = [];
+    const pool = {
+      query: async (sql: string, params: unknown[]) => {
+        calls.push({ sql, params });
+        return { rows: [{ cnt: "0", min_merit: null, max_merit: null }] };
+      },
+    } as never;
+    const res = await createApp(seedCache(), pool).request(
+      "http://localhost/api/merit-estimate?percentile=90&subjectGroup=PCM",
+    );
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(calls).toHaveLength(1);
+    expect(calls[0].sql).toMatch(/list = \$3/);
+    expect(calls[0].params).toEqual([90, 2026, "PCMMH", "MHT-CET-PCM"]);
+    // No state list loaded yet → honest statistical fallback
+    expect(body.method).toBe("statistical");
+  });
+
   it("returns 400 when percentile is missing", async () => {
     const { status } = await get("/api/merit-estimate?subjectGroup=PCM");
     expect(status).toBe(400);
@@ -239,5 +270,28 @@ describe("not found", () => {
     const { status, body } = await get("/api/nope");
     expect(status).toBe(404);
     expect(body).toMatchObject({ error: "not_found" });
+  });
+});
+
+// ─── Fees from the fee table ─────────────────────────────────────────────────
+
+describe("GET /api/colleges/:code/fees with fees loaded from the database", () => {
+  it("uses the cache's fee rows instead of fees.json, with null parts and the source", async () => {
+    const cache = seedCache();
+    cache.fees = {
+      "1002": {
+        name: "VJTI", collegeCode: "1002", tuitionFee: null, developmentFee: null, otherFees: null, totalAnnualFee: 21000,
+        tfwsAvailable: false, tfwsSeats: null, fraOrderRef: null, fraOrderUrl: null, sampleOnly: false,
+        academicYear: "2026-27", source: "college", sourceUrl: "https://example.org/fees.pdf",
+      },
+    };
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/fees");
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body).toMatchObject({
+      available: true, year: "2026-27", source: "college", sourceUrl: "https://example.org/fees.pdf",
+      fees: { tuitionFee: null, developmentFee: null, otherFees: null, totalAnnualFee: 21000 },
+    });
+    const other = await createApp(cache, stubPool).request("http://localhost/api/colleges/5002/fees");
+    expect(((await other.json()) as { available: boolean }).available).toBe(false);
   });
 });

@@ -1,5 +1,6 @@
 import { isSeatType } from "@mhtcet/core";
 import { clusterLines, median, type Line, type Word } from "../layout.ts";
+import { normaliseChoiceCode, normaliseCollegeCode } from "./codes.ts";
 
 /**
  * Parser for the official "Cut Off List for Maharashtra & Minority Seats" PDFs (MH lists).
@@ -90,10 +91,11 @@ function normSeatCode(code: string): string {
   return code;
 }
 
+const COLLEGE_HEADER = /^\d{4,5} - /;
 const CHROME =
   /Government of Maharashtra|State Common Entrance Test Cell|Cut Off List for|Degree Courses|Master of Engineering|\(Integrated|Admissions A\.Y\./;
 const TITLE_ROUND = /CAP\s+Round\s*-?\s*([IVX]+)\b/;
-/** College codes are 5 digits in 2026; 4 digits in 2023–2025. */
+/** College codes are 5 digits in 2026; 4 digits in 2023–2025 (normalised to 5, see codes.ts). */
 const COLLEGE = /^\d{4,5}$/;
 /** Choice code: 9-10 digits plus optional suffix letters (T TFWS, L regional language, F female, U unaided, K Konkan). */
 const CHOICE = /^\d{9,10}[A-Z]{0,3}$/;
@@ -129,7 +131,10 @@ export class MhCutoffParser {
     this.lastRow = null;
     for (const line of lines) {
       if (/Legends/.test(line.text)) break; // footer: legend, note, page number
-      if (CHROME.test(line.text)) {
+      // A college header is never chrome, even when its name contains a chrome phrase:
+      // "… Group of Institutions (Integrated Campus)" matched `\(Integrated` (meant for the title
+      // "… (Integrated 5 Years)"), so 02111, 02116 and 05303 were filed under the college before them.
+      if (!COLLEGE_HEADER.test(line.text) && CHROME.test(line.text)) {
         const m = TITLE_ROUND.exec(line.text);
         if (m) this.titleRounds.add(m[1]);
         continue;
@@ -147,8 +152,8 @@ export class MhCutoffParser {
     const t = ws.map((w) => w.text);
 
     if (COLLEGE.test(t[0]) && t[1] === "-") {
-      this.collegeCode = t[0];
-      this.colleges.set(t[0], { code: t[0], name: t.slice(2).join(" ") });
+      this.collegeCode = normaliseCollegeCode(t[0]);
+      this.colleges.set(this.collegeCode, { code: this.collegeCode, name: t.slice(2).join(" ") });
       this.branch = null;
       this.section = null;
       this.table = null;
@@ -159,9 +164,9 @@ export class MhCutoffParser {
     if (CHOICE.test(t[0]) && t[1] === "-") {
       if (!this.collegeCode) return this.issue("branch-without-college", line.text);
       this.branch = {
-        choiceCode: t[0], collegeCode: this.collegeCode, name: t.slice(2).join(" "), status: null, homeUniversity: null,
+        choiceCode: normaliseChoiceCode(t[0]), collegeCode: this.collegeCode, name: t.slice(2).join(" "), status: null, homeUniversity: null,
       };
-      this.branches.set(t[0], this.branch);
+      this.branches.set(this.branch.choiceCode, this.branch);
       this.section = null;
       this.table = null;
       this.lastRow = null;

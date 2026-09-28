@@ -121,7 +121,11 @@ export interface CollegeFees {
   code: string;
   name: string;
   year: string;
-  fees: { tuitionFee: number; developmentFee: number; otherFees: number; totalAnnualFee: number };
+  /** Parts are null when the source gives only the total. */
+  fees: { tuitionFee: number | null; developmentFee: number | null; otherFees: number | null; totalAnnualFee: number };
+  /** "FRA" (Fee Regulating Authority report) or "college" (the college's own fee notice). */
+  source?: string;
+  sourceUrl?: string | null;
   tfwsAvailable: boolean;
   tfwsSeats: number | null;
   fraOrderRef: string | null;

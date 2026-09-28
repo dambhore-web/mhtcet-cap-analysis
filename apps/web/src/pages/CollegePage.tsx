@@ -285,9 +285,9 @@ export function CollegePage() {
             <h2 id="cp-fees-title" className="label">Fees per year ({fees.year})</h2>
             <p className="cp-fees-total">{formatInr(fees.fees.totalAnnualFee)}</p>
             <dl className="cp-fees-grid">
-              <div><dt>Tuition</dt><dd>{formatInr(fees.fees.tuitionFee)}</dd></div>
-              <div><dt>Development</dt><dd>{formatInr(fees.fees.developmentFee)}</dd></div>
-              <div><dt>Other</dt><dd>{formatInr(fees.fees.otherFees)}</dd></div>
+              {fees.fees.tuitionFee !== null && <div><dt>Tuition</dt><dd>{formatInr(fees.fees.tuitionFee)}</dd></div>}
+              {fees.fees.developmentFee !== null && <div><dt>Development</dt><dd>{formatInr(fees.fees.developmentFee)}</dd></div>}
+              {fees.fees.otherFees !== null && <div><dt>Other</dt><dd>{formatInr(fees.fees.otherFees)}</dd></div>}
             </dl>
             {fees.tfwsAvailable && (
               <p className="cp-fees-tfws">

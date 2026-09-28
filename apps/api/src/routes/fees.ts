@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import type { FeeIndex } from "../feeIndex.ts";
+import { feeYear, type FeeIndex } from "../feeIndex.ts";
 
 /** GET /api/colleges/:code/fees */
 export function getCollegeFees(c: Context, index: FeeIndex) {
@@ -12,13 +12,15 @@ export function getCollegeFees(c: Context, index: FeeIndex) {
     available: true,
     code,
     name: entry.name,
-    year: "2025-26",
+    year: feeYear(entry),
     fees: {
       tuitionFee: entry.tuitionFee,
       developmentFee: entry.developmentFee,
       otherFees: entry.otherFees,
       totalAnnualFee: entry.totalAnnualFee,
     },
+    source: entry.source ?? "FRA",
+    sourceUrl: entry.sourceUrl ?? null,
     tfwsAvailable: entry.tfwsAvailable,
     tfwsSeats: entry.tfwsSeats,
     fraOrderRef: entry.fraOrderRef,

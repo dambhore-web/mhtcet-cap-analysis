@@ -1,5 +1,6 @@
 import { clusterLines, type Word } from "../layout.ts";
 import type { ParseIssue } from "./cutoffMh.ts";
+import { normaliseChoiceCode, normaliseCollegeCode } from "./codes.ts";
 
 /**
  * Parser for the row-per-branch official cutoff lists: the All India list (`..._AI_CutOff.pdf`)
@@ -140,8 +141,8 @@ export class RowListParser {
       const digitLen = (a.text.match(/^\d+/)?.[0] ?? "").length;
       this.rows.push({
         srNo: sr ? Number(sr.text.replace(/,/g, "")) : null,
-        collegeCode: a.text.slice(0, digitLen === 9 ? 4 : 5),
-        choiceCode: a.text,
+        collegeCode: normaliseCollegeCode(a.text.slice(0, digitLen === 9 ? 4 : 5)),
+        choiceCode: normaliseChoiceCode(a.text),
         closingMerit: Number(merit.text),
         closingPercentile: pct ? Number(PCT.exec(pct.text)![1]) : null,
         exam: joinWin(a, L.exam),

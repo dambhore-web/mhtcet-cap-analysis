@@ -9,6 +9,11 @@ export interface AppCache {
   branches: Map<string, Branch>;
   /** Cutoff rows keyed by choiceCode — all lists (MH + AI) for the cache year. */
   cutoffsByChoiceCode: Map<string, CutoffRow[]>;
+  /**
+   * Fees from the `fee` table (latest academic year per college), in the fees.json entry shape.
+   * Undefined when the table is missing or empty; the API then falls back to the bundled fees.json.
+   */
+  fees?: Record<string, unknown>;
 }
 
 /**
@@ -82,11 +87,51 @@ export async function loadCache(pool: pg.Pool, year: number): Promise<AppCache> 
     else cutoffsByChoiceCode.set(row.choiceCode, [row]);
   }
 
+  const fees = await loadFees(pool, colleges);
+
   console.log(
     `[cache] ${colleges.size} colleges · ${branches.size} branches · ` +
-    `${cuRes.rows.length} cutoff rows (year ${year})`,
+    `${cuRes.rows.length} cutoff rows (year ${year}) · fees ${fees ? `${Object.keys(fees).length} from the fee table` : "from fees.json"}`,
   );
-  return { year, colleges, branches, cutoffsByChoiceCode };
+  return { year, colleges, branches, cutoffsByChoiceCode, fees };
+}
+
+/** Latest academic year's fee per college from the `fee` table (migration 004), keyed by college code. */
+async function loadFees(pool: pg.Pool, colleges: Map<string, College>): Promise<Record<string, unknown> | undefined> {
+  try {
+    const { rows } = await pool.query(
+      `SELECT DISTINCT ON (college_code) college_code, academic_year, tuition_fee, development_fee, other_fees, total_fee,
+              source, source_url, fra_institute_id, fra_status, fra_meeting_date, tfws_available
+       FROM fee WHERE authority = 'MH-CET-CELL' ORDER BY college_code, academic_year DESC`,
+    );
+    if (!rows.length) return undefined;
+    const out: Record<string, unknown> = {};
+    for (const r of rows) {
+      out[r.college_code] = {
+        name: colleges.get(r.college_code)?.name ?? r.college_code,
+        collegeCode: r.college_code,
+        tuitionFee: r.tuition_fee,
+        developmentFee: r.development_fee,
+        otherFees: r.other_fees,
+        totalAnnualFee: r.total_fee,
+        tfwsAvailable: r.tfws_available === true,
+        tfwsSeats: null,
+        fraOrderRef: null,
+        fraOrderUrl: null,
+        sampleOnly: false,
+        academicYear: r.academic_year,
+        source: r.source,
+        fraInstituteId: r.fra_institute_id ?? undefined,
+        fraStatus: r.fra_status ?? undefined,
+        sourceUrl: r.source_url,
+      };
+    }
+    return out;
+  } catch (err) {
+    // Before migration 004 the table does not exist; fees.json is used instead.
+    console.log(JSON.stringify({ ts: new Date().toISOString(), event: "fees_table_unavailable", error: (err as Error).message }));
+    return undefined;
+  }
 }
 
 /** Extract minority community from a college's status string (e.g. "Religious Minority - Muslim" → "Muslim"). */

@@ -117,10 +117,16 @@ describe("JEE estimate (#8)", () => {
 
 describe("fees (#42)", () => {
   it("resolves fee entries to 5-digit college codes and marks unverified amounts", async () => {
-    const res = await app.request("http://localhost/api/colleges/16006/fees");
+    const res = await app.request("http://localhost/api/colleges/06007/fees");
     const body = (await res.json()) as Record<string, any>;
-    expect(body).toMatchObject({ available: true, code: "16006", verified: false });
+    expect(body).toMatchObject({ available: true, code: "06007", year: "2026-27", verified: false, fraOrderUrl: null });
+    expect(body.fees.totalAnnualFee).toBe(body.fees.tuitionFee + body.fees.developmentFee + body.fees.otherFees);
     expect(body.disclaimer).toMatch(/Not yet checked/);
+  });
+
+  it("serves no fees for a government college the FRA report doesn't list", async () => {
+    const res = await app.request("http://localhost/api/colleges/16006/fees");
+    expect(((await res.json()) as Record<string, any>).available).toBe(false);
   });
 
   it("never serves fees under a legacy 4-digit key", async () => {
@@ -160,6 +166,6 @@ describe("colleges and meta (#114, #115)", () => {
     const body = (await (await app.request("http://localhost/api/meta")).json()) as Record<string, any>;
     expect(body).toMatchObject({ year: 2026, colleges: 6, branches: 24 });
     expect(body.lists.map((l: { list: string; round: string }) => `${l.list}-${l.round}`)).toContain("MH-IV");
-    expect(body.fees.colleges).toBe(4);
+    expect(body.fees.colleges).toBe(2); // 06271 and 06007; the government demo colleges have no FRA fees
   });
 });

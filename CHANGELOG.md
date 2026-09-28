@@ -2,6 +2,16 @@
 
 ## Unreleased
 ### Changed
+- College fees rebuilt from the live FRA "Fee Approved" engineering reports (#42). Why: the old
+  file hard-coded the rows, labelled 2026-27 fees as 2025-26, and kept four government-college
+  entries (COEP, VJTI, ICT, SPCE) with order numbers no source states.
+  - `npm run fees -w @mhtcet/pipeline` fetches (or reuses `data/raw/fra/`) the 2026-27 and
+    2025-26 reports, matches by normalised code, then exact name, and writes `fees.json`
+    with each entry's academic year, FRA id, status, meeting date and source URL.
+  - 319 of 387 current colleges have fees (was 310); unmatched colleges are listed with a reason
+    in `data/processed/2026/fees-match-report.json`. Government colleges have none.
+  - The fee API returns the entry's own year instead of a fixed "2025-26".
+  - `scripts/generate-fees.mjs` is replaced by the TypeScript pipeline command.
 - Ask Compass: code now writes every cutoff number (accuracy plan, #20). Why: the eval showed
   the model's remaining errors were picking or copying the wrong row. RAG was considered and
   rejected (ADR-004).
@@ -46,6 +56,12 @@
     question, which matters under Groq's free-tier limit of 8,000 tokens a minute.
 
 ### Added
+- Seat matrix pipeline (#40, first half): `parse:seatmatrix` and `load:seatmatrix` read the CET
+  Cell's Round I seat matrix for 2023–2026 into the new `seat_matrix` table (migration 003): seats
+  per choice code per seat type, using the cutoff lists' seat-type codes, plus a `pool` column
+  (state, minority, all-india, institute, supernumerary, common-reserved). Every branch's printed
+  totals are checked before loading. `download --seat-matrix` fetches the PDF. Tested with
+  synthetic fixtures and a load of all four years into a local Postgres.
 - Assistant eval set and runner (#20). Why: a prompt, model or tool change needs a measurable gate
   before it merges.
   - **Eval set:** 54 cases in `apps/api/evals/assistant.v1.jsonl` across six groups, including 10

@@ -15,7 +15,7 @@ JSON responses of 1 KB or more are gzipped when the request sends `Accept-Encodi
 | GET | `/api/meta` | What data is loaded: counts, lists × rounds with source files, fee and district coverage, recent loads (#114) |
 | GET | `/api/colleges?q=&university=&district=&type=&limit=` | College search; response also lists the `districts` and `collegeTypes` present |
 | GET | `/api/colleges/:code/cutoffs?year=` | Every cutoff row for a college, each with `source` (PDF) and `sourcePage`; the college's HU, district, type, intake |
-| GET | `/api/colleges/:code/fees` | FRA fees matched to the 5-digit college code; `verified` only when the FRA order is linked (#42) |
+| GET | `/api/colleges/:code/fees` | FRA fees matched to the 5-digit college code; `year` is the entry's FRA academic year (2026-27, or 2025-26 when the college isn't on the newer report); `verified` only when the FRA order is linked, which the FRA report never does (#42) |
 | POST | `/api/rank-finder` | FR-005. `candidature: "MH" \| "AI"` (#8). Each option has `firstRoundClosing`, `lastRoundClosing`, `rounds[]`, `source`, `list`, `district` |
 | POST | `/api/simulate` | CAP replay of Rounds I–IV with the auto-freeze rule (#36): `rounds[]`, a per-choice `grid`, `freezeZones`, `assumptions` |
 | GET | `/api/merit-estimate?percentile=&subjectGroup=` | MHT-CET percentile → state merit range (statistical until the state merit list is loaded, #10) |
