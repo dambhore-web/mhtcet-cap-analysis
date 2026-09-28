@@ -6,6 +6,7 @@ export interface ResultFilters {
   district?: string | null;
   collegeType?: string | null;
   branchGroup?: string | null;
+  branch?: string | null;
 }
 
 /** MH: state merit number, state-quota seats. AI: All India merit number, All India seats (JEE Main). */
@@ -194,6 +195,7 @@ export const api = {
       `/api/colleges?q=${encodeURIComponent(q)}&university=${encodeURIComponent(university ?? "")}` +
         `&district=${encodeURIComponent(filters.district ?? "")}&type=${encodeURIComponent(filters.type ?? "")}&limit=400`
     ),
+  branches: () => get<{ branches: string[] }>("/api/branches"),
   meta: () => get<DataMeta>("/api/meta"),
   collegeCutoffs: (code: string) =>
     get<{

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api, BRANCH_GROUPS, type FindOption } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
@@ -26,18 +26,103 @@ function isGroup(v: string | null): v is BranchGroup {
 export function BranchesPage() {
   const { profile } = useProfile();
   const [params, setParams] = useSearchParams();
-  const group: BranchGroup = isGroup(params.get("group")) ? (params.get("group") as BranchGroup) : BRANCH_GROUPS[0];
+  const selectedBranch = params.get("branch") ?? null;
+  const group: BranchGroup | null = selectedBranch
+    ? null
+    : isGroup(params.get("group"))
+      ? (params.get("group") as BranchGroup)
+      : BRANCH_GROUPS[0];
+
   const [results, setResults] = useState<FindOption[]>([]);
   const [status, setStatus] = useState<Status>("loading");
   const [retry, setRetry] = useState(0);
   const merit = profile.meritNumber;
+
+  // Branch combobox
+  const [allBranches, setAllBranches] = useState<string[]>([]);
+  const [comboLoading, setComboLoading] = useState(true);
+  const [comboQuery, setComboQuery] = useState(selectedBranch ?? "");
+  const [comboOpen, setComboOpen] = useState(false);
+  const [highlighted, setHighlighted] = useState(0);
+  const comboRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Prevents the URL-sync effect from wiping the input when the user types (which itself clears the URL param).
+  const suppressSyncRef = useRef(false);
+
+  useEffect(() => {
+    api
+      .branches()
+      .then((r) => { setAllBranches(r.branches); setComboLoading(false); })
+      .catch(() => setComboLoading(false));
+  }, []);
+
+  // Sync input when selectedBranch changes externally (e.g. browser back/forward).
+  useEffect(() => {
+    if (suppressSyncRef.current) { suppressSyncRef.current = false; return; }
+    setComboQuery(selectedBranch ?? "");
+  }, [selectedBranch]);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (comboRef.current && !comboRef.current.contains(e.target as Node)) {
+        setComboOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, []);
+
+  const filteredBranches = useMemo(
+    () =>
+      allBranches
+        .filter((b) => b.toLowerCase().includes(comboQuery.toLowerCase()))
+        .slice(0, 60),
+    [allBranches, comboQuery],
+  );
+
+  const selectBranch = (b: string) => {
+    setComboQuery(b);
+    setComboOpen(false);
+    setParams({ branch: b }, { replace: true });
+  };
+
+  const clearBranch = () => {
+    setComboQuery("");
+    setComboOpen(false);
+    setParams({ group: group ?? BRANCH_GROUPS[0] }, { replace: true });
+    inputRef.current?.focus();
+  };
+
+  const onComboKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!comboOpen) {
+      if (e.key === "ArrowDown" || e.key === "Enter") {
+        setComboOpen(true);
+        setHighlighted(0);
+        e.preventDefault();
+      }
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      setHighlighted((h) => Math.min(h + 1, filteredBranches.length - 1));
+      e.preventDefault();
+    } else if (e.key === "ArrowUp") {
+      setHighlighted((h) => Math.max(h - 1, 0));
+      e.preventDefault();
+    } else if (e.key === "Enter") {
+      const pick = filteredBranches[highlighted];
+      if (pick) selectBranch(pick);
+      e.preventDefault();
+    } else if (e.key === "Escape") {
+      setComboOpen(false);
+      if (!selectedBranch) setComboQuery("");
+    }
+  };
 
   useEffect(() => {
     let live = true;
     setStatus("loading");
     api
       .find({
-        // without a merit number every branch is listed; statuses are hidden
         merit: merit ?? 1,
         homeUniversity: profile.homeUniversity || null,
         category: profile.category ?? null,
@@ -45,7 +130,7 @@ export function BranchesPage() {
         minorityCommunity: null,
         flags: { ews: profile.ews, tfws: profile.tfws, defence: profile.defence, pwd: profile.pwd, orphan: profile.orphan },
         subjectGroup: profile.subjectGroup,
-        filters: { branchGroup: group },
+        filters: { branchGroup: group, branch: selectedBranch },
       })
       .then((r) => {
         if (!live) return;
@@ -56,13 +141,14 @@ export function BranchesPage() {
     return () => {
       live = false;
     };
-  }, [group, merit, profile, retry]);
+  }, [group, selectedBranch, merit, profile, retry]);
 
   const domain = useMemo(
     () => ladderDomain(results.flatMap((r) => [r.firstRoundClosing ?? r.closingMerit, r.lastRoundClosing ?? r.closingMerit, ...(merit ? [merit] : [])])),
     [results, merit],
   );
   const reachable = merit ? results.filter((r) => r.status !== "out-of-range").length : null;
+  const activeLabel = selectedBranch ?? group ?? "";
 
   return (
     <div className="page branches-page">
@@ -83,18 +169,102 @@ export function BranchesPage() {
         }
       />
 
-      <div className="branches-groups" role="group" aria-label="Branch">
-        {BRANCH_GROUPS.map((g) => (
-          <button
-            key={g}
-            type="button"
-            className={`branches-group${g === group ? " active" : ""}`}
-            aria-pressed={g === group}
-            onClick={() => setParams({ group: g }, { replace: true })}
-          >
-            {g}
-          </button>
-        ))}
+      <div className="branches-filter-row">
+        <div className="branches-groups" role="group" aria-label="Branch group">
+          {BRANCH_GROUPS.map((g) => (
+            <button
+              key={g}
+              type="button"
+              className={`branches-group${g === group ? " active" : ""}`}
+              aria-pressed={g === group}
+              onClick={() => {
+                setComboQuery("");
+                setComboOpen(false);
+                setParams({ group: g }, { replace: true });
+              }}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+
+        <div className="branches-combo" ref={comboRef}>
+          <div className="branches-combo-wrap">
+            <input
+              ref={inputRef}
+              id="branch-search"
+              type="text"
+              role="combobox"
+              aria-expanded={comboOpen}
+              aria-autocomplete="list"
+              aria-controls="branch-combo-list"
+              aria-label="Search a specific branch"
+              className={`branches-combo-input${selectedBranch ? " has-value" : ""}`}
+              placeholder="Search branch…"
+              value={comboQuery}
+              autoComplete="off"
+              onChange={(e) => {
+                setComboQuery(e.target.value);
+                setComboOpen(true);
+                setHighlighted(0);
+                if (selectedBranch) {
+                  suppressSyncRef.current = true;
+                  setParams({ group: group ?? BRANCH_GROUPS[0] }, { replace: true });
+                }
+              }}
+              onFocus={() => {
+                setComboOpen(true);
+                setHighlighted(0);
+              }}
+              onKeyDown={onComboKeyDown}
+            />
+            {comboQuery ? (
+              <button
+                type="button"
+                className="branches-combo-clear"
+                aria-label="Clear branch filter"
+                tabIndex={-1}
+                onClick={clearBranch}
+              >
+                ×
+              </button>
+            ) : (
+              <span className="branches-combo-icon" aria-hidden="true">
+                <Icon name="search" size={14} />
+              </span>
+            )}
+          </div>
+          {comboOpen && (
+            <ul
+              id="branch-combo-list"
+              role="listbox"
+              aria-label="Branches"
+              className="branches-combo-list"
+            >
+              {comboLoading ? (
+                <li className="branches-combo-hint">Loading branches…</li>
+              ) : filteredBranches.length === 0 ? (
+                <li className="branches-combo-hint">No branches match</li>
+              ) : (
+                filteredBranches.map((b, i) => (
+                  <li
+                    key={b}
+                    role="option"
+                    aria-selected={b === selectedBranch}
+                    className={`branches-combo-item${i === highlighted ? " highlighted" : ""}${b === selectedBranch ? " selected" : ""}`}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      selectBranch(b);
+                    }}
+                    onMouseEnter={() => setHighlighted(i)}
+                  >
+                    {b}
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
+        </div>
       </div>
 
       {status === "error" ? (
@@ -105,14 +275,14 @@ export function BranchesPage() {
         </div>
       ) : status === "done" && results.length === 0 ? (
         <div className="empty-state">
-          <h2>No colleges offer {group} in this data</h2>
+          <h2>No colleges offer {activeLabel} in this data</h2>
           <p>Try another branch.</p>
         </div>
       ) : (
         <section className="card branches-table" aria-labelledby="branches-title" aria-busy={status === "loading"}>
           <div className="branches-table-head">
             <h2 id="branches-title">
-              {group}: {status === "loading" ? "loading…" : `${results.length} ${results.length === 1 ? "college" : "colleges"}`}
+              {activeLabel}: {status === "loading" ? "loading…" : `${results.length} ${results.length === 1 ? "college" : "colleges"}`}
               {reachable != null && status === "done" && <span className="branches-reach"> · {reachable} within reach for you</span>}
             </h2>
             <LadderLegend showYou={!!merit} />

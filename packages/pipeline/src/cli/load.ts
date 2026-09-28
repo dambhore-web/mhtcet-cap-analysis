@@ -3,6 +3,7 @@
 // Refuses to run unless data/processed/<year>/validation.json allows the load and is newer than
 // the processed files. Excluded files, colleges and keys from the validation report are skipped.
 import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { stat } from "node:fs/promises";
 import { join } from "node:path";
 import type { AuthorityId, CutoffRow, MeritRow } from "@mhtcet/core";
@@ -21,7 +22,9 @@ const dir = processedDir(year);
 const validation = await readJson<RunReport>(join(dir, "validation.json"));
 if (!validation.load.allowed) throw new Error(`[LOAD] validation blocks the load: ${validation.load.blockedBy.join(", ")}`);
 const vTime = (await stat(join(dir, "validation.json"))).mtimeMs;
-for (const f of ["cutoffs.ndjson", "institutes.json", "cutoff-colleges.json", "ai_merit.ndjson"]) {
+const filesToCheck = ["cutoffs.ndjson", "institutes.json", "cutoff-colleges.json"];
+if (validation.load.merit.allowed) filesToCheck.push("ai_merit.ndjson");
+for (const f of filesToCheck) {
   if ((await stat(join(dir, f))).mtimeMs > vTime) throw new Error(`[LOAD] ${f} changed after validation; run validate again`);
 }
 
@@ -32,12 +35,20 @@ const collegeMetaPath = join(REPO_ROOT, "packages/pipeline/data", `college-meta-
 const collegeMeta = await readJson<Record<string, { district: string | null; collegeType: string | null }>>(
   collegeMetaPath,
 ).catch(() => ({} as Record<string, { district: string | null; collegeType: string | null }>));
-const institutes = rawInstitutes.map((i) => ({
+const { colleges: mhColleges, branches } = await readJson<{ colleges: MhCollege[]; branches: MhBranch[] }>(join(dir, "cutoff-colleges.json"));
+const institutesByCode = new Map(rawInstitutes.map((i) => [i.code, i]));
+// For historical years the institute list may be a proxy from a different year; supplement it
+// with any colleges found in the MH cutoff PDFs so branch FK constraints are satisfied.
+for (const c of mhColleges) {
+  if (!institutesByCode.has(c.code)) {
+    institutesByCode.set(c.code, { code: c.code, name: c.name, status: "", totalIntake: null });
+  }
+}
+const institutes = [...institutesByCode.values()].map((i) => ({
   ...i,
   district: collegeMeta[i.code]?.district ?? null,
   collegeType: collegeMeta[i.code]?.collegeType ?? null,
 }));
-const { colleges: mhColleges, branches } = await readJson<{ colleges: MhCollege[]; branches: MhBranch[] }>(join(dir, "cutoff-colleges.json"));
 const excluded = validation.load.cutoffs;
 const excludedKeys = new Set(excluded.excludedKeys);
 const allCutoffs = await readNdjson<CutoffRow>(join(dir, "cutoffs.ndjson"));
@@ -45,6 +56,8 @@ const cutoffs = allCutoffs.filter(
   (c) => !excluded.excludedFiles.includes(c.sourceFile) && !excluded.excludedColleges.includes(c.collegeCode) && !excludedKeys.has(cutoffKey(c)),
 );
 const merit = validation.load.merit.allowed ? await readNdjson<MeritRow>(join(dir, "ai_merit.ndjson")) : [];
+const mhMeritPath = join(dir, "mh_merit.ndjson");
+const mhMerit = existsSync(mhMeritPath) ? await readNdjson<MeritRow>(mhMeritPath) : [];
 
 // Last line of defence: nothing that looks like an application ID goes to the database.
 if (findPersonalData(JSON.stringify([institutes, mhColleges, branches])) || cutoffs.some((c) => findPersonalData(JSON.stringify(c)))) {
@@ -85,6 +98,11 @@ try {
     ["authority", "year", "list", "merit", "exam", "score", "run_id"], ["authority", "year", "list", "merit"],
     merit.map((m) => [AUTHORITY, year, "PCMAI", m.merit, m.exam, m.score, runId]),
     5000);
+
+  counts.mhMeritUpserts = mhMerit.length > 0 ? await upsert(client, "merit_lookup",
+    ["authority", "year", "list", "merit", "exam", "score", "run_id"], ["authority", "year", "list", "merit"],
+    mhMerit.map((m) => [AUTHORITY, year, "PCMMH", m.merit, m.exam, m.score, runId]),
+    5000) : 0;
 
   const q = async (sql: string, p: unknown[] = []): Promise<number> => Number((await client.query<{ n: string }>(sql, p)).rows[0].n);
   const tables = {

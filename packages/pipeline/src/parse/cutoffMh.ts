@@ -76,10 +76,25 @@ interface Row {
   page: number;
 }
 
+/**
+ * Historical PDFs used different seat-type spellings. Normalise to the canonical 2026 codes
+ * before header detection so older years parse cleanly.
+ *   ORPH / ORPHAN  → ORPHANN  (2024-2025 used short form for non-minority orphan)
+ *   Codes missing trailing level letter (S = state level): PWDROBC → PWDROBCS, DEFRSEBC → DEFRSEBCS
+ */
+const SEAT_CODE_ALIASES: Record<string, string> = { ORPH: "ORPHANN", ORPHAN: "ORPHANN" };
+function normSeatCode(code: string): string {
+  const alias = SEAT_CODE_ALIASES[code];
+  if (alias) return alias;
+  if (!isSeatType(code) && isSeatType(code + "S")) return code + "S";
+  return code;
+}
+
 const CHROME =
   /Government of Maharashtra|State Common Entrance Test Cell|Cut Off List for|Degree Courses|Master of Engineering|\(Integrated|Admissions A\.Y\./;
 const TITLE_ROUND = /CAP\s+Round\s*-?\s*([IVX]+)\b/;
-const COLLEGE = /^\d{5}$/;
+/** College codes are 5 digits in 2026; 4 digits in 2023–2025. */
+const COLLEGE = /^\d{4,5}$/;
 /** Choice code: 9-10 digits plus optional suffix letters (T TFWS, L regional language, F female, U unaided, K Konkan). */
 const CHOICE = /^\d{9,10}[A-Z]{0,3}$/;
 const NUM = /^\d+$/;
@@ -170,7 +185,7 @@ export class MhCutoffParser {
       this.expect = null;
       return;
     }
-    const codes = t.filter((x) => x !== "Stage");
+    const codes = t.filter((x) => x !== "Stage").map(normSeatCode);
     if (codes.length && codes.every(isSeatType)) return this.header(line, codes, continuation);
     if (t.length === 1 && t[0] === "Stage") return;
 
@@ -197,7 +212,8 @@ export class MhCutoffParser {
 
   private header(line: Line, codes: string[], continuation: boolean): void {
     const hws = line.words.filter((w) => w.text !== "Stage");
-    const headers = hws.map((w) => ({ code: w.text, center: (w.x0 + w.x1) / 2 }));
+    // Use the normalized codes (already checked by the caller) so ORPHAN→ORPHANN etc. are stored.
+    const headers = hws.map((w, i) => ({ code: codes[i], center: (w.x0 + w.x1) / 2 }));
     const diffs = headers.slice(1).map((h, i) => h.center - headers[i].center);
     const pitch = diffs.length ? median(diffs) : DEFAULT_PITCH;
     let ctx: Ctx;
