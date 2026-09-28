@@ -17,6 +17,7 @@ const ResultFiltersSchema = z.object({
   district: z.string().nullable().default(null),
   collegeType: z.string().nullable().default(null),
   branchGroup: z.string().nullable().default(null),
+  branch: z.string().nullable().default(null),
 }).default({});
 
 const RequestSchema = z.object({

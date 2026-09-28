@@ -237,9 +237,14 @@ export function FindPage() {
   const shown = useMemo(() => (whatIf == null ? options : options.map((o) => withStatusFor(o, whatIf))), [options, whatIf]);
   const roundI = shown.filter((o) => o.status === "round-I");
   const later = shown.filter((o) => o.status === "later-round");
-  const groups = useMemo(() => groupByCollege(shown), [shown]);
+  // When the slider is active, hide options that fell out-of-range at the what-if merit.
+  const displayed = useMemo(
+    () => (whatIf == null ? shown : shown.filter((o) => o.status !== "out-of-range")),
+    [shown, whatIf],
+  );
+  const groups = useMemo(() => groupByCollege(displayed), [displayed]);
   const PAGE = view === "college" ? 12 : 30;
-  const total = view === "college" ? groups.length : shown.length;
+  const total = view === "college" ? groups.length : displayed.length;
   const domain = useMemo(
     () => ladderDomain(options.flatMap((o) => [o.firstRoundClosing ?? o.closingMerit, o.lastRoundClosing ?? o.closingMerit]).concat(effMerit ? [effMerit] : [])),
     [options, effMerit],
@@ -637,7 +642,7 @@ export function FindPage() {
                   </div>
                 ) : (
                   <ul className="results-list">
-                    {(showAll ? shown : shown.slice(0, PAGE)).map((opt) => (
+                    {(showAll ? displayed : displayed.slice(0, PAGE)).map((opt) => (
                       <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={effMerit} domain={domain} showCollege />
                     ))}
                   </ul>

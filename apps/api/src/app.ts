@@ -10,6 +10,7 @@ import { postSimulate } from "./routes/simulate.ts";
 import { getJeeEstimate } from "./routes/jeeEstimate.ts";
 import { postAssistant } from "./routes/assistant.ts";
 import { getMeta } from "./routes/meta.ts";
+import { getBranches } from "./routes/branches.ts";
 import type { AppCache } from "./startup.ts";
 import { buildFeeIndex } from "./feeIndex.ts";
 import { compressJson } from "./compress.ts";
@@ -54,6 +55,7 @@ export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = 
   app.post("/api/simulate", (c) => postSimulate(c, cache));
   app.get("/api/merit-estimate", (c) => getMeritEstimate(c, pool));
   app.get("/api/jee-estimate", (c) => getJeeEstimate(c, pool));
+  app.get("/api/branches", (c) => getBranches(c, cache));
   app.get("/api/colleges/:code/fees", (c) => getCollegeFees(c, fees));
   app.post("/api/assistant", (c) => postAssistant(c, cache, options.assistantClient));
 

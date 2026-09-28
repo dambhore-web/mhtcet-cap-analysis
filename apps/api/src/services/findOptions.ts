@@ -11,7 +11,7 @@ export interface FindOptionsRequest {
   minorityCommunity: string | null;
   flags: { ews: boolean; tfws: boolean; defence: boolean; pwd: boolean; orphan: boolean };
   subjectGroup: "PCM" | "PCB";
-  filters: { university: string | null; district: string | null; collegeType: string | null; branchGroup: string | null };
+  filters: { university: string | null; district: string | null; collegeType: string | null; branchGroup: string | null; branch: string | null };
 }
 
 export const BRANCH_GROUP_PATTERNS: Record<string, RegExp> = {
@@ -65,7 +65,7 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
 
   const options: FoundOption[] = [];
 
-  const { university, district, collegeType, branchGroup } = req.filters;
+  const { university, district, collegeType, branchGroup, branch: branchName } = req.filters;
   // Eligibility depends only on the candidate and the college, so work it out once per college
   const eligibleByCollege = new Map<string, { ctx: CollegeEligibilityContext; types: string[] }>();
 
@@ -79,7 +79,8 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
     if (university && college.homeUniversity !== university) continue;
     if (district && college.district !== district) continue;
     if (collegeType && college.collegeType !== collegeType) continue;
-    if (branchGroup) {
+    if (branchName && branch.name.toLowerCase() !== branchName.toLowerCase()) continue;
+    if (!branchName && branchGroup) {
       const pattern = BRANCH_GROUP_PATTERNS[branchGroup];
       if (pattern && !pattern.test(branch.name)) continue;
     }

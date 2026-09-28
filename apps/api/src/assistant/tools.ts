@@ -225,7 +225,7 @@ export function runTool(name: string, rawArgs: unknown, ctx: ToolContext): Sourc
         minorityCommunity: null,
         flags: { ews: false, tfws: false, defence: false, pwd: false, orphan: false, ...(a.flags ?? {}) },
         subjectGroup: "PCM",
-        filters: { university: null, district: a.district ?? null, collegeType: null, branchGroup: a.branchGroup ?? null },
+        filters: { university: null, district: a.district ?? null, collegeType: null, branchGroup: a.branchGroup ?? null, branch: null },
       });
       return options
         .filter((o) => !a.onlyReachable || o.status !== "out-of-range")
