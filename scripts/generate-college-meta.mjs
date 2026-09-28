@@ -1,7 +1,7 @@
 // One-time script: generates data/processed/2026/college-meta.json
 // containing district and collegeType for all 387 colleges.
 // Sources:
-//   - district: FRA portal data (same source as generate-fees.mjs)
+//   - district: FRA portal data (the FRA fee report that `npm run fees -w @mhtcet/pipeline` reads)
 //   - collegeType: derived from institutes.json status field
 //   - district fallback: inferred from college name for govt colleges not in FRA
 // Run: node scripts/generate-college-meta.mjs
@@ -15,7 +15,7 @@ const root = join(__dirname, "..");
 const institutes = JSON.parse(readFileSync(join(root, "data/processed/2026/institutes.json"), "utf-8"));
 
 // ── District from FRA data ──────────────────────────────────────────────────
-// Same EN* entries as generate-fees.mjs. Only district and instId are used here.
+// EN* entries copied from the FRA 2026-27 fee report. Only district and instId are used here.
 const FRA_DISTRICTS = [
   ["EN03143","Mumbai-Suburban"],["EN05249","Jalgaon"],["EN05370","Ahilyanagar"],
   ["EN05513","Nandurbar"],["EN05545","Dhule"],["EN06007","Sangli"],

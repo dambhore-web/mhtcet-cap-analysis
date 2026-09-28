@@ -2,6 +2,16 @@
 
 ## Unreleased
 ### Changed
+- College fees rebuilt from the live FRA "Fee Approved" engineering reports (#42). Why: the old
+  file hard-coded the rows, labelled 2026-27 fees as 2025-26, and kept four government-college
+  entries (COEP, VJTI, ICT, SPCE) with order numbers no source states.
+  - `npm run fees -w @mhtcet/pipeline` fetches (or reuses `data/raw/fra/`) the 2026-27 and
+    2025-26 reports, matches by normalised code, then exact name, and writes `fees.json`
+    with each entry's academic year, FRA id, status, meeting date and source URL.
+  - 319 of 387 current colleges have fees (was 310); unmatched colleges are listed with a reason
+    in `data/processed/2026/fees-match-report.json`. Government colleges have none.
+  - The fee API returns the entry's own year instead of a fixed "2025-26".
+  - `scripts/generate-fees.mjs` is replaced by the TypeScript pipeline command.
 - Ask Compass: code now writes every cutoff number (accuracy plan, #20). Why: the eval showed
   the model's remaining errors were picking or copying the wrong row. RAG was considered and
   rejected (ADR-004).

@@ -17,6 +17,18 @@ export interface FeeEntry {
   fraOrderRef: string | null;
   fraOrderUrl: string | null;
   sampleOnly: boolean;
+  /** FRA academic year of the amounts, e.g. "2026-27" (written by `npm run fees`). */
+  academicYear?: string;
+  fraInstituteId?: string;
+  fraStatus?: string;
+  fraMeetingDate?: string | null;
+  /** The FRA report row this entry comes from. */
+  sourceUrl?: string;
+}
+
+/** The FRA academic year of an entry; entries without one fall back to fees.json's `_meta.year`. */
+export function feeYear(entry: FeeEntry): string {
+  return entry.academicYear ?? (RAW._meta as { year?: string } | undefined)?.year ?? "unknown";
 }
 
 export interface FeeIndex {

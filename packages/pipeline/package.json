@@ -12,6 +12,7 @@
     "parse:merit": "tsx src/cli/parseMerit.ts",
     "parse:merit:mh": "tsx src/cli/parseMerit.ts PCMMH",
     "parse:institutes": "tsx src/cli/parseInstitutes.ts",
+    "fees": "tsx src/cli/buildFees.ts",
     "validate": "tsx src/cli/validate.ts",
     "migrate": "tsx --env-file=../../.env src/cli/migrate.ts",
     "load": "tsx --env-file-if-exists=../../.env src/cli/load.ts",
