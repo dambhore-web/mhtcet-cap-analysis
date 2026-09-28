@@ -180,7 +180,7 @@ export function SummaryPage() {
               <li>Seat acceptance fee: as shown on the CET Cell portal for this round.</li>
               {fees ? (
                 <li>
-                  Annual fee at {allotted?.collegeName}: {formatInr(fees.fees.totalAnnualFee)} ({fees.year}, Fee Regulating Authority).
+                  Annual fee at {allotted?.collegeName}: {formatInr(fees.fees.totalAnnualFee)} ({fees.year}, {fees.source === "college" ? "college fee notice" : "Fee Regulating Authority"}).
                   {fees.tfwsAvailable ? " TFWS seats pay no tuition." : ""}
                 </li>
               ) : allotted ? (

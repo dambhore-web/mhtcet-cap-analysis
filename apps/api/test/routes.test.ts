@@ -272,3 +272,26 @@ describe("not found", () => {
     expect(body).toMatchObject({ error: "not_found" });
   });
 });
+
+// ─── Fees from the fee table ─────────────────────────────────────────────────
+
+describe("GET /api/colleges/:code/fees with fees loaded from the database", () => {
+  it("uses the cache's fee rows instead of fees.json, with null parts and the source", async () => {
+    const cache = seedCache();
+    cache.fees = {
+      "1002": {
+        name: "VJTI", collegeCode: "1002", tuitionFee: null, developmentFee: null, otherFees: null, totalAnnualFee: 21000,
+        tfwsAvailable: false, tfwsSeats: null, fraOrderRef: null, fraOrderUrl: null, sampleOnly: false,
+        academicYear: "2026-27", source: "college", sourceUrl: "https://example.org/fees.pdf",
+      },
+    };
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/fees");
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body).toMatchObject({
+      available: true, year: "2026-27", source: "college", sourceUrl: "https://example.org/fees.pdf",
+      fees: { tuitionFee: null, developmentFee: null, otherFees: null, totalAnnualFee: 21000 },
+    });
+    const other = await createApp(cache, stubPool).request("http://localhost/api/colleges/5002/fees");
+    expect(((await other.json()) as { available: boolean }).available).toBe(false);
+  });
+});

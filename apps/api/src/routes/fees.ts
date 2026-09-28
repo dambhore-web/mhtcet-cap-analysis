@@ -19,6 +19,8 @@ export function getCollegeFees(c: Context, index: FeeIndex) {
       otherFees: entry.otherFees,
       totalAnnualFee: entry.totalAnnualFee,
     },
+    source: entry.source ?? "FRA",
+    sourceUrl: entry.sourceUrl ?? null,
     tfwsAvailable: entry.tfwsAvailable,
     tfwsSeats: entry.tfwsSeats,
     fraOrderRef: entry.fraOrderRef,

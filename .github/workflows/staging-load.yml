@@ -72,6 +72,11 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Fees
+        working-directory: packages/pipeline
+        run: |
+          if [ "$(jq -r '.fees // false' staging-load.json)" = "true" ]; then npm run -s load:fees; else echo "fees not requested"; fi
+
       - name: Merit lists
         working-directory: packages/pipeline
         run: |

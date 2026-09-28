@@ -8,9 +8,10 @@ export interface FeeEntry {
   name: string;
   /** 5-digit CAP college code, when the source gives it. */
   collegeCode?: string;
-  tuitionFee: number;
-  developmentFee: number;
-  otherFees: number;
+  /** Parts are null when the source gives only the total (e.g. some college fee notices). */
+  tuitionFee: number | null;
+  developmentFee: number | null;
+  otherFees: number | null;
   totalAnnualFee: number;
   tfwsAvailable: boolean;
   tfwsSeats: number | null;
@@ -19,6 +20,8 @@ export interface FeeEntry {
   sampleOnly: boolean;
   /** FRA academic year of the amounts, e.g. "2026-27" (written by `npm run fees`). */
   academicYear?: string;
+  /** "FRA" (Fee Regulating Authority report) or "college" (the college's own fee notice). */
+  source?: string;
   fraInstituteId?: string;
   fraStatus?: string;
   fraMeetingDate?: string | null;
@@ -45,6 +48,8 @@ const norm = (s: string) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0
  * normalised name. Nothing is guessed; unmatched entries are reported, not shown.
  */
 export function buildFeeIndex(cache: AppCache, raw: Record<string, unknown> = RAW): FeeIndex {
+  // Called with `cache.fees`, which is undefined when the fee table is missing or empty.
+  raw ??= RAW;
   const byName = new Map<string, string>();
   for (const c of cache.colleges.values()) byName.set(norm(c.name), c.code);
 

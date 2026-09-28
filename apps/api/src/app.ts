@@ -24,7 +24,7 @@ export interface AppOptions {
 
 export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = {}) {
   const app = new Hono();
-  const fees = buildFeeIndex(cache);
+  const fees = buildFeeIndex(cache, cache.fees);
 
   app.use("*", cors({ origin: "*" }));
 

@@ -2,10 +2,8 @@
 // Read-only. Prints aggregate counts only (no candidate data) as markdown, and appends the same
 // report to the GitHub Actions job summary when GITHUB_STEP_SUMMARY is set.
 // Usage: npm run data:audit -w @mhtcet/pipeline
-import { appendFile, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { appendFile } from "node:fs/promises";
 import { connectStaging } from "../db.ts";
-import { REPO_ROOT } from "../paths.ts";
 
 /** Years the product shows (BR-005: 2026 plus three earlier years). */
 const YEARS = [2023, 2024, 2025, 2026];
@@ -31,7 +29,7 @@ const EXPECTED_MERIT: Array<[list: string, use: string]> = [
 const PLANNED_TABLES: Array<[table: string, need: string]> = [
   ["seat_matrix", "seats per branch and seat type (#40)"],
   ["allotment", "per-college allotment lists (#11, #40 seats left)"],
-  ["fee", "fees in the DB instead of fees.json (#42)"],
+  ["fee", "college fees (#42), loaded by load:fees"],
 ];
 
 const out: string[] = [];
@@ -176,21 +174,28 @@ try {
     line();
   }
 
-  // 6. Fees (apps/api/src/data/fees.json, not in the DB)
-  const fees = JSON.parse(await readFile(join(REPO_ROOT, "apps/api/src/data/fees.json"), "utf8")) as Record<
-    string, { tfwsAvailable?: boolean; tfwsSeats?: number | null; fraOrderRef?: string | null }
-  >;
-  const feeCodes = Object.keys(fees).filter((k) => !k.startsWith("_"));
+  // 6. Fees (fee table, migration 004)
   const allCodes = (await rows<{ code: string }>("select code from college")).map((r) => r.code);
-  const noFee = allCodes.filter((c) => !fees[c]);
-  line("## Fees (fees.json)");
-  table(["check", "count"], [
-    ["colleges with a fee entry", `${allCodes.length - noFee.length} of ${allCodes.length}`],
-    ["colleges without a fee entry", noFee.length],
-    ["entries marking TFWS available", feeCodes.filter((c) => fees[c].tfwsAvailable).length],
-    ["entries with TFWS seat counts", feeCodes.filter((c) => fees[c].tfwsSeats != null).length],
-    ["entries with an FRA order reference", feeCodes.filter((c) => fees[c].fraOrderRef).length],
-  ]);
+  line("## Fees (fee table)");
+  if (!present.has("fee")) {
+    line("The fee table does not exist yet (migration 004 not applied); the API serves the bundled fees.json.");
+    line();
+  } else {
+    const feeRows = await rows<{ college_code: string; academic_year: string; source: string; tuition_fee: number | null }>(
+      "select college_code, academic_year, source, tuition_fee from fee",
+    );
+    const withFee = new Set(feeRows.map((r) => r.college_code));
+    const current = new Set((await rows<{ c: string }>("select distinct college_code c from cutoff where year = $1", [latest])).map((r) => r.c));
+    const count = (pred: (r: (typeof feeRows)[number]) => boolean): number => feeRows.filter(pred).length;
+    table(["check", "count"], [
+      [`current (${latest}) colleges with a fee`, `${[...current].filter((c) => withFee.has(c)).length} of ${current.size}`],
+      ["fee rows from the FRA report", count((r) => r.source === "FRA")],
+      ["fee rows from college fee notices", count((r) => r.source === "college")],
+      ["fee rows for 2026-27 / 2025-26", `${count((r) => r.academic_year === "2026-27")} / ${count((r) => r.academic_year === "2025-26")}`],
+      ["fee rows with only a total (no split)", count((r) => r.tuition_fee === null)],
+      ["fee rows for colleges not in the college table", feeRows.filter((r) => !allCodes.includes(r.college_code)).length],
+    ]);
+  }
 
   // 7. Ingest runs
   line("## Ingest runs");
