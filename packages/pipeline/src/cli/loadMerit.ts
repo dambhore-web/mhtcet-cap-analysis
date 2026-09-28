@@ -13,7 +13,7 @@ import { processedDir, REPO_ROOT, REPORTS_DIR } from "../paths.ts";
 import { findPersonalData } from "../validate/report.ts";
 
 const AUTHORITY: AuthorityId = "MH-CET-CELL";
-const FILES: Record<string, string> = { PCMAI: "ai_merit.ndjson", PCMMH: "state_merit.ndjson" };
+const FILES: Record<string, string> = { PCMAI: "ai_merit.ndjson", PCMMH: "mh_merit.ndjson" };
 /** A final PCM list has well over 100,000 candidates; fewer means a broken parse. */
 const MIN_ROWS = 100_000;
 

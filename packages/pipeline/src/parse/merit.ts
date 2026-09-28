@@ -69,35 +69,6 @@ export function parseMeritPage(
   return rows.sort((a, b) => a.merit - b.merit);
 }
 
-const MH_ID_WIN = { lo: 50, hi: 100 };
-const MH_SCORE_WIN = { lo: 555, hi: 610 };
-
-/**
- * Parser for the Maharashtra state (PCM) merit list (`FE<year>_PCMMH_MeritList_Final.pdf`).
- * Same row-anchor logic as parseMeritPage but with shifted column windows:
- *   - application ID at x≈59 (window [50,100)), not [70,130)
- *   - score is the overall PCM percentile at x≈561 (window [555,610))
- *   - exam is always MHT-CET-PCM (not read from the PDF)
- */
-export function parseMeritPageMH(words: Word[], page: number, issues: MeritParseIssue[]): MeritRow[] {
-  const ids = words.filter((w) => APPLICATION_ID.test(w.text) && w.x0 >= MH_ID_WIN.lo && w.x0 < MH_ID_WIN.hi);
-  const rows: MeritRow[] = [];
-  for (const m of words) {
-    if (m.x0 >= 82 || !MERIT.test(m.text)) continue;
-    if (!ids.some((i) => Math.abs(i.y0 - m.y0) < BAND)) continue;
-    const merit = Number(m.text);
-    let best: Word | null = null;
-    for (const w of words) {
-      if (w.x0 < MH_SCORE_WIN.lo || w.x0 >= MH_SCORE_WIN.hi || !SCORE.test(w.text)) continue;
-      const dy = Math.abs(w.y0 - m.y0);
-      if (dy < BAND && (!best || dy < Math.abs(best.y0 - m.y0))) best = w;
-    }
-    if (!best) { issues.push({ page, kind: "no-score", merit }); continue; }
-    rows.push({ merit, exam: "MHT-CET-PCM", score: Number(best.text) });
-  }
-  return rows.sort((a, b) => a.merit - b.merit);
-}
-
 /** Checks for the parsed list: contiguity of merit numbers, JEE block, monotone scores per exam. */
 export function checkMeritList(rows: readonly MeritRow[]): {
   rows: number;

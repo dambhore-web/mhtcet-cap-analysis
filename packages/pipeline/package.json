@@ -10,7 +10,7 @@
     "parse:cutoffs": "tsx src/cli/parseCutoffs.ts",
     "parse:allotment": "tsx src/cli/parseAllotment.ts",
     "parse:merit": "tsx src/cli/parseMerit.ts",
-    "parse:merit:mh": "tsx src/cli/parseMeritMH.ts",
+    "parse:merit:mh": "tsx src/cli/parseMerit.ts PCMMH",
     "parse:institutes": "tsx src/cli/parseInstitutes.ts",
     "validate": "tsx src/cli/validate.ts",
     "migrate": "tsx --env-file=../../.env src/cli/migrate.ts",
