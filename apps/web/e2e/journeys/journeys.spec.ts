@@ -31,6 +31,8 @@ test("J1 · Which colleges could I get with my merit number?", async ({ page }) 
   await page.getByRole("button", { name: /find my options/i }).click();
   await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
   await expect(page.getByText(/options within reach, in \d+ colleges/)).toBeVisible();
+  // earlier years on each option: how this merit fared against the same seat in 2023–2025
+  await expect(page.getByText(/2023–2025: within the cutoff in \d of 3 years/).first()).toBeVisible();
   // what-if slider re-marks results
   const slider = page.getByLabel(/what if my merit were/i);
   await slider.focus();

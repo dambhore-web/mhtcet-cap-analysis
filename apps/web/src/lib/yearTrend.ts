@@ -72,3 +72,36 @@ export function trendVerdict(points: YearPoint[]): TrendVerdict | null {
 export function yearsWithin(points: YearPoint[], merit: number): number[] {
   return points.filter((p) => merit <= p.closingMerit).map((p) => p.year);
 }
+
+/** One earlier year of a rank-finder option (see PastYear in api.ts). */
+export interface PastYearClosing {
+  year: number;
+  lastRoundClosing: number;
+}
+
+export interface PastSummary {
+  years: number;
+  /** Years in which the merit was within the last-round closing rank. */
+  within: number;
+  lo: number;
+  hi: number;
+  first: number;
+  last: number;
+}
+
+/**
+ * How a merit number fared against the same seat in earlier years, by last-round closing rank
+ * (the same basis as "ranks to spare"). Null when there are no earlier years.
+ */
+export function pastSummary(past: PastYearClosing[], merit: number): PastSummary | null {
+  if (!past.length) return null;
+  const ranks = past.map((p) => p.lastRoundClosing);
+  return {
+    years: past.length,
+    within: ranks.filter((r) => merit <= r).length,
+    lo: Math.min(...ranks),
+    hi: Math.max(...ranks),
+    first: past[0].year,
+    last: past[past.length - 1].year,
+  };
+}

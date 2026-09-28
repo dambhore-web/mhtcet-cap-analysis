@@ -44,6 +44,36 @@ export interface FoundOption {
   rounds: { round: string; closingMerit: number }[];
   source: { file: string | null; page: number | null } | null;
   year: number;
+  /**
+   * The same branch and seat type in earlier CAP years (state list only), oldest first: Round I and
+   * last-round closing ranks. Empty for All India options and when the seat type did not exist.
+   */
+  pastYears: PastYear[];
+}
+
+export interface PastYear {
+  year: number;
+  firstRoundClosing: number | null;
+  lastRoundClosing: number;
+}
+
+const ROMAN: Record<string, number> = { I: 1, II: 2, III: 3, IV: 4, V: 5 };
+
+/** Round I and last-round closing ranks per earlier year for one branch and seat type. */
+export function pastYears(cache: AppCache, choiceCode: string, seatType: string): PastYear[] {
+  const byYear = new Map<number, Map<string, number>>();
+  for (const r of cache.history.get(choiceCode) ?? []) {
+    if (r.seatType !== seatType) continue;
+    const rounds = byYear.get(r.year) ?? new Map<string, number>();
+    if (!rounds.has(r.round)) rounds.set(r.round, r.closingMerit); // first printed stage, as elsewhere
+    byYear.set(r.year, rounds);
+  }
+  return [...byYear]
+    .sort(([a], [b]) => a - b)
+    .map(([year, rounds]) => {
+      const ordered = [...rounds].sort(([a], [b]) => (ROMAN[a] ?? 9) - (ROMAN[b] ?? 9));
+      return { year, firstRoundClosing: rounds.get("I") ?? null, lastRoundClosing: ordered[ordered.length - 1][1] };
+    });
 }
 
 /** The rank finder over the whole cache: used by POST /api/rank-finder and the assistant's findOptions tool. */
@@ -117,6 +147,7 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
       rounds: best.rounds.map((r) => ({ round: r.round, closingMerit: r.closingMerit })),
       source: deciding ? { file: deciding.sourceFile, page: deciding.sourcePage } : null,
       year: req.year,
+      pastYears: req.candidature === "MH" ? pastYears(cache, choiceCode, best.seatType) : [],
     });
   }
 

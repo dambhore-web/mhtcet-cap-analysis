@@ -62,6 +62,14 @@ export interface FindOption {
   /** Official list and page behind closingMerit (NFR-001). */
   source?: SourceRef | null;
   year: number;
+  /** Same branch and seat type in earlier CAP years (state list), oldest first. */
+  pastYears?: PastYear[];
+}
+
+export interface PastYear {
+  year: number;
+  firstRoundClosing: number | null;
+  lastRoundClosing: number;
 }
 
 export interface FindResponse {
