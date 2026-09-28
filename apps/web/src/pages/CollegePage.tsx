@@ -58,7 +58,6 @@ export function CollegePage() {
   const [showWhatif, setShowWhatif] = useState(false);
   const [fees, setFees] = useState<CollegeFees | CollegeFeesUnavailable | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
-  const [onlyMine, setOnlyMine] = useState(true);
 
   useEffect(() => {
     if (!code) return;
@@ -136,12 +135,6 @@ export function CollegePage() {
     };
     return new Set(eligibleSeatTypes(candidate, { homeUniversity: data.college.homeUniversity ?? null, minorityCommunity: null }));
   }, [data, profile]);
-
-  const shownCutoffs = useMemo(() => {
-    if (!data) return [];
-    if (!onlyMine || !eligible) return data.cutoffs;
-    return data.cutoffs.filter((r) => eligible.has(r.seatType));
-  }, [data, onlyMine, eligible]);
 
   // The row the "add to option form" button uses: the student's best seat type for the branch
   const branchChoice = useMemo(() => {
@@ -323,15 +316,10 @@ export function CollegePage() {
           <div><dt>Home university</dt><dd>{data.college.homeUniversity ?? "None (state level only)"}</dd></div>
           {data.college.district ? <div><dt>District</dt><dd>{data.college.district}</dd></div> : null}
         </dl>
-        <label className="cp-only-mine">
-          <input type="checkbox" checked={onlyMine} onChange={(e) => setOnlyMine(e.target.checked)} />
-          Only seat types I can apply for
-          <Link to="/profile" className="cp-only-mine-edit">My details</Link>
-        </label>
       </section>
 
       <div className="page-section">
-        <CutoffChart cutoffs={shownCutoffs} />
+        <CutoffChart cutoffs={data.cutoffs} collegeCode={data.college.code} />
       </div>
 
       <section className="page-section card cp-detail" aria-labelledby="cp-detail-title">
@@ -419,7 +407,7 @@ export function CollegePage() {
           </div>
         )}
 
-        <SeatCutoffChart cutoffs={shownCutoffs} branch={selectedBranch} selectedLevel={seatLevel} />
+        <SeatCutoffChart cutoffs={data.cutoffs} branch={selectedBranch} selectedLevel={seatLevel} />
       </section>
 
       <p className="cp-footnote">

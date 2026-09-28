@@ -1,10 +1,12 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { seatCategoryLabel, seatTypeShortLabel, seatLevelCode, seatTypeSortKey, LEVEL_LABELS } from "../lib/seatType";
 import { formatNumber, formatRound, roundIndex } from "../lib/format";
 import "./CutoffChart.css";
 
 interface CutoffRow {
   branch: string;
+  choiceCode?: string;
   seatType: string;
   round: number | string;
   closingMerit: number;
@@ -14,7 +16,7 @@ interface CutoffRow {
 }
 
 /** The same values as a chart, as a table: reachable by keyboard, touch and screen readers. */
-function SeriesTable({ series, rounds, rowHeader, sources }: { series: ChartSeries[]; rounds: (number | string)[]; rowHeader: string; sources: string[] }) {
+function SeriesTable({ series, rounds, rowHeader, sources, getLink }: { series: ChartSeries[]; rounds: (number | string)[]; rowHeader: string; sources: string[]; getLink?: (s: ChartSeries) => string | undefined }) {
   return (
     <details className="cc-table-toggle">
       <summary>Show as a table</summary>
@@ -27,12 +29,15 @@ function SeriesTable({ series, rounds, rowHeader, sources }: { series: ChartSeri
             </tr>
           </thead>
           <tbody>
-            {series.map((s) => (
-              <tr key={s.label}>
-                <th scope="row">{s.label}</th>
-                {s.roundValues.map((v, i) => <td key={i} className="cc-num">{v == null ? "—" : formatNumber(v)}</td>)}
-              </tr>
-            ))}
+            {series.map((s) => {
+              const href = getLink?.(s);
+              return (
+                <tr key={s.label}>
+                  <th scope="row">{href ? <Link to={href}>{s.label}</Link> : s.label}</th>
+                  {s.roundValues.map((v, i) => <td key={i} className="cc-num">{v == null ? "—" : formatNumber(v)}</td>)}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -58,6 +63,7 @@ function sourceNotes(rows: CutoffRow[]): string[] {
 
 interface ChartSeries {
   label: string;
+  choiceCode?: string;
   roundValues: (number | null)[];
   firstMerit: number;
   lastMerit: number;
@@ -89,9 +95,10 @@ interface ChartSvgProps {
   hoveredIdx: number | null;
   onRowEnter: (idx: number) => void;
   onRowLeave: () => void;
+  onRowClick?: (s: ChartSeries) => void;
 }
 
-function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave }: ChartSvgProps) {
+function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowClick }: ChartSvgProps) {
   const narrow = svgWidth < 520;
   const LEFT = narrow ? 112 : 170;
   const RIGHT = narrow ? 60 : 90;
@@ -140,8 +147,10 @@ function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave }: Char
               x={0} y={cy - ROW_H / 2}
               width={svgWidth} height={ROW_H}
               fill="transparent"
+              style={{ cursor: onRowClick && s.choiceCode ? "pointer" : "default" }}
               onMouseEnter={() => onRowEnter(i)}
               onMouseLeave={onRowLeave}
+              onClick={() => onRowClick && s.choiceCode && onRowClick(s)}
             />
             {isHov && (
               <rect
@@ -256,12 +265,14 @@ function useTooltip() {
 
 interface CutoffChartProps {
   cutoffs: CutoffRow[];
+  collegeCode?: string;
 }
 
-export function CutoffChart({ cutoffs }: CutoffChartProps) {
+export function CutoffChart({ cutoffs, collegeCode }: CutoffChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgWidth = useContainerWidth(containerRef);
   const { hovered, setHovered, pos, onMouseMove, onMouseLeave } = useTooltip();
+  const navigate = useNavigate();
 
   const availableLevels = useMemo(() => {
     const set = new Set<string>();
@@ -296,9 +307,11 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
   const series = useMemo((): ChartSeries[] => {
     const rows = cutoffs.filter((r) => r.seatType === selectedSeatType);
     const byBranch = new Map<string, Map<number | string, number>>();
+    const branchChoiceCode = new Map<string, string>();
     for (const row of rows) {
       if (!byBranch.has(row.branch)) byBranch.set(row.branch, new Map());
       byBranch.get(row.branch)!.set(row.round, row.closingMerit);
+      if (row.choiceCode && !branchChoiceCode.has(row.branch)) branchChoiceCode.set(row.branch, row.choiceCode);
     }
     return [...byBranch.entries()]
       .map(([branch, roundMap]) => {
@@ -306,6 +319,7 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
         const merits = roundValues.filter((v): v is number => v !== null);
         return {
           label: branch,
+          choiceCode: branchChoiceCode.get(branch),
           roundValues,
           firstMerit: merits[0] ?? 0,
           lastMerit: merits.at(-1) ?? 0,
@@ -379,6 +393,7 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
               hoveredIdx={hovered}
               onRowEnter={setHovered}
               onRowLeave={() => setHovered(null)}
+              onRowClick={collegeCode ? (s) => s.choiceCode && navigate(`/colleges/${collegeCode}/${s.choiceCode}`) : undefined}
             />
             {hoveredSeries && (
               <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
@@ -389,6 +404,7 @@ export function CutoffChart({ cutoffs }: CutoffChartProps) {
             rounds={availableRounds}
             rowHeader="Branch"
             sources={sourceNotes(cutoffs.filter((r) => r.seatType === selectedSeatType))}
+            getLink={collegeCode ? (s) => s.choiceCode ? `/colleges/${collegeCode}/${s.choiceCode}` : undefined : undefined}
           />
         </>
       )}

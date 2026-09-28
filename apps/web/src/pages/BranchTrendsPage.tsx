@@ -4,10 +4,9 @@ import { api } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
 import { AddToFormButton } from "../components/AddToFormButton";
-import { MeritLadder, LadderAxis, LadderLegend, ladderDomain } from "../components/MeritLadder";
 import { listItemFrom } from "../lib/list";
 import { formatNumber, formatRound, roundIndex } from "../lib/format";
-import { seatTypeLabel, seatTypeShortLabel, seatTypeSortKey } from "../lib/seatType";
+import { seatTypeSortKey } from "../lib/seatType";
 import "./BranchTrendsPage.css";
 import { YearTrend } from "../components/YearTrend";
 import type { HistoryRow } from "../lib/yearTrend";
@@ -65,8 +64,6 @@ export function BranchTrendsPage() {
         return { seatType, rows: sorted, first, last };
       });
   }, [rows]);
-  const rounds = useMemo(() => [...new Set(rows.map((r) => r.round))].sort((a, b) => roundIndex(a) - roundIndex(b)), [rows]);
-  const domain = ladderDomain(seats.flatMap((s) => [s.first ?? s.last, s.last]).concat(merit ? [merit] : []));
   const gopens = seats.find((s) => s.seatType === "GOPENS");
 
   const crumbs = [
@@ -111,39 +108,6 @@ export function BranchTrendsPage() {
       )}
 
       {history && history.length > 0 && <YearTrend rows={history} merit={merit ?? null} />}
-
-      <section className="card trends-table" aria-labelledby="trends-title">
-        <div className="trends-head">
-          <h2 id="trends-title">Closing rank by round</h2>
-          <LadderLegend showYou={!!merit} />
-        </div>
-        <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Seat type</th>
-                {rounds.map((r) => <th key={r} scope="col" className="num">{formatRound(r)}</th>)}
-                <th scope="col" className="trends-ladder-col">Round I → last{merit ? ", and you" : ""}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {seats.map((s) => (
-                <tr key={s.seatType}>
-                  <th scope="row">
-                    <abbr title={seatTypeLabel(s.seatType)}>{seatTypeShortLabel(s.seatType)}</abbr>
-                  </th>
-                  {rounds.map((r) => {
-                    const v = s.rows.find((x) => x.round === r);
-                    return <td key={r} className="num" title={v?.source ? `${v.source}${v.sourcePage ? `, page ${v.sourcePage}` : ""}` : undefined}>{v ? formatNumber(v.closingMerit) : "—"}</td>;
-                  })}
-                  <td className="trends-ladder-col"><MeritLadder first={s.first} last={s.last} you={merit} domain={domain} label={seatTypeShortLabel(s.seatType)} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="trends-axis"><LadderAxis domain={domain} /></div>
-      </section>
 
       <div className="trends-missing">
         <section className="card">
