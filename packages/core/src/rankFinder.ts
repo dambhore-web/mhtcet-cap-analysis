@@ -61,63 +61,143 @@ export interface RankFinderResult {
 
 const STATUS_ORDER: Record<RankStatus, number> = { "round-I": 0, "later-round": 1, "out-of-range": 2 };
 
+/** Seat-type codes are a small fixed set, so parse each once (results are read-only). */
+const PARSED = new Map<string, ReturnType<typeof parseSeatType>>();
+function parsedSeatType(code: string) {
+  let p = PARSED.get(code);
+  if (p === undefined) {
+    p = parseSeatType(code);
+    if (PARSED.size < 1000) PARSED.set(code, p);
+  }
+  return p;
+}
+
+/** Everything rankFind needs about one seat type's rows, worked out once per set of rows. */
+interface SeatSummary {
+  /** Tightest Round I closing, or null when the seat type has no Round I row. */
+  roundI: number | null;
+  /** Loosest Rounds II–IV row (first one wins a tie). */
+  laterBest: CutoffRow | null;
+  /** Loosest row across Round I and Rounds II–IV, Round I first on a tie: the out-of-range value. */
+  loosest: CutoffRow | null;
+  rounds: RoundClosing[];
+}
+
+/** Rows grouped by list, seat type, section and stage ("*" = any stage). */
+type CutoffIndex = Map<string, SeatSummary>;
+
+const key = (list: string, seatType: string, section: string, stage: string) => `${list}|${seatType}|${section}|${stage}`;
+
+function summarise(rows: readonly CutoffRow[]): SeatSummary {
+  let roundI: number | null = null;
+  let roundILoosest: CutoffRow | null = null;
+  let laterBest: CutoffRow | null = null;
+  for (const r of rows) {
+    if (r.round === "I") {
+      if (roundI === null || r.closingMerit < roundI) roundI = r.closingMerit;
+      if (!roundILoosest || r.closingMerit > roundILoosest.closingMerit) roundILoosest = r;
+      continue;
+    }
+    const n = roundNumber(r.round);
+    if (n >= 2 && n <= 4 && (!laterBest || r.closingMerit > laterBest.closingMerit)) laterBest = r;
+  }
+  const loosest = roundILoosest && (!laterBest || roundILoosest.closingMerit >= laterBest.closingMerit) ? roundILoosest : laterBest;
+  return { roundI, laterBest, loosest, rounds: roundClosings(rows) };
+}
+
+function buildIndex(cutoffRows: readonly CutoffRow[]): CutoffIndex {
+  const groups = new Map<string, CutoffRow[]>();
+  const add = (k: string, r: CutoffRow) => {
+    const g = groups.get(k);
+    if (g) g.push(r);
+    else groups.set(k, [r]);
+  };
+  for (const r of cutoffRows) {
+    add(key(r.list, r.seatType, r.section, normalizeStage(r.stage)), r);
+    add(key(r.list, r.seatType, r.section, "*"), r);
+  }
+  const index: CutoffIndex = new Map();
+  for (const [k, rows] of groups) index.set(k, summarise(rows));
+  return index;
+}
+
+/**
+ * The index for a set of rows, built on first use. The API's cache keeps one array per choice
+ * code for its lifetime, so each branch is summarised once, not on every search.
+ */
+const INDEXES = new WeakMap<readonly CutoffRow[], CutoffIndex>();
+function indexFor(cutoffRows: readonly CutoffRow[]): CutoffIndex {
+  let index = INDEXES.get(cutoffRows);
+  if (!index) {
+    index = buildIndex(cutoffRows);
+    INDEXES.set(cutoffRows, index);
+  }
+  return index;
+}
+
+/** The index key each eligible seat type is looked up by (null: not a seat type). */
+function seatKey(seatTypeCode: string, list: string, gender: "M" | "F"): string | null {
+  const parsed = parsedSeatType(seatTypeCode);
+  if (!parsed) return null;
+  if (parsed.kind === "standalone") {
+    switch (parsed.standalone) {
+      case "AI":
+        return key(list, seatTypeCode, AI_SECTION, "*");
+      case "MI":
+        return key(list, seatTypeCode, MI_SECTION, "I");
+      default:
+        // EWS, TFWS, ORPHANI, ORPHANN — state-level standalone seats
+        return key(list, seatTypeCode, "State Level", "I");
+    }
+  }
+  // Male candidates compete for ladies seats only in Stage II
+  return key(list, seatTypeCode, MH_SECTION[parsed.level] ?? "State Level", parsed.ladies && gender === "M" ? "II" : "I");
+}
+
+/**
+ * Keys for a whole eligible list. Callers that pass the same eligible array for every branch of
+ * a college reuse the same key strings, so the lookups don't rebuild and rehash them per branch.
+ */
+const KEYS = new WeakMap<readonly string[], Map<string, (string | null)[]>>();
+function lookupKeys(eligible: readonly string[], list: string, gender: "M" | "F"): (string | null)[] {
+  let byVariant = KEYS.get(eligible);
+  if (!byVariant) KEYS.set(eligible, (byVariant = new Map()));
+  const variant = list + gender;
+  let keys = byVariant.get(variant);
+  if (!keys) byVariant.set(variant, (keys = eligible.map((code) => seatKey(code, list, gender))));
+  return keys;
+}
+
 /**
  * Pure rank-finder: given a candidate, a college context and the cutoff rows for one
  * choice code (college + branch), returns match status per eligible seat type.
  *
  * cutoffRows should be pre-filtered to the relevant choice code (and year).
  * Rows from both MH and AI lists may be passed; the function selects the correct list.
+ * Treat the rows as read-only: a summary of them is cached against the array.
  */
 export function rankFind(
   candidate: CandidateProfile,
   college: CollegeEligibilityContext,
   cutoffRows: readonly CutoffRow[],
+  /** Precomputed eligibleSeatTypes(candidate, college); callers looping over many branches pass it once per college. */
+  eligibleTypes?: readonly string[],
 ): RankFinderResult {
-  const eligible = eligibleSeatTypes(candidate, college);
+  const eligible = eligibleTypes ?? eligibleSeatTypes(candidate, college);
   const list = candidate.candidature === "AI" ? "AI" : "MH";
-  const listRows = cutoffRows.filter((r) => r.list === list);
+  const index = indexFor(cutoffRows);
+  const merit = candidate.meritNumber;
 
   const options: RankOption[] = [];
+  const keys = lookupKeys(eligible, list, candidate.gender);
 
-  for (const seatTypeCode of eligible) {
-    const parsed = parseSeatType(seatTypeCode);
-    if (!parsed) continue;
+  for (let i = 0; i < eligible.length; i++) {
+    const k = keys[i];
+    const seat = k === null ? undefined : index.get(k);
+    if (!seat) continue;
 
-    let section: string;
-    let stageFilter: string | null;
-
-    if (parsed.kind === "standalone") {
-      switch (parsed.standalone) {
-        case "AI":
-          section = AI_SECTION;
-          stageFilter = null;
-          break;
-        case "MI":
-          section = MI_SECTION;
-          stageFilter = "I";
-          break;
-        default:
-          // EWS, TFWS, ORPHANI, ORPHANN — state-level standalone seats
-          section = "State Level";
-          stageFilter = "I";
-      }
-    } else {
-      section = MH_SECTION[parsed.level] ?? "State Level";
-      // Male candidates compete for ladies seats only in Stage II
-      stageFilter = parsed.ladies && candidate.gender === "M" ? "II" : "I";
-    }
-
-    const rows = listRows.filter((r) => {
-      if (r.seatType !== seatTypeCode) return false;
-      if (r.section !== section) return false;
-      if (stageFilter !== null && normalizeStage(r.stage) !== stageFilter) return false;
-      return true;
-    });
-
-    if (rows.length === 0) continue;
-
-    const option = deriveStatus(candidate.meritNumber, rows);
-    if (option) options.push({ seatType: seatTypeCode, ...option, rounds: roundClosings(rows) });
+    const option = deriveStatus(merit, seat);
+    if (option) options.push({ seatType: eligible[i], ...option, rounds: seat.rounds });
   }
 
   let best: RankOption | null = null;
@@ -137,34 +217,14 @@ export function rankFind(
  * Values are never carried across rounds — only rounds where the seat type
  * actually appears in the list are considered.
  */
-function deriveStatus(
-  meritNumber: number,
-  rows: readonly CutoffRow[],
-): Omit<RankOption, "seatType" | "rounds"> | null {
-  if (rows.length === 0) return null;
-
-  const roundIRows = rows.filter((r) => r.round === "I");
-  if (roundIRows.length > 0) {
-    const closing = Math.min(...roundIRows.map((r) => r.closingMerit));
-    if (meritNumber <= closing) return { status: "round-I", round: "I", closingMerit: closing };
+function deriveStatus(meritNumber: number, seat: SeatSummary): Omit<RankOption, "seatType" | "rounds"> | null {
+  if (seat.roundI !== null && meritNumber <= seat.roundI) return { status: "round-I", round: "I", closingMerit: seat.roundI };
+  if (seat.laterBest && meritNumber <= seat.laterBest.closingMerit) {
+    return { status: "later-round", round: seat.laterBest.round, closingMerit: seat.laterBest.closingMerit };
   }
-
-  const laterRows = rows.filter((r) => {
-    const n = roundNumber(r.round);
-    return n >= 2 && n <= 4;
-  });
-  if (laterRows.length > 0) {
-    const best = laterRows.reduce((a, b) => (b.closingMerit > a.closingMerit ? b : a));
-    if (meritNumber <= best.closingMerit) {
-      return { status: "later-round", round: best.round, closingMerit: best.closingMerit };
-    }
-  }
-
   // Out of range — show loosest closing across all rounds
-  const allRows = [...roundIRows, ...laterRows];
-  if (allRows.length === 0) return null;
-  const loosest = allRows.reduce((a, b) => (b.closingMerit > a.closingMerit ? b : a));
-  return { status: "out-of-range", round: loosest.round, closingMerit: loosest.closingMerit };
+  if (!seat.loosest) return null;
+  return { status: "out-of-range", round: seat.loosest.round, closingMerit: seat.loosest.closingMerit };
 }
 
 /**
@@ -172,13 +232,17 @@ function deriveStatus(
  * loosest, matching deriveStatus. The row's source file and page travel with the value (NFR-001).
  */
 export function roundClosings(rows: readonly CutoffRow[]): RoundClosing[] {
-  const byRound = new Map<Round, CutoffRow>();
+  // Indexed by round number: rows per seat type are few, so a small array beats a Map and a sort
+  const byRound: (CutoffRow | undefined)[] = [];
   for (const r of rows) {
-    const cur = byRound.get(r.round);
+    const n = roundNumber(r.round);
+    const cur = byRound[n];
     const better = !cur || (r.round === "I" ? r.closingMerit < cur.closingMerit : r.closingMerit > cur.closingMerit);
-    if (better) byRound.set(r.round, r);
+    if (better) byRound[n] = r;
   }
-  return [...byRound.values()]
-    .sort((a, b) => roundNumber(a.round) - roundNumber(b.round))
-    .map((r) => ({ round: r.round, closingMerit: r.closingMerit, sourceFile: r.sourceFile ?? null, sourcePage: r.sourcePage ?? null }));
+  const out: RoundClosing[] = [];
+  for (const r of byRound) {
+    if (r) out.push({ round: r.round, closingMerit: r.closingMerit, sourceFile: r.sourceFile ?? null, sourcePage: r.sourcePage ?? null });
+  }
+  return out;
 }

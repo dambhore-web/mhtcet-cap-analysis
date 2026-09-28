@@ -21,7 +21,14 @@ Rules:
 
 | `DATABASE_URL` | API at runtime | Same Supabase connection string as above, for that environment | Railway API service |
 | `GROQ_API_KEY` | API, Ask Compass | groq.com console | Railway API service |
-| `GROQ_MODEL` | API, Ask Compass (optional; default `llama-3.3-70b-versatile`) | — | Railway API service |
+| `GROQ_MODEL` | API, Ask Compass (optional; default `openai/gpt-oss-120b`) | — | Railway API service |
 | `VITE_API_URL` | Web, read at **build** time | The API service's public URL | Railway web service |
+
+GitHub Actions repository secrets (Settings → Secrets and variables → Actions):
+
+| Secret | Used by |
+|---|---|
+| `DATABASE_URL_STAGING` | `Playwright live smoke`, `Performance (staging data)` and `Assistant eval` jobs |
+| `GROQ_API_KEY` | `Assistant eval` job and the assistant half of the performance job; both are skipped without it |
 
 Never print, log or commit these values. `.env` is git-ignored.

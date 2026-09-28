@@ -24,3 +24,29 @@ export function allowedNumbers(sources: SourceRow[], extra: (number | null | und
 export function ungroundedNumbers(answer: string, allowed: Set<number>): number[] {
   return numbersIn(answer).filter((n) => !(n >= 2000 && n <= 2100) && !allowed.has(n));
 }
+
+/**
+ * Citation check: a closing merit in the answer must sit in the same sentence (or table line) as
+ * a citation to a row with exactly that closing merit. This catches a real number quoted from the
+ * wrong row (say Round II's value attributed to Round I), which the plain grounding check can't
+ * see. Numbers the student wrote or has in their profile are exempt, as are codes and other
+ * numbers that aren't a closing merit.
+ */
+export function miscitedNumbers(answer: string, sources: SourceRow[], exempt: (number | null | undefined)[], userTexts: string[]): number[] {
+  const closings = new Set(sources.map((r) => r.closingMerit).filter((v): v is number => typeof v === "number"));
+  const free = new Set<number>();
+  for (const n of exempt) if (typeof n === "number") free.add(n);
+  for (const t of userTexts) for (const n of numbersIn(t)) free.add(n);
+  const byId = new Map(sources.filter((r) => r.id).map((r) => [r.id!, r]));
+
+  const bad: number[] = [];
+  // Sentences end at . ! ? or a line break; a number's own thousands separators are not breaks
+  for (const part of answer.split(/(?<=[.!?])\s+|\n+/)) {
+    const cited = [...part.matchAll(/\[S(\d+)\]/g)].map((m) => byId.get(`S${m[1]}`)).filter((r): r is SourceRow => !!r);
+    for (const n of numbersIn(part)) {
+      if (!closings.has(n) || free.has(n)) continue;
+      if (!cited.some((r) => r.closingMerit === n)) bad.push(n);
+    }
+  }
+  return bad;
+}

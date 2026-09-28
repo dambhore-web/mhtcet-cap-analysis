@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { AUTO_FREEZE_TOP_N, CATEGORIES, parseSeatType } from "@mhtcet/core";
+import { AUTO_FREEZE_TOP_N, CATEGORIES, normalizeStage, parseSeatType } from "@mhtcet/core";
+
+const ROUNDS = ["I", "II", "III", "IV"] as const;
 import type { AppCache } from "../startup.ts";
 import { BRANCH_GROUP_PATTERNS, findOptions } from "../services/findOptions.ts";
 
@@ -38,13 +40,15 @@ export interface ToolDef {
 }
 
 const MAX_OPTIONS = 50;
-const MAX_CUTOFFS = 200;
+/** Enough for every round of a few seat types; the model narrows by branch or seat type for more. */
+export const MAX_CUTOFFS = 60;
 
 const FindArgs = z.object({
-  merit: z.number().int().min(1).max(500000).optional(),
+  // Models send null for details the student hasn't given; treat it as not given
+  merit: z.number().int().min(1).max(500000).nullish(),
   candidature: z.enum(["MH", "AI"]).default("MH"),
   category: z.enum(CATEGORIES).nullable().optional(),
-  gender: z.enum(["M", "F"]).optional(),
+  gender: z.enum(["M", "F"]).nullish(),
   homeUniversity: z.string().max(120).nullable().optional(),
   flags: z.object({ ews: z.boolean(), tfws: z.boolean(), defence: z.boolean(), pwd: z.boolean(), orphan: z.boolean() }).partial().optional(),
   district: z.string().max(60).nullable().optional(),
@@ -52,11 +56,16 @@ const FindArgs = z.object({
   onlyReachable: z.boolean().default(true),
 });
 
-const CutoffArgs = z.object({
-  collegeCode: z.string().regex(/^\d{4,5}$/),
-  branch: z.string().max(80).optional(),
-  seatType: z.string().max(12).optional(),
-});
+const CutoffArgs = z
+  .object({
+    // A name, initials ("PICT") or code; collegeCode is the older, code-only form
+    college: z.string().min(2).max(120).nullish(),
+    collegeCode: z.string().regex(/^\d{4,5}$/).nullish(),
+    branch: z.string().max(80).nullish(),
+    seatType: z.string().max(12).nullish(),
+    round: z.enum(ROUNDS).nullish(),
+  })
+  .refine((a) => a.college || a.collegeCode, { message: "Give the college (name, initials or code)." });
 
 const SearchArgs = z.object({ query: z.string().min(2).max(80) });
 const SeatArgs = z.object({ code: z.string().min(2).max(12) });
@@ -69,28 +78,32 @@ export const TOOL_DEFS: ToolDef[] = [
     parameters: {
       type: "object",
       properties: {
-        merit: { type: "integer", description: "State merit number (candidature MH) or All India merit number (AI)" },
+        // Nullable: models send null for details the student hasn't given, and Groq rejects the
+        // whole call when that doesn't match the schema
+        merit: { type: ["integer", "null"], description: "State merit number (candidature MH) or All India merit number (AI); omit to use the student's saved merit" },
         candidature: { type: "string", enum: ["MH", "AI"] },
-        category: { type: "string", enum: [...CATEGORIES] },
-        gender: { type: "string", enum: ["M", "F"] },
-        homeUniversity: { type: "string" },
-        district: { type: "string" },
-        branchGroup: { type: "string", enum: Object.keys(BRANCH_GROUP_PATTERNS) },
+        category: { type: ["string", "null"], enum: [...CATEGORIES, null] },
+        gender: { type: ["string", "null"], enum: ["M", "F", null] },
+        homeUniversity: { type: ["string", "null"] },
+        district: { type: ["string", "null"] },
+        branchGroup: { type: ["string", "null"], enum: [...Object.keys(BRANCH_GROUP_PATTERNS), null] },
         onlyReachable: { type: "boolean", description: "Only options within reach (default true)" },
       },
     },
   },
   {
     name: "getCutoffs",
-    description: "Closing merit for one college by branch, seat type and round, with the official list and page each value came from.",
+    description:
+      "Closing merit at one college from the official cutoff lists. Pass everything the student named: college, branch, seat type and round. Without a round it returns Round I; without a seat type it returns one row per seat type.",
     parameters: {
       type: "object",
       properties: {
-        collegeCode: { type: "string", description: "5-digit CAP college code; use searchColleges to find it" },
-        branch: { type: "string", description: "Branch name or part of it" },
-        seatType: { type: "string", description: "Seat-type code, e.g. GOPENS" },
+        college: { type: "string", description: "College name, common initials (COEP, VJTI, PICT) or 5-digit CAP code" },
+        branch: { type: ["string", "null"], description: "Branch name, part of it or a common short form (Computer, IT, ENTC, Mechanical)" },
+        seatType: { type: ["string", "null"], description: "Seat-type code, e.g. GOPENS, LOPENS, TFWS, EWS" },
+        round: { type: ["string", "null"], enum: [...ROUNDS, null], description: "CAP round; omit for Round I" },
       },
-      required: ["collegeCode"],
+      required: ["college"],
     },
   },
   {
@@ -111,6 +124,75 @@ export const TOOL_DEFS: ToolDef[] = [
 ];
 
 export class ToolError extends Error {}
+
+/** Short forms students use for branches, mapped to words that appear in the official branch names. */
+const BRANCH_ALIASES: [RegExp, string][] = [
+  [/^(comp|comps|computer|cs|cse|co)$/i, "computer"],
+  [/^(it|info\.? ?tech)$/i, "information technology"],
+  [/^(entc|e&tc|extc|etc|e ?& ?tc|electronics and telecom(munication)?)$/i, "telecommunication"],
+  [/^(mech|mechanical)$/i, "mechanical"],
+  [/^(aiml|ai ?& ?ml|ai|artificial intelligence)$/i, "artificial intelligence"],
+  [/^(ds|data science)$/i, "data science"],
+];
+
+/** Whether an official branch name matches what the student called it. */
+export function branchMatches(name: string, asked: string): boolean {
+  const q = asked.trim();
+  const alias = BRANCH_ALIASES.find(([re]) => re.test(q))?.[1];
+  return name.toLowerCase().includes((alias ?? q).toLowerCase());
+}
+
+/**
+ * The one college a name, initials or code points at. Several equally good matches is an error
+ * that lists them, so the model asks or retries with the code rather than guessing.
+ */
+export function resolveCollege(cache: AppCache, query: string): { code: string; name: string } {
+  const code = query.trim();
+  if (/^\d{4,5}$/.test(code)) {
+    const c = cache.colleges.get(code.padStart(5, "0"));
+    if (!c) throw new ToolError(`No college with code ${code}. Use searchColleges.`);
+    return c;
+  }
+  const scored = [...cache.colleges.values()].map((c) => ({ c, score: collegeMatch(c, code.toLowerCase()) })).filter((x) => x.score > 0);
+  if (!scored.length) throw new ToolError(`No college matches "${query}". Use searchColleges.`);
+  scored.sort((a, b) => b.score - a.score);
+  const top = scored.filter((x) => x.score === scored[0].score);
+  if (top.length > 1) {
+    throw new ToolError(`"${query}" matches several colleges: ${top.slice(0, 5).map((x) => `${x.c.name} (code ${x.c.code})`).join("; ")}. Call again with the code.`);
+  }
+  return top[0].c;
+}
+
+/** Words in almost every college name: matching on them alone would find hundreds. */
+const GENERIC_WORDS = new Set(["institute", "college", "engineering", "technology", "technological", "university", "of", "and", "the"]);
+
+const SMALL_WORDS = new Set(["of", "and", "the", "&", "for", "in"]);
+
+/** Initials people use for colleges: "Pune Institute of Computer Technology" → pict, "College of Engineering Pune" → coep. */
+export function collegeInitials(name: string): string[] {
+  const words = name.toLowerCase().replace(/[^a-z& ]/g, " ").split(/\s+/).filter(Boolean);
+  const all = words.map((w) => w[0]).join("");
+  const main = words.filter((w) => !SMALL_WORDS.has(w)).map((w) => w[0]).join("");
+  return [...new Set([all, main])];
+}
+
+/**
+ * How well a college matches a search: the whole query in the name, code or district scores
+ * highest; otherwise one point per query word found in them or equal to the college's initials.
+ * So "COEP", "PICT Pune" and "Vishwakarma" all find their college.
+ */
+function collegeMatch(c: { name: string; code: string; district?: string | null }, q: string): number {
+  const name = c.name.toLowerCase();
+  const district = (c.district ?? "").toLowerCase();
+  if (name.includes(q) || c.code.includes(q) || (district && district.includes(q))) return 100;
+  const initials = collegeInitials(c.name);
+  let score = 0;
+  for (const word of q.split(/[^a-z0-9&]+/).filter((w) => w.length >= 2 && !GENERIC_WORDS.has(w))) {
+    if (initials.includes(word)) score += 3;
+    else if (word.length >= 3 && (name.includes(word) || district === word || c.code === word)) score += 1;
+  }
+  return score;
+}
 
 const QUOTA: Record<string, string> = { G: "General", L: "Ladies", PWD: "Disability (PWD)", PWDR: "Disability (PWD), common", DEF: "Defence", DEFR: "Defence, common" };
 const CATEGORY: Record<string, string> = { NT1: "NT-B", NT2: "NT-C", NT3: "NT-D", VJ: "VJ/DT", OPEN: "open" };
@@ -165,18 +247,22 @@ export function runTool(name: string, rawArgs: unknown, ctx: ToolContext): Sourc
     }
     case "getCutoffs": {
       const a = CutoffArgs.parse(rawArgs ?? {});
-      const college = cache.colleges.get(a.collegeCode);
-      if (!college) throw new ToolError(`No college with code ${a.collegeCode}. Use searchColleges.`);
+      const college = resolveCollege(cache, (a.college ?? a.collegeCode)!);
+      const seatType = a.seatType?.toUpperCase() ?? null;
+      const round = a.round ?? "I";
+      const list = seatType === "AI" ? "AI" : "MH";
       const rows: SourceRow[] = [];
       for (const [choiceCode, cutoffs] of cache.cutoffsByChoiceCode) {
         const br = cache.branches.get(choiceCode);
-        if (!br || br.collegeCode !== a.collegeCode) continue;
-        if (a.branch && !br.name.toLowerCase().includes(a.branch.toLowerCase())) continue;
+        if (!br || br.collegeCode !== college.code) continue;
+        if (a.branch && !branchMatches(br.name, a.branch)) continue;
         for (const r of cutoffs) {
-          if (a.seatType && r.seatType !== a.seatType.toUpperCase()) continue;
+          if (r.list !== list || r.round !== round) continue;
+          if (seatType && r.seatType !== seatType) continue;
+          const stage = r.stage && normalizeStage(r.stage) !== "I" ? `, stage ${r.stage}` : "";
           rows.push({
             kind: "cutoff",
-            label: `${college.name} · ${br.name} · ${r.seatType} · Round ${r.round} (${r.list}) · closing ${r.closingMerit}`,
+            label: `${college.name} · ${br.name} · ${r.seatType} · Round ${r.round}${stage} · closing ${r.closingMerit}`,
             collegeCode: college.code,
             choiceCode,
             branch: br.name,
@@ -196,8 +282,11 @@ export function runTool(name: string, rawArgs: unknown, ctx: ToolContext): Sourc
     case "searchColleges": {
       const q = SearchArgs.parse(rawArgs ?? {}).query.toLowerCase();
       return [...cache.colleges.values()]
-        .filter((c) => c.name.toLowerCase().includes(q) || c.code.includes(q) || (c.district ?? "").toLowerCase().includes(q))
+        .map((c) => ({ c, score: collegeMatch(c, q) }))
+        .filter((x) => x.score > 0)
+        .sort((a, b) => b.score - a.score)
         .slice(0, 10)
+        .map((x) => x.c)
         .map((c) => ({ kind: "college", label: `${c.name} (code ${c.code}${c.district ? `, ${c.district}` : ""})`, collegeCode: c.code }));
     }
     case "explainSeatType": {

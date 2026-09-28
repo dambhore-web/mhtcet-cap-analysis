@@ -5,8 +5,22 @@ import { checkRateLimit, clientIp } from "../rateLimit.ts";
 import type { AppCache } from "../startup.ts";
 import { runAssistant, type ChatClient, type Profile } from "../assistant/run.ts";
 
-/** Tool-capable model; the provider and model are an open decision (#19). */
-const MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+/**
+ * Tool-capable Groq model; the provider and model are an open decision (#19). The previous
+ * default, llama-3.3-70b-versatile, was withdrawn by Groq (404). Chosen on the eval set.
+ */
+export const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+
+/**
+ * Reasoning models think before answering. Keep that short, hide it from the response, and leave
+ * room for it in the token budget, or the visible answer can come back empty.
+ */
+export function reasoningOptions(model: string): { reasoning_effort?: "none" | "low" | "medium"; include_reasoning?: boolean } {
+  // Medium: tool arguments (seat type, round) are where the model slips, and thinking helps there
+  if (model.startsWith("openai/gpt-oss")) return { reasoning_effort: "medium", include_reasoning: false };
+  if (model.startsWith("qwen/qwen3")) return { reasoning_effort: "none" };
+  return {};
+}
 
 // 20 questions per IP per hour: coarse protection until per-user auth is in place (#15)
 const RATE_WINDOW_MS = 60 * 60 * 1000;
@@ -22,14 +36,23 @@ export function groqClient(apiKey: string): ChatClient {
   const groq = new Groq({ apiKey });
   return {
     async complete({ messages, tools }) {
-      const res = await groq.chat.completions.create({
-        model: MODEL,
-        // The SDK's message union is structurally the same as LlmMessage
-        messages: messages as Parameters<typeof groq.chat.completions.create>[0]["messages"],
-        ...(tools.length ? { tools: tools.map((t) => ({ type: "function" as const, function: t })), tool_choice: "auto" as const } : {}),
-        temperature: 0.2,
-        max_tokens: 900,
-      });
+      let res;
+      try {
+        res = await groq.chat.completions.create({
+          model: MODEL,
+          // The SDK's message union is structurally the same as LlmMessage
+          messages: messages as Parameters<typeof groq.chat.completions.create>[0]["messages"],
+          ...(tools.length ? { tools: tools.map((t) => ({ type: "function" as const, function: t })), tool_choice: "auto" as const } : {}),
+          temperature: 0.2,
+          max_completion_tokens: 2048,
+          ...reasoningOptions(MODEL),
+        });
+      } catch (e) {
+        // The model produced a tool call Groq couldn't accept (malformed, or with no tools on
+        // offer). Treat it as no answer: the runner then sends the safe fallback, not a 500.
+        if (e instanceof Groq.APIError && e.status === 400 && /tool_use_failed/.test(e.message)) return { content: null, toolCalls: [] };
+        throw e;
+      }
       const msg = res.choices[0]?.message;
       return {
         content: msg?.content ?? null,

@@ -32,7 +32,7 @@ config sets `watchPatterns`, so a change only redeploys the service it touches.
 |---|---|
 | `DATABASE_URL` | Supabase Postgres connection string for this environment |
 | `GROQ_API_KEY` | Ask Compass model key |
-| `GROQ_MODEL` | Optional; default `llama-3.3-70b-versatile` |
+| `GROQ_MODEL` | Optional; default `openai/gpt-oss-120b` |
 | `PORT` | Set automatically by Railway |
 
 ### Variables: web service

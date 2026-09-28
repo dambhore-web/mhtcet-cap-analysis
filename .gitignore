@@ -25,3 +25,7 @@ __pycache__/
 # Playwright output
 apps/web/playwright-report/
 apps/web/test-results/
+
+# Assistant eval and perf run output
+apps/api/evals/results/
+apps/api/perf/results/

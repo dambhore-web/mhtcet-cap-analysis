@@ -2,6 +2,77 @@
 
 ## Unreleased
 ### Changed
+- Ask Compass: code now writes every cutoff number (accuracy plan, #20). Why: the eval showed
+  the model's remaining errors were picking or copying the wrong row. RAG was considered and
+  rejected (ADR-004).
+  - **Placeholders:** the model writes `{{S3}}` and code puts in that row's exact value and
+    citation.
+  - **Precise `getCutoffs`:** it takes the college by name, initials or code, branch short forms
+    (IT, ENTC, comp), seat type and round. It returns Round I when no round is given.
+  - **Ambiguous names:** a name that matches several colleges returns an error listing them,
+    instead of a guess.
+  - **Prompt:** three short worked examples. gpt-oss now reasons at "medium".
+  - **Eval:** it runs only the default model in CI, to fit Groq's free-tier daily limit. The
+    cases use short branch names again, so none are skipped on the staging data.
+
+### Fixed
+- Ask Compass was down. Groq withdrew `llama-3.3-70b-versatile`, so every question returned a
+  404. Found by the first eval run with a real key.
+  - **New default model:** `openai/gpt-oss-120b`, with short, hidden reasoning and a larger token
+    budget so the visible answer isn't cut off.
+  - **CI eval** runs the set on three models so they can be compared (#19). Only the default
+    model's result can fail the check.
+  - **Eval runner** checks that the model exists before starting, and reports API errors as
+    errors. It waits and retries when Groq's per-minute limit is hit.
+  - **Fairer scoring** after the first full run (gpt-oss-120b: tools 91%, factual 72%, adversarial
+    70%, grounding 96%). Several misses were the test's fault, not the model's:
+    - Grounding now checks every row the tools returned, not only the cited ones.
+    - Any valid row for the seat type and round counts, since a college can list one twice.
+    - Cases use full branch names, and curly apostrophes match straight ones.
+    - The safe fallback passes an adversarial case, because the attack got nothing through.
+    - Latency leaves out the time spent waiting on rate limits.
+    - The log prints each failed answer.
+  - **100% pass marks** (owner decision): the eval fails unless the model gets every case right.
+  - **Citation check** on every answer: each closing merit must share a sentence with a citation
+    to the row it came from. This catches a real value quoted from the wrong row. A failing
+    answer gets one rewrite with the exact problem, then the safe fallback.
+- Ask Compass fixes found by the first real eval run:
+  - **Initials in search:** "PICT", "COEP" and "VJTI Mumbai" now find their college. The search
+    used to need the full name, so the model kept searching until it ran out of tool rounds.
+  - **Out of tool rounds:** the model is now asked to answer from what it has. If Groq rejects a
+    stray tool call (400 `tool_use_failed`), the user gets the safe fallback, not an error.
+  - **Smaller tool results:** the model gets only each row's id and label (file and page stay
+    in the citations), and at most 60 cutoff rows with a note to narrow. This cuts tokens per
+    question, which matters under Groq's free-tier limit of 8,000 tokens a minute.
+
+### Added
+- Assistant eval set and runner (#20). Why: a prompt, model or tool change needs a measurable gate
+  before it merges.
+  - **Eval set:** 54 cases in `apps/api/evals/assistant.v1.jsonl` across six groups, including 10
+    adversarial ones. Expected cutoffs are looked up in the loaded data, not typed in by hand.
+  - **Runner:** `npm run eval` runs the real `runAssistant` loop and scores tool calls,
+    correctness and numeric grounding. It exits 1 below the thresholds: 90% tools and factual,
+    100% adversarial and grounding.
+  - **CI:** the `Assistant eval` job runs when assistant code changes and `GROQ_API_KEY` is set.
+  - The old `packages/pipeline/eval` set is replaced. It posted the wrong request shape and
+    expected facts the tools can't provide (for example, the documents needed at reporting).
+- Performance check and fixes (#27). Why: NFR-002 and NFR-003 had no measurement. Measured at
+  full scale (390 colleges, 3,120 branches), a search took 38 ms of CPU and returned 1.7 MB.
+  - **Script:** `npm run perf` runs 50 concurrent rank-finder users for 20 s, each pausing 1–3 s
+    between searches (target p95 < 1 s). It also asks 10 assistant questions (target: first
+    streamed text p95 < 3 s). `--think-ms=0` finds the saturation point.
+  - **Faster rank finder:** `rankFind` summarises each branch's rows once and reuses the summary.
+    Eligibility is worked out once per college, not per branch. A search now takes 13 ms, and its
+    output is byte-identical to before over 400 varied requests.
+  - **Compression:** JSON responses are gzipped when the browser accepts it. A full search drops
+    from 1.7 MB to about 70 KB, which matters most on phones. The assistant's stream is not
+    compressed.
+  - **Result:** at full scale, p95 is 241 ms with 50 users. With no pause between searches, the
+    server handles about 47 searches a second on 4 cores (p95 about 1.5 s).
+  - **CI:** the `Performance (staging data)` job runs the script against the API loaded with the
+    staging cutoffs.
+
+### Changed
 - Decision log matches the build (#118). Why: it said Tailwind and left hosting open, while the
   app uses plain CSS and the web app was deploying to Vercel.
   - **Styling:** plain CSS with design tokens, no Tailwind (owner confirmed). `AGENTS.md` and the
