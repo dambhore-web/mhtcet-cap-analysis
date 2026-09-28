@@ -30,15 +30,19 @@ config sets `watchPatterns`, so a change only redeploys the service it touches.
 ### Variables: API service
 | Variable | Description |
 |---|---|
-| `DATABASE_URL` | Supabase Postgres connection string for this environment |
+| `DATABASE_URL` | Supabase Postgres connection string for this environment. Use a SELECT-only role (see `docs/07-security/security-review-2026-09.md`); the API also forces read-only sessions |
 | `GROQ_API_KEY` | Ask Compass model key |
 | `GROQ_MODEL` | Optional; default `openai/gpt-oss-120b` |
+| `CORS_ORIGINS` | **Set in staging and production**: the web app's origin(s), comma-separated, e.g. `https://compass-web-staging.up.railway.app`. Unset allows any origin (local dev only) |
+| `TRUSTED_PROXY_HOPS` | Optional; default `1` (Railway's edge). Proxies in front of the API that append to `X-Forwarded-For`; used for per-IP rate limits |
+| `TRUST_CLOUDFLARE` | Optional; `1` only if Cloudflare sits in front of the API (then `CF-Connecting-IP` is trusted) |
+| `RATE_LIMITS` | Leave unset in deployed environments. `off` disables the per-IP limits (load and end-to-end tests only) |
 | `PORT` | Set automatically by Railway |
 
 ### Variables: web service
 | Variable | Description |
 |---|---|
-| `VITE_API_URL` | Public URL of this environment's API service, e.g. `https://compass-api-staging.up.railway.app` |
+| `VITE_API_URL` | Public URL of this environment's API service, e.g. `https://compass-api-staging.up.railway.app`. Also written into the Content Security Policy (`connect-src`) at build time by `scripts/write-serve-headers.mjs` |
 
 ### Retiring Vercel
 The Vercel project still builds `main` and posts preview comments on PRs. Once the Railway web
