@@ -76,6 +76,20 @@ interface Row {
   page: number;
 }
 
+/**
+ * Historical PDFs used different seat-type spellings. Normalise to the canonical 2026 codes
+ * before header detection so older years parse cleanly.
+ *   ORPH / ORPHAN  → ORPHANN  (2024-2025 used short form for non-minority orphan)
+ *   Codes missing trailing level letter (S = state level): PWDROBC → PWDROBCS, DEFRSEBC → DEFRSEBCS
+ */
+const SEAT_CODE_ALIASES: Record<string, string> = { ORPH: "ORPHANN", ORPHAN: "ORPHANN" };
+function normSeatCode(code: string): string {
+  const alias = SEAT_CODE_ALIASES[code];
+  if (alias) return alias;
+  if (!isSeatType(code) && isSeatType(code + "S")) return code + "S";
+  return code;
+}
+
 const CHROME =
   /Government of Maharashtra|State Common Entrance Test Cell|Cut Off List for|Degree Courses|Master of Engineering|\(Integrated|Admissions A\.Y\./;
 const TITLE_ROUND = /CAP\s+Round\s*-?\s*([IVX]+)\b/;
@@ -170,7 +184,7 @@ export class MhCutoffParser {
       this.expect = null;
       return;
     }
-    const codes = t.filter((x) => x !== "Stage");
+    const codes = t.filter((x) => x !== "Stage").map(normSeatCode);
     if (codes.length && codes.every(isSeatType)) return this.header(line, codes, continuation);
     if (t.length === 1 && t[0] === "Stage") return;
 

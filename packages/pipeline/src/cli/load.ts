@@ -21,7 +21,9 @@ const dir = processedDir(year);
 const validation = await readJson<RunReport>(join(dir, "validation.json"));
 if (!validation.load.allowed) throw new Error(`[LOAD] validation blocks the load: ${validation.load.blockedBy.join(", ")}`);
 const vTime = (await stat(join(dir, "validation.json"))).mtimeMs;
-for (const f of ["cutoffs.ndjson", "institutes.json", "cutoff-colleges.json", "ai_merit.ndjson"]) {
+const filesToCheck = ["cutoffs.ndjson", "institutes.json", "cutoff-colleges.json"];
+if (validation.load.merit.allowed) filesToCheck.push("ai_merit.ndjson");
+for (const f of filesToCheck) {
   if ((await stat(join(dir, f))).mtimeMs > vTime) throw new Error(`[LOAD] ${f} changed after validation; run validate again`);
 }
 
