@@ -181,6 +181,25 @@ describe("GET /api/merit-estimate", () => {
     expect(hi).toBeGreaterThan(lo);
   });
 
+  it("reads only the state merit list, never MHT-CET rows from the All India list", async () => {
+    const calls: { sql: string; params: unknown[] }[] = [];
+    const pool = {
+      query: async (sql: string, params: unknown[]) => {
+        calls.push({ sql, params });
+        return { rows: [{ cnt: "0", min_merit: null, max_merit: null }] };
+      },
+    } as never;
+    const res = await createApp(seedCache(), pool).request(
+      "http://localhost/api/merit-estimate?percentile=90&subjectGroup=PCM",
+    );
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(calls).toHaveLength(1);
+    expect(calls[0].sql).toMatch(/list = \$3/);
+    expect(calls[0].params).toEqual([90, 2026, "PCMMH", "MHT-CET-PCM"]);
+    // No state list loaded yet → honest statistical fallback
+    expect(body.method).toBe("statistical");
+  });
+
   it("returns 400 when percentile is missing", async () => {
     const { status } = await get("/api/merit-estimate?subjectGroup=PCM");
     expect(status).toBe(400);

@@ -23,8 +23,11 @@ export async function getMeritEstimate(c: Context, pool: pg.Pool) {
     return c.json({ error: "invalid_subject_group" }, 400);
   }
 
-  // Try real data first (populated by issue #10)
+  // Try real data first (populated by issue #10). Only the state merit list (FE<year>_PCMMH / PCBMH)
+  // gives state merit numbers. The All India list (PCMAI) also has MHT-CET rows, but their merit
+  // numbers follow the whole JEE block, so reading them would overstate state merit by ~98,000.
   const examCode = subjectGroup === "PCM" ? "MHT-CET-PCM" : "MHT-CET-PCB";
+  const stateList = `${subjectGroup}MH`;
   try {
     const res = await pool.query<{ cnt: string; min_merit: string; max_merit: string }>(
       `SELECT
@@ -32,8 +35,8 @@ export async function getMeritEstimate(c: Context, pool: pg.Pool) {
          MIN(merit) FILTER (WHERE score >= $1 - 0.5 AND score < $1 + 0.5) AS min_merit,
          MAX(merit) FILTER (WHERE score >= $1 - 0.5 AND score < $1 + 0.5) AS max_merit
        FROM merit_lookup
-       WHERE authority = 'MH-CET-CELL' AND year = $2 AND exam = $3`,
-      [percentile, year, examCode]
+       WHERE authority = 'MH-CET-CELL' AND year = $2 AND list = $3 AND exam = $4`,
+      [percentile, year, stateList, examCode]
     );
     const row = res.rows[0];
     const total = parseInt(row.cnt, 10);
