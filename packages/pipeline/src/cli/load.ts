@@ -72,10 +72,14 @@ if (findPersonalData(JSON.stringify([institutes, mhColleges, branches])) || cuto
 }
 
 // Home university per college: the most common value on its branches' Status lines.
+// "Autonomous Institute" is a CET Cell labelling artefact for newly-autonomous branches at
+// otherwise-affiliated colleges — exclude it so the real affiliating university wins the vote.
+// Genuinely autonomous colleges (all branches tagged this way) correctly get null.
 const homeUni = new Map<string, string>();
 for (const code of new Set(branches.map((b) => b.collegeCode))) {
   const counts = new Map<string, number>();
-  for (const b of branches.filter((x) => x.collegeCode === code && x.homeUniversity)) counts.set(b.homeUniversity!, (counts.get(b.homeUniversity!) ?? 0) + 1);
+  for (const b of branches.filter((x) => x.collegeCode === code && x.homeUniversity && x.homeUniversity !== "Autonomous Institute"))
+    counts.set(b.homeUniversity!, (counts.get(b.homeUniversity!) ?? 0) + 1);
   const top = [...counts].sort((a, b) => b[1] - a[1])[0];
   if (top) homeUni.set(code, top[0]);
 }
