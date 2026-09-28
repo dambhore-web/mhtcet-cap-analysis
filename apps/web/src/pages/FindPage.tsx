@@ -768,6 +768,24 @@ function CollegeGroup({ group, merit, domain }: { group: Group; merit: number; d
   );
 }
 
+/** Seats of this seat type in the branch; a pool of one or two seats makes the cutoff jumpy. */
+function SeatCount({ opt }: { opt: FindOption }) {
+  const n = opt.seats?.seatType;
+  if (n == null) return null;
+  const total = opt.seats?.branch;
+  const few = n <= 2;
+  const title = `${n} ${seatTypeLabel(opt.seatType)} seat${n === 1 ? "" : "s"} in this branch${total ? ` (${total} in total)` : ""}` +
+    (few ? ". With so few seats the closing rank can change a lot from year to year." : "");
+  return (
+    <>
+      <span aria-hidden="true">·</span>
+      <span className={`seat-count${few ? " few" : ""}`} title={title}>
+        {n} seat{n === 1 ? "" : "s"}{few ? " — small pool" : ""}
+      </span>
+    </>
+  );
+}
+
 /** "2023–2025: within the cutoff in 2 of 3 years (last round 5,600–6,400)". */
 function PastYearsLine({ opt, merit }: { opt: FindOption; merit: number }) {
   const past = opt.pastYears ?? [];
@@ -807,6 +825,7 @@ function OptionRow({ opt, merit, domain, showCollege = false }: { opt: FindOptio
               ({margin > 0 ? `${formatNumber(margin)} ranks to spare` : `${formatNumber(-margin)} ranks short`})
             </span>
           )}
+          <SeatCount opt={opt} />
         </span>
         <PastYearsLine opt={opt} merit={merit} />
       </div>

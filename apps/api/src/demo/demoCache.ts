@@ -95,6 +95,7 @@ export function demoCache(): AppCache {
   const branches = new Map<string, Branch>();
   const cutoffsByChoiceCode = new Map<string, CutoffRow[]>();
   const history = new Map<string, HistoryRow[]>();
+  const seats = new Map<string, Map<string, number>>();
 
   DEMO_COLLEGES.forEach((c, ci) => {
     colleges.set(c.code, {
@@ -133,8 +134,14 @@ export function demoCache(): AppCache {
       });
       cutoffsByChoiceCode.set(choiceCode, rows);
       history.set(choiceCode, demoHistory(ci, bi, seatTypesFor(c).map((s) => s.seatType)));
+      // Invented seat matrix: a few seats per seat type (some pools of 1–2), plus All India and TFWS.
+      const bySeat = new Map<string, number>();
+      seatTypesFor(c).forEach(({ seatType }, si) => bySeat.set(seatType, Math.max(1, 14 - si * 3 - bi * 2)));
+      bySeat.set("AI", 9 - bi);
+      bySeat.set("TFWS", 3);
+      seats.set(choiceCode, bySeat);
     });
   });
 
-  return { year: DEMO_YEAR, colleges, branches, cutoffsByChoiceCode, history };
+  return { year: DEMO_YEAR, colleges, branches, cutoffsByChoiceCode, history, seats };
 }

@@ -64,11 +64,13 @@ export interface FindOption {
   year: number;
   /** Same branch and seat type in earlier CAP years (state list), oldest first. */
   pastYears?: PastYear[];
+  /** Seats in the CAP seat matrix: this seat type, and the branch's sanctioned intake. */
+  seats?: { seatType: number | null; branch: number | null };
 }
 
 export interface PastYear {
   year: number;
-  firstRoundClosing: number | null;
+  /** Closing rank in that year's last round. */
   lastRoundClosing: number;
 }
 
@@ -139,6 +141,8 @@ export interface CollegeFees {
   sourceUrl?: string | null;
   tfwsAvailable: boolean;
   tfwsSeats: number | null;
+  /** Branches with TFWS seats, from the CAP seat matrix. */
+  tfwsBranches?: number | null;
   fraOrderRef: string | null;
   fraOrderUrl: string | null;
   sampleOnly: boolean;

@@ -322,7 +322,7 @@ describe("GET /api/branches/:choiceCode/history", () => {
 // ─── Rank finder: earlier years on each option ───────────────────────────────
 
 describe("POST /api/rank-finder pastYears", () => {
-  it("adds Round I and last-round closing ranks of earlier years for the same seat type", async () => {
+  it("adds last-round closing ranks of earlier years for the same seat type", async () => {
     const cache = seedCache();
     cache.history.set("1002119110", [
       { year: 2024, round: "I", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 140, closingPercentile: null },
@@ -339,8 +339,48 @@ describe("POST /api/rank-finder pastYears", () => {
     const vjti = body.options.find((o) => o.choiceCode === "1002119110")!;
     expect(vjti.seatType).toBe("GOPENH");
     expect(vjti.pastYears).toEqual([
-      { year: 2024, firstRoundClosing: 140, lastRoundClosing: 190 },
-      { year: 2025, firstRoundClosing: 145, lastRoundClosing: 145 },
+      { year: 2024, lastRoundClosing: 190 },
+      { year: 2025, lastRoundClosing: 145 },
     ]);
+  });
+});
+
+// ─── Seat matrix: seats on options and TFWS on fees ──────────────────────────
+
+describe("seat matrix in the API", () => {
+  const withSeats = () => {
+    const cache = seedCache();
+    cache.seats.set("1002119110", new Map([["GOPENH", 2], ["GOBCH", 5], ["AI", 9], ["TFWS", 3], ["EWS", 6]]));
+    return cache;
+  };
+
+  it("adds the option's seat-type count and the branch intake (without EWS/TFWS)", async () => {
+    const res = await createApp(withSeats(), stubPool).request("http://localhost/api/rank-finder", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year: 2026, merit: 100, candidature: "MH", homeUniversity: "University of Mumbai", category: "OPEN", gender: "M", subjectGroup: "PCM" }),
+    });
+    const body = (await res.json()) as { options: { choiceCode: string; seats: unknown }[] };
+    expect(body.options.find((o) => o.choiceCode === "1002119110")!.seats).toEqual({ seatType: 2, branch: 16 });
+  });
+
+  it("gives TFWS seats and branches on the fee card from the seat matrix", async () => {
+    const cache = withSeats();
+    cache.fees = {
+      "1002": {
+        name: "VJTI", collegeCode: "1002", tuitionFee: 80000, developmentFee: 5000, otherFees: 0, totalAnnualFee: 85000,
+        tfwsAvailable: false, tfwsSeats: null, fraOrderRef: null, fraOrderUrl: null, sampleOnly: false, academicYear: "2026-27",
+      },
+    };
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/fees");
+    expect(await res.json()).toMatchObject({ available: true, tfwsAvailable: true, tfwsSeats: 3, tfwsBranches: 1 });
+  });
+
+  it("returns null seats when the seat matrix has no row", async () => {
+    const res = await createApp(seedCache(), stubPool).request("http://localhost/api/rank-finder", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year: 2026, merit: 100, candidature: "MH", homeUniversity: "University of Mumbai", category: "OPEN", gender: "M", subjectGroup: "PCM" }),
+    });
+    const body = (await res.json()) as { options: { seats: unknown }[] };
+    expect(body.options[0].seats).toEqual({ seatType: null, branch: null });
   });
 });

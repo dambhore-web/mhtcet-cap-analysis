@@ -667,6 +667,15 @@
 .surplus.pos { color: var(--safe-text); }
 .surplus.neg { color: var(--danger-text); }
 
+.seat-count {
+  color: var(--muted);
+}
+
+.seat-count.few {
+  color: var(--later-text);
+  font-weight: 600;
+}
+
 .past-years {
   font-size: var(--text-xs);
   font-weight: 600;

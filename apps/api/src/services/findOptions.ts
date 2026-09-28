@@ -1,5 +1,5 @@
 import { eligibleSeatTypes, rankFind, type CandidateProfile, type CollegeEligibilityContext } from "@mhtcet/core";
-import { type AppCache, minorityCommunity } from "../startup.ts";
+import { type AppCache, branchIntake, minorityCommunity } from "../startup.ts";
 
 export interface FindOptionsRequest {
   year: number;
@@ -45,22 +45,38 @@ export interface FoundOption {
   source: { file: string | null; page: number | null } | null;
   year: number;
   /**
-   * The same branch and seat type in earlier CAP years (state list only), oldest first: Round I and
-   * last-round closing ranks. Empty for All India options and when the seat type did not exist.
+   * The same branch and seat type in earlier CAP years (state list only), oldest first: last-round
+   * closing ranks. Empty for All India options and when the seat type did not exist.
    */
   pastYears: PastYear[];
+  /**
+   * Seats in the cache year's seat matrix: for this option's seat type, and the branch's sanctioned
+   * intake. Null when the seat matrix has no row.
+   */
+  seats: { seatType: number | null; branch: number | null };
 }
 
+/** One earlier year: the last round's closing rank (the basis of "ranks to spare"). */
 export interface PastYear {
   year: number;
-  firstRoundClosing: number | null;
   lastRoundClosing: number;
 }
 
 const ROMAN: Record<string, number> = { I: 1, II: 2, III: 3, IV: 4, V: 5 };
 
-/** Round I and last-round closing ranks per earlier year for one branch and seat type. */
+/**
+ * Last-round closing rank per earlier year for one branch and seat type. Computed once per
+ * (branch, seat type) and kept for the cache's lifetime: the rank finder asks for it for every
+ * option of every search.
+ */
+const pastMemo = new WeakMap<AppCache, Map<string, PastYear[]>>();
 export function pastYears(cache: AppCache, choiceCode: string, seatType: string): PastYear[] {
+  let memo = pastMemo.get(cache);
+  if (!memo) pastMemo.set(cache, (memo = new Map()));
+  const key = `${choiceCode}|${seatType}`;
+  const hit = memo.get(key);
+  if (hit) return hit;
+
   const byYear = new Map<number, Map<string, number>>();
   for (const r of cache.history.get(choiceCode) ?? []) {
     if (r.seatType !== seatType) continue;
@@ -68,12 +84,23 @@ export function pastYears(cache: AppCache, choiceCode: string, seatType: string)
     if (!rounds.has(r.round)) rounds.set(r.round, r.closingMerit); // first printed stage, as elsewhere
     byYear.set(r.year, rounds);
   }
-  return [...byYear]
+  const out = [...byYear]
     .sort(([a], [b]) => a - b)
     .map(([year, rounds]) => {
       const ordered = [...rounds].sort(([a], [b]) => (ROMAN[a] ?? 9) - (ROMAN[b] ?? 9));
-      return { year, firstRoundClosing: rounds.get("I") ?? null, lastRoundClosing: ordered[ordered.length - 1][1] };
+      return { year, lastRoundClosing: ordered[ordered.length - 1][1] };
     });
+  memo.set(key, out);
+  return out;
+}
+
+/** Sanctioned intake per branch, computed once per cache. */
+const intakeMemo = new WeakMap<AppCache, Map<string, number | null>>();
+function intakeOf(cache: AppCache, choiceCode: string): number | null {
+  let memo = intakeMemo.get(cache);
+  if (!memo) intakeMemo.set(cache, (memo = new Map()));
+  if (!memo.has(choiceCode)) memo.set(choiceCode, branchIntake(cache.seats.get(choiceCode)));
+  return memo.get(choiceCode)!;
 }
 
 /** The rank finder over the whole cache: used by POST /api/rank-finder and the assistant's findOptions tool. */
@@ -148,6 +175,10 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
       source: deciding ? { file: deciding.sourceFile, page: deciding.sourcePage } : null,
       year: req.year,
       pastYears: req.candidature === "MH" ? pastYears(cache, choiceCode, best.seatType) : [],
+      seats: {
+        seatType: cache.seats.get(choiceCode)?.get(best.seatType) ?? null,
+        branch: intakeOf(cache, choiceCode),
+      },
     });
   }
 
