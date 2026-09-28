@@ -46,6 +46,30 @@ export function findSeatMatrix(links: string[], year: number): ManifestFile[] {
     .map((url) => ({ url, file: `seatmatrix/${url.split("/").pop()}` }));
 }
 
+/** Earlier years' naming on the current site: `2023ENGG_CAP1_CutOff.pdf` (MH), `_AI_CutOff`, `_CutOff_Diploma`. */
+const LEGACY_CUTOFF_RE = /\/(\d{4})ENGG_CAP(\d)(_AI)?_CutOff(_Diploma)?(?:_V(\d+))?\.pdf$/i;
+const LEGACY_MATRIX_RE = /\/(\d{4})SeatMatrix\.pdf$/i;
+
+/** Cutoff lists of an earlier year, from the links on the current year's home page. */
+export function findEarlierCutoffLists(links: string[], year: number): CutoffListEntry[] {
+  const out = findCutoffLists(links, year);
+  const seen = new Set(out.map((e) => e.url));
+  for (const url of new Set(links)) {
+    const m = LEGACY_CUTOFF_RE.exec(url);
+    if (!m || Number(m[1]) !== year || seen.has(url)) continue;
+    const kind: CutoffListEntry["kind"] = m[4] ? "Diploma" : m[3] ? "AI" : "MH";
+    out.push({ url, kind, round: toRound(Number(m[2])), version: m[5] ? Number(m[5]) : null, file: `cutoff/${url.split("/").pop()!}` });
+  }
+  return out.sort((a, b) => a.file.localeCompare(b.file));
+}
+
+/** Seat matrix of an earlier year (`/2025/2025SeatMatrix.pdf`), if linked. */
+export function findEarlierSeatMatrix(links: string[], year: number): ManifestFile[] {
+  return [...new Set(links)]
+    .filter((u) => Number(LEGACY_MATRIX_RE.exec(u)?.[1]) === year)
+    .map((url) => ({ url, file: `seatmatrix/${url.split("/").pop()!}` }));
+}
+
 export function findEarlierYearLinks(links: string[], year: number): string[] {
   return [...new Set(links)]
     .filter((u) => /\/(\d{4})\/\1ENGG_CAP\d_.*CutOff.*\.pdf$|\/(\d{4})\/\2SeatMatrix\.pdf$/i.test(u))

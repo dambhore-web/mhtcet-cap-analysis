@@ -43,7 +43,7 @@ describe("RowListParser (Diploma list 2023 — narrow layout, 9-digit choice cod
       ...line(210, [30, "1"], [51, "143265"], [80, "(84.42)"], [119, "428519110"], [675, "Diploma/D.Voc."]),
     ]);
     expect(p.rows).toHaveLength(1);
-    expect(p.rows[0]).toMatchObject({ srNo: 1, collegeCode: "4285", choiceCode: "428519110", closingMerit: 143265, closingPercentile: 84.42, exam: "Diploma/D.Voc.", type: null, seatType: null });
+    expect(p.rows[0]).toMatchObject({ srNo: 1, collegeCode: "04285", choiceCode: "0428519110", closingMerit: 143265, closingPercentile: 84.42, exam: "Diploma/D.Voc.", type: null, seatType: null });
   });
 });
 
@@ -56,6 +56,6 @@ describe("RowListParser (AI list 2023 — seatType at x=758, type starts at x=69
       ...line(129, [176, "600624510"], [630, "JEE(Main)"], [690, "AI"], [699, "to"], [709, "AI"]),
     ]);
     expect(p.rows).toHaveLength(1);
-    expect(p.rows[0]).toMatchObject({ collegeCode: "6006", choiceCode: "600624510", closingMerit: 98, seatType: "AI", exam: "JEE(Main)", type: "AI to AI" });
+    expect(p.rows[0]).toMatchObject({ collegeCode: "16006", choiceCode: "1600624510", closingMerit: 98, seatType: "AI", exam: "JEE(Main)", type: "AI to AI" });
   });
 });

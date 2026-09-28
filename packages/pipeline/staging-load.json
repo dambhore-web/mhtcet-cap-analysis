@@ -1,9 +1,8 @@
 {
-  "_comment": "Changing this file runs the 'Staging data load' workflow, which downloads, parses, checks and loads these datasets into STAGING (never production). Loads are idempotent.",
-  "merit": [
-    {
-      "year": 2026,
-      "list": "PCMMH"
-    }
-  ]
+  "_comment": "Changing this file runs the 'Staging data load' workflow, which downloads, parses, checks and loads these datasets into STAGING (never production). cutoffs.cleanupYears first deletes those years' cutoff rows and every row stored under a non-normalised college code; cutoffs.years are then fully reloaded, oldest first (the latest year last, so its college and branch names win). Loads are idempotent.",
+  "cutoffs": {
+    "cleanupYears": [],
+    "years": []
+  },
+  "merit": []
 }

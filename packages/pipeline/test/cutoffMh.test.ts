@@ -8,7 +8,7 @@ const chrome = [
 ];
 
 describe("MhCutoffParser (2023-style 4-digit college code)", () => {
-  it("recognises a 4-digit college code and 9-digit choice code", () => {
+  it("pads a 4-digit college code and 9-digit choice code to the 2026 form", () => {
     const p = new MhCutoffParser();
     p.addPage([
       ...chrome,
@@ -22,9 +22,9 @@ describe("MhCutoffParser (2023-style 4-digit college code)", () => {
       ...line(196, [73, "(80.7328826)"], [124, "(76.6166542)"]),
     ]);
     const cells = p.cells();
-    expect(p.colleges.get("1002")?.name).toBe("Test College");
-    expect(p.branches.get("100219110")).toMatchObject({ collegeCode: "1002", name: "Civil Engineering" });
-    expect(cells.find((c) => c.seatType === "GOPENS")).toMatchObject({ collegeCode: "1002", choiceCode: "100219110", closingMerit: 45820 });
+    expect(p.colleges.get("01002")?.name).toBe("Test College");
+    expect(p.branches.get("0100219110")).toMatchObject({ collegeCode: "01002", name: "Civil Engineering" });
+    expect(cells.find((c) => c.seatType === "GOPENS")).toMatchObject({ collegeCode: "01002", choiceCode: "0100219110", closingMerit: 45820 });
     expect(p.issues).toEqual([]);
   });
   it("stores normalised seat-type codes (ORPHAN→ORPHANN, PWDROBC→PWDROBCS)", () => {
@@ -96,5 +96,22 @@ describe("MhCutoffParser", () => {
   it("reports no issues and ignores the footer", () => {
     expect(p.issues).toEqual([]);
     expect(cells).toHaveLength(5);
+  });
+});
+
+describe("code normalisation", () => {
+  it("pads college and choice codes to the 2026 form and keeps suffix letters", async () => {
+    const { normaliseChoiceCode, normaliseCollegeCode } = await import("../src/parse/codes.ts");
+    expect(normaliseCollegeCode("1002")).toBe("01002");
+    expect(normaliseCollegeCode("16006")).toBe("16006");
+    expect(normaliseChoiceCode("100219110")).toBe("0100219110");
+    expect(normaliseChoiceCode("1600624210")).toBe("1600624210");
+    expect(normaliseChoiceCode("100219110T")).toBe("0100219110T");
+  });
+  it("maps colleges whose code changed when they became universities", async () => {
+    const { normaliseChoiceCode, normaliseCollegeCode } = await import("../src/parse/codes.ts");
+    expect(normaliseCollegeCode("6006")).toBe("16006");
+    expect(normaliseChoiceCode("0600624510")).toBe("1600624510");
+    expect(normaliseChoiceCode("400550710")).toBe("1400550710");
   });
 });
