@@ -94,6 +94,32 @@ jobs:
         env:
           E2E_LIVE: "1"
 
+  data-audit:
+    name: Data audit (staging)
+    runs-on: ubuntu-latest
+    # Read-only counts of what staging holds and which expected datasets are missing; the report
+    # goes to the job summary. Skipped when the staging secret isn't set.
+    env:
+      DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
+
+    steps:
+      - uses: actions/checkout@v4
+        if: env.DATABASE_URL_STAGING != ''
+
+      - uses: actions/setup-node@v4
+        if: env.DATABASE_URL_STAGING != ''
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm ci
+
+      - name: Audit staging data
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm run data:audit -w @mhtcet/pipeline
+
   perf-live:
     name: Performance (staging data)
     runs-on: ubuntu-latest
