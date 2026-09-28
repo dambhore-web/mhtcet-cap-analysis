@@ -91,6 +91,7 @@ function normSeatCode(code: string): string {
   return code;
 }
 
+const COLLEGE_HEADER = /^\d{4,5} - /;
 const CHROME =
   /Government of Maharashtra|State Common Entrance Test Cell|Cut Off List for|Degree Courses|Master of Engineering|\(Integrated|Admissions A\.Y\./;
 const TITLE_ROUND = /CAP\s+Round\s*-?\s*([IVX]+)\b/;
@@ -130,7 +131,10 @@ export class MhCutoffParser {
     this.lastRow = null;
     for (const line of lines) {
       if (/Legends/.test(line.text)) break; // footer: legend, note, page number
-      if (CHROME.test(line.text)) {
+      // A college header is never chrome, even when its name contains a chrome phrase:
+      // "… Group of Institutions (Integrated Campus)" matched `\(Integrated` (meant for the title
+      // "… (Integrated 5 Years)"), so 02111, 02116 and 05303 were filed under the college before them.
+      if (!COLLEGE_HEADER.test(line.text) && CHROME.test(line.text)) {
         const m = TITLE_ROUND.exec(line.text);
         if (m) this.titleRounds.add(m[1]);
         continue;

@@ -115,3 +115,30 @@ describe("code normalisation", () => {
     expect(normaliseChoiceCode("400550710")).toBe("1400550710");
   });
 });
+
+describe("MhCutoffParser college headers", () => {
+  it("does not skip a college header whose name contains '(Integrated Campus)' as page chrome", () => {
+    const p = new MhCutoffParser();
+    const branch = (y: number, code: string, merit: string) => [
+      ...line(y, [18, code], [64, "-"], [72, "Civil"], [97, "Engineering"]),
+      ...line(y + 15, [20, "Status:"], [57, "Un-Aided"]),
+      ...line(y + 33, [29, "State"], [54, "Level"]),
+      ...line(y + 59, [81, "GOPENS"]),
+      w(40, y + 61, "Stage"),
+      ...line(y + 85, [47, "I"], [73, merit]),
+      ...line(y + 93, [73, "(47.8398896)"]),
+    ];
+    p.addPage([
+      ...chrome,
+      ...line(63, [255, "Degree"], [284, "Courses"], [605, "(Integrated"], [655, "5"], [663, "Years)"]),
+      ...line(85, [18, "99001"], [44, "-"], [52, "First"], [80, "College"]),
+      ...branch(103, "9900119110", "1000"),
+      ...line(215, [18, "99002"], [44, "-"], [52, "Test"], [80, "Group"], [110, "of"], [120, "Institutions"], [180, "(Integrated"], [230, "Campus),"], [280, "Town"]),
+      ...branch(233, "9900219110", "2000"),
+    ]);
+    expect(p.colleges.get("99002")?.name).toBe("Test Group of Institutions (Integrated Campus), Town");
+    expect(p.branches.get("9900219110")).toMatchObject({ collegeCode: "99002" });
+    expect(p.cells().find((c) => c.choiceCode === "9900219110")).toMatchObject({ collegeCode: "99002", closingMerit: 2000 });
+    expect(p.issues).toEqual([]);
+  });
+});
