@@ -14,8 +14,8 @@ export default defineConfig({
         description: "Find which engineering colleges and branches you can get in the 2026 MHT-CET CAP",
         start_url: "/",
         display: "standalone",
-        background_color: "#f6f7ff",
-        theme_color: "#6552d8",
+        background_color: "#f4f7fc",
+        theme_color: "#1e3a8a",
         orientation: "portrait-primary",
         icons: [
           {
