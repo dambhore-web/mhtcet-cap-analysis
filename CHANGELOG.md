@@ -1,6 +1,20 @@
 # Changelog
 
 ## Unreleased
+### Changed
+- Ask Compass: code now writes every cutoff number (accuracy plan, #20). Why: the eval showed
+  the model's remaining errors were picking or copying the wrong row. RAG was considered and
+  rejected (ADR-004).
+  - **Placeholders:** the model writes `{{S3}}` and code puts in that row's exact value and
+    citation.
+  - **Precise `getCutoffs`:** it takes the college by name, initials or code, branch short forms
+    (IT, ENTC, comp), seat type and round. It returns Round I when no round is given.
+  - **Ambiguous names:** a name that matches several colleges returns an error listing them,
+    instead of a guess.
+  - **Prompt:** three short worked examples. gpt-oss now reasons at "medium".
+  - **Eval:** it runs only the default model in CI, to fit Groq's free-tier daily limit. The
+    cases use short branch names again, so none are skipped on the staging data.
+
 ### Fixed
 - Ask Compass was down. Groq withdrew `llama-3.3-70b-versatile`, so every question returned a
   404. Found by the first eval run with a real key.

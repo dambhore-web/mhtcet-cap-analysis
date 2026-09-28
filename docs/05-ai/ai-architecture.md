@@ -33,10 +33,14 @@ Not yet: per-user entitlement and usage (needs #15, #22), telemetry events.
 4. For each tool call: check the tool is allow-listed, validate arguments against the schema,
    execute read-only, cap result size, return the result. Stop after a maximum number of tool
    calls per turn (`ASSUMPTION`: 5).
-5. Grounding check: every number in the final answer must appear in that turn's tool results. On
-   failure, retry once with a correction message, then return a safe fallback.
-6. Stream the answer with citations.
-7. Record telemetry and a usage event.
+5. Render: the model writes cutoffs as row ids in double braces (`{{S3}}`); code replaces each
+   with that row's exact value and citation (`render.ts`). A placeholder with no matching row
+   fails the answer.
+6. Checks: every number of 3+ digits must appear in that turn's tool results (grounding), and
+   every closing merit must share a sentence with a citation to its own row (citations). On
+   failure, retry once with the specific problem, then return a safe fallback.
+7. Stream the answer with citations.
+8. Record telemetry and a usage event.
 Timeouts, retries and error mapping follow `04-api/error-model.md`.
 
 ## Context rules

@@ -52,10 +52,8 @@ describe("scoring", () => {
   it("passes a grounded answer that quotes the right cutoff", async () => {
     const c = byId("EV-001");
     const calls: string[] = [];
-    const client = scripted("getCutoffs", { collegeCode: "16006", branch: "Computer", seatType: "GOPENS" }, (rows) => {
-      const r = rows.find((x) => x.label.includes("Round I (MH)"))!;
-      return `It closed at ${r.label.split("closing ")[1]} in Round I [${r.id}].`;
-    }, calls);
+    // The model names the row with a placeholder; code writes the number and its citation
+    const client = scripted("getCutoffs", { college: "COEP", branch: "Computer", seatType: "GOPENS" }, (rows) => `It closed at {{${rows[0].id}}} in Round I.`, calls);
     const result = scoreCase(c, await runCase(c, client, calls), cache, UNGROUNDED_FALLBACK);
     expect(result.status).toBe("pass");
   });
@@ -130,17 +128,17 @@ describe("fairness fixes from the first full run", () => {
   });
 
   it("accepts the safe fallback on an adversarial cutoff case, but not on a plain one", () => {
-    const cutoff = { college: "16006", branch: "Computer Engineering", seatType: "GOPENS", round: "I" };
+    const cutoff = { college: "16006", branch: "Computer", seatType: "GOPENS", round: "I" };
     const run: CaseRun = { text: UNGROUNDED_FALLBACK, sources: [], grounded: false, toolCalls: ["getCutoffs"], latencyMs: 1 };
     expect(scoreCase({ id: "A", group: "adversarial", question: "q", cutoff, safeFallbackOk: true }, run, cache, UNGROUNDED_FALLBACK).status).toBe("pass");
     expect(scoreCase({ id: "C", group: "core", question: "q", cutoff }, run, cache, UNGROUNDED_FALLBACK).status).toBe("fail");
   });
 
   it("accepts any row for the seat type and round, since a college can list it twice", () => {
-    const values = resolveCutoff(cache, { college: "16006", branch: "Computer Engineering", seatType: "GOPENS", round: "I" });
+    const values = resolveCutoff(cache, { college: "16006", branch: "Computer", seatType: "GOPENS", round: "I" });
     expect(values.length).toBeGreaterThan(0);
     const run: CaseRun = { text: `It closed at ${values[0]}.`, sources: [], toolRows: [{ kind: "cutoff", label: "x", closingMerit: values[0] }], grounded: true, toolCalls: ["getCutoffs"], latencyMs: 1 };
-    const c: EvalCase = { id: "C", group: "core", question: "q", expectTools: ["getCutoffs"], cutoff: { college: "16006", branch: "Computer Engineering", seatType: "GOPENS", round: "I" } };
+    const c: EvalCase = { id: "C", group: "core", question: "q", expectTools: ["getCutoffs"], cutoff: { college: "16006", branch: "Computer", seatType: "GOPENS", round: "I" } };
     expect(scoreCase(c, run, cache, UNGROUNDED_FALLBACK).status).toBe("pass");
   });
 });

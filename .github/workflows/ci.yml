@@ -146,7 +146,9 @@ jobs:
     runs-on: ubuntu-latest
     # Gates prompt, model and tool changes (#20). Runs only when the assistant's code or eval set
     # changed and GROQ_API_KEY is set; uses the staging data when that secret is set too.
-    # The default model (apps/api/src/routes/assistant.ts) gates; the others are compared (#19).
+    # The default model (apps/api/src/routes/assistant.ts) gates. Groq's free tier allows about
+    # one full run per model per day, so only the default runs; add entries with gate: false to
+    # compare other models (#19).
     if: github.event_name == 'pull_request'
     strategy:
       fail-fast: false
@@ -154,10 +156,6 @@ jobs:
         include:
           - model: openai/gpt-oss-120b
             gate: true
-          - model: openai/gpt-oss-20b
-            gate: false
-          - model: qwen/qwen3.8-27b
-            gate: false
     continue-on-error: ${{ !matrix.gate }}
     # Free-tier Groq rate limits make a full run take 10-20 minutes per model
     timeout-minutes: 45

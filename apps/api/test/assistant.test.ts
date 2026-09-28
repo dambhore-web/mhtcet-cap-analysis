@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { demoCache } from "../src/demo/demoCache.ts";
+import { demoCache, demoChoiceCode } from "../src/demo/demoCache.ts";
 import { runAssistant, UNGROUNDED_FALLBACK, type ChatClient, type LlmToolCall } from "../src/assistant/run.ts";
-import { collegeInitials, MAX_CUTOFFS, runTool } from "../src/assistant/tools.ts";
+import { branchMatches, collegeInitials, MAX_CUTOFFS, resolveCollege, runTool } from "../src/assistant/tools.ts";
+import { formatMerit, renderPlaceholders } from "../src/assistant/render.ts";
 import { miscitedNumbers, numbersIn, ungroundedNumbers } from "../src/assistant/grounding.ts";
 
 const cache = demoCache();
@@ -154,6 +155,14 @@ describe("found in the first real eval run", () => {
   });
 
   it("sends the model ids and labels only, and says when cutoffs were cut short", async () => {
+    // A college with more branches than one call returns: 20 branches × 5 seat types in Round I
+    const big = demoCache();
+    const rows = big.cutoffsByChoiceCode.get(demoChoiceCode("16006", 0))!;
+    for (let b = 10; b < 30; b++) {
+      const choiceCode = `16006${b}910`;
+      big.branches.set(choiceCode, { authority: "MH-CET-CELL", exam: "MHT-CET", choiceCode, collegeCode: "16006", name: `Branch ${b}` });
+      big.cutoffsByChoiceCode.set(choiceCode, rows.map((r) => ({ ...r, choiceCode })));
+    }
     let toolContent = "";
     const client: ChatClient = {
       async complete({ messages }) {
@@ -162,13 +171,13 @@ describe("found in the first real eval run", () => {
           toolContent = last.content;
           return { content: "Done.", toolCalls: [] };
         }
-        return { content: null, toolCalls: [{ id: "t", type: "function", function: { name: "getCutoffs", arguments: '{"collegeCode":"16006"}' } }] };
+        return { content: null, toolCalls: [{ id: "t", type: "function", function: { name: "getCutoffs", arguments: '{"college":"16006"}' } }] };
       },
     };
-    await runAssistant({ client, cache, profile: {}, history: [{ role: "user", content: "COEP cutoffs" }] });
+    await runAssistant({ client, cache: big, profile: {}, history: [{ role: "user", content: "COEP cutoffs" }] });
     const listed = JSON.parse(toolContent) as { id?: string; label?: string; note?: string; sourceFile?: string }[];
     expect(listed.length).toBe(MAX_CUTOFFS + 1);
-    expect(listed[0]).toEqual({ id: "S1", label: expect.any(String) });
+    expect(listed[0]).toEqual({ id: "S1", label: expect.stringMatching(/Round I · closing/) });
     expect(listed.at(-1)!.note).toMatch(/narrow/);
   });
 });
@@ -200,6 +209,72 @@ describe("citation check", () => {
       "It closed at 600 [S2].",
     ]);
     const res = await runAssistant({ client, cache, profile: {}, history: [{ role: "user", content: "COEP computer GOPENS Round I?" }] });
+    expect(res.text).toBe(UNGROUNDED_FALLBACK);
+  });
+});
+
+describe("precise cutoff lookup", () => {
+  const ctx = { cache, profile: {} };
+
+  it("finds the college by name, initials or code", () => {
+    expect(resolveCollege(cache, "PICT").code).toBe("06271");
+    expect(resolveCollege(cache, "6271").code).toBe("06271");
+    expect(resolveCollege(cache, "Vishwakarma").code).toBe("06007");
+    expect(() => resolveCollege(cache, "Nowhere Institute")).toThrow(/No college matches/);
+  });
+
+  it("asks for the code when a name matches several colleges equally", () => {
+    expect(() => resolveCollege(cache, "Pune")).toThrow(/several colleges/);
+  });
+
+  it("understands the short forms students use for branches", () => {
+    expect(branchMatches("Information Technology", "IT")).toBe(true);
+    expect(branchMatches("Computer Engineering", "comp")).toBe(true);
+    expect(branchMatches("Electronics and Telecommunication Engineering", "ENTC")).toBe(true);
+    expect(branchMatches("Mechanical Engineering", "IT")).toBe(false);
+  });
+
+  it("returns Round I by default and only the round asked for", () => {
+    const r1 = runTool("getCutoffs", { college: "COEP", branch: "Computer" }, ctx);
+    expect(r1.length).toBeGreaterThan(0);
+    expect(r1.every((r) => r.round === "I")).toBe(true);
+    const r2 = runTool("getCutoffs", { college: "COEP", branch: "Computer", seatType: "GOPENS", round: "II" }, ctx);
+    expect(r2).toHaveLength(1);
+    expect(r2[0]).toMatchObject({ round: "II", seatType: "GOPENS" });
+  });
+
+  it("still accepts the older collegeCode argument", () => {
+    expect(runTool("getCutoffs", { collegeCode: "16006", seatType: "GOPENS" }, ctx).length).toBeGreaterThan(0);
+    expect(() => runTool("getCutoffs", {}, ctx)).toThrow();
+  });
+});
+
+describe("placeholders: code writes the numbers", () => {
+  const rows = [
+    { id: "S1", kind: "cutoff" as const, label: "x", closingMerit: 123456 },
+    { id: "S2", kind: "college" as const, label: "y" },
+  ];
+
+  it("puts in the row's exact value, Indian style, with its citation", () => {
+    expect(formatMerit(1781)).toBe("1,781");
+    expect(renderPlaceholders("Closed at {{S1}} in Round I.", rows)).toEqual({ text: "Closed at 1,23,456 [S1] in Round I.", unknown: [] });
+    expect(renderPlaceholders("Closed at {{ S1 }} [S1].", rows).text).toBe("Closed at 1,23,456 [S1].");
+  });
+
+  it("reports placeholders that point at no row with a closing merit", () => {
+    expect(renderPlaceholders("{{S2}} and {{S9}}", rows).unknown).toEqual(["S2", "S9"]);
+  });
+
+  it("an answer written with placeholders passes both checks", async () => {
+    const client = scripted([{ tool: "getCutoffs", args: { college: "COEP", branch: "Computer", seatType: "GOPENS" } }, "COEP Computer (GOPENS) closed at {{S1}} in Round I."]);
+    const res = await runAssistant({ client, cache, profile: {}, history: [{ role: "user", content: "COEP computer GOPENS?" }] });
+    expect(res.grounded).toBe(true);
+    expect(res.text).toMatch(/closed at [\d,]+ \[S1\] in Round I/);
+  });
+
+  it("a placeholder to a missing row gets one rewrite, then the fallback", async () => {
+    const client = scripted([{ tool: "getCutoffs", args: { college: "COEP", seatType: "GOPENS" } }, "It closed at {{S99}}.", "It closed at {{S99}}."]);
+    const res = await runAssistant({ client, cache, profile: {}, history: [{ role: "user", content: "COEP?" }] });
     expect(res.text).toBe(UNGROUNDED_FALLBACK);
   });
 });

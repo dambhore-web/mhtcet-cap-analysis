@@ -15,8 +15,9 @@ export const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
  * Reasoning models think before answering. Keep that short, hide it from the response, and leave
  * room for it in the token budget, or the visible answer can come back empty.
  */
-export function reasoningOptions(model: string): { reasoning_effort?: "none" | "low"; include_reasoning?: boolean } {
-  if (model.startsWith("openai/gpt-oss")) return { reasoning_effort: "low", include_reasoning: false };
+export function reasoningOptions(model: string): { reasoning_effort?: "none" | "low" | "medium"; include_reasoning?: boolean } {
+  // Medium: tool arguments (seat type, round) are where the model slips, and thinking helps there
+  if (model.startsWith("openai/gpt-oss")) return { reasoning_effort: "medium", include_reasoning: false };
   if (model.startsWith("qwen/qwen3")) return { reasoning_effort: "none" };
   return {};
 }
