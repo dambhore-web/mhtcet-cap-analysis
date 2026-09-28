@@ -1,0 +1,4 @@
+{
+  "_comment": "Changing this file runs the 'Staging data load' workflow, which downloads, parses, checks and loads these datasets into STAGING (never production). Loads are idempotent.",
+  "merit": []
+}

@@ -2,7 +2,8 @@ import type { MeritExam, MeritRow } from "@mhtcet/core";
 import { APPLICATION_ID, type Word } from "../layout.ts";
 
 /**
- * Parser for the All India (PCM) merit list (`FE<year>_PCMAI_MeritList_Final.pdf`).
+ * Parser for the merit lists: All India (`FE<year>_PCMAI_MeritList_Final.pdf`) and Maharashtra State
+ * (`FE<year>_PCMMH_MeritList_Final.pdf`); the column positions differ, see MeritLayout.
  * Coordinate-based: a row is a merit number at x < 82 with an application ID just right of it
  * (x 80-130, same y +-4). The merit exam (x 240-310) and percentile/marks (x 295-360) are the
  * nearest matching words in y. The ID is used only to recognise a row and is never kept; names
@@ -13,8 +14,25 @@ const EXAM = /^(JEE|MHT-CET-PCM|Diploma|D\.Voc\.)$/;
 const SCORE = /^\d+(?:\.\d+)?$/;
 const MERIT = /^\d+$/;
 const BAND = 4;
-const EXAM_WIN = { lo: 240, hi: 310 };
-const SCORE_WIN = { lo: 295, hi: 360 };
+
+/** x windows (PDF points) of the columns read from a merit list page. */
+export interface MeritLayout {
+  /** merit numbers start left of this */
+  meritMaxX: number;
+  /** application ID column (used only to recognise a row, never kept) */
+  id: { lo: number; hi: number };
+  exam: { lo: number; hi: number };
+  /** the candidate's merit-exam percentile / marks (first score column) */
+  score: { lo: number; hi: number };
+}
+
+/** All India list: merit, ID, name, then the merit exam and its percentile. */
+export const AI_MERIT_LAYOUT: MeritLayout = { meritMaxX: 82, id: { lo: 70, hi: 130 }, exam: { lo: 240, hi: 310 }, score: { lo: 295, hi: 360 } };
+/**
+ * State (MH) list: merit, ID, name, category, gender, reservations, type, then the merit exam and
+ * its percentile. Category, gender and reservation columns are never read.
+ */
+export const MH_MERIT_LAYOUT: MeritLayout = { meritMaxX: 56, id: { lo: 55, hi: 95 }, exam: { lo: 495, hi: 555 }, score: { lo: 548, hi: 600 } };
 
 export interface MeritParseIssue {
   page: number;
@@ -22,11 +40,13 @@ export interface MeritParseIssue {
   merit: number;
 }
 
-export function parseMeritPage(words: Word[], page: number, issues: MeritParseIssue[]): MeritRow[] {
-  const ids = words.filter((w) => APPLICATION_ID.test(w.text) && w.x0 >= 70 && w.x0 < 130);
+export function parseMeritPage(
+  words: Word[], page: number, issues: MeritParseIssue[], layout: MeritLayout = AI_MERIT_LAYOUT,
+): MeritRow[] {
+  const ids = words.filter((w) => APPLICATION_ID.test(w.text) && w.x0 >= layout.id.lo && w.x0 < layout.id.hi);
   const rows: MeritRow[] = [];
   for (const m of words) {
-    if (m.x0 >= 82 || !MERIT.test(m.text)) continue;
+    if (m.x0 >= layout.meritMaxX || !MERIT.test(m.text)) continue;
     if (!ids.some((i) => Math.abs(i.y0 - m.y0) < BAND)) continue;
     const merit = Number(m.text);
     const pick = (lo: number, hi: number, re: RegExp): Word | null => {
@@ -38,8 +58,8 @@ export function parseMeritPage(words: Word[], page: number, issues: MeritParseIs
       }
       return best;
     };
-    const exam = pick(EXAM_WIN.lo, EXAM_WIN.hi, EXAM);
-    const score = pick(SCORE_WIN.lo, SCORE_WIN.hi, SCORE);
+    const exam = pick(layout.exam.lo, layout.exam.hi, EXAM);
+    const score = pick(layout.score.lo, layout.score.hi, SCORE);
     if (!exam || !score) {
       issues.push({ page, kind: !exam ? "no-exam" : "no-score", merit });
       continue;
