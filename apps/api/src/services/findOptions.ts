@@ -31,6 +31,7 @@ export interface FoundOption {
   collegeCode: string;
   collegeName: string;
   district: string | null;
+  collegeType: string | null;
   choiceCode: string;
   branch: string;
   list: "MH" | "AI";
