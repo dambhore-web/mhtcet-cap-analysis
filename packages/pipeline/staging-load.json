@@ -1,17 +1,8 @@
 {
   "_comment": "Changing this file runs the 'Staging data load' workflow, which downloads, parses, checks and loads these datasets into STAGING (never production). cutoffs.cleanupYears first deletes those years' cutoff rows and every row stored under a non-normalised college code; cutoffs.years are then fully reloaded, oldest first (the latest year last, so its college and branch names win). Loads are idempotent.",
   "cutoffs": {
-    "cleanupYears": [
-      2023,
-      2024,
-      2025
-    ],
-    "years": [
-      2023,
-      2024,
-      2025,
-      2026
-    ]
+    "cleanupYears": [],
+    "years": []
   },
   "merit": []
 }

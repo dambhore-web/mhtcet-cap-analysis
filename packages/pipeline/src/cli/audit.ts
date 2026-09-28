@@ -121,7 +121,7 @@ try {
       "select column_name from information_schema.columns where table_schema = 'public' and table_name = 'college'",
     )).map((r) => r.column_name),
   );
-  line("## College fields (387 expected)");
+  line("## College fields (all colleges, including those seen only in earlier years)");
   const fieldRows: unknown[][] = [];
   for (const f of ["status", "home_university", "total_intake", "district", "college_type"]) {
     if (!cols.has(f)) { fieldRows.push([f, "column missing (migration not applied)", "–"]); continue; }

@@ -1,8 +1,21 @@
 import type { Context } from "hono";
 import type { AppCache } from "../startup.ts";
 
+/** Colleges with cutoff rows in the cache year; the college table also keeps colleges seen only in earlier years. */
+const activeCodes = new WeakMap<AppCache, Set<string>>();
+function collegesInCacheYear(cache: AppCache): Set<string> {
+  let codes = activeCodes.get(cache);
+  if (!codes) {
+    codes = new Set<string>();
+    for (const rows of cache.cutoffsByChoiceCode.values()) for (const r of rows) codes.add(r.collegeCode);
+    activeCodes.set(cache, codes);
+  }
+  return codes;
+}
+
 /**
  * GET /api/colleges?q=&university=&district=&type=&limit=400
+ * Lists only colleges taking part in the cache year's CAP (earlier-year-only colleges are skipped).
  * Search by name, code or district; filter by home university, district and college type; sorted by name.
  */
 export function getColleges(c: Context, cache: AppCache) {
@@ -22,7 +35,9 @@ export function getColleges(c: Context, cache: AppCache) {
   }[] = [];
   const districts = new Set<string>();
   const types = new Set<string>();
+  const active = collegesInCacheYear(cache);
   for (const college of cache.colleges.values()) {
+    if (!active.has(college.code)) continue;
     if (college.district) districts.add(college.district);
     if (college.collegeType) types.add(college.collegeType);
     const haystack = `${college.name} ${college.code} ${college.district ?? ""}`.toLowerCase();

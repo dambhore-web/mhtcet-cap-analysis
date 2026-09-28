@@ -46,6 +46,18 @@ describe("GET /api/colleges", () => {
     expect(colleges[0].name.localeCompare(colleges[1].name, "en")).toBeLessThanOrEqual(0);
   });
 
+  it("skips colleges with no cutoffs in the cache year (earlier-year-only colleges)", async () => {
+    const cache = seedCache();
+    cache.colleges.set("09999", {
+      authority: "MH-CET-CELL", exam: "MHT-CET", code: "09999", name: "Aaa Closed College",
+      status: null, homeUniversity: null, totalIntake: null,
+    });
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges");
+    const body = (await res.json()) as { colleges: { code: string }[] };
+    expect(body.colleges.map((c) => c.code)).not.toContain("09999");
+    expect(body.colleges).toHaveLength(2);
+  });
+
   it("filters by query string", async () => {
     const { status, body } = await get("/api/colleges?q=jijabai");
     expect(status).toBe(200);
