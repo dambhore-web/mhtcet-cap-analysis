@@ -57,7 +57,7 @@ export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = 
   app.get("/api/jee-estimate", (c) => getJeeEstimate(c, pool));
   app.get("/api/branches", (c) => getBranches(c, cache));
   app.get("/api/branches/:choiceCode/history", (c) => getBranchHistory(c, cache));
-  app.get("/api/colleges/:code/fees", (c) => getCollegeFees(c, fees));
+  app.get("/api/colleges/:code/fees", (c) => getCollegeFees(c, fees, cache));
   app.post("/api/assistant", (c) => postAssistant(c, cache, options.assistantClient));
 
   app.onError((err, c) => {

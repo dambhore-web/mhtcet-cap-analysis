@@ -292,7 +292,11 @@ export function CollegePage() {
             {fees.tfwsAvailable && (
               <p className="cp-fees-tfws">
                 <Icon name="tag" size={14} />
-                Tuition fee waiver (TFWS) seats available{fees.tfwsSeats !== null && `: ${fees.tfwsSeats}`}. TFWS students pay no tuition.
+                Tuition fee waiver (TFWS):{" "}
+                {fees.tfwsSeats != null
+                  ? `${fees.tfwsSeats} seat${fees.tfwsSeats === 1 ? "" : "s"}${fees.tfwsBranches ? ` across ${fees.tfwsBranches} branch${fees.tfwsBranches === 1 ? "" : "es"}` : ""}`
+                  : "seats available"}
+                . Maharashtra candidates whose parents earn less than ₹8 lakh a year pay no tuition fee; other fees still apply.
               </p>
             )}
             <p className="cp-fees-note">

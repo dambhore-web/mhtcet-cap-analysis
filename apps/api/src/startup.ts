@@ -15,6 +15,12 @@ export interface AppCache {
    */
   history: Map<string, HistoryRow[]>;
   /**
+   * CAP seat matrix of the cache year: seats per seat type, keyed by choiceCode. Only intake pools
+   * (state, minority, all-india, institute) and supernumerary seats (EWS, TFWS); the shared PWD/DEF
+   * "common reserved" counts are left out. Empty when the table is missing.
+   */
+  seats: Map<string, Map<string, number>>;
+  /**
    * Fees from the `fee` table (latest academic year per college), in the fees.json entry shape.
    * Undefined when the table is missing or empty; the API then falls back to the bundled fees.json.
    */
@@ -104,13 +110,44 @@ export async function loadCache(pool: pg.Pool, year: number): Promise<AppCache> 
   }
 
   const history = await loadHistory(pool, year);
+  const seats = await loadSeats(pool, year);
   const fees = await loadFees(pool, colleges);
 
   console.log(
     `[cache] ${colleges.size} colleges · ${branches.size} branches · ` +
-    `${cuRes.rows.length} cutoff rows (year ${year}) · ${[...history.values()].reduce((n, r) => n + r.length, 0)} earlier-year rows · fees ${fees ? `${Object.keys(fees).length} from the fee table` : "from fees.json"}`,
+    `${cuRes.rows.length} cutoff rows (year ${year}) · ${[...history.values()].reduce((n, r) => n + r.length, 0)} earlier-year rows · ` +
+    `seat matrix for ${seats.size} branches · fees ${fees ? `${Object.keys(fees).length} from the fee table` : "from fees.json"}`,
   );
-  return { year, colleges, branches, cutoffsByChoiceCode, history, fees };
+  return { year, colleges, branches, cutoffsByChoiceCode, history, seats, fees };
+}
+
+/** Seat matrix of `year` (migration 003), keyed by choiceCode then seat type. */
+async function loadSeats(pool: pg.Pool, year: number): Promise<Map<string, Map<string, number>>> {
+  const seats = new Map<string, Map<string, number>>();
+  try {
+    const { rows } = await pool.query(
+      `SELECT choice_code, seat_type, seats FROM seat_matrix
+       WHERE year = $1 AND pool <> 'common-reserved'`,
+      [year],
+    );
+    for (const r of rows) {
+      const bySeat = seats.get(r.choice_code) ?? new Map<string, number>();
+      bySeat.set(r.seat_type, (bySeat.get(r.seat_type) ?? 0) + r.seats);
+      seats.set(r.choice_code, bySeat);
+    }
+  } catch (err) {
+    // Before migration 003 the table does not exist; seat counts are simply not shown.
+    console.log(JSON.stringify({ ts: new Date().toISOString(), event: "seat_matrix_unavailable", error: (err as Error).message }));
+  }
+  return seats;
+}
+
+/** Sanctioned intake of a branch: every seat except the supernumerary EWS and TFWS seats. */
+export function branchIntake(bySeat: Map<string, number> | undefined): number | null {
+  if (!bySeat?.size) return null;
+  let total = 0;
+  for (const [seatType, n] of bySeat) if (seatType !== "EWS" && seatType !== "TFWS") total += n;
+  return total;
 }
 
 /** State (MH) cutoffs of the years before `year` (2023–2025 for CAP 2026), keyed by choiceCode. */

@@ -1,5 +1,5 @@
 import { eligibleSeatTypes, rankFind, type CandidateProfile, type CollegeEligibilityContext } from "@mhtcet/core";
-import { type AppCache, minorityCommunity } from "../startup.ts";
+import { type AppCache, branchIntake, minorityCommunity } from "../startup.ts";
 
 export interface FindOptionsRequest {
   year: number;
@@ -49,6 +49,11 @@ export interface FoundOption {
    * last-round closing ranks. Empty for All India options and when the seat type did not exist.
    */
   pastYears: PastYear[];
+  /**
+   * Seats in the cache year's seat matrix: for this option's seat type, and the branch's sanctioned
+   * intake. Null when the seat matrix has no row.
+   */
+  seats: { seatType: number | null; branch: number | null };
 }
 
 export interface PastYear {
@@ -148,6 +153,10 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
       source: deciding ? { file: deciding.sourceFile, page: deciding.sourcePage } : null,
       year: req.year,
       pastYears: req.candidature === "MH" ? pastYears(cache, choiceCode, best.seatType) : [],
+      seats: {
+        seatType: cache.seats.get(choiceCode)?.get(best.seatType) ?? null,
+        branch: branchIntake(cache.seats.get(choiceCode)),
+      },
     });
   }
 

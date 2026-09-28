@@ -33,6 +33,8 @@ test("J1 · Which colleges could I get with my merit number?", async ({ page }) 
   await expect(page.getByText(/options within reach, in \d+ colleges/)).toBeVisible();
   // earlier years on each option: how this merit fared against the same seat in 2023–2025
   await expect(page.getByText(/2023–2025: within the cutoff in \d of 3 years/).first()).toBeVisible();
+  // seats of that seat type in the branch, from the CAP seat matrix
+  await expect(page.locator(".seat-count").first()).toHaveText(/\d+ seats?/);
   // what-if slider re-marks results
   const slider = page.getByLabel(/what if my merit were/i);
   await slider.focus();
