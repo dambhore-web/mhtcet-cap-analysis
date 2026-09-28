@@ -318,3 +318,29 @@ describe("GET /api/branches/:choiceCode/history", () => {
     expect(status).toBe(404);
   });
 });
+
+// ─── Rank finder: earlier years on each option ───────────────────────────────
+
+describe("POST /api/rank-finder pastYears", () => {
+  it("adds Round I and last-round closing ranks of earlier years for the same seat type", async () => {
+    const cache = seedCache();
+    cache.history.set("1002119110", [
+      { year: 2024, round: "I", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 140, closingPercentile: null },
+      { year: 2024, round: "III", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 190, closingPercentile: null },
+      { year: 2024, round: "II", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 170, closingPercentile: null },
+      { year: 2025, round: "I", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 145, closingPercentile: null },
+      { year: 2025, round: "I", seatType: "LOPENH", section: "Home University", stage: "I", closingMerit: 999, closingPercentile: null },
+    ]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/rank-finder", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year: 2026, merit: 100, candidature: "MH", homeUniversity: "University of Mumbai", category: "OPEN", gender: "M", subjectGroup: "PCM" }),
+    });
+    const body = (await res.json()) as { options: { choiceCode: string; seatType: string; pastYears: unknown[] }[] };
+    const vjti = body.options.find((o) => o.choiceCode === "1002119110")!;
+    expect(vjti.seatType).toBe("GOPENH");
+    expect(vjti.pastYears).toEqual([
+      { year: 2024, firstRoundClosing: 140, lastRoundClosing: 190 },
+      { year: 2025, firstRoundClosing: 145, lastRoundClosing: 145 },
+    ]);
+  });
+});

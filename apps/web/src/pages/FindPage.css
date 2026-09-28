@@ -667,6 +667,20 @@
 .surplus.pos { color: var(--safe-text); }
 .surplus.neg { color: var(--danger-text); }
 
+.past-years {
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.past-years.pos { color: var(--safe-text); }
+.past-years.mixed { color: var(--later-text); }
+.past-years.neg { color: var(--danger-text); }
+
+.past-range {
+  font-weight: 400;
+  color: var(--muted);
+}
+
 
 .show-more {
   margin-top: 12px;

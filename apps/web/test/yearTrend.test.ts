@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { trendVerdict, yearSeries, yearsWithin, type HistoryRow } from "../src/lib/yearTrend";
+import { pastSummary, trendVerdict, yearSeries, yearsWithin, type HistoryRow } from "../src/lib/yearTrend";
 
 const row = (year: number, round: string, closingMerit: number, seatType = "GOPENS", stage = "I"): HistoryRow => ({
   year, round, seatType, section: "State Level", stage, closingMerit, closingPercentile: null,
@@ -42,5 +42,21 @@ describe("trendVerdict", () => {
 describe("yearsWithin", () => {
   it("lists the years a merit was within the closing rank", () => {
     expect(yearsWithin(yearSeries(rows, "GOPENS", "first"), 4600)).toEqual([2023, 2024]);
+  });
+});
+
+describe("pastSummary", () => {
+  const past = [
+    { year: 2023, lastRoundClosing: 5600 },
+    { year: 2024, lastRoundClosing: 5800 },
+    { year: 2025, lastRoundClosing: 6400 },
+  ];
+  it("counts the years the merit was within the last-round closing rank", () => {
+    expect(pastSummary(past, 5900)).toEqual({ years: 3, within: 1, lo: 5600, hi: 6400, first: 2023, last: 2025 });
+    expect(pastSummary(past, 5600)!.within).toBe(3);
+    expect(pastSummary(past, 7000)!.within).toBe(0);
+  });
+  it("is null without earlier years", () => {
+    expect(pastSummary([], 100)).toBeNull();
   });
 });

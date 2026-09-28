@@ -13,6 +13,7 @@ import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { UNIVERSITIES } from "../lib/universities";
 import { CATEGORY_OPTIONS } from "../lib/categories";
 import "./FindPage.css";
+import { pastSummary } from "../lib/yearTrend";
 
 interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; kind?: "all-india-merit" | "jee-rank"; }
 
@@ -767,6 +768,23 @@ function CollegeGroup({ group, merit, domain }: { group: Group; merit: number; d
   );
 }
 
+/** "2023–2025: within the cutoff in 2 of 3 years (last round 5,600–6,400)". */
+function PastYearsLine({ opt, merit }: { opt: FindOption; merit: number }) {
+  const past = opt.pastYears ?? [];
+  const sum = pastSummary(past, merit);
+  if (!sum) return null;
+  const span = sum.first === sum.last ? String(sum.first) : `${sum.first}–${sum.last}`;
+  const range = sum.lo === sum.hi ? formatNumber(sum.lo) : `${formatNumber(sum.lo)}–${formatNumber(sum.hi)}`;
+  const tone = sum.within === sum.years ? "pos" : sum.within === 0 ? "neg" : "mixed";
+  const detail = past.map((p) => `${p.year}: ${formatNumber(p.lastRoundClosing)}`).join(", ");
+  return (
+    <span className={`past-years ${tone}`} title={`Last-round closing rank, same seat type — ${detail}`}>
+      {span}: {sum.years === 1 ? (sum.within ? "within the cutoff" : "outside the cutoff") : `within the cutoff in ${sum.within} of ${sum.years} years`}{" "}
+      <span className="past-range">(last round {range})</span>
+    </span>
+  );
+}
+
 function OptionRow({ opt, merit, domain, showCollege = false }: { opt: FindOption; merit: number; domain: [number, number]; showCollege?: boolean }) {
   const margin = (opt.lastRoundClosing ?? opt.closingMerit) - merit;
 
@@ -790,6 +808,7 @@ function OptionRow({ opt, merit, domain, showCollege = false }: { opt: FindOptio
             </span>
           )}
         </span>
+        <PastYearsLine opt={opt} merit={merit} />
       </div>
       <span className="option-ladder">
         <MeritLadder first={opt.firstRoundClosing ?? null} last={opt.lastRoundClosing ?? opt.closingMerit} you={merit} domain={domain} label={`${opt.collegeName}, ${opt.branch}`} />
