@@ -44,6 +44,7 @@ export interface FindOption {
   collegeCode: string;
   collegeName: string;
   district?: string | null;
+  collegeType?: string | null;
   choiceCode: string;
   branch: string;
   list?: Candidature;
