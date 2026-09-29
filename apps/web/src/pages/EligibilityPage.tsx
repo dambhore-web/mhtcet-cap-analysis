@@ -70,7 +70,7 @@ export function EligibilityPage() {
         homeUniversity: profile.homeUniversity || null,
         category: profile.category ?? null,
         gender: profile.gender,
-        minorityCommunity: null,
+        minorityCommunity: profile.minorityCommunity,
         flags: f,
         subjectGroup: profile.subjectGroup,
       });

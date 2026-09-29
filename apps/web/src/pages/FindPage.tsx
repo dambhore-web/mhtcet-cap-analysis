@@ -11,7 +11,9 @@ import { StatusBadge } from "../components/StatusBadge";
 import { avatarTint, collegeInitials, formatNumber, formatRound } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { UNIVERSITIES } from "../lib/universities";
-import { CATEGORY_OPTIONS } from "../lib/categories";
+import { CATEGORY_OPTIONS, MINORITY_OPTIONS } from "../lib/categories";
+import { parseBranchGroups } from "../lib/onboarding";
+import { ScanProgress } from "../components/ScanProgress";
 import "./FindPage.css";
 import { pastSummary } from "../lib/yearTrend";
 
@@ -35,6 +37,8 @@ interface FormState {
   defence: boolean;
   pwd: boolean;
   orphan: boolean;
+  /** Minority community as the CAP lists spell it, or "" for none. */
+  minority: string;
   showAdvanced: boolean;
 }
 
@@ -50,6 +54,7 @@ const DEFAULT: FormState = {
   defence: false,
   pwd: false,
   orphan: false,
+  minority: "",
   showAdvanced: false,
 };
 
@@ -71,8 +76,14 @@ export function FindPage() {
     defence: searchParams.get("def") === "1" || profile.defence,
     pwd: searchParams.get("pwd") === "1" || profile.pwd,
     orphan: searchParams.get("orphan") === "1" || profile.orphan,
+    minority: searchParams.get("min") ?? profile.minorityCommunity ?? "",
   };
   const [form, setForm] = useState<FormState>(initialForm);
+  // Branch groups chosen during onboarding (#142) open the results filtered to them
+  const initialGroups = parseBranchGroups(searchParams.get("bg"), BRANCH_GROUPS);
+  // The first search after onboarding shows the "checking the CAP lists" screen
+  const [scanning, setScanning] = useState(() => searchParams.get("scan") === "1" && !!searchParams.get("merit"));
+  const scanRef = useRef(scanning);
   const [status, setStatus] = useState<Status>("idle");
   const [options, setOptions] = useState<FindOption[]>([]);
   const [searchedMerit, setSearchedMerit] = useState<number>(0);
@@ -125,10 +136,10 @@ export function FindPage() {
     setForm((f) => ({ ...f, [flag]: !f[flag] }));
   }
 
-  const doSearch = useCallback(async (merit: number, f: FormState, kind: SearchKind = { candidature: "MH", estimated: false }) => {
+  const doSearch = useCallback(async (merit: number, f: FormState, kind: SearchKind = { candidature: "MH", estimated: false }, filters: ResultFilters = {}) => {
     setStatus("loading");
     setShowAll(false);
-    setResultFilters({});
+    setResultFilters(filters);
 
     // Push shareable URL
     const p: Record<string, string> = { merit: String(merit) };
@@ -143,6 +154,9 @@ export function FindPage() {
     if (f.defence) p.def = "1";
     if (f.pwd) p.pwd = "1";
     if (f.orphan) p.orphan = "1";
+    if (f.minority) p.min = f.minority;
+    if (filters.branchGroups?.length) p.bg = filters.branchGroups.join(",");
+    if (scanRef.current) p.scan = "1";
     setSearchParams(p, { replace: true });
 
     const req = {
@@ -151,20 +165,21 @@ export function FindPage() {
       homeUniversity: f.homeUniversity || null,
       category: f.category || null,
       gender: f.gender,
-      minorityCommunity: null,
-      flags: { ews: f.ews, tfws: f.tfws, defence: f.defence, pwd: f.pwd, orphan: f.orphan },
+      minorityCommunity: f.minority || null,
+      // EWS is only for Open-category candidates
+      flags: { ews: f.ews && !f.category, tfws: f.tfws, defence: f.defence, pwd: f.pwd, orphan: f.orphan },
       subjectGroup: f.subjectGroup,
     };
     lastRequest.current = req;
 
     try {
-      const res = await api.find(req);
+      const res = await api.find({ ...req, filters });
       setOptions(res.options);
       setSearchedMerit(merit);
       setWhatIf(null);
       setSearchKind(kind);
       setStatus("done");
-      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+      if (!scanRef.current) setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     } catch {
       setStatus("error");
       setErrorMsg("Could not reach the server. Make sure the API is running.");
@@ -182,8 +197,25 @@ export function FindPage() {
     doSearch(merit, initialForm, {
       candidature: searchParams.get("list") === "AI" ? "AI" : "MH",
       estimated: searchParams.get("est") === "1",
-    });
+    }, initialGroups.length ? { branchGroups: initialGroups } : {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Leave the scan screen: drop `scan` from the URL (a refresh or shared link won't replay it) and show the results
+  const finishScan = useCallback(() => {
+    scanRef.current = false;
+    setScanning(false);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("scan");
+      return next;
+    }, { replace: true });
+    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+  }, [setSearchParams]);
+
+  // A failed search leaves the scan screen at once and shows the error
+  useEffect(() => {
+    if (scanning && status === "error") finishScan();
+  }, [scanning, status, finishScan]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -221,6 +253,12 @@ export function FindPage() {
   async function applyFilter(newFilters: ResultFilters) {
     if (!lastRequest.current) return;
     setResultFilters(newFilters);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (newFilters.branchGroups?.length) next.set("bg", newFilters.branchGroups.join(","));
+      else next.delete("bg");
+      return next;
+    }, { replace: true });
     setFilterLoading(true);
     setShowAll(false);
     try {
@@ -258,6 +296,42 @@ export function FindPage() {
   const collegeTypes = useMemo(() => [...new Set(options.map((o) => o.collegeType).filter((t): t is string => !!t))].sort(), [options]);
   const formCount = useList().length;
   const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === form.category)?.label ?? "Open";
+
+  if (scanning) {
+    const merit = parseInt(searchParams.get("merit") ?? "0", 10);
+    const pills = [
+      `${searchParams.get("list") === "AI" ? "All India merit" : "Merit"} ${searchParams.get("est") === "1" ? "≈ " : ""}${formatNumber(merit)}`,
+      ...(searchParams.get("list") === "AI"
+        ? []
+        : [
+            categoryLabel,
+            form.gender === "F" ? "Female" : "Male",
+            form.homeUniversity || "State level only",
+            ...(Object.keys(FLAG_LABELS) as (keyof typeof FLAG_LABELS)[]).filter((f) => form[f] && (f !== "ews" || !form.category)).map((f) => FLAG_LABELS[f]),
+            form.minority ? MINORITY_OPTIONS.find((m) => m.value === form.minority)?.label ?? form.minority : "Not minority",
+          ]),
+      ...initialGroups,
+    ];
+    return (
+      <div className="find-page">
+        <ScanProgress
+          request={{
+            merit,
+            candidature: searchParams.get("list") === "AI" ? "AI" : "MH",
+            estimated: searchParams.get("est") === "1",
+            category: form.category,
+            gender: form.gender,
+            homeUniversity: form.homeUniversity,
+            flags: { ews: form.ews, tfws: form.tfws, defence: form.defence, pwd: form.pwd, orphan: form.orphan },
+            minority: form.minority,
+          }}
+          searchDone={status === "done"}
+          pills={pills}
+          onFinish={finishScan}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="find-page">
@@ -428,18 +502,34 @@ export function FindPage() {
 
                 <div className="form-label adv-flags-label">Special categories</div>
                 <div className="flag-chips">
-                  {(["ews", "tfws", "defence", "pwd", "orphan"] as const).map((flag) => (
-                    <button
-                      key={flag}
-                      type="button"
-                      className={`flag-chip${form[flag] ? " active" : ""}`}
-                      onClick={() => toggleFlag(flag)}
-                      aria-pressed={form[flag]}
-                    >
-                      {FLAG_LABELS[flag]}
-                    </button>
-                  ))}
+                  {(["ews", "tfws", "defence", "pwd", "orphan"] as const)
+                    .filter((flag) => flag !== "ews" || !form.category)
+                    .map((flag) => (
+                      <button
+                        key={flag}
+                        type="button"
+                        className={`flag-chip${form[flag] ? " active" : ""}`}
+                        onClick={() => toggleFlag(flag)}
+                        aria-pressed={form[flag]}
+                      >
+                        {FLAG_LABELS[flag]}
+                      </button>
+                    ))}
                 </div>
+                {form.category && <p className="estimate-hint">EWS is only for Open category, so it isn't shown.</p>}
+
+                <label className="form-label" htmlFor="minority-select">Minority community</label>
+                <select
+                  id="minority-select"
+                  value={form.minority}
+                  onChange={(e) => set("minority", e.target.value)}
+                  className="form-select"
+                >
+                  <option value="">Not from a minority community</option>
+                  {MINORITY_OPTIONS.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </select>
               </div>
             )}
           </div>
@@ -522,12 +612,37 @@ export function FindPage() {
               {searchKind.candidature === "MH" && <span className="chip">{categoryLabel}</span>}
               <span className="chip">{form.gender === "F" ? "Female" : "Male"}</span>
               {form.homeUniversity && <span className="chip">Home university: {form.homeUniversity}</span>}
-              {(Object.keys(FLAG_LABELS) as (keyof typeof FLAG_LABELS)[]).filter((f) => form[f]).map((f) => (
+              {(Object.keys(FLAG_LABELS) as (keyof typeof FLAG_LABELS)[]).filter((f) => form[f] && (f !== "ews" || !form.category)).map((f) => (
                 <span key={f} className="chip">{FLAG_LABELS[f]}</span>
               ))}
+              {searchKind.candidature === "MH" && form.minority && (
+                <span className="chip">Minority: {MINORITY_OPTIONS.find((m) => m.value === form.minority)?.label ?? form.minority}</span>
+              )}
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Edit</button>
               <Link to="/eligibility" className="results-profile-link">Could other seat types add options?</Link>
             </div>
+
+            {!!resultFilters.branchGroups?.length && (
+              <div className="results-branch-filter" aria-label="Branch filter">
+                <span className="label">Branches</span>
+                {resultFilters.branchGroups.map((g) => (
+                  <span key={g} className="branch-filter-chip">
+                    {g}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${g}`}
+                      disabled={filterLoading}
+                      onClick={() => applyFilter({ ...resultFilters, branchGroups: resultFilters.branchGroups!.filter((x) => x !== g) })}
+                    >
+                      <Icon name="close" size={12} />
+                    </button>
+                  </span>
+                ))}
+                <button type="button" className="btn btn-secondary btn-sm" disabled={filterLoading} onClick={() => applyFilter({ ...resultFilters, branchGroups: [] })}>
+                  Show all branches
+                </button>
+              </div>
+            )}
 
             <div className="results-layout">
             <div className="results-main">
@@ -574,7 +689,7 @@ export function FindPage() {
                   id="rf-branch"
                   className="rf-select"
                   value={resultFilters.branchGroup ?? ""}
-                  onChange={(e) => applyFilter({ ...resultFilters, branchGroup: e.target.value || null })}
+                  onChange={(e) => applyFilter({ ...resultFilters, branchGroup: e.target.value || null, branchGroups: [] })}
                   disabled={filterLoading}
                 >
                   <option value="">All branches</option>

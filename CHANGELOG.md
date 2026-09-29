@@ -2,6 +2,17 @@
 
 ## Unreleased
 ### Added
+- A landing page and one-question-per-screen onboarding for first-time visitors (#142).
+  - `/welcome` has a hero with an illustration, "How it works", branch chips and the real data counts.
+  - `/welcome/start` asks one question per screen: exam, merit number or percentile, category,
+    gender, home university, special seats, minority community and branches of interest. JEE
+    students skip the state-quota questions.
+  - A "Checking the CAP lists" screen shows the real work (cutoff rows, the student's seat types,
+    rounds, trends) for about 3 s while the search runs, then the results open filtered to the
+    chosen branches, with a "Show all branches" chip.
+- Minority community (#142): asked in onboarding and on My details, sent with every search, so
+  minority (MI) seats at the student's community's colleges now appear. Before, every search sent
+  "no minority community".
 - Placement on the college page (#132): for each B.E./B.Tech graduating batch, graduates,
   students placed, median salary and higher studies, from the data the college submitted to NIRF.
   Why: students asked for placement data, and NIRF's is the only source with the same fields
@@ -26,6 +37,10 @@
     COEP (images), VJTI and SPIT (tables) so far.
 
 ### Changed
+- New "Calm blue" colours across the whole app (#142): blue `#2563EB` for actions, light blue tints,
+  amber highlights, slate text `#1E293B` and no dark bands. The bottom compare bar is blue instead of navy.
+- EWS seats only for Open-category students (#142): the option is hidden for reserved categories and
+  the engine no longer adds EWS seats for them.
 - College fees rebuilt from the live FRA "Fee Approved" engineering reports (#42). Why: the old
   file hard-coded the rows, labelled 2026-27 fees as 2025-26, and kept four government-college
   entries (COEP, VJTI, ICT, SPCE) with order numbers no source states.

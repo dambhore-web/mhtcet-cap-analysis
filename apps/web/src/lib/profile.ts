@@ -12,6 +12,8 @@ export interface Profile {
   defence: boolean;
   pwd: boolean;
   orphan: boolean;
+  /** Minority community as the CAP lists spell it (e.g. "Muslim", "Gujarathi"); null if none. */
+  minorityCommunity: string | null;
 }
 
 const KEY = "compass_profile_v1";
@@ -34,6 +36,7 @@ export function parseProfile(v: unknown): Profile | null {
     defence: flag(v.defence),
     pwd: flag(v.pwd),
     orphan: flag(v.orphan),
+    minorityCommunity: isStr(v.minorityCommunity) && v.minorityCommunity.trim() ? v.minorityCommunity.trim() : null,
   };
 }
 
@@ -60,4 +63,5 @@ export const DEFAULT_PROFILE: Profile = {
   defence: false,
   pwd: false,
   orphan: false,
+  minorityCommunity: null,
 };

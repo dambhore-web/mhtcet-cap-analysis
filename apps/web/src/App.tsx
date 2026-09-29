@@ -9,7 +9,8 @@ import { CollegePage } from "./pages/CollegePage";
 import { ListPage } from "./pages/ListPage";
 import { AskPage } from "./pages/AskPage";
 import { ComparePage } from "./pages/ComparePage";
-import { OnboardingPage } from "./pages/OnboardingPage";
+import { OnboardingWizard } from "./pages/OnboardingPage";
+import { LandingPage } from "./pages/LandingPage";
 import { LegalPage } from "./pages/LegalPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SignInPage } from "./pages/SignInPage";
@@ -34,7 +35,8 @@ function RequireProfile({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="welcome" element={<OnboardingPage />} />
+      <Route path="welcome" element={<LandingPage />} />
+      <Route path="welcome/start" element={<OnboardingWizard />} />
       <Route element={<Layout />}>
         <Route
           index

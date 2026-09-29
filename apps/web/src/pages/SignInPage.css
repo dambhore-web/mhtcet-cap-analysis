@@ -28,7 +28,7 @@
 
 .signin-google-btn:hover:not(:disabled) {
   border-color: var(--violet);
-  box-shadow: 0 4px 16px rgba(30, 58, 138,0.15);
+  box-shadow: 0 4px 16px rgba(37, 99, 235,0.15);
 }
 
 .signin-google-btn:disabled {

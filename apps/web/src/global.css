@@ -354,8 +354,8 @@ svg {
   background:
     linear-gradient(to right, var(--white) 30%, rgba(255, 255, 255, 0)) left center / 24px 100% no-repeat local,
     linear-gradient(to left, var(--white) 30%, rgba(255, 255, 255, 0)) right center / 24px 100% no-repeat local,
-    linear-gradient(to right, rgba(36, 49, 77, 0.12), rgba(36, 49, 77, 0)) left center / 10px 100% no-repeat scroll,
-    linear-gradient(to left, rgba(36, 49, 77, 0.12), rgba(36, 49, 77, 0)) right center / 10px 100% no-repeat scroll;
+    linear-gradient(to right, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0)) left center / 10px 100% no-repeat scroll,
+    linear-gradient(to left, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0)) right center / 10px 100% no-repeat scroll;
 }
 
 /* ── Empty states ───────────────────────────────────────────────────── */

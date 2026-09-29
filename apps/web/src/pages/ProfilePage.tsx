@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
 import type { Category } from "../lib/api";
-import { CATEGORY_OPTIONS } from "../lib/categories";
+import { CATEGORY_OPTIONS, MINORITY_OPTIONS } from "../lib/categories";
 import { UNIVERSITIES } from "../lib/universities";
 import type { Profile } from "../lib/profile";
 import { FLAG_OPTIONS } from "../lib/categories";
@@ -26,6 +26,7 @@ export function ProfilePage() {
     pwd: profile.pwd,
     orphan: profile.orphan,
   });
+  const [minority, setMinority] = useState(profile.minorityCommunity ?? "");
   const [meritError, setMeritError] = useState("");
   const [saved, setSaved] = useState(false);
 
@@ -34,15 +35,17 @@ export function ProfilePage() {
   }
 
   function handleSave() {
+    // EWS is only for Open-category candidates
+    const details = { ...flags, ews: flags.ews && !category, minorityCommunity: minority || null };
     const raw = merit.replace(/,/g, "").trim();
     if (raw) {
       const num = parseInt(raw, 10);
       if (isNaN(num) || num < 1) { setMeritError("Enter a valid merit number."); return; }
       setMeritError("");
-      const p: Profile = { meritNumber: num, category: category || null, gender, subjectGroup, homeUniversity, ...flags };
+      const p: Profile = { meritNumber: num, category: category || null, gender, subjectGroup, homeUniversity, ...details };
       setProfile(p);
     } else {
-      const p: Profile = { meritNumber: null, category: category || null, gender, subjectGroup, homeUniversity, ...flags };
+      const p: Profile = { meritNumber: null, category: category || null, gender, subjectGroup, homeUniversity, ...details };
       setProfile(p);
     }
     setSaved(true);
@@ -141,7 +144,7 @@ export function ProfilePage() {
         <section className="profile-section">
           <div className="profile-label">Special categories</div>
           <div className="profile-flags-row">
-            {FLAG_OPTIONS.map(({ key, label, desc }) => (
+            {FLAG_OPTIONS.filter(({ key }) => key !== "ews" || !category).map(({ key, label, desc }) => (
               <button
                 key={key}
                 type="button"
@@ -155,6 +158,23 @@ export function ProfilePage() {
               </button>
             ))}
           </div>
+          {category && <p className="profile-hint">EWS is only for Open category, so it isn't shown.</p>}
+        </section>
+
+        <section className="profile-section">
+          <label className="profile-label" htmlFor="minority-select">Minority community</label>
+          <select
+            id="minority-select"
+            className="profile-select"
+            value={minority}
+            onChange={(e) => { setMinority(e.target.value); setSaved(false); }}
+          >
+            <option value="">Not from a minority community</option>
+            {MINORITY_OPTIONS.map((m) => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
+          <p className="profile-hint">Minority colleges keep some seats for their own community. You need a minority certificate to claim them.</p>
         </section>
 
         <div className="profile-actions">
