@@ -30,7 +30,7 @@ export function formatNumber(n: number): string {
 }
 
 /** Stable, meaningless avatar tint derived from a college code (same college → same colour). */
-const AVATAR_TINTS = ["#ece9ff", "#e6f0fb", "#e8f5e9", "#fff3e0", "#fdecef", "#eef0f3"] as const;
+const AVATAR_TINTS = ["#ece9ff", "#eff6ff", "#f0fdf4", "#fffbeb", "#fdecef", "#f1f5f9"] as const;
 export function avatarTint(code: string): string {
   let h = 0;
   for (const ch of code) h = (h * 31 + ch.charCodeAt(0)) >>> 0;

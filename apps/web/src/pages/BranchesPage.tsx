@@ -212,7 +212,7 @@ export function BranchesPage() {
         homeUniversity: profile.homeUniversity || null,
         category: seatFilter.category,
         gender: seatFilter.gender,
-        minorityCommunity: null,
+        minorityCommunity: profile.minorityCommunity,
         flags: { ews: !!seatFilter.ews, tfws: !!seatFilter.tfws, defence: !!seatFilter.defence, pwd: !!seatFilter.pwd, orphan: !!seatFilter.orphan },
         subjectGroup: profile.subjectGroup,
         filters: { branchGroup: group, branch: selectedBranch },

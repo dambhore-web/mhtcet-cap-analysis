@@ -7,6 +7,8 @@ export interface ResultFilters {
   district?: string | null;
   collegeType?: string | null;
   branchGroup?: string | null;
+  /** Several branch groups at once (from the onboarding "branches of interest" step); any one matches. */
+  branchGroups?: string[];
   branch?: string | null;
 }
 

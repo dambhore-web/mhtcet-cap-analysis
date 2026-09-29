@@ -1,237 +1,433 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { api, BRANCH_GROUPS } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
-import type { Category } from "../lib/api";
-import { CATEGORY_OPTIONS } from "../lib/categories";
+import { CATEGORY_OPTIONS, FLAG_OPTIONS, MINORITY_OPTIONS } from "../lib/categories";
 import { UNIVERSITIES } from "../lib/universities";
-import type { Profile } from "../lib/profile";
-import { FLAG_OPTIONS } from "../lib/categories";
+import { formatNumber } from "../lib/format";
+import {
+  EMPTY_ANSWERS,
+  ewsAllowed,
+  parseMerit,
+  parsePercentile,
+  toFindParams,
+  toProfile,
+  visibleSteps,
+  type Answers,
+  type StepId,
+} from "../lib/onboarding";
 import { Icon } from "../components/Icon";
 import "./OnboardingPage.css";
 
-type Step = 1 | 2 | 3;
+const SECTION: Record<StepId, string> = {
+  exam: "About your exam",
+  have: "About your exam",
+  score: "About your exam",
+  category: "Your seat details",
+  gender: "Your seat details",
+  university: "Your seat details",
+  special: "Your seat details",
+  minority: "Your seat details",
+  branches: "What you're looking for",
+};
+const OPTIONAL: StepId[] = ["university", "special", "minority", "branches"];
 
-export function OnboardingPage() {
+/** /welcome/start: the student's details, one question per screen (#142). */
+export function OnboardingWizard() {
   const { setProfile } = useProfile();
   const navigate = useNavigate();
+  const [a, setA] = useState<Answers>(EMPTY_ANSWERS);
+  const [stepId, setStepId] = useState<StepId>("exam");
+  const [error, setError] = useState("");
+  const [estimating, setEstimating] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
-  const [step, setStep] = useState<Step>(1);
-  const [merit, setMerit] = useState("");
-  const [meritError, setMeritError] = useState("");
-  const [category, setCategory] = useState<Category | "">("");
-  const [gender, setGender] = useState<"M" | "F">("M");
-  const [subjectGroup, setSubjectGroup] = useState<"PCM" | "PCB">("PCM");
-  const [homeUniversity, setHomeUniversity] = useState("");
-  const [flags, setFlags] = useState({ ews: false, tfws: false, defence: false, pwd: false, orphan: false });
+  const steps = visibleSteps(a);
+  const index = Math.max(0, steps.indexOf(stepId));
+  const last = index === steps.length - 1;
 
-  function toggleFlag(flag: keyof typeof flags) {
-    setFlags((f) => ({ ...f, [flag]: !f[flag] }));
-  }
+  const update = (patch: Partial<Answers>) => {
+    setA((prev) => ({ ...prev, ...patch }));
+    setError("");
+  };
 
-  function handleStep1Next() {
-    const raw = merit.replace(/,/g, "").trim();
-    const num = parseInt(raw, 10);
-    if (!raw || isNaN(num) || num < 1) {
-      setMeritError("Enter a valid merit number (e.g. 12840).");
+  // Move focus to the new question so screen readers announce it
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, [stepId]);
+
+  // Percentile → estimated merit range (state list for MHT-CET, All India list for JEE)
+  const pct = a.have === "percentile" ? parsePercentile(a.percentile) : null;
+  useEffect(() => {
+    if (pct == null) {
+      setA((prev) => (prev.estimate ? { ...prev, estimate: null } : prev));
       return;
     }
-    setMeritError("");
-    setStep(2);
-  }
-
-  function handleStep2Next() {
-    setStep(3);
-  }
-
-  function handleFinish() {
-    const num = parseInt(merit.replace(/,/g, "").trim(), 10);
-    const profile: Profile = {
-      meritNumber: Number.isFinite(num) && num > 0 ? num : null,
-      category: category || null,
-      gender,
-      subjectGroup,
-      homeUniversity,
-      ...flags,
+    let live = true;
+    setEstimating(true);
+    const t = setTimeout(async () => {
+      try {
+        let range: [number, number] | null = null;
+        if (a.exam === "MH") {
+          range = (await api.meritEstimate(pct, a.subjectGroup)).estimatedMeritRange;
+        } else {
+          const j = (await api.jeeEstimate(pct)) as { rankRange: [number, number]; kind?: string };
+          range = j.kind === "all-india-merit" ? j.rankRange : null;
+          if (!range && live) setError("The All India merit list isn't loaded yet, so a JEE percentile can't be matched to All India seats. Enter your All India merit number instead.");
+        }
+        if (live) setA((prev) => ({ ...prev, estimate: range }));
+      } catch {
+        if (live) {
+          setA((prev) => ({ ...prev, estimate: null }));
+          setError("Couldn't estimate your merit number right now. Check your connection and try again.");
+        }
+      } finally {
+        if (live) setEstimating(false);
+      }
+    }, 350);
+    return () => {
+      live = false;
+      clearTimeout(t);
     };
-    setProfile(profile);
-    navigate("/");
+  }, [pct, a.exam, a.subjectGroup]);
+
+  function validate(): string {
+    if (stepId !== "score") return "";
+    if (a.have === "merit") return parseMerit(a.merit) ? "" : `Enter your ${a.exam === "AI" ? "All India" : "state"} merit number, for example 12450.`;
+    if (pct == null) return "Enter a percentile between 0 and 100, for example 96.82.";
+    if (!a.estimate) return estimating ? "Estimating your merit number… one moment." : error || "Couldn't estimate a merit number from this percentile.";
+    return "";
   }
+
+  function finish(answers: Answers) {
+    const params = toFindParams(answers);
+    if (!params) {
+      setStepId("score");
+      return;
+    }
+    setProfile(toProfile(answers));
+    navigate(`/?${params.toString()}`);
+  }
+
+  function next(e?: React.FormEvent) {
+    e?.preventDefault();
+    const problem = validate();
+    if (problem) {
+      setError(problem);
+      return;
+    }
+    if (last) finish(a);
+    else setStepId(steps[index + 1]);
+  }
+
+  function back() {
+    setError("");
+    if (index === 0) navigate("/welcome");
+    else setStepId(steps[index - 1]);
+  }
+
+  /** "Skip", "None of these", "No preference": clear this step's answer and move on. */
+  function skip() {
+    const cleared: Partial<Answers> =
+      stepId === "university" ? { homeUniversity: "" }
+      : stepId === "special" ? { flags: { ...EMPTY_ANSWERS.flags } }
+      : stepId === "minority" ? { minority: "" }
+      : stepId === "branches" ? { branchGroups: [] }
+      : {};
+    const nextA = { ...a, ...cleared };
+    setA(nextA);
+    setError("");
+    if (last) finish(nextA);
+    else setStepId(steps[index + 1]);
+  }
+
+  const skipLabel = stepId === "special" ? "None of these" : stepId === "branches" ? "No preference" : "Skip";
 
   return (
     <div className="onboarding-page">
-      <div className="ob-bg" aria-hidden="true" />
-
       <header className="ob-header">
-        <Link to="/colleges" className="ob-logo" aria-label="Compass home">
+        <Link to="/welcome" className="ob-logo" aria-label="Compass home">
           <span className="ob-logo-mark" aria-hidden="true"><Icon name="compass" size={18} /></span>
           Compass
         </Link>
-        <Link to="/colleges" className="btn btn-ghost btn-sm">
-          Browse colleges first
-          <Icon name="arrowRight" size={16} />
-        </Link>
+        <Link to="/colleges" className="btn btn-secondary btn-sm">Browse colleges instead</Link>
       </header>
 
-      <div className="ob-shell">
-        <div className="ob-progress" role="img" aria-label={`Step ${step} of 3`}>
-          {([1, 2, 3] as Step[]).map((s) => (
-            <div key={s} className={`ob-pip${step >= s ? " done" : ""}${step === s ? " active" : ""}`} />
-          ))}
+      <main className="ob-shell">
+        <div className="ob-progress-wrap">
+          <div className="ob-progress-text">
+            <strong>Step {index + 1} of {steps.length}{OPTIONAL.includes(stepId) ? " · optional" : ""}</strong>
+            <span>{SECTION[stepId]}</span>
+          </div>
+          <div className="ob-progress" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }} aria-hidden="true">
+            {steps.map((s, i) => <span key={s} className={`ob-seg${i <= index ? " done" : ""}`} />)}
+          </div>
         </div>
 
-        {step === 1 && (
-          <div className="ob-card">
-            <div className="ob-step-label">Step 1 of 3</div>
-            <h1>What's your state merit number?</h1>
-            <p>
-              Your rank in the MHT-CET state merit list (not your percentile). It is on your CAP login at the CET Cell portal.
-            </p>
-            <label className="ob-label" htmlFor="ob-merit">
-              State merit number
-            </label>
-            <div className={`ob-input-wrap${meritError ? " invalid" : ""}`}>
-              <input
-                id="ob-merit"
-                type="text"
-                inputMode="numeric"
-                className="ob-input"
-                placeholder="e.g. 12840"
-                value={merit}
-                onChange={(e) => {
-                  setMerit(e.target.value);
-                  setMeritError("");
-                }}
-                autoFocus
-                aria-describedby={meritError ? "ob-merit-err" : undefined}
-                aria-invalid={!!meritError}
-              />
-              <span className="ob-input-suffix">rank</span>
-            </div>
-            {meritError && (
-              <div id="ob-merit-err" className="ob-field-error" role="alert">{meritError}</div>
-            )}
-            <p className="ob-hint">
-              Merit list not out yet? <Link to="/estimate">Estimate it from your percentile</Link>, or{" "}
-              <button type="button" className="ob-link-btn" onClick={() => { setMerit(""); setMeritError(""); setStep(2); }}>
-                skip and add it later
-              </button>.
-            </p>
-            <button type="button" className="btn btn-primary btn-block" onClick={handleStep1Next}>
-              Continue
-              <Icon name="arrowRight" size={18} />
-            </button>
-          </div>
-        )}
+        <form className="ob-card" onSubmit={next} noValidate>
+          {stepId === "exam" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>How are you applying?</h1>
+              <p className="ob-lead">This decides which merit list and which seats we check.</p>
+              <fieldset className="ob-choices">
+                <legend className="sr-only">How are you applying?</legend>
+                <Choice name="exam" checked={a.exam === "MH"} onChange={() => update({ exam: "MH" })}
+                  title="MHT-CET" desc="State merit list · Maharashtra state-quota seats" />
+                <Choice name="exam" checked={a.exam === "AI"} onChange={() => update({ exam: "AI" })}
+                  title="JEE Main"
+                  desc="Your All India merit number, from the CET Cell's All India merit list (not your JEE rank) · All India seats" />
+              </fieldset>
+            </>
+          )}
 
-        {step === 2 && (
-          <div className="ob-card">
-            <div className="ob-step-label">Step 2 of 3</div>
-            <h1>Your category and details</h1>
-            <p>Compass uses these to show only the seat types you are eligible for.</p>
+          {stepId === "have" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>What do you have right now?</h1>
+              <p className="ob-lead">
+                Your merit number is the most accurate. If the merit list isn't out yet, we can estimate a range from your percentile.
+              </p>
+              <fieldset className="ob-choices">
+                <legend className="sr-only">What do you have right now?</legend>
+                <Choice name="have" checked={a.have === "merit"} onChange={() => update({ have: "merit" })}
+                  title={a.exam === "AI" ? "My All India merit number" : "My state merit number"}
+                  desc={a.exam === "AI" ? "From the CET Cell's All India merit list" : "On your CAP login at the CET Cell portal, e.g. 12,450"} />
+                <Choice name="have" checked={a.have === "percentile"} onChange={() => update({ have: "percentile" })}
+                  title={a.exam === "AI" ? "Only my JEE Main percentile" : "Only my MHT-CET percentile"}
+                  desc="Merit list not published yet, e.g. 96.82" />
+              </fieldset>
+            </>
+          )}
 
-            <div className="ob-label">Category</div>
-            <div className="ob-category-grid" role="group" aria-label="Select category">
-              {CATEGORY_OPTIONS.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  className={`ob-cat-chip${category === c.value ? " active" : ""}`}
-                  onClick={() => setCategory(c.value)}
-                  aria-pressed={category === c.value}
-                >
-                  <span className="cat-label">{c.label}</span>
-                  <span className="cat-desc">{c.desc}</span>
-                </button>
-              ))}
-            </div>
+          {stepId === "score" && a.have === "merit" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>What's your {a.exam === "AI" ? "All India" : "state"} merit number?</h1>
+              <p className="ob-lead">
+                {a.exam === "AI"
+                  ? "Your position in the CET Cell's All India merit list. A smaller number is better."
+                  : "Your position in the MHT-CET state merit list, not your percentile. A smaller number is better."}
+              </p>
+              <label className="ob-label" htmlFor="ob-merit">{a.exam === "AI" ? "All India merit number" : "State merit number"}</label>
+              <div className={`ob-input-wrap${error ? " invalid" : ""}`}>
+                <input id="ob-merit" className="ob-input" type="text" inputMode="numeric" placeholder="e.g. 12450" autoComplete="off"
+                  value={a.merit} onChange={(e) => update({ merit: e.target.value })}
+                  aria-invalid={!!error} aria-describedby={error ? "ob-error" : undefined} />
+                <span className="ob-input-suffix">rank</span>
+              </div>
+              <p className="ob-hint">
+                Don't have it yet?{" "}
+                <button type="button" className="ob-link-btn" onClick={() => update({ have: "percentile" })}>Use your percentile instead</button>
+              </p>
+            </>
+          )}
 
-            <fieldset className="ob-gender-group">
-              <legend className="ob-label">Gender</legend>
-              <div className="ob-gender-row">
-                {(["M", "F"] as const).map((g) => (
-                  <label key={g} className={`ob-gender-chip${gender === g ? " active" : ""}`}>
-                    <input type="radio" name="ob-gender" value={g} checked={gender === g} onChange={() => setGender(g)} />
-                    {g === "M" ? "Male" : "Female"}
+          {stepId === "score" && a.have === "percentile" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>What's your {a.exam === "AI" ? "JEE Main" : "MHT-CET"} percentile?</h1>
+              {a.exam === "MH" && (
+                <fieldset className="ob-toggle">
+                  <legend className="ob-label">Subject group</legend>
+                  {(["PCM", "PCB"] as const).map((g) => (
+                    <label key={g} className={`ob-toggle-opt${a.subjectGroup === g ? " on" : ""}`}>
+                      <input type="radio" name="subj" checked={a.subjectGroup === g} onChange={() => update({ subjectGroup: g })} />
+                      {g}
+                    </label>
+                  ))}
+                </fieldset>
+              )}
+              <label className="ob-label" htmlFor="ob-pct">Percentile</label>
+              <div className={`ob-input-wrap${error ? " invalid" : ""}`}>
+                <input id="ob-pct" className="ob-input" type="text" inputMode="decimal" placeholder="e.g. 96.82" autoComplete="off"
+                  value={a.percentile} onChange={(e) => update({ percentile: e.target.value })}
+                  aria-invalid={!!error} aria-describedby={error ? "ob-error" : undefined} />
+                <span className="ob-input-suffix">percentile</span>
+              </div>
+              <div className="ob-estimate" aria-live="polite">
+                {estimating && pct != null && <span>Estimating…</span>}
+                {!estimating && a.estimate && (
+                  <>
+                    <span className="ob-estimate-label">Estimated {a.exam === "AI" ? "All India" : ""} merit number</span>
+                    <strong>{formatNumber(a.estimate[0])} – {formatNumber(a.estimate[1])}</strong>
+                    <span>From last year's percentile-to-merit list. We'll search with the middle of this range and mark every result "estimated".</span>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+
+          {stepId === "category" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>Which category are you in?</h1>
+              <p className="ob-lead">As on your caste certificate. Open (general) seats are always included too.</p>
+              <fieldset className="ob-grid ob-grid--3">
+                <legend className="sr-only">Category</legend>
+                {CATEGORY_OPTIONS.map((c) => (
+                  <label key={c.label} className={`ob-tile${a.category === c.value ? " on" : ""}`}>
+                    <input type="radio" name="category" checked={a.category === c.value}
+                      onChange={() => update({ category: c.value, flags: c.value ? { ...a.flags, ews: false } : a.flags })} />
+                    <strong>{c.label}</strong>
+                    <span>{c.desc}</span>
                   </label>
                 ))}
-              </div>
-            </fieldset>
+              </fieldset>
+            </>
+          )}
 
-            <div className="ob-label">Subject group</div>
-            <div className="ob-gender-row">
-              {(["PCM", "PCB"] as const).map((sg) => (
-                <label key={sg} className={`ob-gender-chip${subjectGroup === sg ? " active" : ""}`}>
-                  <input type="radio" name="ob-subject" value={sg} checked={subjectGroup === sg} onChange={() => setSubjectGroup(sg)} />
-                  {sg}
+          {stepId === "gender" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>Are you applying as a female candidate?</h1>
+              <p className="ob-lead">Some seats are reserved for female candidates (the "L" seat types, such as LOPENS). We only use this to include them.</p>
+              <fieldset className="ob-grid ob-grid--2">
+                <legend className="sr-only">Gender</legend>
+                <Choice name="gender" checked={a.gender === "F"} onChange={() => update({ gender: "F" })} title="Female" />
+                <Choice name="gender" checked={a.gender === "M"} onChange={() => update({ gender: "M" })} title="Male" />
+              </fieldset>
+            </>
+          )}
+
+          {stepId === "university" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>Which university area did you pass HSC (12th) in?</h1>
+              <p className="ob-lead">
+                Your home university is the university whose area your 12th-standard college is in. Colleges keep seats for students
+                from their own university. If your CAP form shows a different home university, or you're not sure, pick "Not sure": we'll use
+                state-level seats only.
+              </p>
+              <fieldset className="ob-list">
+                <legend className="sr-only">Home university</legend>
+                {UNIVERSITIES.map((u) => (
+                  <label key={u} className={`ob-row${a.homeUniversity === u ? " on" : ""}`}>
+                    <input type="radio" name="hu" checked={a.homeUniversity === u} onChange={() => update({ homeUniversity: u })} />
+                    {u}
+                  </label>
+                ))}
+                <label className={`ob-row${a.homeUniversity === "" ? " on" : ""}`}>
+                  <input type="radio" name="hu" checked={a.homeUniversity === ""} onChange={() => update({ homeUniversity: "" })} />
+                  Not sure / state level only
                 </label>
-              ))}
-            </div>
+              </fieldset>
+            </>
+          )}
 
-            <div className="ob-btn-row">
-              <button type="button" className="btn btn-secondary" onClick={() => setStep(1)}>
-                <Icon name="back" size={18} />
-                Back
-              </button>
-              <button type="button" className="btn btn-primary" onClick={handleStep2Next}>
-                Continue
+          {stepId === "special" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>Do any of these apply to you?</h1>
+              <p className="ob-lead">
+                Each one opens extra seats. Tick only what you can prove with a certificate. <Link to="/eligibility">What each one needs</Link>
+              </p>
+              <fieldset className="ob-list">
+                <legend className="sr-only">Special seats</legend>
+                {FLAG_OPTIONS.map(({ key, label, desc }) => {
+                  const disabled = key === "ews" && !ewsAllowed(a);
+                  return (
+                    <label key={key} className={`ob-row ob-row--check${a.flags[key] && !disabled ? " on" : ""}${disabled ? " disabled" : ""}`}>
+                      <input type="checkbox" checked={a.flags[key] && !disabled} disabled={disabled}
+                        onChange={() => update({ flags: { ...a.flags, [key]: !a.flags[key] } })} />
+                      <span className="ob-row-text">
+                        <strong>{label}</strong>
+                        <span>{disabled ? "Only for Open category, so EWS seats don't apply to you" : desc}</span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </fieldset>
+            </>
+          )}
+
+          {stepId === "minority" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>Are you from a minority community?</h1>
+              <p className="ob-lead">
+                Some CAP colleges are minority institutions and keep seats for their own community. You'll need a minority certificate
+                (linguistic or religious) to claim them.
+              </p>
+              <fieldset className="ob-grid ob-grid--2">
+                <legend className="sr-only">Minority community</legend>
+                <label className={`ob-row ob-row--wide${a.minority === "" ? " on" : ""}`}>
+                  <input type="radio" name="minority" checked={a.minority === ""} onChange={() => update({ minority: "" })} />
+                  No, not from a minority community
+                </label>
+                {MINORITY_OPTIONS.map((m) => (
+                  <label key={m.value} className={`ob-row${a.minority === m.value ? " on" : ""}`}>
+                    <input type="radio" name="minority" checked={a.minority === m.value} onChange={() => update({ minority: m.value })} />
+                    {m.label}
+                  </label>
+                ))}
+              </fieldset>
+            </>
+          )}
+
+          {stepId === "branches" && (
+            <>
+              <h1 ref={headingRef} tabIndex={-1}>Which branches interest you?</h1>
+              <p className="ob-lead">Pick any. Your results open with these first, and one tap shows every branch. Nothing is hidden for good.</p>
+              <fieldset className="ob-chips">
+                <legend className="sr-only">Branch groups</legend>
+                {BRANCH_GROUPS.map((g) => {
+                  const on = a.branchGroups.includes(g);
+                  return (
+                    <label key={g} className={`ob-chip${on ? " on" : ""}`}>
+                      <input type="checkbox" checked={on}
+                        onChange={() => update({ branchGroups: on ? a.branchGroups.filter((x) => x !== g) : [...a.branchGroups, g] })} />
+                      {on && <Icon name="check" size={14} />}
+                      {g}
+                    </label>
+                  );
+                })}
+              </fieldset>
+              <Summary a={a} />
+            </>
+          )}
+
+          {error && <p id="ob-error" className="ob-error" role="alert">{error}</p>}
+
+          <div className="ob-nav">
+            <button type="button" className="btn btn-secondary" onClick={back}>
+              <Icon name="back" size={18} />
+              Back
+            </button>
+            <div className="ob-nav-right">
+              {OPTIONAL.includes(stepId) && <button type="button" className="ob-link-btn" onClick={skip}>{skipLabel}</button>}
+              <button type="submit" className={`btn ${last ? "btn-accent" : "btn-primary"}`}>
+                {last ? "Show my colleges" : "Continue"}
                 <Icon name="arrowRight" size={18} />
               </button>
             </div>
           </div>
-        )}
+        </form>
+        <p className="ob-foot">Your answers stay on this device.</p>
+      </main>
+    </div>
+  );
+}
 
-        {step === 3 && (
-          <div className="ob-card">
-            <div className="ob-step-label">Step 3 of 3</div>
-            <h1>Almost done</h1>
-            <p>Optional, but these unlock home-university and special seats you may qualify for.</p>
+function Choice({ name, checked, onChange, title, desc }: { name: string; checked: boolean; onChange: () => void; title: string; desc?: string }) {
+  return (
+    <label className={`ob-choice${checked ? " on" : ""}`}>
+      <input type="radio" name={name} checked={checked} onChange={onChange} />
+      <span className="ob-choice-text">
+        <strong>{title}</strong>
+        {desc && <span>{desc}</span>}
+      </span>
+    </label>
+  );
+}
 
-            <label className="ob-label" htmlFor="ob-uni">Home university</label>
-            <select
-              id="ob-uni"
-              className="ob-select"
-              value={homeUniversity}
-              onChange={(e) => setHomeUniversity(e.target.value)}
-            >
-              <option value="">Not sure / state level only</option>
-              {UNIVERSITIES.map((u) => (
-                <option key={u} value={u}>{u}</option>
-              ))}
-            </select>
-            <p className="ob-hint">
-              This is the university your qualifying HSC college is affiliated with.
-            </p>
-
-            <div className="ob-label">Special categories (optional)</div>
-            <div className="ob-flags">
-              {FLAG_OPTIONS.map(({ key, label, desc }) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={`ob-flag${flags[key] ? " active" : ""}`}
-                  onClick={() => toggleFlag(key)}
-                  aria-pressed={flags[key]}
-                  title={desc}
-                >
-                  {flags[key] && <Icon name="check" size={14} />}
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="ob-btn-row">
-              <button type="button" className="btn btn-secondary" onClick={() => setStep(2)}>
-                <Icon name="back" size={18} />
-                Back
-              </button>
-              <button type="button" className="btn btn-primary" onClick={handleFinish}>
-                See my options
-                <Icon name="arrowRight" size={18} />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+/** Everything the student answered, shown before the search. */
+function Summary({ a }: { a: Answers }) {
+  const parts: string[] = [a.exam === "AI" ? "JEE Main (All India)" : "MHT-CET"];
+  if (a.have === "merit" && parseMerit(a.merit)) parts.push(`Merit number ${formatNumber(parseMerit(a.merit)!)}`);
+  if (a.have === "percentile" && a.estimate) parts.push(`Estimated merit ${formatNumber(a.estimate[0])}–${formatNumber(a.estimate[1])}`);
+  if (a.exam === "MH") {
+    parts.push(CATEGORY_OPTIONS.find((c) => c.value === a.category)?.label ?? "Open");
+    parts.push(a.gender === "F" ? "Female" : "Male");
+    parts.push(a.homeUniversity || "State level only");
+    for (const f of FLAG_OPTIONS) if (a.flags[f.key] && (f.key !== "ews" || ewsAllowed(a))) parts.push(f.label);
+    parts.push(a.minority ? MINORITY_OPTIONS.find((m) => m.value === a.minority)?.label ?? a.minority : "Not from a minority community");
+  }
+  return (
+    <div className="ob-summary">
+      <strong>Your answers</strong>
+      <span>{parts.join(" · ")}</span>
     </div>
   );
 }

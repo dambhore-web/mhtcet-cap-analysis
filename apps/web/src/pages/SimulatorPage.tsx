@@ -51,7 +51,7 @@ export function SimulatorPage() {
           homeUniversity: profile.homeUniversity || null,
           category: profile.category ?? null,
           gender: profile.gender,
-          minorityCommunity: null,
+          minorityCommunity: profile.minorityCommunity,
           flags: { ews: profile.ews, tfws: profile.tfws, defence: profile.defence, pwd: profile.pwd, orphan: profile.orphan },
           subjectGroup: profile.subjectGroup,
           preferences: items.map((i) => i.choiceCode),

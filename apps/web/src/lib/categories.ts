@@ -20,3 +20,26 @@ export const FLAG_OPTIONS = [
   { key: "pwd", label: "PWD", desc: "Person with disability" },
   { key: "orphan", label: "Orphan", desc: "Orphan candidate" },
 ] as const;
+
+/**
+ * Minority communities of CAP minority colleges, spelt as the CAP institute list spells them
+ * (the engine matches them against "Minority - <community>" in a college's status).
+ */
+export const MINORITY_OPTIONS: { value: string; label: string }[] = [
+  { value: "Hindi", label: "Hindi (linguistic)" },
+  { value: "Muslim", label: "Muslim" },
+  { value: "Gujarathi", label: "Gujarati (linguistic)" },
+  { value: "Christian", label: "Christian" },
+  { value: "Jain", label: "Jain" },
+  { value: "Sindhi", label: "Sindhi (linguistic)" },
+  { value: "Tamil", label: "Tamil (linguistic)" },
+  { value: "Roman Catholics", label: "Roman Catholic" },
+  { value: "Punjabi", label: "Punjabi (linguistic)" },
+  { value: "Malyalam", label: "Malayalam (linguistic)" },
+];
+
+/** The minority community in a college's CAP status ("Un-Aided Minority - Muslim" → "Muslim"). */
+export function minorityOf(status: string | null | undefined): string | null {
+  const m = status ? /Minority\s*-\s*(.+)$/.exec(status) : null;
+  return m?.[1]?.trim() ?? null;
+}

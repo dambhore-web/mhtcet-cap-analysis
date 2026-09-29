@@ -4,8 +4,8 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: var(--navy);
-  box-shadow: 0 -2px 16px rgba(14, 24, 56, 0.2);
+  background: var(--violet-deep);
+  box-shadow: 0 -2px 16px rgba(15, 23, 42, 0.2);
   padding-bottom: var(--safe-bottom);
   animation: slide-up 0.2s ease;
 }
@@ -30,7 +30,7 @@
   font-family: var(--font-num);
   font-size: var(--text-sm);
   font-weight: 700;
-  color: var(--lime);
+  color: var(--white);
 }
 
 .compare-bar-colleges {

@@ -136,6 +136,17 @@ describe("POST /api/rank-finder", () => {
     expect(vjti?.status).toBe("out-of-range");
   });
 
+  it("filters by several branch groups (any one matches) and ignores unknown groups", async () => {
+    const codes = async (branchGroups: string[]) => {
+      const { status, body } = await post("/api/rank-finder", { ...base, filters: { branchGroups } });
+      expect(status).toBe(200);
+      return (body.options as { collegeCode: string }[]).map((o) => o.collegeCode);
+    };
+    expect(await codes(["Civil", "Computer & IT"])).toContain("1002");
+    expect(await codes(["Civil", "Mechanical"])).toEqual([]);
+    expect(await codes(["Not a group"])).toContain("1002");
+  });
+
   it("returns 400 for missing merit", async () => {
     const { status } = await post("/api/rank-finder", { ...base, merit: undefined });
     expect(status).toBe(400);

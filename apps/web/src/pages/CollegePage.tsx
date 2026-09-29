@@ -13,6 +13,7 @@ import { formatInr } from "../lib/plans";
 import { eligibleSeatTypes, type CandidateProfile } from "@mhtcet/core";
 import { AddToFormButton } from "../components/AddToFormButton";
 import { listItemFrom } from "../lib/list";
+import { minorityOf } from "../lib/categories";
 import "./CollegePage.css";
 
 interface CutoffRow {
@@ -30,7 +31,7 @@ interface CutoffRow {
 }
 
 interface CollegeData {
-  college: { code: string; name: string; homeUniversity?: string | null; district?: string | null; collegeType?: string | null; totalIntake?: number | null };
+  college: { code: string; name: string; status?: string | null; homeUniversity?: string | null; district?: string | null; collegeType?: string | null; totalIntake?: number | null };
   year: number;
   cutoffs: CutoffRow[];
 }
@@ -133,11 +134,11 @@ export function CollegePage() {
       defence: profile.defence,
       pwd: profile.pwd,
       orphan: profile.orphan,
-      minorityCommunity: null,
+      minorityCommunity: profile.minorityCommunity,
       meritNumber: profile.meritNumber ?? 1,
       subjectGroup: profile.subjectGroup,
     };
-    return new Set(eligibleSeatTypes(candidate, { homeUniversity: data.college.homeUniversity ?? null, minorityCommunity: null }));
+    return new Set(eligibleSeatTypes(candidate, { homeUniversity: data.college.homeUniversity ?? null, minorityCommunity: minorityOf(data.college.status) }));
   }, [data, profile]);
 
   // The row the "add to option form" button uses: the student's best seat type for the branch
