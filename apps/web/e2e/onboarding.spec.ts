@@ -67,10 +67,12 @@ test.describe("First visit: landing, questions one at a time, scan, results (#14
     await expect(page).not.toHaveURL(/scan=1/);
     await expect(page).toHaveURL(/min=Jain/);
 
-    const filter = page.getByLabel("Branch filter");
-    await expect(filter).toContainText("Computer & IT");
-    await filter.getByRole("button", { name: /show all branches/i }).click();
-    await expect(page.getByLabel("Branch filter")).toHaveCount(0);
+    // the answers are tiles above the results; the branches chosen are in the Branches tile
+    const branches = page.getByRole("button", { name: /^Branches/ });
+    await expect(branches).toHaveText("Computer & IT");
+    await branches.click();
+    await page.getByRole("button", { name: /show all branches/i }).click();
+    await expect(branches).toHaveText("All branches");
     await expect(page).not.toHaveURL(/bg=/);
   });
 
@@ -123,5 +125,79 @@ test.describe("Returning visitor", () => {
     await page.goto("/?merit=5200");
     await expect(page).toHaveURL(/\/find\?merit=5200/);
     await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
+  });
+});
+
+test.describe("Answer tiles on Find colleges (#142)", () => {
+  test.beforeEach(async ({ page }) => seed(page, { profile: PROFILE }));
+
+  test("changing an answer searches again and remembers it", async ({ page }) => {
+    await page.goto("/find");
+    await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
+
+    await page.getByLabel("Category").selectOption("OBC");
+    await expect(page).toHaveURL(/cat=OBC/);
+    await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
+
+    const merit = page.getByLabel("Merit number");
+    await merit.fill("6,000");
+    await expect(page.getByRole("heading", { level: 2, name: /options for merit 6,000/i })).toBeVisible();
+    await expect(page).toHaveURL(/merit=6000/);
+
+    // special seats: EWS is only for Open category
+    await page.getByRole("button", { name: /^Special seats/ }).click();
+    await expect(page.getByRole("checkbox", { name: /EWS/ })).toBeDisabled();
+    await page.getByRole("checkbox", { name: /TFWS/ }).check();
+    await expect(page).toHaveURL(/tfws=1/);
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("button", { name: /^Special seats/ })).toHaveText("TFWS");
+
+    // branches narrow the results and can be cleared again
+    await page.getByRole("button", { name: /^Branches/ }).click();
+    await page.getByRole("checkbox", { name: "Mechanical" }).check();
+    await expect(page).toHaveURL(/bg=Mechanical/);
+
+    // the changed answers are saved to My details
+    await page.goto("/profile");
+    await expect(page.getByLabel("State merit number")).toHaveValue(/6,?000/);
+  });
+
+  test("a bad merit number says so and keeps the results", async ({ page }) => {
+    await page.goto("/find");
+    await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
+    const merit = page.getByLabel("Merit number");
+    await merit.fill("abc");
+    await merit.press("Enter");
+    await expect(page.getByRole("alert")).toContainText(/enter a merit number/i);
+    await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
+  });
+
+  test("JEE Main shows only the All India answers", async ({ page }) => {
+    await page.goto("/find?merit=3000&list=AI");
+    await expect(page.getByRole("heading", { level: 2, name: /options for all india merit 3,000/i })).toBeVisible();
+    await expect(page.getByLabel("All India merit number")).toHaveValue("3000");
+    await expect(page.getByLabel("Category")).toHaveCount(0);
+    await expect(page.getByLabel("Home university")).toHaveCount(0);
+  });
+
+  test("with no merit number yet, asks for one", async ({ page }) => {
+    await seed(page, { profile: { ...PROFILE, meritNumber: null } });
+    await page.goto("/find");
+    await expect(page.getByRole("heading", { name: /enter your merit number/i })).toBeVisible();
+    await page.getByLabel("Merit number").fill("5200");
+    await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
+  });
+
+  test("on a phone the answers fold into one line @phone", async ({ page }) => {
+    await page.goto("/find");
+    await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
+    const toggle = page.getByRole("button", { name: /your answers/i });
+    await expect(toggle).toContainText("5,200 · Open · Male");
+    await expect(page.getByLabel("Category")).toBeHidden();
+    await toggle.click();
+    await expect(page.getByLabel("Category")).toBeVisible();
+    await page.getByRole("button", { name: /^Branches/ }).click();
+    const width = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(width).toBeLessThanOrEqual(0);
   });
 });

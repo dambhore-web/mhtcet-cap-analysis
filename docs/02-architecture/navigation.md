@@ -36,7 +36,7 @@ over". Find colleges lives at `/find`; old result links (`/?merit=…`) redirect
 |---|---|---|---|
 | (home) | Landing page: hero, how it works, branch chips, real data counts | `/` | Built (#142) |
 | (first visit) | Questions one per screen (9 for MHT-CET, 4 for JEE), then the scan screen | `/welcome/start` | Built (#142) |
-| Find colleges | Search and results (what-if slider, ladders, district filter, branch chips from onboarding) | `/find` | Built |
+| Find colleges | The onboarding answers as tiles (each changed with a dropdown, results update straight away; folded into one "Your answers" line on a phone) above the results (what-if slider, ladders, district filter) | `/find` | Built |
 | | Percentile estimate (CET and JEE) | `/estimate` | Built |
 | | All India seats (JEE Main) | `/?list=AI` via JEE mode | Built; needs the All India merit list in the DB |
 | | Seat eligibility | `/eligibility` | Built |

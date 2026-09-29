@@ -28,7 +28,7 @@ const FORM = [
 test("J1 · Which colleges could I get with my merit number?", async ({ page }) => {
   await seed(page);
   await page.goto("/find");
-  await page.getByRole("button", { name: /find my options/i }).click();
+  // the saved answers search straight away
   await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
   await expect(page.getByText(/options within reach, in \d+ colleges/)).toBeVisible();
   // earlier years on each option: how this merit fared against the same seat in 2023–2025
@@ -112,11 +112,12 @@ test("J6 · Do TFWS, EWS or Defence seats help me?", async ({ page }) => {
 
 test("J7 · I applied through JEE Main", async ({ page }) => {
   await seed(page);
-  await page.goto("/find");
-  await page.getByRole("button", { name: "JEE percentile" }).click();
+  await page.goto("/estimate");
+  await page.getByRole("button", { name: "JEE Main percentile" }).click();
   await page.getByLabel("JEE Main percentile").fill("97");
-  await expect(page.getByText(/≈ All India merit/)).toBeVisible();
-  await page.getByRole("button", { name: /find my options/i }).click();
+  await page.getByRole("button", { name: "Estimate" }).click();
+  await expect(page.getByRole("heading", { name: /likely all india merit number/i })).toBeVisible();
+  await page.getByRole("button", { name: /find all india seats for/i }).click();
   await expect(page.getByRole("heading", { level: 2, name: /options for all india merit/i })).toBeVisible();
   await expect(page.getByText(/All India seats, from last year/)).toBeVisible();
 });

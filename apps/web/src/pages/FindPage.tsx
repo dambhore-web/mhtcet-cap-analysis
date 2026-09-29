@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api, BRANCH_GROUPS, type Candidature, type FindOption, type Category, type MeritEstimate, type ResultFilters } from "../lib/api";
+import { api, BRANCH_GROUPS, type Candidature, type FindOption, type Category, type ResultFilters } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import type { Profile } from "../lib/profile";
 import { listItemFrom, useList } from "../lib/list";
@@ -11,13 +11,12 @@ import { StatusBadge } from "../components/StatusBadge";
 import { avatarTint, collegeInitials, formatNumber, formatRound } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { UNIVERSITIES } from "../lib/universities";
-import { CATEGORY_OPTIONS, MINORITY_OPTIONS } from "../lib/categories";
-import { parseBranchGroups } from "../lib/onboarding";
+import { activeFlags, categoryLabel, minorityLabel, type TileAnswers } from "../lib/answerTiles";
+import { parseBranchGroups, parseMerit } from "../lib/onboarding";
+import { AnswerTiles } from "../components/AnswerTiles";
 import { ScanProgress } from "../components/ScanProgress";
 import "./FindPage.css";
 import { pastSummary } from "../lib/yearTrend";
-
-interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; kind?: "all-india-merit" | "jee-rank"; }
 
 /** What the last search was run with, so results can say "All India" or "estimated". */
 interface SearchKind {
@@ -25,47 +24,23 @@ interface SearchKind {
   estimated: boolean;
 }
 
-interface FormState {
-  mode: "merit" | "percentile" | "jee";
+interface FormState extends TileAnswers {
+  /** The merit number as typed in its tile. */
   score: string;
-  category: Category | "";
-  gender: "M" | "F";
   subjectGroup: "PCM" | "PCB";
-  homeUniversity: string;
-  ews: boolean;
-  tfws: boolean;
-  defence: boolean;
-  pwd: boolean;
-  orphan: boolean;
-  /** Minority community as the CAP lists spell it, or "" for none. */
-  minority: string;
-  showAdvanced: boolean;
 }
-
-const DEFAULT: FormState = {
-  mode: "merit",
-  score: "",
-  category: "",
-  gender: "M",
-  subjectGroup: "PCM",
-  homeUniversity: "",
-  ews: false,
-  tfws: false,
-  defence: false,
-  pwd: false,
-  orphan: false,
-  minority: "",
-  showAdvanced: false,
-};
 
 type Status = "idle" | "loading" | "done" | "error";
 
+/** Pause after typing a merit number before searching with it. */
+const MERIT_DEBOUNCE_MS = 600;
+
 export function FindPage() {
-  const { profile } = useProfile();
+  const { profile, setProfile } = useProfile();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const initialForm: FormState = {
-    ...DEFAULT,
+    exam: searchParams.get("list") === "AI" ? "AI" : "MH",
     score: searchParams.get("merit") ?? (profile.meritNumber ? String(profile.meritNumber) : ""),
     category: (searchParams.get("cat") as Category | "") || profile.category || "",
     gender: (searchParams.get("gen") as "M" | "F") || profile.gender,
@@ -91,55 +66,30 @@ export function FindPage() {
   const [resultFilters, setResultFilters] = useState<ResultFilters>({});
   const [filterLoading, setFilterLoading] = useState(false);
   const lastRequest = useRef<Parameters<typeof api.find>[0] | null>(null);
+  // Only the newest search or filter may set the results (answers can change faster than the API replies)
+  const searchSeq = useRef(0);
   const [errorMsg, setErrorMsg] = useState("");
-  const [scoreError, setScoreError] = useState("");
+  const [meritError, setMeritError] = useState("");
+  const meritTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // A merit number estimated from a percentile stays "estimated" until the student types their own
+  const estimatedRef = useRef(searchParams.get("est") === "1");
   const [showAll, setShowAll] = useState(false);
   const [view, setView] = useState<"college" | "all">("college");
   const [whatIf, setWhatIf] = useState<number | null>(null);
   const [whatIfOptions, setWhatIfOptions] = useState<FindOption[] | null>(null);
   const [whatIfLoading, setWhatIfLoading] = useState(false);
   const whatIfTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [estimate, setEstimate] = useState<MeritEstimate | null>(null);
-  const [jeeEstimate, setJeeEstimate] = useState<JeeEstimate | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
-  const resultsRef = useRef<HTMLElement>(null);
-  const estimateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoSubmittedRef = useRef(false);
+  // The debounced merit search runs after this render has gone; it reads the answers from here
+  const latest = useRef({ form, resultFilters });
+  latest.current = { form, resultFilters };
 
-  useEffect(() => {
-    if (form.mode === "percentile") {
-      setJeeEstimate(null);
-      const pct = parseFloat(form.score);
-      if (isNaN(pct) || pct <= 0 || pct > 100) { setEstimate(null); return; }
-      if (estimateTimer.current) clearTimeout(estimateTimer.current);
-      estimateTimer.current = setTimeout(() => {
-        api.meritEstimate(pct, form.subjectGroup).then(setEstimate).catch(() => setEstimate(null));
-      }, 400);
-    } else if (form.mode === "jee") {
-      setEstimate(null);
-      const pct = parseFloat(form.score);
-      if (isNaN(pct) || pct <= 0 || pct > 100) { setJeeEstimate(null); return; }
-      if (estimateTimer.current) clearTimeout(estimateTimer.current);
-      estimateTimer.current = setTimeout(() => {
-        api.jeeEstimate(pct).then(setJeeEstimate).catch(() => setJeeEstimate(null));
-      }, 400);
-    } else {
-      setEstimate(null);
-      setJeeEstimate(null);
-    }
-    return () => { if (estimateTimer.current) clearTimeout(estimateTimer.current); };
-  }, [form.mode, form.score, form.subjectGroup]);
-
-  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((f) => ({ ...f, [key]: value }));
-  }
-
-  function toggleFlag(flag: "ews" | "tfws" | "defence" | "pwd" | "orphan") {
-    setForm((f) => ({ ...f, [flag]: !f[flag] }));
-  }
+  useEffect(() => () => { if (meritTimer.current) clearTimeout(meritTimer.current); }, []);
 
   const doSearch = useCallback(async (merit: number, f: FormState, kind: SearchKind = { candidature: "MH", estimated: false }, filters: ResultFilters = {}) => {
+    const seq = ++searchSeq.current;
     setStatus("loading");
     setShowAll(false);
     setResultFilters(filters);
@@ -179,15 +129,18 @@ export function FindPage() {
 
     try {
       const res = await api.find({ ...req, filters });
+      if (seq !== searchSeq.current) return;
       setOptions(res.options);
       setSearchedMerit(merit);
       setWhatIf(null);
       setSearchKind(kind);
       setStatus("done");
-      if (!scanRef.current) setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     } catch {
+      if (seq !== searchSeq.current) return;
       setStatus("error");
       setErrorMsg("Could not reach the server. Make sure the API is running.");
+    } finally {
+      if (seq === searchSeq.current) setFilterLoading(false);
     }
   }, [setSearchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -208,17 +161,15 @@ export function FindPage() {
     return () => { if (whatIfTimer.current) clearTimeout(whatIfTimer.current); };
   }, [whatIf]);
 
-  // Auto-submit when merit is in the URL (shared link)
+  // Search straight away: from the URL (a shared link or the step-by-step questions), else from My details
   useEffect(() => {
     if (autoSubmittedRef.current) return;
-    const meritParam = searchParams.get("merit");
-    if (!meritParam) return;
-    const merit = parseInt(meritParam, 10);
-    if (isNaN(merit) || merit < 1) return;
+    const merit = parseMerit(initialForm.score);
+    if (!merit) return;
     autoSubmittedRef.current = true;
     doSearch(merit, initialForm, {
-      candidature: searchParams.get("list") === "AI" ? "AI" : "MH",
-      estimated: searchParams.get("est") === "1",
+      candidature: initialForm.exam,
+      estimated: estimatedRef.current,
     }, initialGroups.length ? { branchGroups: initialGroups } : {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -231,7 +182,6 @@ export function FindPage() {
       next.delete("scan");
       return next;
     }, { replace: true });
-    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
   }, [setSearchParams]);
 
   // A failed search leaves the scan screen at once and shows the error
@@ -239,58 +189,77 @@ export function FindPage() {
     if (scanning && status === "error") finishScan();
   }, [scanning, status, finishScan]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const rawScore = form.score.replace(/,/g, "").trim();
-    if (!rawScore) {
-      setScoreError(`Enter your ${form.mode === "merit" ? "merit number" : "percentile"} to continue.`);
+  /** Search again with changed answers, and remember them in My details (state-merit answers only). */
+  function searchWith(next: FormState, filters: ResultFilters) {
+    const merit = parseMerit(next.score);
+    if (!merit) return;
+    const kind: SearchKind = { candidature: next.exam, estimated: estimatedRef.current };
+    doSearch(merit, next, kind, filters);
+    if (next.exam === "MH") {
+      setProfile({
+        ...profile,
+        meritNumber: kind.estimated ? profile.meritNumber : merit,
+        category: next.category || null,
+        gender: next.gender,
+        homeUniversity: next.homeUniversity,
+        ews: next.ews,
+        tfws: next.tfws,
+        defence: next.defence,
+        pwd: next.pwd,
+        orphan: next.orphan,
+        minorityCommunity: next.minority || null,
+      });
+    }
+  }
+
+  function changeAnswers(patch: Partial<TileAnswers>) {
+    const next = { ...form, ...patch };
+    setForm(next);
+    searchWith(next, resultFilters);
+  }
+
+  function inputMerit(text: string) {
+    setForm((f) => ({ ...f, score: text }));
+    setMeritError("");
+    if (meritTimer.current) clearTimeout(meritTimer.current);
+    if (parseMerit(text)) meritTimer.current = setTimeout(() => commitMerit(text), MERIT_DEBOUNCE_MS);
+  }
+
+  function commitMerit(text: string) {
+    if (meritTimer.current) clearTimeout(meritTimer.current);
+    if (!text.trim()) return;
+    const merit = parseMerit(text);
+    if (!merit) {
+      setMeritError("Enter a merit number, like 12450.");
       return;
     }
-    let num: number;
-    let kind: SearchKind = { candidature: "MH", estimated: false };
-    if (form.mode === "percentile") {
-      const pct = parseFloat(rawScore);
-      if (isNaN(pct) || pct <= 0 || pct > 100) { setScoreError("Enter a valid percentile (1–100)."); return; }
-      if (!estimate) { setScoreError("Waiting for merit estimate… try again in a moment."); return; }
-      num = Math.round((estimate.estimatedMeritRange[0] + estimate.estimatedMeritRange[1]) / 2);
-      kind = { candidature: "MH", estimated: true };
-    } else if (form.mode === "jee") {
-      const pct = parseFloat(rawScore);
-      if (isNaN(pct) || pct <= 0 || pct > 100) { setScoreError("Enter a valid JEE percentile (1–100)."); return; }
-      if (!jeeEstimate) { setScoreError("Waiting for the All India merit estimate… try again in a moment."); return; }
-      if (jeeEstimate.kind !== "all-india-merit") {
-        setScoreError("The All India merit list isn't loaded yet, so Compass can't match JEE percentiles to All India seats.");
-        return;
-      }
-      num = jeeEstimate.estimatedRank;
-      kind = { candidature: "AI", estimated: true };
-    } else {
-      num = parseInt(rawScore, 10);
-      if (isNaN(num) || num < 1) { setScoreError("Enter a valid merit number."); return; }
-    }
-    setScoreError("");
-    await doSearch(num, form, kind);
+    const { form: f, resultFilters: filters } = latest.current;
+    // Leaving the field after the typing pause already searched: nothing new to fetch
+    if (lastRequest.current?.merit === merit && lastRequest.current.candidature === f.exam) return;
+    estimatedRef.current = false;
+    searchWith({ ...f, score: text }, filters);
   }
 
   async function applyFilter(newFilters: ResultFilters) {
-    if (!lastRequest.current) return;
     setResultFilters(newFilters);
-    setWhatIfOptions(null); // stale what-if results must not shadow the filtered options
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       if (newFilters.branchGroups?.length) next.set("bg", newFilters.branchGroups.join(","));
       else next.delete("bg");
       return next;
     }, { replace: true });
+    if (!lastRequest.current) return;
+    const seq = ++searchSeq.current;
+    setWhatIfOptions(null); // stale what-if results must not shadow the filtered options
     setFilterLoading(true);
     setShowAll(false);
     try {
       const res = await api.find({ ...lastRequest.current, filters: newFilters });
-      setOptions(res.options);
+      if (seq === searchSeq.current) setOptions(res.options);
     } catch {
       // keep existing results on filter failure
     } finally {
-      setFilterLoading(false);
+      if (seq === searchSeq.current) setFilterLoading(false);
     }
   }
 
@@ -322,7 +291,9 @@ export function FindPage() {
   const districts = useMemo(() => [...new Set(options.map((o) => o.district).filter((d): d is string => !!d))].sort(), [options]);
   const collegeTypes = useMemo(() => [...new Set(options.map((o) => o.collegeType).filter((t): t is string => !!t))].sort(), [options]);
   const formCount = useList().length;
-  const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === form.category)?.label ?? "Open";
+  // Earlier results stay on screen while changed answers are searched
+  const hasResults = searchedMerit > 0 && (status === "done" || status === "loading");
+  const updating = status === "loading" || filterLoading;
 
   if (scanning) {
     const merit = parseInt(searchParams.get("merit") ?? "0", 10);
@@ -331,11 +302,11 @@ export function FindPage() {
       ...(searchParams.get("list") === "AI"
         ? []
         : [
-            categoryLabel,
+            categoryLabel(form.category),
             form.gender === "F" ? "Female" : "Male",
             form.homeUniversity || "State level only",
-            ...(Object.keys(FLAG_LABELS) as (keyof typeof FLAG_LABELS)[]).filter((f) => form[f] && (f !== "ews" || !form.category)).map((f) => FLAG_LABELS[f]),
-            form.minority ? MINORITY_OPTIONS.find((m) => m.value === form.minority)?.label ?? form.minority : "Not minority",
+            ...activeFlags(form).map((f) => FLAG_LABELS[f]),
+            form.minority ? minorityLabel(form.minority) : "Not minority",
           ]),
       ...initialGroups,
     ];
@@ -362,217 +333,53 @@ export function FindPage() {
 
   return (
     <div className="find-page">
-      <section className="find-hero page">
-        <div className="find-copy">
-          <p className="find-kicker">MHT-CET CAP 2026 · engineering</p>
-          <h1>Find colleges</h1>
-          <p>
-            Change your merit number or seat details and search again. Results show every college and branch where your merit number
-            was good enough last year, and in which CAP round.
-          </p>
+      <section className="find-top page" aria-labelledby="find-title">
+        <div className="find-head">
+          <div>
+            <h1 id="find-title">Your options</h1>
+            <p>Your answers from the questions. Change any of them here and the results below update straight away.</p>
+          </div>
           <Link to="/welcome/start" className="find-restart">
-            <Icon name="arrowRight" size={16} />
             Answer the questions one at a time instead
+            <Icon name="arrowRight" size={16} />
           </Link>
         </div>
 
-        <form className="find-card" onSubmit={handleSubmit} noValidate aria-labelledby="find-card-title">
-          <h2 id="find-card-title">Find my options</h2>
+        <AnswerTiles
+          answers={form}
+          merit={form.score}
+          meritError={meritError}
+          branchGroups={resultFilters.branchGroups ?? []}
+          onChange={changeAnswers}
+          onMeritInput={inputMerit}
+          onMeritCommit={() => commitMerit(form.score)}
+          onBranchGroups={(bg) => applyFilter({ ...resultFilters, branchGroup: null, branchGroups: bg })}
+        />
 
-          <div className="score-toggle" role="group" aria-label="What score do you have?">
-            {([
-              ["merit", "Merit number"],
-              ["percentile", "CET percentile"],
-              ["jee", "JEE percentile"],
-            ] as const).map(([m, label]) => (
-              <button
-                key={m}
-                type="button"
-                className={form.mode === m ? "active" : ""}
-                aria-pressed={form.mode === m}
-                onClick={() => set("mode", m)}
-              >
-                {label}
-              </button>
-            ))}
+        <p className="find-updating" role="status" aria-live="polite">
+          {updating ? (hasResults ? "Updating your options…" : "Finding your options…") : ""}
+        </p>
+
+        {status === "error" && (
+          <div className="field-error find-api-error" role="alert">
+            <Icon name="alert" size={14} />
+            {errorMsg}
           </div>
+        )}
 
-          <label className="form-label" htmlFor="score-input">
-            {form.mode === "merit" ? "Your state merit number" : form.mode === "jee" ? "JEE Main percentile" : "Your MHT-CET percentile"}
-          </label>
-          <div className={`score-input-wrap${scoreError ? " invalid" : ""}`}>
-            <input
-              id="score-input"
-              type="text"
-              inputMode={form.mode === "merit" ? "numeric" : "decimal"}
-              value={form.score}
-              onChange={(e) => {
-                set("score", e.target.value);
-                setScoreError("");
-              }}
-              placeholder={form.mode === "merit" ? "e.g. 12840" : "e.g. 92.84"}
-              aria-describedby={scoreError ? "score-error" : "score-help"}
-              aria-invalid={!!scoreError}
-              autoComplete="off"
-            />
-            <span className="score-suffix">{form.mode === "merit" ? "rank" : "%"}</span>
+        {searchedMerit === 0 && status === "idle" && (
+          <div className="find-empty card">
+            <h2>Enter your merit number to see your options</h2>
+            <p>
+              Type it in the merit number tile above. Not published yet?{" "}
+              <Link to="/estimate">Estimate it from your percentile</Link>
+            </p>
           </div>
-          {scoreError ? (
-            <div id="score-error" className="field-error" role="alert">
-              <Icon name="alert" size={14} />
-              {scoreError}
-            </div>
-          ) : (
-            <div id="score-help" className="field-help">
-              {form.mode === "merit" ? (
-                <>Not published yet? <Link to="/estimate">Estimate it from your percentile</Link></>
-              ) : (
-                "We convert this to an estimated merit number range."
-              )}
-            </div>
-          )}
-
-          {form.mode === "percentile" && estimate && (
-            <div className="estimate-hint">
-              <span className="estimate-range">
-                ≈ merit {formatNumber(estimate.estimatedMeritRange[0])}–{formatNumber(estimate.estimatedMeritRange[1])}
-              </span>
-              {estimate.method === "statistical" && <span className="estimate-stat-badge">estimate</span>}
-            </div>
-          )}
-
-          {form.mode === "jee" && jeeEstimate && (
-            <div className="estimate-hint">
-              <span className="estimate-range">
-                {jeeEstimate.kind === "all-india-merit" ? "≈ All India merit" : "≈ JEE rank"} {formatNumber(jeeEstimate.rankRange[0])}–{formatNumber(jeeEstimate.rankRange[1])}
-              </span>
-              <span className="estimate-stat-badge">{jeeEstimate.kind === "all-india-merit" ? "All India seats" : "list not loaded"}</span>
-            </div>
-          )}
-
-          <div className="form-row">
-            <div>
-              <label className="form-label" htmlFor="category-select">Category</label>
-              <select
-                id="category-select"
-                value={form.category}
-                onChange={(e) => set("category", e.target.value as Category | "")}
-                className="form-select"
-              >
-                {CATEGORY_OPTIONS.map((c) => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="form-label" htmlFor="subject-select">Subject group</label>
-              <select
-                id="subject-select"
-                value={form.subjectGroup}
-                onChange={(e) => set("subjectGroup", e.target.value as "PCM" | "PCB")}
-                className="form-select"
-              >
-                <option value="PCM">PCM</option>
-                <option value="PCB">PCB</option>
-              </select>
-            </div>
-          </div>
-
-          <fieldset className="gender-group">
-            <legend className="form-label">Gender</legend>
-            <div className="gender-chips">
-              <label className={`gender-chip${form.gender === "M" ? " active" : ""}`}>
-                <input type="radio" name="gender" value="M" checked={form.gender === "M"} onChange={() => set("gender", "M")} />
-                Male
-              </label>
-              <label className={`gender-chip${form.gender === "F" ? " active" : ""}`}>
-                <input type="radio" name="gender" value="F" checked={form.gender === "F"} onChange={() => set("gender", "F")} />
-                Female
-              </label>
-            </div>
-          </fieldset>
-
-          <div className="adv-section">
-            <button
-              type="button"
-              className="adv-toggle"
-              onClick={() => set("showAdvanced", !form.showAdvanced)}
-              aria-expanded={form.showAdvanced}
-              aria-controls="adv-body"
-            >
-              <Icon name={form.showAdvanced ? "minus" : "plus"} size={14} />
-              Home university and special categories
-            </button>
-
-            {form.showAdvanced && (
-              <div className="adv-body" id="adv-body">
-                <label className="form-label" htmlFor="uni-select">Home university</label>
-                <select
-                  id="uni-select"
-                  value={form.homeUniversity}
-                  onChange={(e) => set("homeUniversity", e.target.value)}
-                  className="form-select"
-                >
-                  <option value="">Not sure / state level only</option>
-                  {UNIVERSITIES.map((u) => (
-                    <option key={u} value={u}>{u}</option>
-                  ))}
-                </select>
-
-                <div className="form-label adv-flags-label">Special categories</div>
-                <div className="flag-chips">
-                  {(["ews", "tfws", "defence", "pwd", "orphan"] as const)
-                    .filter((flag) => flag !== "ews" || !form.category)
-                    .map((flag) => (
-                      <button
-                        key={flag}
-                        type="button"
-                        className={`flag-chip${form[flag] ? " active" : ""}`}
-                        onClick={() => toggleFlag(flag)}
-                        aria-pressed={form[flag]}
-                      >
-                        {FLAG_LABELS[flag]}
-                      </button>
-                    ))}
-                </div>
-                {form.category && <p className="estimate-hint">EWS is only for Open category, so it isn't shown.</p>}
-
-                <label className="form-label" htmlFor="minority-select">Minority community</label>
-                <select
-                  id="minority-select"
-                  value={form.minority}
-                  onChange={(e) => set("minority", e.target.value)}
-                  className="form-select"
-                >
-                  <option value="">Not from a minority community</option>
-                  {MINORITY_OPTIONS.map((m) => (
-                    <option key={m.value} value={m.value}>{m.label}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
-
-          <button type="submit" className="btn btn-accent btn-block find-submit" disabled={status === "loading"}>
-            {status === "loading" ? "Searching…" : "Find my options"}
-            {status !== "loading" && <Icon name="arrowRight" size={18} />}
-          </button>
-
-          {status === "error" && (
-            <div className="field-error find-api-error" role="alert">
-              <Icon name="alert" size={14} />
-              {errorMsg}
-            </div>
-          )}
-
-          <p className="find-card-foot">
-            Based on official CET Cell cutoff lists · 387 colleges · 4 CAP rounds
-          </p>
-        </form>
+        )}
       </section>
 
-      {status === "done" && (
-        <section className="results-wrap" ref={resultsRef} aria-labelledby="results-title">
+      {hasResults && (
+        <section className={`results-wrap${updating ? " updating" : ""}`} aria-busy={updating} aria-labelledby="results-title">
           <div className="page results-inner">
             <div className="results-header">
               <div>
@@ -591,8 +398,7 @@ export function FindPage() {
                     {searchKind.candidature === "AI"
                       ? " This All India merit number is estimated from your JEE percentile."
                       : " This merit number is estimated from your percentile. "}
-                    {searchKind.candidature === "MH" && <Link to="/profile">Enter your real merit number</Link>}
-                    {searchKind.candidature === "MH" && " once the merit list is out."}
+                    {searchKind.candidature === "MH" && "Type your real merit number in the tile above once the merit list is out."}
                   </p>
                 )}
               </div>
@@ -625,43 +431,9 @@ export function FindPage() {
               </div>
             </div>
 
-            <div className="results-profile" aria-label="Searched with">
-              <span className="label">You</span>
-              <span className="chip">{searchKind.candidature === "AI" ? "All India merit" : "Merit"} {formatNumber(searchedMerit)}</span>
-              {searchKind.candidature === "MH" && <span className="chip">{categoryLabel}</span>}
-              <span className="chip">{form.gender === "F" ? "Female" : "Male"}</span>
-              {form.homeUniversity && <span className="chip">Home university: {form.homeUniversity}</span>}
-              {(Object.keys(FLAG_LABELS) as (keyof typeof FLAG_LABELS)[]).filter((f) => form[f] && (f !== "ews" || !form.category)).map((f) => (
-                <span key={f} className="chip">{FLAG_LABELS[f]}</span>
-              ))}
-              {searchKind.candidature === "MH" && form.minority && (
-                <span className="chip">Minority: {MINORITY_OPTIONS.find((m) => m.value === form.minority)?.label ?? form.minority}</span>
-              )}
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Edit</button>
+            <p className="results-profile">
               <Link to="/eligibility" className="results-profile-link">Could other seat types add options?</Link>
-            </div>
-
-            {!!resultFilters.branchGroups?.length && (
-              <div className="results-branch-filter" aria-label="Branch filter">
-                <span className="label">Branches</span>
-                {resultFilters.branchGroups.map((g) => (
-                  <span key={g} className="branch-filter-chip">
-                    {g}
-                    <button
-                      type="button"
-                      aria-label={`Remove ${g}`}
-                      disabled={filterLoading}
-                      onClick={() => applyFilter({ ...resultFilters, branchGroups: resultFilters.branchGroups!.filter((x) => x !== g) })}
-                    >
-                      <Icon name="close" size={12} />
-                    </button>
-                  </span>
-                ))}
-                <button type="button" className="btn btn-secondary btn-sm" disabled={filterLoading} onClick={() => applyFilter({ ...resultFilters, branchGroups: [] })}>
-                  Show all branches
-                </button>
-              </div>
-            )}
+            </p>
 
             <div className="results-layout">
             <div className="results-main">
@@ -703,19 +475,6 @@ export function FindPage() {
                     <option key={u} value={u}>{u}</option>
                   ))}
                 </select>
-                <label className="sr-only" htmlFor="rf-branch">Filter by branch</label>
-                <select
-                  id="rf-branch"
-                  className="rf-select"
-                  value={resultFilters.branchGroup ?? ""}
-                  onChange={(e) => applyFilter({ ...resultFilters, branchGroup: e.target.value || null, branchGroups: [] })}
-                  disabled={filterLoading}
-                >
-                  <option value="">All branches</option>
-                  {BRANCH_GROUPS.map((g) => (
-                    <option key={g} value={g}>{g}</option>
-                  ))}
-                </select>
                 {(collegeTypes.length > 1 || resultFilters.collegeType) && (
                   <>
                     <label className="sr-only" htmlFor="rf-type">Filter by college type</label>
@@ -747,8 +506,8 @@ export function FindPage() {
                   </>
                 )}
                 {filterLoading && <span className="rf-spinner" role="status" aria-label="Filtering" />}
-                {(resultFilters.university || resultFilters.branchGroup || resultFilters.district || resultFilters.collegeType) && (
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => applyFilter({})} disabled={filterLoading}>
+                {(resultFilters.university || resultFilters.district || resultFilters.collegeType) && (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => applyFilter({ branchGroups: resultFilters.branchGroups })} disabled={filterLoading}>
                     <Icon name="close" size={14} />
                     Clear filters
                   </button>
