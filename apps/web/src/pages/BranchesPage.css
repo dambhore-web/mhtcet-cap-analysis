@@ -116,6 +116,28 @@
   cursor: help;
 }
 
+/* ── Category select ── */
+
+.branches-cat-select {
+  height: 36px;
+  padding: 0 28px 0 12px;
+  background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E") no-repeat right 10px center;
+  background-size: 10px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  color: var(--navy);
+  appearance: none;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.branches-cat-select:focus {
+  outline: none;
+  border-color: var(--violet);
+}
+
 /* ── Branch combobox ── */
 
 .branches-combo {
