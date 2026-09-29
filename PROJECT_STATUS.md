@@ -56,7 +56,7 @@ _Last updated: 2026-09-27_
 Nothing is blocked. The paid launch is gated on the legal items in `docs/07-security/legal-open-items.md`.
 
 ## Next steps
-- Placement data for the 243 colleges still without it (#134): list in `docs/00-project/backlog.md`.
+- Placement data for the 242 colleges still without it (#134): list in `docs/00-project/backlog.md`.
 1. Operator reviews `data/2026-initial` (and `reports/run-*.json`); decides on push/merge and a
    production load (needs explicit approval)
 2. Full allotment crawl (1,548 PDFs) and parser hardening for any new layouts (Phase 5)

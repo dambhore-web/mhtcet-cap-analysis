@@ -21,6 +21,9 @@
   figures", marked unverified, with links to the pages they came from.
   - Crawled from each college's site (placement pages and PDFs) and read by code; each figure
     keeps the sentence it came from. Figures published only as images are not read.
+  - Figures read by hand from a college's own documents, where the crawler could not read them,
+    are kept in `packages/pipeline/data/placement-manual.json` and replace the crawled figures:
+    COEP (images), VJTI and SPIT (tables) so far.
 
 ### Changed
 - College fees rebuilt from the live FRA "Fee Approved" engineering reports (#42). Why: the old

@@ -3,16 +3,18 @@
 // saved by scripts/crawlPlacementPages.mjs in data/raw/placement-pages/ (issue #132).
 // Every figure keeps the page URL and the sentence it was read from. Colleges whose home page did
 // not load, or whose first pages share no word of the college's name, are left out.
+// Figures read by hand from a college's own documents (data/placement-manual.json) replace the crawl.
 // Usage: npm run placement:claims
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { extractClaims, summariseClaims } from "../parse/placementClaims.ts";
+import { extractClaims, summariseClaims, type ClaimMetric, type PlacementClaim } from "../parse/placementClaims.ts";
 import { REPO_ROOT } from "../paths.ts";
 
 interface CrawledPage { url: string; kind: string; status: number; text: string }
 interface Crawl { code: string; home: string; crawledAt: string; pages: CrawledPage[] }
 
 const DIR = join(REPO_ROOT, "data/raw/placement-pages");
+const MANUAL = join(REPO_ROOT, "packages/pipeline/data/placement-manual.json");
 const OUT = join(REPO_ROOT, "packages/pipeline/data/college-placement-claims.json");
 
 // College names from the CAP institute list, to check that a crawled site is the college's own.
@@ -38,6 +40,18 @@ for (const f of (await readdir(DIR)).filter((f) => /^\d{5}\.json$/.test(f)).sort
   const summary = summariseClaims(claims);
   if (!summary) { skipped[crawl.code] = claims.length ? "no usable figure" : "no placement figures published"; continue; }
   colleges[crawl.code] = { crawledAt: crawl.crawledAt.slice(0, 10), home: crawl.home, ...summary };
+}
+// Figures read by hand from the college's own documents replace the crawled ones (data/placement-manual.json).
+interface Manual { checkedAt: string; home: string; year: string | null; claims: PlacementClaim[] }
+const manual = JSON.parse(await readFile(MANUAL, "utf8")) as { colleges: Record<string, Manual> };
+for (const [code, m] of Object.entries(manual.colleges)) {
+  const pick = (metric: ClaimMetric) => m.claims.find((x) => x.metric === metric)?.value ?? null;
+  colleges[code] = {
+    crawledAt: m.checkedAt, home: m.home, year: m.year,
+    highest: pick("highest"), average: pick("average"), median: pick("median"), placedPct: pick("placedPct"),
+    claims: m.claims,
+  };
+  delete skipped[code];
 }
 const out = {
   _note:

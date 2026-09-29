@@ -4,10 +4,12 @@ Work that is known and not yet scheduled. Each section links its GitHub issue.
 
 ## Placement data: colleges without it (#134)
 
-_Checked 2026-09-29._ Placement data covers 144 of the 387 current colleges: 108 from NIRF, 69 from
-the colleges' own websites, 33 from both (#132). The 243 below have neither. To add a college,
+_Checked 2026-09-29._ Placement data covers 145 of the 387 current colleges: 108 from NIRF, 70 from
+the colleges' own websites, 33 from both (#132). The 242 below have neither. To add a college,
 re-crawl it with `packages/pipeline/scripts/crawlPlacementPages.mjs` (a `code<TAB>url` list), then
-run `npm run placement:claims -w @mhtcet/pipeline` and the staging load (`placement` key).
+run `npm run placement:claims -w @mhtcet/pipeline` and the staging load (`placement` key). Figures
+read by hand from a college's own documents (images, scanned PDFs) go in
+`packages/pipeline/data/placement-manual.json`.
 
 ### Site loads but shows no figures as text (140)
 
@@ -214,7 +216,7 @@ No working official site found from the CAP list or a search. Next: find the off
 | 16372 | Sawkar Women&#39;s Institute of Technology | Pune | Unaided | – |
 | 16373 | SJVPM College of Engineering | Pune | Unaided | – |
 
-### Website did not load (40)
+### Website did not load (39)
 
 DNS failure, broken HTTPS chain, Cloudflare block or timeout from the crawler. Next: retry later, or collect by hand in a browser.
 
@@ -259,7 +261,6 @@ DNS failure, broken HTTPS chain, Cloudflare block or timeout from the crawler. N
 | 06815 | DR. G.V.SHINGRE VPS COLLEGE OF ENGINEERING AND TECHNOLOGY, LONAVALA, MAUJE WAKSAI, TAL MAVAL, DIST PUNE | Pune | Unaided | <https://www.vps-cet.com> |
 | 06822 | Pimpri Chinchwad Education Trust&#39;s Pimpri Chinchwad College Of Engineering And Research, Ravet | Pune | Unaided | <https://www.pccoer.com/> |
 | 06878 | Dr. A. D. Shinde College Of Engineering, Tal.Gadhinglaj, Kolhapur | Kolhapur | Unaided | <https://www.adshindecoe.ac.in> |
-| 16006 | COEP Technological University | Pune | Government | <https://www.coeptech.ac.in/> |
 
 ### Site found is not the college's own (12)
 

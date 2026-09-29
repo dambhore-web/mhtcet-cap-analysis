@@ -1,6 +1,45 @@
 {
  "_note": "Placement figures colleges publish on their own websites (college's claims, not verified): the latest year's highest, average and median package (rupees per year) and placement %, each with the page and sentence it came from. Built by `npm run placement:claims` from pages crawled by scripts/crawlPlacementPages.mjs.",
  "colleges": {
+  "16006": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.coeptech.ac.in/",
+   "year": "2025-26",
+   "highest": 6030000,
+   "average": 1250000,
+   "median": 1035000,
+   "placedPct": 90.2,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 6030000,
+     "year": "2025-26",
+     "snippet": "B.Tech placement 2025-26: Highest salary 60.30 LPA (D E Shaw)",
+     "sourceUrl": "https://www.coeptech.ac.in/wp-content/uploads/2026/08/Placement-Data-Stats-2025-26-1.png"
+    },
+    {
+     "metric": "average",
+     "value": 1250000,
+     "year": "2025-26",
+     "snippet": "B.Tech placement statistics AY 2025-26 (14 Aug 2026): Total average salary 12.50",
+     "sourceUrl": "https://www.coeptech.ac.in/wp-content/uploads/2026/08/B.TECH-PLACEMENT-STATISTICS-for-AY-2025-26.jpg"
+    },
+    {
+     "metric": "median",
+     "value": 1035000,
+     "year": "2025-26",
+     "snippet": "B.Tech placement statistics AY 2025-26 (14 Aug 2026): Total median salary 10.35",
+     "sourceUrl": "https://www.coeptech.ac.in/wp-content/uploads/2026/08/B.TECH-PLACEMENT-STATISTICS-for-AY-2025-26.jpg"
+    },
+    {
+     "metric": "placedPct",
+     "value": 90.2,
+     "year": "2025-26",
+     "snippet": "B.Tech placement statistics AY 2025-26: 633 of 702 registered students placed (90.17%)",
+     "sourceUrl": "https://www.coeptech.ac.in/wp-content/uploads/2026/08/B.TECH-PLACEMENT-STATISTICS-for-AY-2025-26.jpg"
+    }
+   ]
+  },
   "01105": {
    "crawledAt": "2026-09-29",
    "home": "https://mitra.ac.in/",
@@ -202,16 +241,30 @@
    "crawledAt": "2026-09-29",
    "home": "https://vjti.ac.in/",
    "year": "2025-26",
-   "highest": 7200000,
-   "average": null,
+   "highest": 7230000,
+   "average": 1088000,
    "median": null,
-   "placedPct": null,
+   "placedPct": 87.2,
    "claims": [
     {
      "metric": "highest",
-     "value": 7200000,
+     "value": 7230000,
      "year": "2025-26",
-     "snippet": "72 LPA",
+     "snippet": "Placement Data Academic Year 2025-2026, top companies by offer: D. E. Shaw 72.3 LPA (1 student)",
+     "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2026/07/Placement-Data-B.Tech-2026-27-07-2026.pdf"
+    },
+    {
+     "metric": "average",
+     "value": 1088000,
+     "year": "2025-26",
+     "snippet": "No overall average published; 10.88 LPA is the branch averages weighted by students placed on campus (495)",
+     "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2026/07/Placement-Data-B.Tech-2026-27-07-2026.pdf"
+    },
+    {
+     "metric": "placedPct",
+     "value": 87.2,
+     "year": "2025-26",
+     "snippet": "B.Tech placement data till 1st July 2026: Total Average Placement (495 + 52) : 547/627 = 87.24% (on campus + higher education)",
      "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2026/07/Placement-Data-B.Tech-2026-27-07-2026.pdf"
     }
    ]
@@ -474,16 +527,37 @@
    "crawledAt": "2026-09-29",
    "home": "https://www.spit.ac.in/",
    "year": "2025-26",
-   "highest": 5200000,
-   "average": null,
-   "median": null,
-   "placedPct": null,
+   "highest": 3650000,
+   "average": 1347000,
+   "median": 1250000,
+   "placedPct": 98.6,
    "claims": [
     {
      "metric": "highest",
-     "value": 5200000,
+     "value": 3650000,
      "year": "2025-26",
-     "snippet": "Highest CTC 52 LPA 36.5 LPA 13.66 LPA 16 LPA 9 LPA 13.47 LPA 6 LPA 5 LPA 61.55 LPA 36.5 LPA",
+     "snippet": "Summary of Placement Statistics 2026: Highest CTC 2025-26 36.5 LPA (2024-25: 61.55 LPA)",
+     "sourceUrl": "https://placements.spit.ac.in/assets/2026_summary-08smxpS6.pdf"
+    },
+    {
+     "metric": "average",
+     "value": 1347000,
+     "year": "2025-26",
+     "snippet": "Placement Summary 2025-26: Total (B. Tech) average CTC 13.47",
+     "sourceUrl": "https://placements.spit.ac.in/assets/2026_summary-08smxpS6.pdf"
+    },
+    {
+     "metric": "median",
+     "value": 1250000,
+     "year": "2025-26",
+     "snippet": "Placement Summary 2025-26: Total (B. Tech) median CTC 12.5",
+     "sourceUrl": "https://placements.spit.ac.in/assets/2026_summary-08smxpS6.pdf"
+    },
+    {
+     "metric": "placedPct",
+     "value": 98.6,
+     "year": "2025-26",
+     "snippet": "Placement Summary 2025-26: Total (B. Tech) 340 students placed, 98.55% of students placed",
      "sourceUrl": "https://placements.spit.ac.in/assets/2026_summary-08smxpS6.pdf"
     }
    ]
@@ -1631,7 +1705,6 @@
  },
  "skipped": {
   "14005": "no placement figures published",
-  "16006": "home page did not load",
   "16357": "no placement figures published",
   "01005": "no placement figures published",
   "01012": "no placement figures published",
