@@ -20,8 +20,8 @@ export interface PlacementClaim {
 }
 
 const LABELS: Array<[Exclude<ClaimMetric, "placedPct">, RegExp]> = [
-  ["highest", /\b(highest|maximum|max\.?|top|best)\s+(salary\s+)?(package|salary|ctc|pay\s*package|offer|compensation)\b/i],
-  ["average", /\b(average|avg\.?|mean)\s+(salary\s+)?(package|salary|ctc|pay\s*package|compensation)\b/i],
+  ["highest", /\b(highest|maximum|max\.?|top|best)\s+((ug|b\.?\s?tech|domestic|international|annual|salary)\s+)?(package|salary|ctc|pay\s*package|offer|compensation)\b/i],
+  ["average", /\b(average|avg\.?|mean)\s+((ug|b\.?\s?tech|domestic|annual|salary)\s+)?(package|salary|ctc|pay\s*package|compensation)\b/i],
   ["median", /\bmedian\s+(salary\s+)?(package|salary|ctc|pay\s*package|compensation)?\b/i],
 ];
 
@@ -71,7 +71,8 @@ const BOUNDS: Record<Exclude<ClaimMetric, "placedPct">, [number, number]> = {
  * the page heading. Lines about postgraduate, diploma or doctoral programs are skipped. Pure.
  */
 export function extractClaims(text: string, sourceUrl: string): PlacementClaim[] {
-  const lines = text.split(/\r?\n|\s\|\s/).map((l) => l.replace(/\s+/g, " ").trim()).filter(Boolean);
+  // Tabs are kept: they separate table cells.
+  const lines = text.split(/\r?\n|\s\|\s/).map((l) => l.replace(/[^\S\t]+/g, " ").replace(/ *\t */g, "\t").trim()).filter(Boolean);
   const out: PlacementClaim[] = [];
   // A page whose heading is about a postgraduate or diploma program is skipped as a whole.
   if (NOT_UG.test(lines.slice(0, 5).join(" ")) && !/\bb\.?\s?(tech|e)\b|\bug\b/i.test(lines.slice(0, 5).join(" "))) return out;
@@ -90,8 +91,38 @@ export function extractClaims(text: string, sourceUrl: string): PlacementClaim[]
     return pageYear;
   };
   const labelOf = (l: string | undefined) => (l && l.length < 40 ? LABELS.find(([, re]) => re.test(l))?.[0] ?? null : null);
+  // Tables: a header row naming the columns (Average package, Highest package, Placement %), then
+  // one row per year. innerText separates cells with tabs.
+  const tableRows = new Set<number>();
   lines.forEach((line, i) => {
-    if (NOT_UG.test(line)) return;
+    if (!line.includes("\t")) return;
+    const header = line.split("\t").map((c) => c.trim());
+    const cols = header.map((h) => (LABELS.find(([, re]) => re.test(h))?.[0] ?? (/placement\s*(%|percentage|rate)|%\s*placed/i.test(h) ? "placedPct" : null)));
+    if (!cols.some((c) => c && c !== "placedPct")) return;
+    for (let j = i + 1; j < Math.min(lines.length, i + 25) && lines[j].includes("\t"); j++) {
+      const cells = lines[j].split("\t").map((c) => c.trim());
+      const year = latestYear(cells.slice(0, 2).join(" ")) ?? latestYear(lines[j]);
+      if (NOT_UG.test(cells[0] ?? "")) continue;
+      tableRows.add(j);
+      cols.forEach((metric, k) => {
+        const cell = cells[k];
+        if (!metric || !cell) return;
+        const snippet = `${header[k]}: ${cell}${year ? ` (${year})` : ""}`.slice(0, 200);
+        if (metric === "placedPct") {
+          const v = Number(cell.replace(/[^\d.]/g, ""));
+          if (/%/.test(cell) && v >= 10 && v <= 100) push({ metric, value: v, year, snippet, sourceUrl });
+          return;
+        }
+        const a = new RegExp(AMOUNT.source, "gi").exec(cell);
+        const amount = a ? toRupees(a) : null;
+        const [lo, hi] = BOUNDS[metric];
+        if (amount !== null && amount >= lo && amount <= hi) push({ metric, value: amount, year, snippet, sourceUrl });
+      });
+    }
+  });
+
+  lines.forEach((line, i) => {
+    if (tableRows.has(i) || NOT_UG.test(line)) return;
     const year = yearAt(i);
     const snippet = line.slice(0, 200);
 
@@ -122,7 +153,13 @@ export function extractClaims(text: string, sourceUrl: string): PlacementClaim[]
       push({ metric, value: amount, year, snippet, sourceUrl });
     }
 
-    const p = ASPIRATION.test(line) ? null : PCT_AFTER.exec(line) ?? PCT_BEFORE.exec(line);
+    // A bare percentage counter ("100%") with its label on the next line ("Placements Record").
+    const bare = /^(\d{2,3}(?:\.\d+)?)\s*%\s*\+?$/.exec(line);
+    const next = lines[i + 1] ?? "";
+    const p = ASPIRATION.test(line)
+      ? null
+      : PCT_AFTER.exec(line) ?? PCT_BEFORE.exec(line) ??
+        (bare && next.length < 40 && /placement|placed/i.test(next) && !ASPIRATION.test(next) && !/assistance|support|training|guidance/i.test(next) ? bare : null);
     if (p) {
       const v = Number(p[1]);
       if (v >= 10 && v <= 100) push({ metric: "placedPct", value: v, year, snippet, sourceUrl });

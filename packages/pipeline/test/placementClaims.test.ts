@@ -29,6 +29,23 @@ describe("college placement claims", () => {
     expect(c.map((x) => [x.metric, x.value])).toEqual([["highest", 1_800_000], ["average", 420_000]]);
   });
 
+  it("reads placement tables, one row per year", () => {
+    const c = extractClaims(
+      "ACADEMIC YEAR\tTOTAL ENROLLED\tAVERAGE PACKAGE\tHIGHEST PACKAGE\tPLACEMENT %\n2025-26\t680\t5.5 LPA\t61 LPA\t82%\n2024-25\t697\t5.12 LPA\t27 LPA\t79%",
+      url,
+    );
+    expect(c.map((x) => [x.metric, x.value, x.year])).toEqual([
+      ["average", 550_000, "2025-26"], ["highest", 6_100_000, "2025-26"], ["placedPct", 82, "2025-26"],
+      ["average", 512_000, "2024-25"], ["highest", 2_700_000, "2024-25"], ["placedPct", 79, "2024-25"],
+    ]);
+    expect(c[1].snippet).toBe("HIGHEST PACKAGE: 61 LPA (2025-26)");
+  });
+
+  it("reads qualified labels and percentage counters", () => {
+    const c = extractClaims("Placements 2025\n1.2 Cr.\nHighest UG Package Offered\n92%\nPlacements Record", url);
+    expect(c.map((x) => [x.metric, x.value])).toEqual([["highest", 12_000_000], ["placedPct", 92]]);
+  });
+
   it("reads placement percentages both ways round", () => {
     const c = extractClaims("92% students placed in 2024-25\nPlacement record: 85%", url);
     expect(c.map((x) => [x.metric, x.value])).toEqual([["placedPct", 92], ["placedPct", 85]]);

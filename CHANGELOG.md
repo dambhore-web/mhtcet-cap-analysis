@@ -16,6 +16,11 @@
   - New `placement` table (migration 005), `placement: true` in the staging-load request, and
     `GET /api/colleges/:code/placement`.
   - Figures are self-reported; the card says so and links each source PDF.
+- The college's own placement figures from its website (#132): the latest year's highest,
+  average and median package and placement %, shown above the NIRF table as "College's own
+  figures", marked unverified, with links to the pages they came from.
+  - Crawled from each college's site (placement pages and PDFs) and read by code; each figure
+    keeps the sentence it came from. Figures published only as images are not read.
 
 ### Changed
 - College fees rebuilt from the live FRA "Fee Approved" engineering reports (#42). Why: the old
