@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_PROFILE } from "../src/lib/profile";
 import {
   EMPTY_ANSWERS,
   parseBranchGroups,
   parseMerit,
   parsePercentile,
+  profileResultsPath,
   searchMerit,
   toFindParams,
   toProfile,
@@ -89,5 +91,13 @@ describe("parseBranchGroups", () => {
   it("keeps known groups only, without duplicates", () => {
     expect(parseBranchGroups("Civil,Nope,Civil,Mechanical", ["Civil", "Mechanical"])).toEqual(["Civil", "Mechanical"]);
     expect(parseBranchGroups(null, ["Civil"])).toEqual([]);
+  });
+});
+
+describe("profileResultsPath", () => {
+  it("links a saved profile to its results, and is null without a merit number", () => {
+    expect(profileResultsPath({ ...DEFAULT_PROFILE, meritNumber: 5200, category: "OBC", gender: "F", tfws: true, ews: true, minorityCommunity: "Jain" }))
+      .toBe("/find?merit=5200&cat=OBC&gen=F&tfws=1&min=Jain");
+    expect(profileResultsPath(DEFAULT_PROFILE)).toBeNull();
   });
 });

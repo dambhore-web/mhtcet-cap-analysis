@@ -362,26 +362,18 @@ export function FindPage() {
 
   return (
     <div className="find-page">
-      <div className="find-bg" aria-hidden="true" />
-
       <section className="find-hero page">
         <div className="find-copy">
-          <p className="find-kicker">
-            <Icon name="compass" size={14} />
-            MHT-CET CAP 2026 · engineering
-          </p>
-          <h1>
-            Your merit,<br />
-            your <em>options.</em>
-          </h1>
+          <p className="find-kicker">MHT-CET CAP 2026 · engineering</p>
+          <h1>Find colleges</h1>
           <p>
-            Enter your state merit number. See every college and branch where your merit number was good enough last year, and in which CAP round.
+            Change your merit number or seat details and search again. Results show every college and branch where your merit number
+            was good enough last year, and in which CAP round.
           </p>
-          <ul className="find-steps" aria-label="How it works">
-            <li><span>1</span>Enter merit number and category</li>
-            <li><span>2</span>See colleges you can get, round by round</li>
-            <li><span>3</span>Save options to your CAP option form</li>
-          </ul>
+          <Link to="/welcome/start" className="find-restart">
+            <Icon name="arrowRight" size={16} />
+            Answer the questions one at a time instead
+          </Link>
         </div>
 
         <form className="find-card" onSubmit={handleSubmit} noValidate aria-labelledby="find-card-title">

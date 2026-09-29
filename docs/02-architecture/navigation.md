@@ -23,19 +23,20 @@ Source: the clickable mockup "Compass app mockup", board **Start here · user jo
 7. **English only** at launch (NFR-005, owner decision).
 
 ## First visit (#142)
-A visitor with no saved details is sent from `/` to the landing page `/welcome`. "Find my colleges" opens
+`/` is the landing page for everyone (`/welcome` redirects to it). "Find my colleges" opens
 `/welcome/start`, which asks one question per screen: exam, merit number or percentile, category, gender,
 home university, special seats, minority community and branches of interest (JEE skips the state-quota
 questions). The answers are saved on the device and open Find colleges with `scan=1`, which shows the
 "Checking the CAP lists" screen for about 3 s (none with reduced motion) while the real search runs. Returning
-visitors go straight to `/`; the landing page offers them "Continue to my results" and "Start over".
+visitors see the landing page too, with "Continue to my results" (their saved search on `/find`) and "Start
+over". Find colleges lives at `/find`; old result links (`/?merit=…`) redirect there.
 
 ## Site map
 | Top-nav place | Page | Route | Status |
 |---|---|---|---|
-| (first visit) | Landing page: hero, how it works, branch chips, real data counts | `/welcome` | Built (#142) |
+| (home) | Landing page: hero, how it works, branch chips, real data counts | `/` | Built (#142) |
 | (first visit) | Questions one per screen (9 for MHT-CET, 4 for JEE), then the scan screen | `/welcome/start` | Built (#142) |
-| Find colleges | Home and results (what-if slider, ladders, district filter, branch chips from onboarding) | `/` | Built |
+| Find colleges | Search and results (what-if slider, ladders, district filter, branch chips from onboarding) | `/find` | Built |
 | | Percentile estimate (CET and JEE) | `/estimate` | Built |
 | | All India seats (JEE Main) | `/?list=AI` via JEE mode | Built; needs the All India merit list in the DB |
 | | Seat eligibility | `/eligibility` | Built |
@@ -74,7 +75,7 @@ provisional.
 
 | # | The user's question | Who | Path | Tier | Done when | Issues |
 |---|---|---|---|---|---|---|
-| J1 | "Which colleges could I get with my merit number?" | Student, after the merit list | Landing → Questions → Scan → Results → College page | Free | Results show branch and college counts, a ladder per college and a what-if slider | #87, #88, #86 |
+| J1 | "Which colleges could I get with my merit number?" | Student, after the merit list | Home → Questions → Scan → Results (`/find`) → College page | Free | Results show branch and college counts, a ladder per college and a what-if slider | #87, #88, #86 |
 | J2 | "I only have my percentile. Where do I stand?" | Student, before the merit list | Landing → Questions (percentile) → Scan → Results, or Home → Estimate → Results | Free | The estimated merit is shown as a range and labelled "estimated" wherever it is used | #88 |
 | J3 | "Where can I study Computer Engineering?" | Student with a branch in mind | By branch → College page → Option form | Free | One row per college for that branch, Round I and IV against your merit, add to option form | #79, #81, #113 |
 | J4 | "What were the cutoffs at COEP?" | Student or parent | Colleges → College page → Branch trends | Free | Every branch and round for your eligible seat types, then four-year trends | #86, #85, #12, #40 |

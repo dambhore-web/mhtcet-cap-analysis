@@ -37,6 +37,9 @@
     COEP (images), VJTI and SPIT (tables) so far.
 
 ### Changed
+- The landing page is the home page (`/`) for everyone, returning students included, with
+  "Continue to my results". Find colleges moves to `/find` (old `/?merit=…` links redirect) and its
+  large "Your merit, your options" header is replaced by a compact one.
 - New "Calm blue" colours across the whole app (#142): blue `#2563EB` for actions, light blue tints,
   amber highlights, slate text `#1E293B` and no dark bands. The bottom compare bar is blue instead of navy.
 - EWS seats only for Open-category students (#142): the option is hidden for reserved categories and

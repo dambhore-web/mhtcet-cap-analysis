@@ -122,7 +122,7 @@ export function EstimatePage() {
             {cet.disclaimer}
           </p>
           <div className="estimate-actions">
-            <button type="button" className="btn btn-primary" onClick={() => navigate(`/?merit=${mid}&est=1`)}>
+            <button type="button" className="btn btn-primary" onClick={() => navigate(`/find?merit=${mid}&est=1`)}>
               <Icon name="search" size={18} />
               Find options for {formatNumber(mid)}
             </button>
@@ -140,7 +140,7 @@ export function EstimatePage() {
           <p className="estimate-note">{jee.disclaimer}</p>
           {jee.kind === "all-india-merit" && (
             <div className="estimate-actions">
-              <button type="button" className="btn btn-primary" onClick={() => navigate(`/?merit=${jee.estimatedRank}&list=AI&est=1`)}>
+              <button type="button" className="btn btn-primary" onClick={() => navigate(`/find?merit=${jee.estimatedRank}&list=AI&est=1`)}>
                 <Icon name="search" size={18} />
                 Find All India seats for {formatNumber(jee.estimatedRank)}
               </button>

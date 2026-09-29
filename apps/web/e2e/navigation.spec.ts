@@ -2,7 +2,7 @@ import { test, expect, seed, topNav } from "./fixtures/test";
 
 /** Rules from docs/02-architecture/navigation.md. */
 const PLACES = [
-  { label: "Find colleges", path: "/" },
+  { label: "Find colleges", path: "/find" },
   { label: "By branch", path: "/branches" },
   { label: "Colleges", path: "/colleges" },
   { label: "My CAP plan", path: "/list" },

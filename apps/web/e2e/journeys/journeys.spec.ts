@@ -27,7 +27,7 @@ const FORM = [
 
 test("J1 · Which colleges could I get with my merit number?", async ({ page }) => {
   await seed(page);
-  await page.goto("/");
+  await page.goto("/find");
   await page.getByRole("button", { name: /find my options/i }).click();
   await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
   await expect(page.getByText(/options within reach, in \d+ colleges/)).toBeVisible();
@@ -48,7 +48,7 @@ test("J1 · Which colleges could I get with my merit number?", async ({ page }) 
 
 test("J2 · I only have my percentile", async ({ page }) => {
   await seed(page, { profile: { ...PROFILE, meritNumber: null } });
-  await page.goto("/");
+  await page.goto("/find");
   await page.getByRole("link", { name: /estimate it from your percentile/i }).click();
   await expect(page).toHaveURL(/\/estimate/);
   await page.getByLabel("MHT-CET percentile").fill("96.5");
@@ -60,7 +60,7 @@ test("J2 · I only have my percentile", async ({ page }) => {
 
 test("J3 · Where can I study Computer Engineering?", async ({ page }) => {
   await seed(page);
-  await page.goto("/");
+  await page.goto("/find");
   await topNav(page).getByRole("link", { name: "By branch" }).click();
   await page.getByRole("button", { name: "Computer & IT" }).click();
   await expect(page.getByRole("heading", { level: 2, name: /computer & it: \d+ colleges/i })).toBeVisible();
@@ -112,7 +112,7 @@ test("J6 · Do TFWS, EWS or Defence seats help me?", async ({ page }) => {
 
 test("J7 · I applied through JEE Main", async ({ page }) => {
   await seed(page);
-  await page.goto("/");
+  await page.goto("/find");
   await page.getByRole("button", { name: "JEE percentile" }).click();
   await page.getByLabel("JEE Main percentile").fill("97");
   await expect(page.getByText(/≈ All India merit/)).toBeVisible();
@@ -123,7 +123,7 @@ test("J7 · I applied through JEE Main", async ({ page }) => {
 
 test("J8 · In what order should I fill my option form?", async ({ page }) => {
   await seed(page);
-  await page.goto("/?merit=5200");
+  await page.goto("/find?merit=5200");
   await page.getByRole("button", { name: /add .* to your option form/i }).first().click();
   await topNav(page).getByRole("link", { name: "My CAP plan" }).click();
   await expect(page.getByRole("heading", { level: 1, name: /your cap option form/i })).toBeVisible();
@@ -174,7 +174,7 @@ test("J11 · What exactly is our plan? (parent, shared link)", async ({ page, br
 
 test("J12 · How does CAP work? What is GOPENS?", async ({ page }) => {
   await seed(page);
-  await page.goto("/");
+  await page.goto("/find");
   await topNav(page).getByRole("link", { name: "CAP guide" }).click();
   await page.getByRole("tab", { name: /seat codes/i }).click();
   await expect(page.getByRole("cell", { name: "General open, state level" })).toBeVisible();
@@ -187,7 +187,7 @@ test("J12 · How does CAP work? What is GOPENS?", async ({ page }) => {
 
 test("J13 · Can I trust these numbers?", async ({ page }) => {
   await seed(page);
-  await page.goto("/");
+  await page.goto("/find");
   await page.getByRole("link", { name: /where our numbers come from/i }).click();
   await expect(page.getByRole("heading", { level: 1, name: /where our numbers come from/i })).toBeVisible();
   await expect(page.getByText("Cutoff values")).toBeVisible();

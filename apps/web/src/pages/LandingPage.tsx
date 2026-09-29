@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api, BRANCH_GROUPS, type DataMeta } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { formatNumber } from "../lib/format";
+import { profileResultsPath } from "../lib/onboarding";
 import { Icon } from "../components/Icon";
 import "./OnboardingPage.css";
 import "./LandingPage.css";
@@ -22,7 +23,8 @@ const MORE = [
 
 /** /welcome: the landing page for first-time visitors (#142). */
 export function LandingPage() {
-  const { hasProfile } = useProfile();
+  const { hasProfile, profile } = useProfile();
+  const resultsPath = hasProfile ? profileResultsPath(profile) : null;
   const [meta, setMeta] = useState<DataMeta | null>(null);
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export function LandingPage() {
   return (
     <div className="onboarding-page landing">
       <header className="ob-header">
-        <Link to="/welcome" className="ob-logo" aria-label="Compass home">
+        <Link to="/" className="ob-logo" aria-label="Compass home">
           <span className="ob-logo-mark" aria-hidden="true"><Icon name="compass" size={18} /></span>
           Compass
         </Link>
@@ -60,8 +62,8 @@ export function LandingPage() {
               Answer a few quick questions, one at a time. Compass checks every closing merit number in the official CAP lists and shows
               where a student like you got a seat last year, and in which round.
             </p>
-            {hasProfile && (
-              <Link to="/" className="landing-continue">
+            {resultsPath && (
+              <Link to={resultsPath} className="landing-continue">
                 <Icon name="arrowRight" size={16} />
                 Continue to my results
               </Link>

@@ -31,7 +31,7 @@ export function PlansPage() {
             ))}
             <li><Icon name="check" size={16} />Ask Compass: {free.askQuestions} questions</li>
           </ul>
-          <Link to="/" className="btn btn-secondary btn-block">Find my options</Link>
+          <Link to="/find" className="btn btn-secondary btn-block">Find my options</Link>
         </section>
 
         <section className={`plan-card plan-card--pro card${isPaid ? " active" : ""}`} aria-labelledby="plan-pro">

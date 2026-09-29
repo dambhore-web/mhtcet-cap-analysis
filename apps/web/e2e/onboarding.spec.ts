@@ -3,23 +3,24 @@ import { test, expect, seed, PROFILE } from "./fixtures/test";
 test.describe("First visit: landing, questions one at a time, scan, results (#142)", () => {
   test.beforeEach(async ({ page }) => seed(page, { profile: null }));
 
-  test("home redirects to the landing page, which shows the real data counts", async ({ page }) => {
+  test("home is the landing page, which shows the real data counts", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveURL(/\/welcome$/);
+    await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Find the colleges and branches");
     await expect(page.getByRole("region", { name: /the data compass checks/i })).toContainText("colleges in CAP");
     await expect(page.getByRole("link", { name: "Computer & IT" })).toHaveAttribute("href", /\/branches\?group=Computer/);
   });
 
   test("can browse colleges without answering anything", async ({ page }) => {
-    await page.goto("/welcome");
+    await page.goto("/");
     await page.getByRole("link", { name: "Browse colleges" }).first().click();
     await expect(page).toHaveURL(/\/colleges/);
     await expect(page.getByRole("heading", { level: 1, name: "Colleges" })).toBeVisible();
   });
 
   test("every question, then the scan screen, then results filtered to the chosen branches", async ({ page }) => {
-    await page.goto("/welcome");
+    await page.goto("/welcome"); // old address still works
+    await expect(page).toHaveURL(/\/$/);
     await page.getByRole("link", { name: /find my colleges/i }).click();
     await expect(page).toHaveURL(/\/welcome\/start$/);
 
@@ -109,11 +110,18 @@ test.describe("First visit: landing, questions one at a time, scan, results (#14
 test.describe("Returning visitor", () => {
   test.beforeEach(async ({ page }) => seed(page, { profile: PROFILE }));
 
-  test("skips the landing page and can start over from it", async ({ page }) => {
+  test("sees the landing page too, with a link straight to their results", async ({ page }) => {
     await page.goto("/");
-    await expect(page).not.toHaveURL(/welcome/);
-    await page.goto("/welcome");
-    await expect(page.getByRole("link", { name: /continue to my results/i })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Find the colleges and branches");
     await expect(page.getByRole("link", { name: /start over/i })).toHaveAttribute("href", "/welcome/start");
+    await page.getByRole("link", { name: /continue to my results/i }).click();
+    await expect(page).toHaveURL(/\/find\?merit=5200/);
+    await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
+  });
+
+  test("old result links (/?merit=…) open Find colleges", async ({ page }) => {
+    await page.goto("/?merit=5200");
+    await expect(page).toHaveURL(/\/find\?merit=5200/);
+    await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
   });
 });
