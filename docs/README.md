@@ -2,7 +2,7 @@
 
 | Folder | Read when |
 |---|---|
-| [00-project](00-project/) | Starting out: vision, scope, glossary, discovery findings |
+| [00-project](00-project/) | Starting out: vision, scope, glossary, discovery findings, [backlog](00-project/backlog.md) |
 | [01-requirements](01-requirements/) | Building a feature: requirements, user stories, plans |
 | [02-architecture](02-architecture/) | Changing how parts fit together; the data pipeline; [navigation and user journeys](02-architecture/navigation.md) before building any screen |
 | [03-domain](03-domain/) | Touching data shapes or eligibility logic |
