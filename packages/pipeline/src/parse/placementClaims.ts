@@ -90,7 +90,7 @@ export function extractClaims(text: string, sourceUrl: string): PlacementClaim[]
     }
     return pageYear;
   };
-  const labelOf = (l: string | undefined) => (l && l.length < 40 ? LABELS.find(([, re]) => re.test(l))?.[0] ?? null : null);
+  const labelOf = (l: string | undefined) => (l && l.length < 60 ? LABELS.find(([, re]) => re.test(l))?.[0] ?? null : null);
   // Tables: a header row naming the columns (Average package, Highest package, Placement %), then
   // one row per year. innerText separates cells with tabs.
   const tableRows = new Set<number>();
@@ -139,13 +139,18 @@ export function extractClaims(text: string, sourceUrl: string): PlacementClaim[]
           const before = [...line.slice(0, lm.index).matchAll(new RegExp(AMOUNT.source, "gi"))].pop();
           if (before && lm.index - (before.index ?? 0) < 40) amount = toRupees(before);
         }
-      } else if (/^\s*(?:₹|rs\.?|inr)?\s*[\d.,]+\s*(?:\+\s*)?(lpa|lakhs?|lacs?|lac|lakh|crores?|cr)\b[^a-z]*$/i.test(line)) {
-        // A bare amount line: its label is on the next short line, or else on the previous one.
+      } else if (/^\s*(?:₹|rs\.?|inr)?\s*[\d.,]+\s*(?:\+\s*)?(lpa|lakhs?|lacs?|lac|lakh|crores?|cr|l)\b[^a-z]*$/i.test(line)) {
+        // A bare amount line ("12 LPA", "25 L"): its label is on the next short line, or else on the previous one.
         const neighbour = labelOf(lines[i + 1]) ?? labelOf(lines[i - 1]);
         if (neighbour === metric) {
           const a = new RegExp(AMOUNT.source, "gi").exec(line);
-          if (a) amount = toRupees(a);
+          const l = /^\s*(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:\.\d{1,2})?)\s*l\b/i.exec(line);
+          amount = a ? toRupees(a) : l ? Math.round(Number(l[1]) * 100_000) : null;
         }
+      } else if (/^\s*\d{1,3}(?:\.\d{1,2})?\s*\+?\s*$/.test(line) && lines[i - 1] && labelOf(lines[i - 1]) === metric &&
+        /\b(lpa|lakhs?|lacs?|lac)\b/i.test(lines[i - 1])) {
+        // A bare number under a label that states the unit: "Highest CTC (Lakhs/Annum)" then "10".
+        amount = Math.round(Number(line.replace(/[^\d.]/g, "")) * 100_000);
       }
       if (amount === null) continue;
       const [lo, hi] = BOUNDS[metric];

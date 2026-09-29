@@ -41,6 +41,11 @@ describe("college placement claims", () => {
     expect(c[1].snippet).toBe("HIGHEST PACKAGE: 61 LPA (2025-26)");
   });
 
+  it("reads '25 L' counters and bare numbers under a label that states the unit", () => {
+    const c = extractClaims("Placements 2025-26\n25 L\nHIGHEST PACKAGE\nAverage CTC (Lakhs/Annum)\n4.5", url);
+    expect(c.map((x) => [x.metric, x.value])).toEqual([["highest", 2_500_000], ["average", 450_000]]);
+  });
+
   it("reads qualified labels and percentage counters", () => {
     const c = extractClaims("Placements 2025\n1.2 Cr.\nHighest UG Package Offered\n92%\nPlacements Record", url);
     expect(c.map((x) => [x.metric, x.value])).toEqual([["highest", 12_000_000], ["placedPct", 92]]);
