@@ -77,7 +77,35 @@ export function parseSalary(text: string): number | null {
   let v = Number(m[0]);
   if (v < 200 && /lpa|lakh|lac|lakhs|lacs/i.test(text)) v *= 100_000;
   v = Math.round(v);
-  return v >= 10_000 && v <= 100_000_000 ? v : null;
+  if (v < 10_000 || v > 100_000_000) return null;
+  // Institutions write the amount in words too, e.g. "300000(Three Lakhs)". When the lakhs in
+  // words disagree with the digits (a typed "3000000(Three lakhs)"), neither can be trusted.
+  const lakhsInWords = wordsBefore(text, /\b(lakhs?|lacs?|lacks?)\b/i);
+  if (lakhsInWords !== null && lakhsInWords !== Math.floor(v / 100_000)) return null;
+  return v;
+}
+
+const UNITS: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
+  thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19,
+};
+const TENS: Record<string, number> = { twenty: 20, thirty: 30, forty: 40, fourty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
+
+/** The number (1–99) written in words just before `unit`, e.g. "Twenty Five Lakh" → 25; null if none. */
+function wordsBefore(text: string, unit: RegExp): number | null {
+  const m = text.match(unit);
+  if (!m || m.index === undefined) return null;
+  const words = text.slice(0, m.index).toLowerCase().replace(/[^a-z\s-]/g, " ").split(/[\s-]+/).filter(Boolean);
+  let n = 0;
+  let seen = false;
+  for (let i = words.length - 1, place = 0; i >= 0 && place < 2; i--, place++) {
+    const w = words[i];
+    if (w in UNITS && place === 0) n += UNITS[w];
+    else if (w in TENS) n += TENS[w];
+    else break;
+    seen = true;
+  }
+  return seen ? n : null;
 }
 
 /** "2024-25" from "2024-25" or "2024-2025". */

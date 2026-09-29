@@ -69,6 +69,11 @@ describe("NIRF UG 4-year placement table", () => {
     expect(parseSalary("10,00,000")).toBe(1000000);
     expect(parseSalary("550000.00")).toBe(550000);
     expect(parseSalary("4.8 Lakhs")).toBe(480000);
+    expect(parseSalary("1120000(Eleven lakhs twenty thousand)")).toBe(1120000);
+    expect(parseSalary("2503541 (Twenty Five Lakh Three Thousand)")).toBe(2503541);
+    expect(parseSalary("1000000(Ten Lacks )")).toBe(1000000);
+    // digits and words disagree: a typo, so neither is used
+    expect(parseSalary("3000000(Three lakhs)")).toBeNull();
     expect(parseSalary("-")).toBeNull();
     expect(parseSalary("0")).toBeNull();
   });
