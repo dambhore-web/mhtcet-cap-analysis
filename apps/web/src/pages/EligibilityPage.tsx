@@ -96,7 +96,7 @@ export function EligibilityPage() {
   return (
     <div className="page page--narrow eligibility-page">
       <PageHeader
-        breadcrumb={[{ label: "Find colleges", to: "/" }, { label: "Which seats can I apply for?" }]}
+        breadcrumb={[{ label: "Find colleges", to: "/find" }, { label: "Which seats can I apply for?" }]}
         title="Which seats can you apply for?"
         subtitle="Besides general seats, CAP keeps seats for specific groups. Tick the ones that apply to you and Compass adds them to your results."
       />

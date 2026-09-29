@@ -1,0 +1,252 @@
+/* Answer tiles on Find colleges (#142): the step-by-step answers, each changed with a dropdown */
+.answer-tiles {
+  min-width: 0;
+}
+
+.at-summary {
+  display: none;
+}
+
+.at-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1fr 0.95fr 0.85fr 1.6fr 1fr 1.05fr 1.25fr;
+  gap: 8px;
+}
+
+.at-grid--ai {
+  grid-template-columns: 1fr 1.2fr 1fr 2fr;
+}
+
+.at-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 12px 8px;
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.at-tile:focus-within,
+.at-tile.open {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px var(--lavender);
+}
+
+.at-tile.invalid {
+  border-color: var(--danger-text);
+}
+
+.at-tile > label,
+.at-key {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.at-tile > select,
+.at-tile > input,
+.at-dd {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-height: 30px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 22px 0 0;
+  border: 0;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right center / 16px no-repeat;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--navy);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  outline: none;
+  cursor: pointer;
+}
+
+.at-tile > input {
+  padding: 0;
+  background: none;
+  font-family: var(--font-num);
+  font-size: var(--text-base);
+  cursor: text;
+}
+
+.at-dd span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.at-error {
+  font-size: var(--text-xs);
+  color: var(--danger-text);
+  white-space: normal;
+}
+
+.at-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  padding: 8px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+}
+
+.at-menu.end {
+  left: auto;
+  right: 0;
+}
+
+.at-menu label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.at-menu label:hover {
+  background: var(--page);
+}
+
+.at-menu label.disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.at-menu input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--violet);
+}
+
+.at-menu-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.at-menu-text small {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.at-menu-reset {
+  align-self: flex-start;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--violet);
+  cursor: pointer;
+}
+
+.at-menu-reset:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+@media (max-width: 1099px) {
+  .at-grid,
+  .at-grid--ai {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .at-tile.wide {
+    grid-column: span 2;
+  }
+}
+
+/* Phone: the tiles fold into one "Your answers" line */
+@media (max-width: 639px) {
+  .answer-tiles {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+  }
+
+  .at-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 14px;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    color: var(--violet);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .at-summary-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    color: var(--navy);
+  }
+
+  .at-summary-text strong {
+    font-size: var(--text-sm);
+  }
+
+  .at-summary-text span {
+    overflow: hidden;
+    font-size: var(--text-xs);
+    color: var(--muted);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .at-summary-action {
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .answer-tiles:not(.open) .at-grid {
+    display: none;
+  }
+
+  .at-grid,
+  .at-grid--ai {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0 12px 14px;
+  }
+
+  .at-tile.wide {
+    grid-column: 1 / -1;
+  }
+
+  .at-menu {
+    width: min(280px, calc(100vw - 56px));
+  }
+}

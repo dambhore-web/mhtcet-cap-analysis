@@ -2,6 +2,13 @@
 
 ## Unreleased
 ### Added
+- Answer tiles on Find colleges (#142). The answers from the step-by-step questions (exam, merit
+  number, category, gender, home university, special seats, minority community, branches) sit as
+  tiles above the results. Each one changes with a dropdown and the results update straight away,
+  so a student never has to answer the questions again; changed answers are saved to My details.
+  On a phone the tiles fold into one "Your answers · Change" line. They replace the old "Find my
+  options" form, the "You" chips and the branch chips; percentile and JEE estimates now go
+  through `/estimate`.
 - A landing page and one-question-per-screen onboarding for first-time visitors (#142).
   - `/welcome` has a hero with an illustration, "How it works", branch chips and the real data counts.
   - `/welcome/start` asks one question per screen: exam, merit number or percentile, category,

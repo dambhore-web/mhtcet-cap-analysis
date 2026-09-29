@@ -55,7 +55,7 @@ export function EstimatePage() {
   return (
     <div className="page page--narrow estimate-page">
       <PageHeader
-        breadcrumb={[{ label: "Find", to: "/" }, { label: "Estimate merit number" }]}
+        breadcrumb={[{ label: "Find colleges", to: "/find" }, { label: "Estimate merit number" }]}
         title="Estimate your merit number"
         subtitle="Merit list not published yet? Get a likely range from your percentile, then use it to explore colleges."
       />
