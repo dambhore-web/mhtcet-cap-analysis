@@ -30,6 +30,20 @@ export interface AppCache {
    * code. Empty when the table is missing. Optional so test caches can leave it out.
    */
   placement?: Map<string, PlacementRow[]>;
+  /** Figures colleges publish on their own websites, keyed by college code (migration 006). */
+  placementClaims?: Map<string, PlacementClaimRow>;
+}
+
+/** A college's own latest placement figures, as read from its website (not verified). */
+export interface PlacementClaimRow {
+  year: string | null;
+  highest: number | null;
+  average: number | null;
+  median: number | null;
+  placedPct: number | null;
+  crawledAt: string;
+  /** Where each figure came from: the page and the sentence it was read from. */
+  claims: Array<{ metric: string; value: number; year: string | null; snippet: string; sourceUrl: string }>;
 }
 
 /** One graduating batch of a college from the `placement` table (migration 005). */
@@ -130,14 +144,15 @@ export async function loadCache(pool: pg.Pool, year: number): Promise<AppCache> 
   const seats = await loadSeats(pool, year);
   const fees = await loadFees(pool, colleges);
   const placement = await loadPlacement(pool);
+  const placementClaims = await loadPlacementClaims(pool);
 
   console.log(
     `[cache] ${colleges.size} colleges · ${branches.size} branches · ` +
     `${cuRes.rows.length} cutoff rows (year ${year}) · ${[...history.values()].reduce((n, r) => n + r.length, 0)} earlier-year rows · ` +
     `seat matrix for ${seats.size} branches · fees ${fees ? `${Object.keys(fees).length} from the fee table` : "from fees.json"} · ` +
-    `placement for ${placement.size} colleges`,
+    `placement for ${placement.size} colleges (NIRF) and ${placementClaims.size} (college sites)`,
   );
-  return { year, colleges, branches, cutoffsByChoiceCode, history, seats, fees, placement };
+  return { year, colleges, branches, cutoffsByChoiceCode, history, seats, fees, placement, placementClaims };
 }
 
 /** Seat matrix of `year` (migration 003), keyed by choiceCode then seat type. */
@@ -249,6 +264,28 @@ async function loadPlacement(pool: pg.Pool): Promise<Map<string, PlacementRow[]>
     console.log(JSON.stringify({ ts: new Date().toISOString(), event: "placement_unavailable", error: (err as Error).message }));
   }
   return placement;
+}
+
+/** Placement figures from colleges' own websites (migration 006), keyed by college code. */
+async function loadPlacementClaims(pool: pg.Pool): Promise<Map<string, PlacementClaimRow>> {
+  const out = new Map<string, PlacementClaimRow>();
+  try {
+    const { rows } = await pool.query(
+      `SELECT college_code, year, highest, average, median, placed_pct, claims, crawled_at FROM placement_claim`,
+    );
+    for (const r of rows) {
+      out.set(r.college_code, {
+        year: r.year, highest: r.highest, average: r.average, median: r.median,
+        placedPct: r.placed_pct == null ? null : Number(r.placed_pct),
+        crawledAt: r.crawled_at instanceof Date ? r.crawled_at.toISOString().slice(0, 10) : String(r.crawled_at),
+        claims: r.claims,
+      });
+    }
+  } catch (err) {
+    // Before migration 006 the table does not exist; these figures are simply not shown.
+    console.log(JSON.stringify({ ts: new Date().toISOString(), event: "placement_claims_unavailable", error: (err as Error).message }));
+  }
+  return out;
 }
 
 /** Extract minority community from a college's status string (e.g. "Religious Minority - Muslim" → "Muslim"). */

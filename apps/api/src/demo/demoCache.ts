@@ -1,4 +1,4 @@
-import type { AppCache, HistoryRow, PlacementRow } from "../startup.ts";
+import type { AppCache, HistoryRow, PlacementClaimRow, PlacementRow } from "../startup.ts";
 import type { Branch, College, CutoffRow, Round } from "@mhtcet/core";
 
 /**
@@ -143,7 +143,7 @@ export function demoCache(): AppCache {
     });
   });
 
-  return { year: DEMO_YEAR, colleges, branches, cutoffsByChoiceCode, history, seats, placement: demoPlacement() };
+  return { year: DEMO_YEAR, colleges, branches, cutoffsByChoiceCode, history, seats, placement: demoPlacement(), placementClaims: demoPlacementClaims() };
 }
 
 /** Invented NIRF-style placement for the first two demo colleges (the others show none). */
@@ -162,4 +162,18 @@ function demoPlacement(): Map<string, PlacementRow[]> {
     })));
   });
   return placement;
+}
+
+/** Invented website figures: the first demo college also has NIRF data, the third has only these. */
+function demoPlacementClaims(): Map<string, PlacementClaimRow> {
+  const claims = new Map<string, PlacementClaimRow>();
+  [DEMO_COLLEGES[0], DEMO_COLLEGES[2]].forEach((c, i) => {
+    const sourceUrl = `https://example.org/demo-placements-${c.code}`;
+    claims.set(c.code, {
+      year: "2025-26", highest: 4_400_000 - i * 1_000_000, average: 900_000 - i * 100_000, median: i ? null : 800_000, placedPct: 88 - i * 3,
+      crawledAt: "2026-09-29",
+      claims: [{ metric: "highest", value: 4_400_000 - i * 1_000_000, year: "2025-26", snippet: "Highest package 44 LPA", sourceUrl }],
+    });
+  });
+  return claims;
 }

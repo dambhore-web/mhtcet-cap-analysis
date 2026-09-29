@@ -166,9 +166,23 @@ export interface PlacementBatch {
   sourceUrl: string;
 }
 
+/** A college's own latest figures from its website (not verified). Packages in rupees per year. */
+export interface CollegeClaims {
+  year: string | null;
+  highest: number | null;
+  average: number | null;
+  median: number | null;
+  placedPct: number | null;
+  crawledAt: string;
+  claims: Array<{ metric: string; value: number; year: string | null; snippet: string; sourceUrl: string }>;
+  sources: string[];
+  disclaimer: string;
+}
+
 export interface CollegePlacement {
   available: true;
   code: string;
+  collegeClaims: CollegeClaims | null;
   program: string;
   /** Oldest batch first. */
   batches: PlacementBatch[];

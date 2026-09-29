@@ -314,6 +314,19 @@ describe("GET /api/colleges/:code/placement", () => {
     expect(await other.json()).toEqual({ available: false, code: "5002" });
   });
 
+  it("returns the college's own website figures, alone or with NIRF", async () => {
+    const cache = seedCache();
+    cache.placementClaims = new Map([["5002", {
+      year: "2024-25", highest: 1_200_000, average: 450_000, median: null, placedPct: 85, crawledAt: "2026-09-29",
+      claims: [{ metric: "highest", value: 1_200_000, year: "2024-25", snippet: "Highest package 12 LPA", sourceUrl: "https://example.org/placements" }],
+    }]]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges/5002/placement");
+    const body = (await res.json()) as { available: boolean; batches: unknown[]; collegeClaims: Record<string, unknown> };
+    expect(body.available).toBe(true);
+    expect(body.batches).toEqual([]);
+    expect(body.collegeClaims).toMatchObject({ year: "2024-25", highest: 1_200_000, average: 450_000, placedPct: 85, sources: ["https://example.org/placements"] });
+  });
+
   it("is unavailable when the placement table was not loaded", async () => {
     const res = await createApp(seedCache(), stubPool).request("http://localhost/api/colleges/1002/placement");
     expect(((await res.json()) as { available: boolean }).available).toBe(false);

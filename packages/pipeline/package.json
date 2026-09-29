@@ -21,6 +21,7 @@
     "db:cleanup-codes": "tsx --env-file-if-exists=../../.env src/cli/cleanupCodes.ts",
     "load:fees": "tsx --env-file-if-exists=../../.env src/cli/loadFees.ts",
     "placement": "NODE_USE_ENV_PROXY=1 tsx src/cli/buildPlacement.ts",
+    "placement:claims": "tsx src/cli/buildPlacementClaims.ts",
     "load:placement": "tsx --env-file-if-exists=../../.env src/cli/loadPlacement.ts",
     "load:merit": "tsx --env-file-if-exists=../../.env src/cli/loadMerit.ts",
     "load:seatmatrix": "tsx --env-file-if-exists=../../.env src/cli/loadSeatMatrix.ts",

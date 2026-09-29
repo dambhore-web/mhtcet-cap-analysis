@@ -91,3 +91,43 @@
     display: block;
   }
 }
+
+.cp-placement-sub {
+  margin: 12px 0 8px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.cp-placement-claims {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.cp-placement-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.cp-placement-stats > div {
+  padding: 10px 12px;
+  background: var(--lavender-2);
+  border-radius: var(--radius-md);
+}
+
+.cp-placement-stats dt {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.cp-placement-stats dd {
+  margin: 4px 0 0;
+  font-family: var(--font-num);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--navy);
+}

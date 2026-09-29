@@ -1,5 +1,7 @@
-// Load NIRF placement figures into the `placement` table (STAGING only), replacing all NIRF rows in
-// one transaction. Source: packages/pipeline/data/college-placement.json (built by `npm run placement`).
+// Load placement into STAGING in one transaction, replacing what is there:
+// - `placement`: NIRF figures from packages/pipeline/data/college-placement.json (`npm run placement`)
+// - `placement_claim`: figures colleges publish on their own sites, from
+//   packages/pipeline/data/college-placement-claims.json (`npm run placement:claims`)
 // Rows for colleges not in the current CAP list are skipped and reported.
 // Usage: npm run load:placement [-- --dry-run]
 import { execSync } from "node:child_process";
@@ -10,8 +12,9 @@ import { REPO_ROOT } from "../paths.ts";
 
 const AUTHORITY = "NIRF";
 const PROGRAM = "UG4";
-/** The first build covered ~140 colleges; far fewer rows means a broken build. */
+/** The first builds covered ~110 colleges (NIRF) and ~60 (college sites); far fewer means a broken build. */
 const MIN_ROWS = 300;
+const MIN_CLAIMS = 20;
 const dryRun = process.argv.includes("--dry-run");
 
 interface Row {
@@ -28,6 +31,10 @@ interface Row {
 const file = JSON.parse(await readFile(join(REPO_ROOT, "packages/pipeline/data/college-placement.json"), "utf8")) as {
   colleges: Record<string, { rows: Row[] }>;
 };
+interface Claim { year: string | null; highest: number | null; average: number | null; median: number | null; placedPct: number | null; crawledAt: string; claims: unknown[] }
+const claimsFile = JSON.parse(await readFile(join(REPO_ROOT, "packages/pipeline/data/college-placement-claims.json"), "utf8")) as {
+  colleges: Record<string, Claim>;
+};
 const currentCodes = new Set(Object.keys(JSON.parse(await readFile(join(REPO_ROOT, "packages/pipeline/data/college-meta-2026.json"), "utf8"))));
 
 const skipped = Object.keys(file.colleges).filter((code) => !currentCodes.has(code));
@@ -35,9 +42,11 @@ const rows = Object.entries(file.colleges)
   .filter(([code]) => currentCodes.has(code))
   .flatMap(([code, c]) => c.rows.map((r) => ({ code, ...r })));
 const colleges = new Set(rows.map((r) => r.code)).size;
-console.log(`[LOAD-PLACEMENT] ${rows.length} rows for ${colleges} of ${currentCodes.size} current colleges`);
+const claims = Object.entries(claimsFile.colleges).filter(([code]) => currentCodes.has(code));
+console.log(`[LOAD-PLACEMENT] NIRF: ${rows.length} rows for ${colleges} of ${currentCodes.size} current colleges; college sites: ${claims.length} colleges`);
 for (const code of skipped) console.log(`${process.env.GITHUB_ACTIONS ? "::warning::" : ""}[LOAD-PLACEMENT] skipped ${code}: not a current college`);
 if (rows.length < MIN_ROWS) throw new Error(`[LOAD-PLACEMENT] only ${rows.length} rows; refusing to replace the placement table`);
+if (claims.length < MIN_CLAIMS) throw new Error(`[LOAD-PLACEMENT] only ${claims.length} colleges with site figures; refusing to replace placement_claim`);
 if (dryRun) process.exit(0);
 
 const runId = new Date().toISOString().replace(/[:.]/g, "-");
@@ -53,8 +62,13 @@ try {
     ["authority", "college_code", "program", "graduation_year"],
     rows.map((r) => [AUTHORITY, r.code, PROGRAM, r.graduationYear, r.graduates, r.placed, r.medianSalary, r.higherStudies,
       r.nirfYear, r.nirfCategory, r.nirfInstituteId, r.sourceUrl, runId, new Date()]));
+  const removedClaims = (await client.query("delete from placement_claim")).rowCount ?? 0;
+  const insertedClaims = await upsert(client, "placement_claim",
+    ["college_code", "year", "highest", "average", "median", "placed_pct", "claims", "crawled_at", "run_id", "updated_at"],
+    ["college_code"],
+    claims.map(([code, c]) => [code, c.year, c.highest, c.average, c.median, c.placedPct, JSON.stringify(c.claims), c.crawledAt, runId, new Date()]));
   await client.query("commit");
-  const summary = { rows: rows.length, colleges, removed, inserted, skipped };
+  const summary = { rows: rows.length, colleges, removed, inserted, skipped, claims: { removed: removedClaims, inserted: insertedClaims } };
   await client.query("update ingest_run set finished_at = now(), status = 'succeeded', summary = $2 where id = $1", [runId, JSON.stringify(summary)]);
   console.log(`[LOAD-PLACEMENT] staging run ${runId}: replaced ${removed} rows with ${inserted}`);
 } catch (err) {
