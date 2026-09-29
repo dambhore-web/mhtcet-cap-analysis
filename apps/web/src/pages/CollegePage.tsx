@@ -255,7 +255,7 @@ export function CollegePage() {
               </p>
             ) : (
               <p className="cp-headline-main">
-                <Link to="/">Enter your merit number</Link> to see which branches here are within reach.
+                <Link to="/welcome/start">Enter your merit number</Link> to see which branches here are within reach.
               </p>
             )}
             <dl className="cp-headline-stats">

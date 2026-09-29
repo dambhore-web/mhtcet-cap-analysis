@@ -8,7 +8,7 @@ import "./TopNav.css";
 type SectionId = "find" | "branches" | "colleges" | "plan" | "ask" | "guide" | "account";
 
 const LINKS: { id: SectionId; to: string; label: string; icon: IconName }[] = [
-  { id: "find", to: "/", label: "Find colleges", icon: "search" },
+  { id: "find", to: "/find", label: "Find colleges", icon: "search" },
   { id: "branches", to: "/branches", label: "By branch", icon: "steps" },
   { id: "colleges", to: "/colleges", label: "Colleges", icon: "building" },
   { id: "plan", to: "/list", label: "My CAP plan", icon: "list" },
@@ -18,7 +18,7 @@ const LINKS: { id: SectionId; to: string; label: string; icon: IconName }[] = [
 
 /** Which top-level section a route belongs to, so exactly one nav item is active. */
 export function sectionFor(pathname: string): SectionId | null {
-  if (pathname === "/" || pathname.startsWith("/estimate") || pathname.startsWith("/eligibility")) return "find";
+  if (pathname.startsWith("/find") || pathname.startsWith("/estimate") || pathname.startsWith("/eligibility")) return "find";
   if (pathname.startsWith("/branches")) return "branches";
   if (pathname.startsWith("/colleges") || pathname.startsWith("/compare")) return "colleges";
   if (["/list", "/simulator", "/export", "/allotment", "/summary"].some((p) => pathname.startsWith(p))) return "plan";

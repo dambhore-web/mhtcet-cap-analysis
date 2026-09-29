@@ -55,7 +55,7 @@ export function ProfilePage() {
   function handleReset() {
     if (!confirm("Clear your saved details? You'll need to enter your merit number again.")) return;
     resetProfile();
-    navigate("/welcome");
+    navigate("/");
   }
 
   return (

@@ -127,3 +127,20 @@ export function parseBranchGroups(raw: string | null, known: readonly string[]):
   if (!raw) return [];
   return [...new Set(raw.split(",").map((g) => g.trim()).filter((g) => known.includes(g)))];
 }
+
+/** The Find colleges link for a saved profile ("Continue to my results"), or null without a merit number. */
+export function profileResultsPath(p: Profile): string | null {
+  if (!p.meritNumber) return null;
+  const q = new URLSearchParams({ merit: String(p.meritNumber) });
+  if (p.category) q.set("cat", p.category);
+  if (p.gender !== "M") q.set("gen", p.gender);
+  if (p.subjectGroup !== "PCM") q.set("subj", p.subjectGroup);
+  if (p.homeUniversity) q.set("hu", p.homeUniversity);
+  if (p.ews && !p.category) q.set("ews", "1");
+  if (p.tfws) q.set("tfws", "1");
+  if (p.defence) q.set("def", "1");
+  if (p.pwd) q.set("pwd", "1");
+  if (p.orphan) q.set("orphan", "1");
+  if (p.minorityCommunity) q.set("min", p.minorityCommunity);
+  return `/find?${q.toString()}`;
+}

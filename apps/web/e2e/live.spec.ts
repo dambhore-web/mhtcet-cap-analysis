@@ -24,7 +24,7 @@ test.describe("Live data smoke @live", () => {
 
   test("rank finder returns options for a mid-range merit number", async ({ page }) => {
     await seed(page, { profile: { meritNumber: 12000, category: null, gender: "M", subjectGroup: "PCM", homeUniversity: "", ews: false, tfws: false, defence: false, pwd: false, orphan: false } });
-    await page.goto("/?merit=12000");
+    await page.goto("/find?merit=12000");
     await expect(page.getByRole("heading", { level: 2, name: /options for merit 12,000/i })).toBeVisible({ timeout: 20_000 });
   });
 });

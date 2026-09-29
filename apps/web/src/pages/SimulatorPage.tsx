@@ -101,7 +101,7 @@ export function SimulatorPage() {
                 </li>
                 <li className={noPrefs ? "" : "done"}>
                   <Icon name={noPrefs ? "minus" : "check"} size={16} />
-                  {noPrefs ? <span><Link to="/">Find your options</Link> and add a few to your option form</span> : "Option form has choices"}
+                  {noPrefs ? <span><Link to="/find">Find your options</Link> and add a few to your option form</span> : "Option form has choices"}
                 </li>
               </ol>
             </div>

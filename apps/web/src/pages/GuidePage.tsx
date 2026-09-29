@@ -89,7 +89,7 @@ function HowContent() {
       <div className="guide-section guide-section--info">
         <h3>Where Compass helps</h3>
         <p>
-          <Link to="/">Find</Link> shows which choice codes last year's closing ranks put within reach. Save them to your{" "}
+          <Link to="/find">Find</Link> shows which choice codes last year's closing ranks put within reach. Save them to your{" "}
           <Link to="/list">option form</Link>, order them, and <Link to="/simulator">test the order</Link> before you fill the
           real form on the CET Cell portal.
         </p>

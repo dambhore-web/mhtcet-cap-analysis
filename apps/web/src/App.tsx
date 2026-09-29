@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ProfileProvider, useProfile } from "./lib/ProfileContext";
 import { CompareProvider } from "./lib/CompareContext";
 import { AuthProvider } from "./lib/AuthContext";
@@ -27,19 +27,28 @@ import { AllotmentPage } from "./pages/AllotmentPage";
 import { ExportPage } from "./pages/ExportPage";
 import { BranchesPage } from "./pages/BranchesPage";
 
+/** Find needs saved details or a merit number in the URL (a shared result link); otherwise start at the landing page. */
 function RequireProfile({ children }: { children: React.ReactNode }) {
   const { hasProfile } = useProfile();
-  return hasProfile ? <>{children}</> : <Navigate to="/welcome" replace />;
+  const { search } = useLocation();
+  return hasProfile || new URLSearchParams(search).has("merit") ? <>{children}</> : <Navigate to="/" replace />;
+}
+
+/** `/` is the landing page for everyone (#142); older result links (`/?merit=…`) move to `/find`. */
+function Home() {
+  const { search } = useLocation();
+  return new URLSearchParams(search).has("merit") ? <Navigate to={`/find${search}`} replace /> : <LandingPage />;
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="welcome" element={<LandingPage />} />
+      <Route index element={<Home />} />
+      <Route path="welcome" element={<Navigate to="/" replace />} />
       <Route path="welcome/start" element={<OnboardingWizard />} />
       <Route element={<Layout />}>
         <Route
-          index
+          path="find"
           element={
             <RequireProfile>
               <FindPage />

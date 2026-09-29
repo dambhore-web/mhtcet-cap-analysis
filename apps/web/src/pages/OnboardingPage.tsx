@@ -106,7 +106,7 @@ export function OnboardingWizard() {
       return;
     }
     setProfile(toProfile(answers));
-    navigate(`/?${params.toString()}`);
+    navigate(`/find?${params.toString()}`);
   }
 
   function next(e?: React.FormEvent) {
@@ -122,7 +122,7 @@ export function OnboardingWizard() {
 
   function back() {
     setError("");
-    if (index === 0) navigate("/welcome");
+    if (index === 0) navigate("/");
     else setStepId(steps[index - 1]);
   }
 
@@ -146,7 +146,7 @@ export function OnboardingWizard() {
   return (
     <div className="onboarding-page">
       <header className="ob-header">
-        <Link to="/welcome" className="ob-logo" aria-label="Compass home">
+        <Link to="/" className="ob-logo" aria-label="Compass home">
           <span className="ob-logo-mark" aria-hidden="true"><Icon name="compass" size={18} /></span>
           Compass
         </Link>

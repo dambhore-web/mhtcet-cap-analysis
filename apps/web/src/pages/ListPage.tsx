@@ -155,7 +155,7 @@ export function ListPage() {
             the list, test it in the simulator and export it for the CAP portal.
           </p>
           <div className="list-empty-actions">
-            <Link to="/" className="btn btn-primary">
+            <Link to="/find" className="btn btn-primary">
               <Icon name="search" size={18} />
               Find my options
             </Link>
