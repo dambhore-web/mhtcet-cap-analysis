@@ -1,4 +1,4 @@
-import type { AppCache, HistoryRow } from "../startup.ts";
+import type { AppCache, HistoryRow, PlacementRow } from "../startup.ts";
 import type { Branch, College, CutoffRow, Round } from "@mhtcet/core";
 
 /**
@@ -143,5 +143,23 @@ export function demoCache(): AppCache {
     });
   });
 
-  return { year: DEMO_YEAR, colleges, branches, cutoffsByChoiceCode, history, seats };
+  return { year: DEMO_YEAR, colleges, branches, cutoffsByChoiceCode, history, seats, placement: demoPlacement() };
+}
+
+/** Invented NIRF-style placement for the first two demo colleges (the others show none). */
+function demoPlacement(): Map<string, PlacementRow[]> {
+  const placement = new Map<string, PlacementRow[]>();
+  DEMO_COLLEGES.slice(0, 2).forEach((c, ci) => {
+    placement.set(c.code, ["2022-23", "2023-24", "2024-25"].map((graduationYear, i) => ({
+      graduationYear,
+      graduates: 600 - ci * 100 + i * 10,
+      placed: 450 - ci * 80 + i * 15,
+      medianSalary: 800_000 - ci * 150_000 + i * 50_000,
+      higherStudies: 60 - i * 5,
+      nirfYear: 2026,
+      nirfCategory: "Engineering",
+      sourceUrl: `https://example.org/demo-nirf-${c.code}.pdf`,
+    })));
+  });
+  return placement;
 }

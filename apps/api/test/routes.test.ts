@@ -296,6 +296,30 @@ describe("GET /api/colleges/:code/fees with fees loaded from the database", () =
   });
 });
 
+// ─── Placement (NIRF) ────────────────────────────────────────────────────────
+
+describe("GET /api/colleges/:code/placement", () => {
+  it("returns each graduating batch with rates, and available: false without data", async () => {
+    const cache = seedCache();
+    cache.placement = new Map([["1002", [
+      { graduationYear: "2023-24", graduates: 400, placed: 300, medianSalary: 650000, higherStudies: 20, nirfYear: 2025, nirfCategory: "Engineering", sourceUrl: "https://example.org/nirf-2025.pdf" },
+      { graduationYear: "2024-25", graduates: 410, placed: null, medianSalary: null, higherStudies: 0, nirfYear: 2026, nirfCategory: "Overall", sourceUrl: "https://example.org/nirf-2026.pdf" },
+    ]]]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/placement");
+    const body = (await res.json()) as { available: boolean; batches: Array<Record<string, unknown>> };
+    expect(body.available).toBe(true);
+    expect(body.batches[0]).toMatchObject({ graduationYear: "2023-24", placedPct: 75, higherStudiesPct: 5, medianSalary: 650000, nirfYear: 2025 });
+    expect(body.batches[1]).toMatchObject({ graduationYear: "2024-25", placed: null, placedPct: null, higherStudiesPct: 0 });
+    const other = await createApp(cache, stubPool).request("http://localhost/api/colleges/5002/placement");
+    expect(await other.json()).toEqual({ available: false, code: "5002" });
+  });
+
+  it("is unavailable when the placement table was not loaded", async () => {
+    const res = await createApp(seedCache(), stubPool).request("http://localhost/api/colleges/1002/placement");
+    expect(((await res.json()) as { available: boolean }).available).toBe(false);
+  });
+});
+
 // ─── Branch history (year-on-year) ───────────────────────────────────────────
 
 describe("GET /api/branches/:choiceCode/history", () => {

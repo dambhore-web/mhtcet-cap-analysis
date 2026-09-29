@@ -81,6 +81,11 @@ jobs:
         run: |
           if [ "$(jq -r '.fees // false' staging-load.json)" = "true" ]; then npm run -s load:fees; else echo "fees not requested"; fi
 
+      - name: Placement (NIRF)
+        working-directory: packages/pipeline
+        run: |
+          if [ "$(jq -r '.placement // false' staging-load.json)" = "true" ]; then npm run -s load:placement; else echo "placement not requested"; fi
+
       - name: Merit lists
         working-directory: packages/pipeline
         run: |

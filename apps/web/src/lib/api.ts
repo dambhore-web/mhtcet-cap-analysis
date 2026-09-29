@@ -151,6 +151,30 @@ export interface CollegeFees {
   disclaimer: string;
 }
 
+/** One graduating batch from the college's NIRF data (GET /api/colleges/:code/placement). */
+export interface PlacementBatch {
+  graduationYear: string;
+  graduates: number;
+  placed: number | null;
+  placedPct: number | null;
+  /** Rupees per year, of placed graduates. */
+  medianSalary: number | null;
+  higherStudies: number | null;
+  higherStudiesPct: number | null;
+  nirfYear: number;
+  nirfCategory: string;
+  sourceUrl: string;
+}
+
+export interface CollegePlacement {
+  available: true;
+  code: string;
+  program: string;
+  /** Oldest batch first. */
+  batches: PlacementBatch[];
+  disclaimer: string;
+}
+
 export interface CollegeFeesUnavailable {
   available: false;
   code: string;
@@ -235,6 +259,8 @@ export const api = {
     ),
   collegeFees: (code: string) =>
     get<CollegeFees | CollegeFeesUnavailable>(`/api/colleges/${code}/fees`),
+  collegePlacement: (code: string) =>
+    get<CollegePlacement | { available: false; code: string }>(`/api/colleges/${code}/placement`),
   jeeEstimate: (percentile: number) =>
     get<{
       percentile: number;

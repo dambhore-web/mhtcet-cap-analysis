@@ -1,6 +1,22 @@
 # Changelog
 
 ## Unreleased
+### Added
+- Placement on the college page (#132): for each B.E./B.Tech graduating batch, graduates,
+  students placed, median salary and higher studies, from the data the college submitted to NIRF.
+  Why: students asked for placement data, and NIRF's is the only source with the same fields
+  for every college, including median salary rather than the "highest package".
+  - Source: the NIRF data PDF on each college's own site (NIRF hosts only ranked colleges).
+    The URLs were found by crawling the college sites and are listed in
+    `packages/pipeline/data/placement-sources.json`.
+  - `npm run placement -w @mhtcet/pipeline` downloads and parses them into
+    `data/college-placement.json`. Per batch, the newest NIRF edition wins, and Engineering
+    wins over University and Overall. Rows that can't be right (more placed than graduated)
+    are skipped.
+  - New `placement` table (migration 005), `placement: true` in the staging-load request, and
+    `GET /api/colleges/:code/placement`.
+  - Figures are self-reported; the card says so and links each source PDF.
+
 ### Changed
 - College fees rebuilt from the live FRA "Fee Approved" engineering reports (#42). Why: the old
   file hard-coded the rows, labelled 2026-27 fees as 2025-26, and kept four government-college
