@@ -85,6 +85,9 @@ export function FindPage() {
   const [showAll, setShowAll] = useState(false);
   const [view, setView] = useState<"college" | "all">("college");
   const [whatIf, setWhatIf] = useState<number | null>(null);
+  const [whatIfOptions, setWhatIfOptions] = useState<FindOption[] | null>(null);
+  const [whatIfLoading, setWhatIfLoading] = useState(false);
+  const whatIfTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [estimate, setEstimate] = useState<MeritEstimate | null>(null);
   const [jeeEstimate, setJeeEstimate] = useState<JeeEstimate | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -129,6 +132,8 @@ export function FindPage() {
     setStatus("loading");
     setShowAll(false);
     setResultFilters({});
+    setWhatIf(null);
+    setWhatIfOptions(null);
 
     // Push shareable URL
     const p: Record<string, string> = { merit: String(merit) };
@@ -170,6 +175,23 @@ export function FindPage() {
       setErrorMsg("Could not reach the server. Make sure the API is running.");
     }
   }, [setSearchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // When the slider moves below the searched merit, fetch the broader result set.
+  useEffect(() => {
+    if (whatIf == null) { setWhatIfOptions(null); return; }
+    if (!lastRequest.current) return;
+    if (whatIfTimer.current) clearTimeout(whatIfTimer.current);
+    whatIfTimer.current = setTimeout(async () => {
+      setWhatIfLoading(true);
+      try {
+        const res = await api.find({ ...lastRequest.current!, merit: whatIf });
+        setWhatIfOptions(res.options);
+      } catch { /* keep client-side remark on failure */ } finally {
+        setWhatIfLoading(false);
+      }
+    }, 500);
+    return () => { if (whatIfTimer.current) clearTimeout(whatIfTimer.current); };
+  }, [whatIf]);
 
   // Auto-submit when merit is in the URL (shared link)
   useEffect(() => {
@@ -221,6 +243,7 @@ export function FindPage() {
   async function applyFilter(newFilters: ResultFilters) {
     if (!lastRequest.current) return;
     setResultFilters(newFilters);
+    setWhatIfOptions(null); // stale what-if results must not shadow the filtered options
     setFilterLoading(true);
     setShowAll(false);
     try {
@@ -233,9 +256,13 @@ export function FindPage() {
     }
   }
 
-  // "What if my merit were…" (#87): re-mark statuses from each option's Round I and last-round closing
+  // "What if my merit were…": prefer fresh API results; fall back to client-side re-mark while loading.
   const effMerit = whatIf ?? searchedMerit;
-  const shown = useMemo(() => (whatIf == null ? options : options.map((o) => withStatusFor(o, whatIf))), [options, whatIf]);
+  const shown = useMemo(() => {
+    if (whatIf == null) return options;
+    if (whatIfOptions) return whatIfOptions;
+    return options.map((o) => withStatusFor(o, whatIf));
+  }, [options, whatIf, whatIfOptions]);
   const roundI = shown.filter((o) => o.status === "round-I");
   const later = shown.filter((o) => o.status === "later-round");
   // When the slider is active, hide options that fell out-of-range at the what-if merit.
@@ -673,7 +700,7 @@ export function FindPage() {
                   aria-valuetext={`merit ${formatNumber(effMerit)}`}
                 />
                 <p className="results-side-note">
-                  {whatIf == null ? "Move it to see how the results change." : `${formatNumber(roundI.length)} in Round I, ${formatNumber(later.length)} in a later round.`}
+                  {whatIf == null ? "Move it to see how the results change." : whatIfLoading ? "Fetching results…" : `${formatNumber(roundI.length)} in Round I, ${formatNumber(later.length)} in a later round.`}
                 </p>
                 {whatIf != null && (
                   <button type="button" className="btn btn-ghost btn-sm" onClick={() => setWhatIf(null)}>

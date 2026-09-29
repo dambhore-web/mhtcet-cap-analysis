@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api, BRANCH_GROUPS, type FindOption } from "../lib/api";
+import { api, BRANCH_GROUPS, type FindOption, type Category } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
@@ -14,6 +14,84 @@ import "./BranchesPage.css";
 
 type BranchGroup = (typeof BRANCH_GROUPS)[number];
 type Status = "loading" | "done" | "error";
+
+interface SeatFilter {
+  label: string;
+  category: Category | null;
+  gender: "M" | "F";
+  ews?: boolean;
+  tfws?: boolean;
+  defence?: boolean;
+  pwd?: boolean;
+  orphan?: boolean;
+  /** Optional seat-type prefix to narrow displayed rows (e.g. "L", "PWDR", "DEFR"). */
+  prefix?: string;
+}
+
+const SEAT_FILTERS: SeatFilter[] = [
+  // ── General (G) ──────────────────────────────────────────────────────────
+  { label: "General open",          category: null,   gender: "M" },
+  { label: "General OBC",           category: "OBC",  gender: "M" },
+  { label: "General SEBC",          category: "SEBC", gender: "M" },
+  { label: "General SC",            category: "SC",   gender: "M" },
+  { label: "General ST",            category: "ST",   gender: "M" },
+  { label: "General VJ/DT",         category: "VJ",   gender: "M" },
+  { label: "General NT-B",          category: "NT1",  gender: "M" },
+  { label: "General NT-C",          category: "NT2",  gender: "M" },
+  { label: "General NT-D",          category: "NT3",  gender: "M" },
+  // ── Ladies (L) ───────────────────────────────────────────────────────────
+  { label: "Ladies open",           category: null,   gender: "F", prefix: "L" },
+  { label: "Ladies OBC",            category: "OBC",  gender: "F", prefix: "L" },
+  { label: "Ladies SEBC",           category: "SEBC", gender: "F", prefix: "L" },
+  { label: "Ladies SC",             category: "SC",   gender: "F", prefix: "L" },
+  { label: "Ladies ST",             category: "ST",   gender: "F", prefix: "L" },
+  { label: "Ladies VJ/DT",          category: "VJ",   gender: "F", prefix: "L" },
+  { label: "Ladies NT-B",           category: "NT1",  gender: "F", prefix: "L" },
+  { label: "Ladies NT-C",           category: "NT2",  gender: "F", prefix: "L" },
+  { label: "Ladies NT-D",           category: "NT3",  gender: "F", prefix: "L" },
+  // ── PWD ──────────────────────────────────────────────────────────────────
+  { label: "PWD open",              category: null,   gender: "M", pwd: true, prefix: "PWD" },
+  { label: "PWD OBC",               category: "OBC",  gender: "M", pwd: true, prefix: "PWD" },
+  { label: "PWD SEBC",              category: "SEBC", gender: "M", pwd: true, prefix: "PWD" },
+  { label: "PWD SC",                category: "SC",   gender: "M", pwd: true, prefix: "PWD" },
+  { label: "PWD ST",                category: "ST",   gender: "M", pwd: true, prefix: "PWD" },
+  { label: "PWD VJ/DT",             category: "VJ",   gender: "M", pwd: true, prefix: "PWD" },
+  { label: "PWD NT-B",              category: "NT1",  gender: "M", pwd: true, prefix: "PWD" },
+  { label: "PWD NT-C",              category: "NT2",  gender: "M", pwd: true, prefix: "PWD" },
+  { label: "PWD NT-D",              category: "NT3",  gender: "M", pwd: true, prefix: "PWD" },
+  // ── PWDR (PWD common reserved) ────────────────────────────────────────────
+  { label: "PWD common OBC",        category: "OBC",  gender: "M", pwd: true, prefix: "PWDR" },
+  { label: "PWD common SEBC",       category: "SEBC", gender: "M", pwd: true, prefix: "PWDR" },
+  { label: "PWD common SC",         category: "SC",   gender: "M", pwd: true, prefix: "PWDR" },
+  { label: "PWD common ST",         category: "ST",   gender: "M", pwd: true, prefix: "PWDR" },
+  { label: "PWD common VJ/DT",      category: "VJ",   gender: "M", pwd: true, prefix: "PWDR" },
+  { label: "PWD common NT-B",       category: "NT1",  gender: "M", pwd: true, prefix: "PWDR" },
+  { label: "PWD common NT-C",       category: "NT2",  gender: "M", pwd: true, prefix: "PWDR" },
+  { label: "PWD common NT-D",       category: "NT3",  gender: "M", pwd: true, prefix: "PWDR" },
+  // ── Defence (DEF) ────────────────────────────────────────────────────────
+  { label: "Defence open",          category: null,   gender: "M", defence: true, prefix: "DEF" },
+  { label: "Defence OBC",           category: "OBC",  gender: "M", defence: true, prefix: "DEF" },
+  { label: "Defence SEBC",          category: "SEBC", gender: "M", defence: true, prefix: "DEF" },
+  { label: "Defence SC",            category: "SC",   gender: "M", defence: true, prefix: "DEF" },
+  { label: "Defence ST",            category: "ST",   gender: "M", defence: true, prefix: "DEF" },
+  { label: "Defence VJ/DT",         category: "VJ",   gender: "M", defence: true, prefix: "DEF" },
+  { label: "Defence NT-B",          category: "NT1",  gender: "M", defence: true, prefix: "DEF" },
+  { label: "Defence NT-C",          category: "NT2",  gender: "M", defence: true, prefix: "DEF" },
+  { label: "Defence NT-D",          category: "NT3",  gender: "M", defence: true, prefix: "DEF" },
+  // ── DEFR (Defence common reserved) ────────────────────────────────────────
+  { label: "Defence common OBC",    category: "OBC",  gender: "M", defence: true, prefix: "DEFR" },
+  { label: "Defence common SEBC",   category: "SEBC", gender: "M", defence: true, prefix: "DEFR" },
+  { label: "Defence common SC",     category: "SC",   gender: "M", defence: true, prefix: "DEFR" },
+  { label: "Defence common ST",     category: "ST",   gender: "M", defence: true, prefix: "DEFR" },
+  { label: "Defence common VJ/DT",  category: "VJ",   gender: "M", defence: true, prefix: "DEFR" },
+  { label: "Defence common NT-B",   category: "NT1",  gender: "M", defence: true, prefix: "DEFR" },
+  { label: "Defence common NT-C",   category: "NT2",  gender: "M", defence: true, prefix: "DEFR" },
+  { label: "Defence common NT-D",   category: "NT3",  gender: "M", defence: true, prefix: "DEFR" },
+  // ── Special / standalone ─────────────────────────────────────────────────
+  { label: "EWS",                   category: null,   gender: "M", ews: true },
+  { label: "TFWS",                  category: null,   gender: "M", tfws: true },
+  { label: "Orphan",                category: null,   gender: "M", orphan: true },
+];
 
 function isGroup(v: string | null): v is BranchGroup {
   return !!v && (BRANCH_GROUPS as readonly string[]).includes(v);
@@ -37,6 +115,13 @@ export function BranchesPage() {
   const [status, setStatus] = useState<Status>("loading");
   const [retry, setRetry] = useState(0);
   const merit = profile.meritNumber;
+  const [selectedFilterIdx, setSelectedFilterIdx] = useState<number>(() => {
+    const cat = profile.category ?? "";
+    const gender = profile.gender;
+    const idx = SEAT_FILTERS.findIndex((f) => f.category === (cat || null) && f.gender === gender && !f.ews && !f.tfws && !f.defence && !f.pwd);
+    return idx >= 0 ? idx : 0;
+  });
+  const seatFilter = SEAT_FILTERS[selectedFilterIdx];
 
   // Branch combobox
   const [allBranches, setAllBranches] = useState<string[]>([]);
@@ -125,10 +210,10 @@ export function BranchesPage() {
       .find({
         merit: merit ?? 1,
         homeUniversity: profile.homeUniversity || null,
-        category: profile.category ?? null,
-        gender: profile.gender,
+        category: seatFilter.category,
+        gender: seatFilter.gender,
         minorityCommunity: null,
-        flags: { ews: profile.ews, tfws: profile.tfws, defence: profile.defence, pwd: profile.pwd, orphan: profile.orphan },
+        flags: { ews: !!seatFilter.ews, tfws: !!seatFilter.tfws, defence: !!seatFilter.defence, pwd: !!seatFilter.pwd, orphan: !!seatFilter.orphan },
         subjectGroup: profile.subjectGroup,
         filters: { branchGroup: group, branch: selectedBranch },
       })
@@ -141,13 +226,21 @@ export function BranchesPage() {
     return () => {
       live = false;
     };
-  }, [group, selectedBranch, merit, profile, retry]);
+  }, [group, selectedBranch, merit, profile, seatFilter, retry]);
+
+  const displayed = useMemo(() => {
+    const p = seatFilter.prefix;
+    if (!p) return results;
+    // "PWD" should not include "PWDR"; "DEF" should not include "DEFR"; "L" is exact prefix.
+    if (p === "PWD" || p === "DEF") return results.filter((r) => r.seatType.startsWith(p) && !r.seatType.startsWith(p + "R"));
+    return results.filter((r) => r.seatType.startsWith(p));
+  }, [results, seatFilter]);
 
   const domain = useMemo(
-    () => ladderDomain(results.flatMap((r) => [r.firstRoundClosing ?? r.closingMerit, r.lastRoundClosing ?? r.closingMerit, ...(merit ? [merit] : [])])),
-    [results, merit],
+    () => ladderDomain(displayed.flatMap((r) => [r.firstRoundClosing ?? r.closingMerit, r.lastRoundClosing ?? r.closingMerit, ...(merit ? [merit] : [])])),
+    [displayed, merit],
   );
-  const reachable = merit ? results.filter((r) => r.status !== "out-of-range").length : null;
+  const reachable = merit ? displayed.filter((r) => r.status !== "out-of-range").length : null;
   const activeLabel = selectedBranch ?? group ?? "";
 
   return (
@@ -265,6 +358,17 @@ export function BranchesPage() {
             </ul>
           )}
         </div>
+
+        <select
+          className="branches-cat-select"
+          value={selectedFilterIdx}
+          onChange={(e) => setSelectedFilterIdx(Number(e.target.value))}
+          aria-label="Reservation category"
+        >
+          {SEAT_FILTERS.map((f, i) => (
+            <option key={i} value={i}>{f.label}</option>
+          ))}
+        </select>
       </div>
 
       {status === "error" ? (
@@ -273,22 +377,22 @@ export function BranchesPage() {
           <p>Check your connection and try again.</p>
           <button type="button" className="btn btn-secondary" onClick={() => setRetry((n) => n + 1)}>Try again</button>
         </div>
-      ) : status === "done" && results.length === 0 ? (
+      ) : status === "done" && displayed.length === 0 ? (
         <div className="empty-state">
           <h2>No colleges offer {activeLabel} in this data</h2>
-          <p>Try another branch.</p>
+          <p>Try another branch or category.</p>
         </div>
       ) : (
         <section className="card branches-table" aria-labelledby="branches-title" aria-busy={status === "loading"}>
           <div className="branches-table-head">
             <h2 id="branches-title">
-              {activeLabel}: {status === "loading" ? "loading…" : `${results.length} ${results.length === 1 ? "college" : "colleges"}`}
+              {activeLabel}: {status === "loading" ? "loading…" : `${displayed.length} ${displayed.length === 1 ? "college" : "colleges"}`}
               {reachable != null && status === "done" && <span className="branches-reach"> · {reachable} within reach for you</span>}
             </h2>
             <LadderLegend showYou={!!merit} />
           </div>
           <ul className="branches-rows">
-            {results.map((o) => (
+            {displayed.map((o) => (
               <li key={o.choiceCode} className="branches-row">
                 <div className="branches-row-name">
                   <Link to={`/colleges/${o.collegeCode}`} className="branches-college">{o.collegeName}</Link>
