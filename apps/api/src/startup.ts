@@ -25,6 +25,37 @@ export interface AppCache {
    * Undefined when the table is missing or empty; the API then falls back to the bundled fees.json.
    */
   fees?: Record<string, unknown>;
+  /**
+   * NIRF placement figures per college (UG 4-year programs), oldest batch first, keyed by college
+   * code. Empty when the table is missing. Optional so test caches can leave it out.
+   */
+  placement?: Map<string, PlacementRow[]>;
+  /** Figures colleges publish on their own websites, keyed by college code (migration 006). */
+  placementClaims?: Map<string, PlacementClaimRow>;
+}
+
+/** A college's own latest placement figures, as read from its website (not verified). */
+export interface PlacementClaimRow {
+  year: string | null;
+  highest: number | null;
+  average: number | null;
+  median: number | null;
+  placedPct: number | null;
+  crawledAt: string;
+  /** Where each figure came from: the page and the sentence it was read from. */
+  claims: Array<{ metric: string; value: number; year: string | null; snippet: string; sourceUrl: string }>;
+}
+
+/** One graduating batch of a college from the `placement` table (migration 005). */
+export interface PlacementRow {
+  graduationYear: string;
+  graduates: number;
+  placed: number | null;
+  medianSalary: number | null;
+  higherStudies: number | null;
+  nirfYear: number;
+  nirfCategory: string;
+  sourceUrl: string;
 }
 
 /**
@@ -112,13 +143,16 @@ export async function loadCache(pool: pg.Pool, year: number): Promise<AppCache> 
   const history = await loadHistory(pool, year);
   const seats = await loadSeats(pool, year);
   const fees = await loadFees(pool, colleges);
+  const placement = await loadPlacement(pool);
+  const placementClaims = await loadPlacementClaims(pool);
 
   console.log(
     `[cache] ${colleges.size} colleges · ${branches.size} branches · ` +
     `${cuRes.rows.length} cutoff rows (year ${year}) · ${[...history.values()].reduce((n, r) => n + r.length, 0)} earlier-year rows · ` +
-    `seat matrix for ${seats.size} branches · fees ${fees ? `${Object.keys(fees).length} from the fee table` : "from fees.json"}`,
+    `seat matrix for ${seats.size} branches · fees ${fees ? `${Object.keys(fees).length} from the fee table` : "from fees.json"} · ` +
+    `placement for ${placement.size} colleges (NIRF) and ${placementClaims.size} (college sites)`,
   );
-  return { year, colleges, branches, cutoffsByChoiceCode, history, seats, fees };
+  return { year, colleges, branches, cutoffsByChoiceCode, history, seats, fees, placement, placementClaims };
 }
 
 /** Seat matrix of `year` (migration 003), keyed by choiceCode then seat type. */
@@ -206,6 +240,52 @@ async function loadFees(pool: pg.Pool, colleges: Map<string, College>): Promise<
     console.log(JSON.stringify({ ts: new Date().toISOString(), event: "fees_table_unavailable", error: (err as Error).message }));
     return undefined;
   }
+}
+
+/** NIRF placement rows (migration 005), keyed by college code, oldest batch first. */
+async function loadPlacement(pool: pg.Pool): Promise<Map<string, PlacementRow[]>> {
+  const placement = new Map<string, PlacementRow[]>();
+  try {
+    const { rows } = await pool.query(
+      `SELECT college_code, graduation_year, graduates, placed, median_salary, higher_studies, nirf_year, nirf_category, source_url
+       FROM placement WHERE authority = 'NIRF' AND program = 'UG4' ORDER BY college_code, graduation_year`,
+    );
+    for (const r of rows) {
+      const row: PlacementRow = {
+        graduationYear: r.graduation_year, graduates: r.graduates, placed: r.placed, medianSalary: r.median_salary,
+        higherStudies: r.higher_studies, nirfYear: r.nirf_year, nirfCategory: r.nirf_category, sourceUrl: r.source_url,
+      };
+      const bucket = placement.get(r.college_code);
+      if (bucket) bucket.push(row);
+      else placement.set(r.college_code, [row]);
+    }
+  } catch (err) {
+    // Before migration 005 the table does not exist; placement is simply not shown.
+    console.log(JSON.stringify({ ts: new Date().toISOString(), event: "placement_unavailable", error: (err as Error).message }));
+  }
+  return placement;
+}
+
+/** Placement figures from colleges' own websites (migration 006), keyed by college code. */
+async function loadPlacementClaims(pool: pg.Pool): Promise<Map<string, PlacementClaimRow>> {
+  const out = new Map<string, PlacementClaimRow>();
+  try {
+    const { rows } = await pool.query(
+      `SELECT college_code, year, highest, average, median, placed_pct, claims, crawled_at FROM placement_claim`,
+    );
+    for (const r of rows) {
+      out.set(r.college_code, {
+        year: r.year, highest: r.highest, average: r.average, median: r.median,
+        placedPct: r.placed_pct == null ? null : Number(r.placed_pct),
+        crawledAt: r.crawled_at instanceof Date ? r.crawled_at.toISOString().slice(0, 10) : String(r.crawled_at),
+        claims: r.claims,
+      });
+    }
+  } catch (err) {
+    // Before migration 006 the table does not exist; these figures are simply not shown.
+    console.log(JSON.stringify({ ts: new Date().toISOString(), event: "placement_claims_unavailable", error: (err as Error).message }));
+  }
+  return out;
 }
 
 /** Extract minority community from a college's status string (e.g. "Religious Minority - Muslim" → "Muslim"). */

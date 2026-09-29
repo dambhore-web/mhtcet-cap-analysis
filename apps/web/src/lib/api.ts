@@ -151,6 +151,44 @@ export interface CollegeFees {
   disclaimer: string;
 }
 
+/** One graduating batch from the college's NIRF data (GET /api/colleges/:code/placement). */
+export interface PlacementBatch {
+  graduationYear: string;
+  graduates: number;
+  placed: number | null;
+  placedPct: number | null;
+  /** Rupees per year, of placed graduates. */
+  medianSalary: number | null;
+  higherStudies: number | null;
+  higherStudiesPct: number | null;
+  nirfYear: number;
+  nirfCategory: string;
+  sourceUrl: string;
+}
+
+/** A college's own latest figures from its website (not verified). Packages in rupees per year. */
+export interface CollegeClaims {
+  year: string | null;
+  highest: number | null;
+  average: number | null;
+  median: number | null;
+  placedPct: number | null;
+  crawledAt: string;
+  claims: Array<{ metric: string; value: number; year: string | null; snippet: string; sourceUrl: string }>;
+  sources: string[];
+  disclaimer: string;
+}
+
+export interface CollegePlacement {
+  available: true;
+  code: string;
+  collegeClaims: CollegeClaims | null;
+  program: string;
+  /** Oldest batch first. */
+  batches: PlacementBatch[];
+  disclaimer: string;
+}
+
 export interface CollegeFeesUnavailable {
   available: false;
   code: string;
@@ -235,6 +273,8 @@ export const api = {
     ),
   collegeFees: (code: string) =>
     get<CollegeFees | CollegeFeesUnavailable>(`/api/colleges/${code}/fees`),
+  collegePlacement: (code: string) =>
+    get<CollegePlacement | { available: false; code: string }>(`/api/colleges/${code}/placement`),
   jeeEstimate: (percentile: number) =>
     get<{
       percentile: number;

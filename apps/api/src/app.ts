@@ -9,6 +9,7 @@ import { getColleges, getCollegeCutoffs } from "./routes/colleges.ts";
 import { postRankFinder } from "./routes/rankFinder.ts";
 import { getMeritEstimate } from "./routes/meritEstimate.ts";
 import { getCollegeFees } from "./routes/fees.ts";
+import { getCollegePlacement } from "./routes/placement.ts";
 import { postSimulate } from "./routes/simulate.ts";
 import { getJeeEstimate } from "./routes/jeeEstimate.ts";
 import { postAssistant } from "./routes/assistant.ts";
@@ -83,6 +84,7 @@ export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = 
   app.get("/api/branches", (c) => getBranches(c, cache));
   app.get("/api/branches/:choiceCode/history", (c) => getBranchHistory(c, cache));
   app.get("/api/colleges/:code/fees", (c) => getCollegeFees(c, fees, cache));
+  app.get("/api/colleges/:code/placement", (c) => getCollegePlacement(c, cache));
   app.post("/api/assistant", (c) => postAssistant(c, cache, options.assistantClient));
 
   app.onError((err, c) => {

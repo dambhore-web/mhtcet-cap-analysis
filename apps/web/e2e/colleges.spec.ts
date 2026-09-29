@@ -21,6 +21,28 @@ test.describe("Colleges directory", () => {
     await expect(page.getByRole("table").first()).toBeVisible();
   });
 
+  test("shows the college's own figures and its NIRF placement, and nothing without data", async ({ page }) => {
+    await page.goto("/colleges/16006");
+    const card = page.getByRole("region", { name: /placement/i });
+    await expect(card).toBeVisible();
+    await expect(card).toContainText("College's own figures (2025-26)");
+    await expect(card).toContainText("₹44 lakh");
+    await expect(card).toContainText("Unverified");
+    await expect(card).toContainText("In 2024-25");
+    await expect(card).toContainText("₹9 lakh");
+    await expect(card.getByRole("row")).toHaveCount(4);
+    await expect(card.getByRole("link", { name: /NIRF 2026/ })).toHaveAttribute("href", /demo-nirf-16006/);
+    // Only the college's own figures
+    await page.goto("/colleges/03012");
+    const own = page.getByRole("region", { name: /placement/i });
+    await expect(own).toContainText("₹34 lakh");
+    await expect(own.getByRole("table")).toHaveCount(0);
+    // Neither
+    await page.goto("/colleges/06007");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Vishwakarma");
+    await expect(page.getByRole("region", { name: /placement/i })).toHaveCount(0);
+  });
+
   test("college page breadcrumb returns to the directory", async ({ page }) => {
     await page.goto("/colleges/16006");
     await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Colleges" }).click();

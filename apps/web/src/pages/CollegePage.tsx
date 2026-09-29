@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { api, type CollegeFees, type CollegeFeesUnavailable } from "../lib/api";
+import { api, type CollegeFees, type CollegeFeesUnavailable, type CollegePlacement } from "../lib/api";
+import { PlacementCard } from "../components/PlacementCard";
 import { useProfile } from "../lib/ProfileContext";
 import { useCompare } from "../lib/CompareContext";
 import { CutoffChart, SeatCutoffChart } from "../components/CutoffChart";
@@ -57,6 +58,7 @@ export function CollegePage() {
   const [whatifMerit, setWhatifMerit] = useState<number>(() => profile.meritNumber ?? 10000);
   const [showWhatif, setShowWhatif] = useState(false);
   const [fees, setFees] = useState<CollegeFees | CollegeFeesUnavailable | null>(null);
+  const [placement, setPlacement] = useState<CollegePlacement | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
@@ -65,12 +67,14 @@ export function CollegePage() {
     Promise.all([
       api.collegeCutoffs(code),
       api.collegeFees(code).catch(() => null),
+      api.collegePlacement(code).catch(() => null),
     ])
-      .then(([d, f]) => {
+      .then(([d, f, p]) => {
         setData(d as CollegeData);
         const branches = [...new Set((d.cutoffs as CutoffRow[]).map((r) => r.branch))].sort();
         if (branches.length > 0) setSelectedBranch(branches[0]);
         setFees(f);
+        setPlacement(p && p.available ? p : null);
       })
       .catch(() => setError("Could not load college data. Is the API running?"))
       .finally(() => setLoading(false));
@@ -321,6 +325,8 @@ export function CollegePage() {
           {data.college.district ? <div><dt>District</dt><dd>{data.college.district}</dd></div> : null}
         </dl>
       </section>
+
+      {placement && <PlacementCard data={placement} />}
 
       <div className="page-section">
         <CutoffChart cutoffs={data.cutoffs} collegeCode={data.college.code} />
