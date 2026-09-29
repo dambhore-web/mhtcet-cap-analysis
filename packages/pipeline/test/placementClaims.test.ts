@@ -57,7 +57,7 @@ describe("college placement claims", () => {
   });
 
   it("ignores placement promises and marketing percentages", () => {
-    expect(extractClaims("100% placement readiness through training\nOur aim is to achieve 100% placement\n100% Placement Assistance", url)).toEqual([]);
+    expect(extractClaims("100% placement readiness through training\nOur aim is to achieve 100% placement\n100% Placement Assistance\n60 % placement in IT/ITES companies", url)).toEqual([]);
   });
 
   it("ignores stipends, fees and amounts that cannot be a salary", () => {
@@ -75,6 +75,8 @@ describe("college placement claims", () => {
     expect(latestYear("Batch 2022-23 and 2023-24")).toBe("2023-24");
     expect(latestYear("Placed in 2025, batch 2023-24")).toBe("2025");
     expect(latestYear("Since 1999")).toBeNull();
+    expect(latestYear("Posted 2026-04-12")).toBe("2026");
+    expect(latestYear("Class of 2028")).toBeNull();
   });
 
   it("summarises the most recent year, dropping an average above the highest", () => {

@@ -29,7 +29,7 @@ const LABELS: Array<[Exclude<ClaimMetric, "placedPct">, RegExp]> = [
 const AMOUNT =
   /(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:[.,]\d{1,2})?)\s*(lpa|l\.p\.a\.?|lakhs?|lacs?|lac|lakh)\b|(?:₹|rs\.?|inr)?\s*(\d{1,2}(?:\.\d{1,2})?)\s*(crores?|cr)\b|(?:₹|rs\.?|inr)\s*(\d{1,2},\d{2},\d{3}|\d{5,8})\b/gi;
 
-const PCT_AFTER = /\b(\d{2,3}(?:\.\d+)?)\s*%\s*(?:of\s+(?:the\s+)?(?:eligible\s+)?students\s+)?(?:placements?|placed|students\s+placed|placement\s+record)\b(?!\s*(?:assistance|support|readiness|guidance|training|help|oriented|opportunit|guarantee|cell|drive))/i;
+const PCT_AFTER = /\b(\d{2,3}(?:\.\d+)?)\s*%\s*(?:of\s+(?:the\s+)?(?:eligible\s+)?students\s+)?(?:placements?|placed|students\s+placed|placement\s+record)\b(?!\s*(?:in\s+(?:it|ites|core|service|non|mnc|product|software|companies)\b|assistance|support|readiness|guidance|training|help|oriented|opportunit|guarantee|cell|drive))/i;
 /** Aims and promises ("to achieve 100% placement"), not results. */
 const ASPIRATION = /\b(aim|aims|target|achieve|strive|ensure|goal|mission|vision|committed|commitment|to impart|we provide|assistance|support)\b/i;
 const PCT_BEFORE = /\bplacements?\s*(?:record|rate|percentage|ratio|%)?\s*(?:of|:|-|is|–)?\s*(\d{2,3}(?:\.\d+)?)\s*%/i;
@@ -44,14 +44,20 @@ function toRupees(m: RegExpExecArray): number | null {
   return null;
 }
 
-/** Latest year written in `text` (2015–2030), as "2024-25" or "2025". */
+/** The latest year a published figure can belong to (the 2026-27 academic year). */
+const MAX_YEAR = 2026;
+
+/** Latest year written in `text` (2015–2026), as "2024-25" or "2025". */
 export function latestYear(text: string): string | null {
   let best: { key: number; label: string } | null = null;
   for (const m of text.matchAll(YEAR)) {
     const start = Number(m[1] ?? m[4]);
-    if (start < 2015 || start > 2030) continue;
-    const label = m[1] ? `${m[1]}-${m[3]}` : m[4];
-    const key = m[1] ? start + 1 : start;
+    // A range is an academic year only when it ends the next year ("2024-25"); "2026-04" is a date.
+    const range = !!m[1] && Number(m[3]) === (start + 1) % 100;
+    // Later years are graduating batches ("Class of 2027"), not the year of a figure.
+    if (start < 2015 || start > MAX_YEAR) continue;
+    const label = range ? `${m[1]}-${m[3]}` : String(start);
+    const key = range ? start + 1 : start;
     if (!best || key > best.key) best = { key, label };
   }
   return best?.label ?? null;
