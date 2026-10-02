@@ -27,11 +27,30 @@
 .landing-nav a:not(.btn):hover { color: var(--violet); }
 
 /* ── Hero ── */
+/* text on the left, the student illustration on the right; the ruler card sits underneath */
 .landing-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 24px 40px;
+  align-items: center;
+  padding: 36px 0 0;
+}
+
+.landing-hero-text {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 44px 0 8px;
+  min-width: 0;
+}
+
+.landing-art { min-width: 0; }
+
+.landing-art img {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  margin-left: auto;
 }
 
 .landing-eyebrow {
@@ -277,7 +296,9 @@
 @media (max-width: 767px) {
   .landing-sub,
   .landing-nav a:not(.btn) { display: none; }
-  .landing-hero { padding-top: 24px; }
+  .landing-hero { grid-template-columns: minmax(0, 1fr); padding-top: 16px; gap: 8px; }
+  .landing-art { order: -1; }
+  .landing-art img { max-width: 300px; margin: 0 auto; }
   .landing-try { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 14px; }
   .landing-verdict { font-size: 21px; }
   .landing-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
