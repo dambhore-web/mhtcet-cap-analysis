@@ -111,7 +111,7 @@ ADR-001 to ADR-006 accepted. Schema: `packages/pipeline/migrations/001_initial_s
 AG-002 ran its first build (this change). AG-001 designed only. LLM provider: `DECISION REQUIRED`.
 
 ## Test status
-`npm run typecheck` clean; `npm test` 378/378 passing; Playwright e2e 50/50 on the demo dataset (2026-10-02).
+`npm run typecheck` clean; `npm test` 386/386 passing; Playwright e2e 52/52 on the demo dataset (2026-10-02).
 
 ## Deployment status
 Nothing deployed. Data exists only in the Supabase **staging** project. The COEP dashboard is a

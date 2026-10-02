@@ -8,7 +8,7 @@ flowchart LR
   U[Candidate / parent] -->|browser, phone| APP[CAP Cutoffs product]
   APP -->|model calls| LLM[LLM provider<br/>DECISION REQUIRED]
   APP -->|payments| PAY[Payment provider<br/>DECISION REQUIRED]
-  APP -->|sign-in| AUTH[Auth provider<br/>DECISION REQUIRED]
+  APP -->|sign-in, own data| AUTH[Supabase Auth + user_store<br/>row-level security]
   OP[Operator] -->|runs pipeline| PIPE[Offline pipeline]
   PIPE -->|downloads PDFs| CET[CET Cell public sites]
   PIPE -->|loads cutoffs| APP

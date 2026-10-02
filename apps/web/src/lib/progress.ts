@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Allotment } from "./allotment";
-import { isRecord, isStr, readJson, writeJson } from "./storage";
+import { isRecord, isStr, readJson, SYNC_APPLIED_EVENT, writeJson } from "./storage";
 
 /**
  * Which My CAP plan steps the student has done in this browser (#135), so the next-step card can
@@ -57,9 +57,11 @@ export function useProgress(): Progress {
     const f = () => setP(loadProgress());
     window.addEventListener(EVENT, f);
     window.addEventListener("storage", f);
+    window.addEventListener(SYNC_APPLIED_EVENT, f);
     return () => {
       window.removeEventListener(EVENT, f);
       window.removeEventListener("storage", f);
+      window.removeEventListener(SYNC_APPLIED_EVENT, f);
     };
   }, []);
   return p;

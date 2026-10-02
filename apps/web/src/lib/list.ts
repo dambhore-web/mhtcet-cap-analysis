@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { isNum, isRecord, isStr, readJson, validArray, writeJson } from "./storage";
+import { isNum, isRecord, isStr, readJson, SYNC_APPLIED_EVENT, validArray, writeJson } from "./storage";
 
 export interface ListItem {
   id: string;
@@ -71,9 +71,11 @@ export function useList(): ListItem[] {
     const refresh = () => setItems(loadList());
     window.addEventListener(CHANGE_EVENT, refresh);
     window.addEventListener("storage", refresh);
+    window.addEventListener(SYNC_APPLIED_EVENT, refresh);
     return () => {
       window.removeEventListener(CHANGE_EVENT, refresh);
       window.removeEventListener("storage", refresh);
+      window.removeEventListener(SYNC_APPLIED_EVENT, refresh);
     };
   }, []);
   return items;

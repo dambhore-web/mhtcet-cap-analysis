@@ -3,6 +3,7 @@ import { eligibleSeatTypes, type CandidateProfile } from "@mhtcet/core";
 import { seatTypeLabel } from "../lib/seatType";
 import { useNavigate, Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
+import { AccountPanel } from "../components/AccountPanel";
 import type { Category } from "../lib/api";
 import { CATEGORY_OPTIONS, MINORITY_OPTIONS } from "../lib/categories";
 import { UNIVERSITIES } from "../lib/universities";
@@ -225,16 +226,7 @@ export function ProfilePage() {
         <p className="profile-hint"><Link to="/guide?tab=codes">How to read a seat code</Link></p>
       </section>
 
-      <div className="profile-account-row">
-        <Link to="/signin" className="btn btn-secondary btn-sm">
-          <Icon name="user" size={16} />
-          Sign in to use on other devices
-        </Link>
-        <Link to="/plans" className="btn btn-ghost btn-sm">
-          See plans
-          <Icon name="arrowRight" size={16} />
-        </Link>
-      </div>
+      <AccountPanel />
     </div>
   );
 }

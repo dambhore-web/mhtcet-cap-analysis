@@ -1,0 +1,74 @@
+.account-panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 20px;
+}
+
+.account-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.account-head h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: var(--navy-deep);
+}
+
+.account-who,
+.account-note,
+.account-sync,
+.account-delete p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.account-who b {
+  color: var(--navy);
+}
+
+.account-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.account-sync--synced { color: var(--safe-text); }
+.account-sync--error { color: var(--warn-text); }
+
+.account-delete-open {
+  justify-self: start;
+  padding-left: 0;
+  color: var(--out-text);
+}
+
+.account-delete {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px dashed var(--warn-line);
+  border-radius: var(--radius-md);
+  background: var(--warn-bg);
+}
+
+.account-delete-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.account-delete-btn {
+  background: var(--warn-text);
+  color: var(--white);
+}
+
+.account-error {
+  color: var(--warn-text);
+}

@@ -25,12 +25,14 @@
 | 2026-09-27 | "Later round" status uses the highest closing published in Rounds II–IV (round values cover only that round's allotments) | Matches how the official lists work | Claude | `03-domain/eligibility-rules.md` §6 |
 | 2026-09-27 | Web styling: plain CSS with design tokens (`apps/web/src/tokens.css`, `global.css`), no Tailwind. Replaces the Tailwind row above | Matches the build; moving to Tailwind would mean restyling every page | user (#118) | `AGENTS.md` coding conventions |
 | 2026-09-27 | Hosting: web **and** API on Railway, two services per environment. The Vercel deployment of the web app is retired | One platform; the API keeps a long-running process with an in-memory cache and streaming answers | user (#118) | `09-devops/deployment.md` |
+| 2026-10-02 | Auth: **Supabase Auth** with Google. The web app reads and writes the student's own data straight to Supabase (`user_store`, row-level security, `put_user_item`); the API stays read-only and has no auth code | Supabase already hosts the DB; keeps the API's read-only database role (security review) instead of adding a write path | user (#15) | `09-devops/google-sign-in.md` |
+| 2026-10-02 | Signed-in sync covers details, option form, compare list, allotment and next-step progress; per piece, the newest copy wins | The dashboard (#139) needs the saved list; no merge prompts | user (#15) | `apps/web/src/lib/sync.ts` |
+| 2026-10-02 | Sign-out removes the synced pieces from that browser (they stay in the account) | Shared family computers | Claude (#15) | `09-devops/google-sign-in.md` |
 
 ## Open decisions
 | Decision | Needed by |
 |---|---|
 | API framework (Hono recommended) | Phase 6 |
-| Auth provider (Supabase Auth recommended; Google only) | Phase 6 |
 | Payment provider (Razorpay recommended) | Phase 8 |
 | Plans, prices, free vs paid split (parked) | Phase 8 |
 | LLM provider and model (chosen on eval results) | Phase 7 |
