@@ -85,12 +85,12 @@ describe("family summary link (#116)", () => {
 });
 
 describe("exports (#83)", () => {
-  it("writes the option form in order, with ranks to spare", () => {
+  it("writes the option form in order, with the merit compared in words", () => {
     const csv = toCSV([item(1, 100, 6000), item(2, 200, 4000)], 5000).split("\r\n");
     expect(csv[0]).toContain('"Choice code"');
     expect(csv[1]).toContain('"1","0000000001"');
-    expect(csv[1]).toContain('"1000"');
-    expect(csv[2]).toContain('"-1000"');
+    expect(csv[1]).toContain('"1,000 better"');
+    expect(csv[2]).toContain('"1,000 worse"');
     expect(choiceCodesText([item(1, 1, 2), item(2, 1, 2)])).toBe("0000000001\n0000000002");
   });
 });

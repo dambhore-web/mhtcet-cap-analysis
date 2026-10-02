@@ -91,7 +91,7 @@ export interface PastSummary {
 
 /**
  * How a merit number fared against the same seat in earlier years, by last-round closing rank
- * (the same basis as "ranks to spare"). Null when there are no earlier years.
+ * (the same basis as the "better/worse than closing" comparison). Null when there are no earlier years.
  */
 export function pastSummary(past: PastYearClosing[], merit: number): PastSummary | null {
   if (!past.length) return null;

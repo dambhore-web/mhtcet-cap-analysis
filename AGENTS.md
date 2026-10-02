@@ -41,6 +41,11 @@ merit lists. See `docs/00-project/vision.md`.
 - No `any` without a comment saying why.
 - Web: plain CSS using the design tokens in `apps/web/src/tokens.css` (no Tailwind); API calls go
   through `apps/web/src/lib/api.ts`. English only at launch (NFR-005).
+- Copy: compare a merit number with a closing merit number only as **better** or **worse** (a
+  smaller number is better), through `describeMeritGap()` in `apps/web/src/lib/meritGap.ts`:
+  "1,550 better", "Your merit number 12,450 is 3,950 worse than last year's closing (8,500)."
+  Never "above", "below", "to spare", "short" or "safe"; the difference counts candidates, not
+  seats (#140).
 
 ## Data and privacy rules (non-negotiable, ADR-003)
 - **Never commit** PDFs, row-level CSV/NDJSON, or anything under `data/`.

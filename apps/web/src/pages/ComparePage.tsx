@@ -11,6 +11,7 @@ import { formatInr } from "../lib/plans";
 import { LadderAxis, ladderDomain } from "../components/MeritLadder";
 import { logBounds, logScale, ticksIn, tickLabel } from "../lib/logScale";
 import { useWidth } from "../lib/useWidth";
+import { describeMeritGap } from "../lib/meritGap";
 import "./ComparePage.css";
 
 /** One colour and one shape per column, so colour is never the only difference. */
@@ -250,8 +251,8 @@ export function ComparePage() {
                               {m !== null ? fmt(m) : <span className="compare-na">—</span>}
                             </span>
                             {surplus !== null && (
-                              <span className={`compare-surplus${surplus >= 0 ? " pos" : " neg"}`}>
-                                {surplus >= 0 ? `${fmt(surplus)} to spare` : `${fmt(-surplus)} short`}
+                              <span className={`compare-surplus${surplus >= 0 ? " pos" : " neg"}`} title={describeMeritGap(merit, m!).long}>
+                                {describeMeritGap(merit, m!).short}
                               </span>
                             )}
                           </div>
