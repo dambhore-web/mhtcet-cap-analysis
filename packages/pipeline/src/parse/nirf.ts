@@ -48,7 +48,7 @@ const PAGE_SPAN = 100_000;
 const TABLE_TITLE = /UG\s*\[\s*4\s*Years?\s*Program\(?s?\)?\s*\]\s*:\s*Placement/i;
 /** What follows the UG 4-year table: another program's table or another section. */
 const NEXT_SECTION = /^\s*((PG|UG|PG-Integrated)[^:]{0,40}:\s*Placement|Ph\.?\s?D|Financial Resources|Sponsored Research|Consultancy|Sustainable|Faculty Details)/i;
-const ACADEMIC_YEAR = /^\s*(20\d\d)\s*-\s*(\d\d|20\d\d)\s*$/;
+const ACADEMIC_YEAR = /^\s*\(?\s*(20\d\d)\s*-\s*(\d\d|20\d\d)\s*\)?\s*$/;
 
 /** Reading coordinates from the item's own text direction (works for rotated pages). */
 function toCell(it: PdfItem): Cell {
@@ -115,12 +115,28 @@ function normYear(text: string): string | null {
   return `${m[1]}-${m[2].slice(-2)}`;
 }
 
+/**
+ * Institute name and NIRF ID, in the layouts colleges publish (#134):
+ *  - "Institute Name: X [IR-E-C-12345]" (the DCS PDF), possibly with the address before the ID and
+ *    stray spaces inside it ("[IR-E- C-33792]");
+ *  - "Institute ID : IR-E-C-11015 Institute Name : X Full Report" (the browser printout).
+ */
+export function instituteOf(joined: string): { instituteName: string | null; instituteId: string | null } {
+  const ID = String.raw`IR\s*-\s*[A-Z]\s*-\s*[A-Z]\s*-\s*\d+`;
+  const clean = (id: string) => id.replace(/\s+/g, "");
+  const printout = joined.match(new RegExp(`Institute ID\\s*:\\s*(${ID})\\s*Institute Name\\s*:\\s*(.+?)\\s+(?:Full Report|Sanctioned|Academic Year)`));
+  if (printout) return { instituteId: clean(printout[1]), instituteName: printout[2].trim() };
+  const dcs = joined.match(new RegExp(`Institute Name\\s*:\\s*(.+?)\\s*\\[\\s*(${ID})\\s*\\]`));
+  if (dcs) return { instituteId: clean(dcs[2]), instituteName: dcs[1].trim() };
+  return { instituteName: null, instituteId: null };
+}
+
 /** Parse the UG 4-year placement table. Pure: takes the text items of the whole PDF. */
 export function parseNirfPlacement(items: PdfItem[]): NirfPlacement {
   const all = items.filter((i) => i.str.trim()).map(toCell);
   const joined = items.map((i) => i.str).join(" ").replace(/\s+/g, " ");
-  const nameMatch = joined.match(/Institute Name\s*:\s*(.+?)\s*\[\s*(IR-[A-Z]-[A-Z]-\d+)\s*\]/);
-  const out: NirfPlacement = { instituteName: nameMatch?.[1]?.trim() ?? null, instituteId: nameMatch?.[2] ?? null, rows: [] };
+  const { instituteName, instituteId } = instituteOf(joined);
+  const out: NirfPlacement = { instituteName, instituteId, rows: [] };
 
   const cells = [...all].sort((p, q) => p.row - q.row || p.col - q.col);
   const start = cells.findIndex((c) => TABLE_TITLE.test(c.text));

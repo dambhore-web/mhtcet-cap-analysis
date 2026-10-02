@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseNirfPlacement, parseSalary, rowProblems, type PdfItem } from "../src/parse/nirf.ts";
+import { instituteOf, parseNirfPlacement, parseSalary, rowProblems, type PdfItem } from "../src/parse/nirf.ts";
 
 /** Synthetic NIRF-style page: cells laid out on a grid of (row, col) in reading order. */
 function page(cells: Array<[number, number, string]>, rotated: boolean, pageNo = 1): PdfItem[] {
@@ -82,5 +82,30 @@ describe("NIRF UG 4-year placement table", () => {
     expect(rowProblems({ graduationYear: "2024-25", graduates: 100, placed: 120, medianSalary: 400000, higherStudies: 0 })).toContain("placed > graduates");
     expect(rowProblems({ graduationYear: "2024-25", graduates: 100, placed: 50, medianSalary: null, higherStudies: 0 })).toContain("no median salary");
     expect(rowProblems(expected[0])).toEqual([]);
+  });
+});
+
+describe("NIRF layouts colleges publish (#134)", () => {
+  it("reads the name and ID of the DCS PDF, with the address before the ID and spaces inside it", () => {
+    expect(instituteOf("Institute Name: Manjara Charitable Trusts Rajiv Gandhi Institute of Technology Juhu Versova Link Road Mumbai 400061 [IR-E- C-33792] Sanctioned")).toEqual({
+      instituteName: "Manjara Charitable Trusts Rajiv Gandhi Institute of Technology Juhu Versova Link Road Mumbai 400061",
+      instituteId: "IR-E-C-33792",
+    });
+  });
+
+  it("reads the browser printout layout", () => {
+    expect(instituteOf("Data Capturing System: ENGINEERING Institute ID : IR-E-C-11015 Institute Name : Walchand College of Engineering Full Report Sanctioned")).toEqual({
+      instituteName: "Walchand College of Engineering",
+      instituteId: "IR-E-C-11015",
+    });
+  });
+
+  it("gives nothing rather than guessing", () => {
+    expect(instituteOf("Placement report 2024-25 of our college")).toEqual({ instituteName: null, instituteId: null });
+  });
+
+  it("reads academic years printed in brackets", () => {
+    const bracketed = table.map(([r, c, s]) => [r, c, /^20\d\d-\d\d$/.test(s) ? `(${s})` : s] as [number, number, string]);
+    expect(parseNirfPlacement(page(bracketed, false)).rows).toEqual(expected);
   });
 });

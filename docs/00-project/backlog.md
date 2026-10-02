@@ -4,8 +4,52 @@ Work that is known and not yet scheduled. Each section links its GitHub issue.
 
 ## Placement data: colleges without it (#134)
 
-_Checked 2026-09-29._ Placement data covers 145 of the 387 current colleges: 108 from NIRF, 70 from
-the colleges' own websites, 33 from both (#132). The 242 below have neither. To add a college,
+_Updated 2026-10-02._ Placement data covers 155 of the 387 current colleges: 118 from NIRF, 70 from
+the colleges' own websites (#132, #134). The 232 still without it are the colleges below, less the 10
+added in batch 1.
+
+### Batch 1: the 40 most in-demand colleges (2026-10-02)
+
+Ranked by the most competitive Round I open-seat closing rank among each college's branches. Searched
+each college's own site for its NIRF data PDF (the data it submitted to NIRF, published on its site).
+
+**Added from NIRF data (10):** 06007 Walchand Sangli, 03135 MCT RGIT, 03209 KJSIT, 04123 PCE Nagpur,
+05121 KK Wagh, 06207 DY Patil Pimpri, 06214 RIT Islampur, 06274 PVG, 06278 AISSMS COE, 06822 PCCOER.
+
+**Site blocks automated access (Cloudflare check): download the NIRF PDF by hand in a browser**
+| Code | College |
+|---|---|
+| 03036 | Institute of Chemical Technology, Mumbai |
+| 06271 | Pune Institute of Computer Technology (NIRF PDFs at pict.edu/nirf/) |
+| 02032 | Institute of Chemical Technology, Marathwada campus, Jalna |
+| 06755 | JSPM Narhe Technical Campus |
+| 06311 | JSPM Bhivarabai Sawant Institute of Technology and Research |
+
+**NIRF links on the college's own site are broken (404)**
+| Code | College |
+|---|---|
+| 06004 | Government College of Engineering & Research, Avasari Khurd (pdf/NIRF/NIRF Report 2024-25.pdf) |
+| 03203 | Atharva College of Engineering (NIRF 2024 and 2025 files) |
+
+**University-wide NIRF data only: not used** (it covers all of the university's four-year degrees,
+not just the engineering department in CAP)
+| Code | College |
+|---|---|
+| 06028 | Shivaji University School of Engineering and Technology |
+| 01005 | Sant Gadge Baba Amravati University |
+| 06041 | Punyashlok Ahilyadevi Holkar Solapur University (only NIRF 2021 found) |
+
+**NIRF page exists but its PDFs aren't linked as files**: 03176 TCET (NIRF-Data.html, NIRF_2025.html),
+06139 Modern COE (files behind a viewer), 14005 LIT University, 02508 Gramin Nanded, 04004 GCOE Chandrapur,
+05004 GCOE Jalgaon.
+
+**No NIRF data found on the site or by search**: 05160 Sanjivani, 06036 GCOE Kolhapur, 03143 Thakur
+Shyamnarayan (tsec.edu is Thadomal Shahani, a different college), 01101 SSGMCE Shegaon, 06178 SKNCOE,
+06310 NMIET, 06732 ADYPSOE, 06179 Indira ICEM, 02113 MIT Aurangabad, 03188 VPPCOE, 03042 LSPGCOER,
+02021 BAMU Dept of Chemical Technology (site 404), 01002 GCOE Amravati (site didn't load).
+
+**Before batch 1** (_checked 2026-09-29_): 145 colleges covered (108 from NIRF, 70 from the colleges'
+own websites, 33 from both); the 242 below had neither. To add a college,
 re-crawl it with `packages/pipeline/scripts/crawlPlacementPages.mjs` (a `code<TAB>url` list), then
 run `npm run placement:claims -w @mhtcet/pipeline` and the staging load (`placement` key). Figures
 read by hand from a college's own documents (images, scanned PDFs) go in

@@ -27,6 +27,12 @@
   rate-limit message no longer says "Upgrade", and the Terms say Compass is free (sections on paid
   plans, refunds and GST removed).
 ### Added
+- Placement, batch 1 of #134: NIRF figures for 10 more colleges, from the NIRF data each published
+  on its own site (Walchand Sangli, DY Patil Pimpri, AISSMS COE, KJSIT, PVG, PCCOER, RIT Islampur,
+  KK Wagh, MCT RGIT, PCE Nagpur): 155 of 387 colleges now have placement data. The NIRF parser reads
+  two more layouts (the browser printout; IDs with stray spaces; years in brackets). The builder
+  retries failed downloads and keeps a college's previous figures when its site is down instead of
+  dropping it. Status of the 40 most in-demand colleges in `docs/00-project/backlog.md`.
 - Fees for every college (#42, `docs/03-domain/fees.md`): FRA figures now show as "FRA-approved,
   2026-27" with a link to the FRA report and its status explained, instead of "Unverified". The
   27 government, aided and deemed colleges (COEP, VJTI, ...) and the 41 private colleges on neither
