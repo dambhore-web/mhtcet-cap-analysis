@@ -76,6 +76,11 @@ function changedLocally(storageKey: string) {
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(LOCAL_CHANGE_EVENT, { detail: k }));
 }
 
+/** Record when a piece changed without touching its value (first upload of pre-sync data). */
+export function stampSynced(k: SyncKey, at: string) {
+  stamp(k, at);
+}
+
 /** Write the account's copy of a piece without counting it as a local change. */
 export function applySynced(k: SyncKey, value: unknown, updatedAt: string) {
   try {

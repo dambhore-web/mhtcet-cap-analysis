@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
-  applySynced, LOCAL_CHANGE_EVENT, readJson, SYNC_APPLIED_EVENT, SYNC_KEYS, SYNCED, syncMeta, type SyncKey,
+  applySynced, LOCAL_CHANGE_EVENT, readJson, stampSynced, SYNC_APPLIED_EVENT, SYNC_KEYS, SYNCED, syncMeta, type SyncKey,
 } from "./storage";
 
 /**
@@ -108,7 +108,16 @@ export function startSync(backend: SyncBackend, onStatus: (s: SyncStatus) => voi
         }
       }
       if (pulled) window.dispatchEvent(new Event(SYNC_APPLIED_EVENT));
-      for (const a of actions) if (a.kind === "push") await backend.put(a.key, readJson(SYNCED[a.key]), a.updatedAt);
+      for (const a of actions) {
+        if (a.kind !== "push") continue;
+        // data saved before sync existed goes up with today's time, so it beats other devices' old copies
+        let at = a.updatedAt;
+        if (at === BEFORE_SYNC) {
+          at = new Date().toISOString();
+          stampSynced(a.key, at);
+        }
+        await backend.put(a.key, readJson(SYNCED[a.key]), at);
+      }
     });
 
   const onLocal = (e: Event) => {

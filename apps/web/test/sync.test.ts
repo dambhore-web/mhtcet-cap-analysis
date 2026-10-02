@@ -114,3 +114,31 @@ describe("startSync (#15)", () => {
     s.stop();
   });
 });
+
+describe("startSync: first upload of data saved before sync (#15)", () => {
+  let store: Map<string, string>;
+  beforeEach(() => {
+    store = new Map();
+    vi.stubGlobal("localStorage", {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+      removeItem: (k: string) => void store.delete(k),
+    });
+    vi.stubGlobal("window", new EventTarget());
+    vi.stubGlobal("document", Object.assign(new EventTarget(), { visibilityState: "visible" }));
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("sends it with the current time and remembers that time", async () => {
+    store.set(SYNCED.profile, JSON.stringify({ meritNumber: 5200 })); // no change time: saved before sync
+    const puts: { key: string; updatedAt: string }[] = [];
+    const s = startSync({ fetchAll: async () => [], put: async (key, _v, updatedAt) => void puts.push({ key, updatedAt }), deleteAll: async () => undefined }, () => undefined);
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(puts).toHaveLength(1);
+    expect(puts[0].updatedAt).not.toBe(BEFORE_SYNC);
+    expect(Date.now() - Date.parse(puts[0].updatedAt)).toBeLessThan(5_000);
+    expect(syncMeta().profile).toBe(puts[0].updatedAt);
+    s.stop();
+  });
+});
