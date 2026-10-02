@@ -139,7 +139,7 @@ test.describe("Answer tiles on Find colleges (#142)", () => {
     await expect(page).toHaveURL(/cat=OBC/);
     await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
 
-    const merit = page.getByLabel("Merit number");
+    const merit = page.getByRole("textbox", { name: "Merit number" });
     await merit.fill("6,000");
     await expect(page.getByRole("heading", { level: 2, name: /options for merit 6,000/i })).toBeVisible();
     await expect(page).toHaveURL(/merit=6000/);
@@ -165,7 +165,7 @@ test.describe("Answer tiles on Find colleges (#142)", () => {
   test("a bad merit number says so and keeps the results", async ({ page }) => {
     await page.goto("/find");
     await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
-    const merit = page.getByLabel("Merit number");
+    const merit = page.getByRole("textbox", { name: "Merit number" });
     await merit.fill("abc");
     await merit.press("Enter");
     await expect(page.getByRole("alert")).toContainText(/enter a merit number/i);

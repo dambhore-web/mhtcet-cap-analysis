@@ -30,15 +30,15 @@ test("J1 · Which colleges could I get with my merit number?", async ({ page }) 
   await page.goto("/find");
   // the saved answers search straight away
   await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
-  await expect(page.getByText(/options within reach, in \d+ colleges/)).toBeVisible();
+  await expect(page.getByText(/options in \d+ colleges were within reach/)).toBeVisible();
   // earlier years on each option: how this merit fared against the same seat in 2023–2025
   await expect(page.getByText(/2023–2025: within the cutoff in \d of 3 years/).first()).toBeVisible();
   // seats of that seat type in the branch, from the CAP seat matrix
   await expect(page.locator(".seat-count").first()).toHaveText(/\d+ seats?/);
-  // what-if slider re-marks results
-  const slider = page.getByLabel(/what if my merit were/i);
-  await slider.focus();
-  await page.keyboard.press("End");
+  // the merit ruler's pin is the what-if control: moving it re-marks the results
+  const pin = page.getByRole("slider", { name: "Your merit number" });
+  await pin.focus();
+  await page.keyboard.press("Shift+ArrowRight");
   await expect(page.getByRole("button", { name: /back to 5,200/i })).toBeVisible();
   await page.getByRole("button", { name: /back to 5,200/i }).click();
   await page.getByRole("link", { name: "Pune Institute of Computer Technology" }).first().click();
@@ -54,7 +54,7 @@ test("J2 · I only have my percentile", async ({ page }) => {
   await page.getByLabel("MHT-CET percentile").fill("96.5");
   await page.getByRole("button", { name: "Estimate" }).click();
   await expect(page.getByRole("heading", { name: /likely state merit number/i })).toBeVisible();
-  await page.getByRole("button", { name: /find options for/i }).click();
+  await page.getByRole("button", { name: /plan with .* \(the cautious end\)/i }).click();
   await expect(page.getByRole("note")).toContainText(/estimated from your percentile/i);
 });
 
@@ -78,12 +78,13 @@ test("J4 · What were the cutoffs at COEP?", async ({ page }) => {
   await expect(page.getByRole("columnheader", { name: "Round IV" }).first()).toBeVisible();
   await page.getByRole("link", { name: "Branch trends" }).click();
   await expect(page).toHaveURL(/\/colleges\/16006\/1600601910/);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Computer Engineering at COEP");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Computer Engineering");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("COEP");
   // Year-on-year trend (CAP 2023–2026) with a plain-language verdict, and a round switch
   await expect(page.getByRole("heading", { name: "Closing rank by year" })).toBeVisible();
-  await expect(page.getByText(/General open, state level got (harder|easier)|stayed about the same/).first()).toBeVisible();
-  await page.getByRole("combobox", { name: "Round" }).selectOption("last");
-  await expect(page.getByText(/2023 and 2024 had three rounds/)).toBeVisible();
+  await expect(page.getByText(/General open, state level, Round I: closed at .*(harder now|easier now|about the same)/).first()).toBeVisible();
+  await page.getByRole("group", { name: "Round" }).getByRole("button", { name: "Last round" }).click();
+  await expect(page.getByText(/General open, state level, the last round: closed at/).first()).toBeVisible();
 });
 
 test("J5 · Is COEP or VIT better for me?", async ({ page }) => {
@@ -135,7 +136,7 @@ test("J8 · In what order should I fill my option form?", async ({ page }) => {
   await page.getByRole("link", { name: /done/i }).click();
   await expect(page.getByRole("list", { name: /choices in order/i }).getByRole("listitem")).toHaveCount(2);
   await page.getByRole("navigation", { name: /my cap plan steps/i }).getByRole("link", { name: /export/i }).click();
-  await expect(page.getByRole("table")).toBeVisible();
+  await expect(page.getByRole("list", { name: /choice codes in order/i }).getByRole("listitem")).toHaveCount(2);
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download Excel" }).click();
   expect((await download).suggestedFilename()).toBe("compass-option-form.xlsx");

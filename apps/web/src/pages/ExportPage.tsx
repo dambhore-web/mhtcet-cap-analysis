@@ -90,7 +90,7 @@ export function ExportPage() {
                 {categoryLabel} · {items.length} {items.length === 1 ? "choice" : "choices"}
               </span>
             </div>
-            <ol className="export-codes">
+            <ol className="export-codes" aria-label="Choice codes in order">
               {items.map((it, i) => (
                 <li key={it.id}>
                   <span className="export-codes-n">{i + 1}</span>

@@ -243,7 +243,9 @@
 @media (max-width: 899px) {
   .colleges-axis { display: none; }
   .college-item { flex-wrap: wrap; }
-  .college-item-strip { order: 5; flex: 1 1 60%; margin-left: 52px; }
-  .college-item-reach { order: 6; }
+  /* strip and count share one row under the name: the count sits at the strip's right end */
+  .college-item-strip { order: 5; flex: 1 1 calc(100% - 52px - 96px); min-width: 0; margin-left: 52px; }
+  .college-item-reach { order: 6; flex: 0 0 auto; text-align: right; white-space: nowrap; }
+  .college-item-strip + .college-item-reach { margin-left: 4px; }
   .college-item-pin { min-width: 0; }
 }
