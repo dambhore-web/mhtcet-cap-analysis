@@ -107,7 +107,7 @@ export function TopNav() {
               <Link to="/profile" className={`top-nav-link top-nav-profile${pathname.startsWith("/profile") ? " active" : ""}`} aria-current={pathname.startsWith("/profile") ? "page" : undefined}>
                 My details
               </Link>
-              <Link to="/signin" className="btn btn-primary btn-sm top-nav-signin">Sign in</Link>
+              <Link to="/signin" state={{ from: pathname }} className="btn btn-primary btn-sm top-nav-signin">Sign in</Link>
             </>
           )}
           {user && accountOpen && (
@@ -152,7 +152,7 @@ export function TopNav() {
           {user ? (
             <button type="button" className="top-nav-sheet-link" onClick={signOut}>Sign out</button>
           ) : (
-            <Link to="/signin" className="btn btn-primary btn-block">Sign in</Link>
+            <Link to="/signin" state={{ from: pathname }} className="btn btn-primary btn-block">Sign in</Link>
           )}
         </nav>
       )}

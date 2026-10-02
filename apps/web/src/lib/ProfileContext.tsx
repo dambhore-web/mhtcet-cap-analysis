@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { loadProfile, saveProfile, clearProfile, type Profile, DEFAULT_PROFILE } from "./profile";
+import { SYNC_APPLIED_EVENT } from "./storage";
 
 interface ProfileCtx {
   profile: Profile;
@@ -13,6 +14,17 @@ const Ctx = createContext<ProfileCtx | null>(null);
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfileState] = useState<Profile>(() => loadProfile() ?? DEFAULT_PROFILE);
   const [hasProfile, setHasProfile] = useState(() => loadProfile() !== null);
+
+  // the account's copy arrived (#15): show it
+  useEffect(() => {
+    const reload = () => {
+      const p = loadProfile();
+      setProfileState(p ?? DEFAULT_PROFILE);
+      setHasProfile(p !== null);
+    };
+    window.addEventListener(SYNC_APPLIED_EVENT, reload);
+    return () => window.removeEventListener(SYNC_APPLIED_EVENT, reload);
+  }, []);
 
   function setProfile(p: Profile) {
     saveProfile(p);

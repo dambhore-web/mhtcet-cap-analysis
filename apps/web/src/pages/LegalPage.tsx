@@ -99,7 +99,7 @@ function PrivacyTab() {
   return (
     <div className="legal-content">
       <h2>Privacy Policy</h2>
-      <p className="legal-updated">Last updated: September 2026 · Effective: September 2026</p>
+      <p className="legal-updated">Last updated: October 2026 · Effective: October 2026</p>
 
       <p>
         This Privacy Policy describes how Compass ("we", "our", "the app") collects, uses, and protects information when you use the Compass web application. By using Compass, you agree to the practices described here.
@@ -110,6 +110,7 @@ function PrivacyTab() {
       <ul>
         <li><strong>Student profile:</strong> Merit number, category, gender, subject group, home university, and special category flags (EWS, TFWS, Defence, PWD, Orphan). This is stored locally in your browser (localStorage) and never sent to our servers unless you explicitly sign in.</li>
         <li><strong>Preference list:</strong> The colleges and branches you save are stored locally in your browser.</li>
+        <li><strong>If you sign in with Google:</strong> your name and email address from Google, and a copy of your student profile, option form, compare list, allotment and CAP progress, so they follow you to other devices. These are stored in our database, hosted by Supabase, where only your signed-in account can read them. We do not receive your Google password.</li>
       </ul>
 
       <h4>Information collected automatically</h4>
@@ -128,7 +129,7 @@ function PrivacyTab() {
 
       <h3>3. Data storage and retention</h3>
       <p>
-        Profile and preference data is stored in your browser's localStorage. You can clear this at any time by clearing your browser data or using "Clear saved details" in My details. Server logs are retained for up to 30 days.
+        Profile and preference data is stored in your browser's localStorage. You can clear this at any time by clearing your browser data or using "Clear saved details" in My details. If you sign in, the copy saved to your account is kept until you delete it with "Delete data saved to my account" in My details; signing out removes it from that browser. Server logs are retained for up to 30 days.
       </p>
 
       <h3>4. Digital Personal Data Protection Act (DPDP) 2023</h3>
@@ -138,7 +139,7 @@ function PrivacyTab() {
 
       <h3>5. Cookies</h3>
       <p>
-        Compass does not use tracking cookies. We use browser localStorage for application state only.
+        Compass does not use tracking cookies. We use browser localStorage for application state, and, if you sign in, to keep you signed in.
       </p>
 
       <h3>6. Children's privacy</h3>

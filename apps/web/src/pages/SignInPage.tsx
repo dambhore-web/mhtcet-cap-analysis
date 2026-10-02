@@ -1,25 +1,46 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../lib/AuthContext";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { RETURN_KEY, useAuth } from "../lib/AuthContext";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
 import "./SignInPage.css";
 
+/** Only paths inside the app, so a crafted link can't send the student elsewhere after sign-in. */
+function returnPath(): string {
+  try {
+    const p = sessionStorage.getItem(RETURN_KEY);
+    sessionStorage.removeItem(RETURN_KEY);
+    if (p && p.startsWith("/") && !p.startsWith("//")) return p;
+  } catch {
+    /* ignore */
+  }
+  return "/profile";
+}
+
 export function SignInPage() {
-  const { signIn } = useAuth();
+  const { user, loading: authLoading, configured, signIn } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  // Google or Supabase sent the student back with an error (e.g. they cancelled)
+  const returnedError = params.get("error_description") ?? params.get("error");
+  const [error, setError] = useState(returnedError ? "Google sign-in didn't finish. Try again, or continue without signing in." : "");
+  const coming = params.has("code");
+
+  // back from Google and signed in: carry on where they were
+  useEffect(() => {
+    if (user && !authLoading) navigate(returnPath(), { replace: true });
+  }, [user, authLoading, navigate]);
 
   async function handleGoogleSignIn() {
     setLoading(true);
     setError("");
     try {
-      await signIn();
-      navigate(-1);
+      const from = (window.history.state?.usr as { from?: string } | null)?.from;
+      await signIn(from);
+      // the browser is now on its way to Google
     } catch {
-      setError("Google sign-in isn't available yet. Your details stay saved in this browser meanwhile.");
-    } finally {
+      setError("Couldn't reach Google sign-in. Check your connection and try again.");
       setLoading(false);
     }
   }
@@ -33,27 +54,39 @@ export function SignInPage() {
       />
 
       <div className="signin-body card">
-        <button
-          type="button"
-          className="signin-google-btn"
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-        >
-          <GoogleIcon />
-          {loading ? "Signing in…" : "Continue with Google"}
-        </button>
-
-        {error && <p className="signin-error" role="alert">{error}</p>}
-
-        <div className="signin-coming-soon">
-          <span className="badge badge-sample">Coming soon</span>
-          <p>Accounts are not live yet. Until then, this browser keeps:</p>
-          <ul className="signin-kept">
-            <li><Icon name="check" size={14} />Your details (merit number, category, home university)</li>
-            <li><Icon name="check" size={14} />Your option form, in order</li>
-            <li><Icon name="check" size={14} />Colleges you're comparing</li>
-          </ul>
-        </div>
+        {configured ? (
+          <>
+            <button
+              type="button"
+              className="signin-google-btn"
+              onClick={handleGoogleSignIn}
+              disabled={loading || coming || authLoading}
+            >
+              <GoogleIcon />
+              {loading || coming ? "Signing in…" : "Continue with Google"}
+            </button>
+            {error && <p className="signin-error" role="alert">{error}</p>}
+            <div className="signin-coming-soon signin-synced">
+              <p>Signed in, these follow you to any phone or computer:</p>
+              <ul className="signin-kept">
+                <li><Icon name="check" size={14} />Your details (merit number, category, home university)</li>
+                <li><Icon name="check" size={14} />Your option form, in order, and where you are in CAP</li>
+                <li><Icon name="check" size={14} />Colleges you're comparing</li>
+              </ul>
+              <p className="signin-privacy">We use your Google account only to know it's you: your name and email address. Nothing is posted to Google.</p>
+            </div>
+          </>
+        ) : (
+          <div className="signin-coming-soon">
+            <span className="badge badge-sample">Coming soon</span>
+            <p>Accounts are not live yet. Until then, this browser keeps:</p>
+            <ul className="signin-kept">
+              <li><Icon name="check" size={14} />Your details (merit number, category, home university)</li>
+              <li><Icon name="check" size={14} />Your option form, in order</li>
+              <li><Icon name="check" size={14} />Colleges you're comparing</li>
+            </ul>
+          </div>
+        )}
 
         <Link to="/" className="btn btn-ghost btn-block">
           Continue without signing in

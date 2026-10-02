@@ -38,6 +38,8 @@ export default defineConfig({
     {
       command: `npm run dev -w @mhtcet/web -- --port ${WEB_PORT} --strictPort`,
       url: `http://localhost:${WEB_PORT}`,
+      // no Google sign-in in e2e (#15): process env beats apps/web/.env.local in Vite
+      env: { ...process.env, VITE_SUPABASE_URL: "", VITE_SUPABASE_ANON_KEY: "" } as Record<string, string>,
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },

@@ -7,6 +7,11 @@
   home / other-than-home-university open seats. `open-latest` now falls back to GOPENO, GOPENH, then
   ladies open seats, and says which per row; the colleges list labels non-state-level strips.
 ### Added
+- Google sign-in with Supabase Auth (#15). Signed in, details, option form, compare list, allotment
+  and CAP progress follow the student across devices (`user_store`, row-level security; newest copy
+  of each piece wins). My details shows the account, sync state, sign out and delete saved data.
+  Without `VITE_SUPABASE_*` the app runs as before. Setup: `docs/09-devops/google-sign-in.md`;
+  privacy policy updated.
 - Find colleges: a "What should I do next?" card (#135) with one action for the student's CAP
   stage (estimate, add choices, test, export, allotment, family summary). Progress dates kept in
   this browser (`compass_progress_v1`); After allotment gets "I've made my choice on the CET Cell

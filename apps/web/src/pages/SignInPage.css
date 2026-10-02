@@ -76,3 +76,25 @@
 .signin-kept { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
 .signin-kept li { display: flex; align-items: center; gap: 8px; }
 .signin-kept svg { flex: none; color: var(--safe-text); }
+
+/* #15: what signing in keeps in sync; a list reads better left-aligned */
+.signin-synced {
+  text-align: left;
+}
+
+.signin-synced .signin-kept {
+  margin: 8px 0 12px;
+}
+
+.signin-synced .signin-kept li {
+  align-items: flex-start;
+}
+
+.signin-synced .signin-kept svg {
+  margin-top: 3px;
+}
+
+.signin-privacy {
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}

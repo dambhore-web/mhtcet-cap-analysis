@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { SYNC_APPLIED_EVENT } from "./storage";
 import { loadPinned, pinCollege, unpinCollege, isPinned, type PinnedCollege } from "./compare";
 
 interface CompareCtx {
@@ -13,6 +14,13 @@ const Ctx = createContext<CompareCtx | null>(null);
 
 export function CompareProvider({ children }: { children: ReactNode }) {
   const [pinned, setPinned] = useState<PinnedCollege[]>(() => loadPinned());
+
+  // the account's copy arrived (#15): show it
+  useEffect(() => {
+    const reload = () => setPinned(loadPinned());
+    window.addEventListener(SYNC_APPLIED_EVENT, reload);
+    return () => window.removeEventListener(SYNC_APPLIED_EVENT, reload);
+  }, []);
 
   function pin(college: PinnedCollege) {
     setPinned(pinCollege(college));

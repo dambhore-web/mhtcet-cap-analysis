@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { autoFreezes, type Round } from "@mhtcet/core";
 import type { ListItem } from "./list";
-import { isRecord, isStr, readJson, removeKey, writeJson } from "./storage";
+import { isRecord, isStr, readJson, removeKey, SYNC_APPLIED_EVENT, writeJson } from "./storage";
 
 /** The seat the student was allotted, as entered on the After allotment step. */
 export interface Allotment {
@@ -30,7 +30,11 @@ export function useAllotment(): Allotment | null {
   useEffect(() => {
     const f = () => setA(loadAllotment());
     window.addEventListener(EVENT, f);
-    return () => window.removeEventListener(EVENT, f);
+    window.addEventListener(SYNC_APPLIED_EVENT, f);
+    return () => {
+      window.removeEventListener(EVENT, f);
+      window.removeEventListener(SYNC_APPLIED_EVENT, f);
+    };
   }, []);
   return a;
 }
