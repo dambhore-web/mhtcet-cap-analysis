@@ -65,6 +65,22 @@ test.describe("Colleges directory", () => {
     await expect(nav.getByRole("link", { name: "Placement" })).toHaveCount(0);
   });
 
+  test("fees: FRA-approved with a source link, and a reason when a college has none (#42)", async ({ page }) => {
+    await page.goto("/colleges/06271");
+    const fees = page.locator("#fees");
+    await expect(fees).toContainText(/FRA-approved, 20\d\d-\d\d/);
+    await expect(fees).not.toContainText("Unverified");
+    await fees.locator("summary").click();
+    await expect(fees.getByRole("link", { name: "FRA report" })).toHaveAttribute("href", /mahafraportal\.org/);
+    await expect(fees).toContainText("Confirm with the college before paying");
+    // a government college: no number, and why
+    await page.goto("/colleges/03012");
+    const none = page.getByRole("region", { name: "Fees per year" });
+    await expect(none).toContainText("Government college: fees are set by the state or the university");
+    await expect(none).not.toContainText(/₹[\d,]{5,}/); // no fee amount (the TFWS line mentions ₹8L)
+    await expect(page.getByRole("navigation", { name: "Sections on this page" }).getByRole("link", { name: "Fees" })).toBeVisible();
+  });
+
   test("college page breadcrumb returns to the directory", async ({ page }) => {
     await page.goto("/colleges/16006");
     await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Colleges" }).click();

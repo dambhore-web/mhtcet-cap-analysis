@@ -233,7 +233,7 @@ export function CollegePage() {
   // #138: only sections this college actually has; Cutoffs first, since it is why people come here
   const navSections = useMemo(() => {
     const s: NavSection[] = [{ id: "cutoffs", label: "Cutoffs" }, { id: "branches", label: "Branches" }];
-    if (fees && fees.available) s.push({ id: "fees", label: "Fees" });
+    if (fees) s.push({ id: "fees", label: "Fees" });
     if (placement) s.push({ id: "placement", label: "Placement" });
     return s;
   }, [fees, placement]);
@@ -485,13 +485,14 @@ export function CollegePage() {
           </section>
 
           {/* Fees — standalone details card */}
+          {fees && !fees.available && <NoFeesCard fees={fees} />}
           {fees && fees.available && (
             <details id="fees" className="card cp-fees-card cp-anchor">
               <summary>
                 <div className="card-head"><h2>Fees per year</h2></div>
                 <div className="cp-fees-total-row">
                   <span className="cp-fees-num">{formatInr(fees.fees.totalAnnualFee)}</span>
-                  {!fees.verified && <span className="badge badge-sample">Unverified</span>}
+                  {fees.verified ? <span className="cp-fees-basis">FRA-approved, {fees.year}</span> : <span className="badge badge-sample">Unverified</span>}
                 </div>
                 <span className="cp-more">
                   <span className="cp-more-o">Show breakdown ↓</span>
@@ -503,18 +504,15 @@ export function CollegePage() {
                 {fees.fees.developmentFee !== null && <div><dt>Development</dt><dd>{formatInr(fees.fees.developmentFee)}</dd></div>}
                 {fees.fees.otherFees !== null && <div><dt>Other</dt><dd>{formatInr(fees.fees.otherFees)}</dd></div>}
               </dl>
-              {fees.tfwsAvailable && (
-                <p className="cp-fees-tfws">
-                  <Icon name="tag" size={14} />
-                  TFWS:{" "}
-                  {fees.tfwsSeats != null
-                    ? `${fees.tfwsSeats} seat${fees.tfwsSeats === 1 ? "" : "s"}${fees.tfwsBranches ? ` across ${fees.tfwsBranches} branch${fees.tfwsBranches === 1 ? "" : "es"}` : ""}`
-                    : "seats available"}
-                  . Parents earning under ₹8L/yr pay no tuition fee.
-                </p>
-              )}
+              {fees.tfwsAvailable && <TfwsLine seats={fees.tfwsSeats} branches={fees.tfwsBranches ?? null} />}
               <p className="cp-fees-note">
-                {fees.verified ? (
+                {fees.basis === "fra-report" ? (
+                  <>
+                    From the Fee Regulating Authority&apos;s approved-fee report for {fees.year}
+                    {fees.sourceUrl ? <> (<a href={fees.sourceUrl} target="_blank" rel="noreferrer">FRA report</a>)</> : null}.
+                    {fraStatusNote(fees.fraStatus)} Confirm with the college before paying.
+                  </>
+                ) : fees.verified ? (
                   <>
                     As approved by the Fee Regulating Authority
                     {fees.fraOrderUrl ? (
@@ -533,5 +531,50 @@ export function CollegePage() {
         </aside>
       </div>
     </div>
+  );
+}
+
+/** TFWS seats from the CAP seat matrix: the fee sources say nothing about them. */
+function TfwsLine({ seats, branches }: { seats: number | null; branches: number | null }) {
+  return (
+    <p className="cp-fees-tfws">
+      <Icon name="tag" size={14} />
+      TFWS:{" "}
+      {seats != null
+        ? `${seats} seat${seats === 1 ? "" : "s"}${branches ? ` across ${branches} branch${branches === 1 ? "" : "es"}` : ""}`
+        : "seats available"}
+      . Parents earning under ₹8L/yr pay no tuition fee.
+    </p>
+  );
+}
+
+/** What the FRA report's status means for the student (#42). */
+function fraStatusNote(status: string | null | undefined): string {
+  if (!status || /^approved$/i.test(status)) return "";
+  if (/no upward revision/i.test(status)) return " The college asked for no increase, so its earlier approved fee continues.";
+  if (/high court/i.test(status)) return " The fee is under an interim High Court order and may change.";
+  return ` FRA status: ${status}.`;
+}
+
+/** Every college gets a fees section; without fees it says why (#42). Nothing is guessed. */
+function NoFeesCard({ fees }: { fees: CollegeFeesUnavailable }) {
+  const isAided = /aided/i.test(fees.collegeType ?? "");
+  return (
+    <section id="fees" className="card cp-fees-card cp-fees-none cp-anchor" aria-labelledby="cp-fees-none-title">
+      <div className="card-head"><h2 id="cp-fees-none-title">Fees per year</h2></div>
+      <p className="cp-fees-none-text">
+        {fees.reason === "state-set" ? (
+          <>
+            {isAided ? "Government-aided college" : fees.collegeType && /deemed|university/i.test(fees.collegeType) ? "University institute" : "Government college"}: fees are set by the state or the university,
+            not by the Fee Regulating Authority, so they aren&apos;t on its report. Check the college&apos;s prospectus or website.
+          </>
+        ) : fees.reason === "not-on-fra-report" ? (
+          <>Not on the Fee Regulating Authority&apos;s 2026-27 or 2025-26 approved-fee report, often because the college is new. Ask the college for its FRA-approved fee before paying.</>
+        ) : (
+          <>No published fee found yet. Ask the college before paying.</>
+        )}
+      </p>
+      {fees.tfwsSeats ? <TfwsLine seats={fees.tfwsSeats} branches={fees.tfwsBranches ?? null} /> : null}
+    </section>
   );
 }

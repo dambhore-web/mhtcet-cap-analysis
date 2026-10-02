@@ -531,3 +531,20 @@ details.cp-fees-card:not([open]) .cp-more-c {
 .college-page .section-nav {
   margin-bottom: 20px;
 }
+
+/* #42: where the fee comes from, and the card for colleges without published fees */
+.cp-fees-basis {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--safe-text);
+}
+
+.cp-fees-none-text {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.cp-fees-none .cp-fees-tfws {
+  margin-top: 10px;
+}
