@@ -36,7 +36,7 @@ test.describe("My account", () => {
 
     await expect(page.locator("#next-step-title")).toHaveText("Test your list in the simulator");
 
-    const form = page.getByRole("region", { name: "Your option form" });
+    const form = page.getByRole("region", { name: "Your option form", exact: true });
     await expect(form).toContainText("6 of 300 choices");
     await expect(form.getByRole("listitem")).toHaveCount(5);
     await expect(form).toContainText("and 1 more");
@@ -48,7 +48,7 @@ test.describe("My account", () => {
     await seed(page, { profile: { ...PROFILE, meritNumber: null } });
     await page.goto("/profile");
     await expect(page.getByRole("region", { name: "Your numbers" })).toContainText("No merit number yet");
-    await expect(page.getByRole("region", { name: "Your option form" })).toContainText("No choices yet");
+    await expect(page.getByRole("region", { name: "Your option form", exact: true })).toContainText("No choices yet");
     // no CAP dates are published yet: no timeline, never a guessed date
     await expect(page.getByRole("region", { name: /CAP \d{4} dates/ })).toHaveCount(0);
   });

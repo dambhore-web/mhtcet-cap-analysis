@@ -5,9 +5,13 @@ Work happens on `Dev` and the **staging** Supabase project. This list collects e
 step held back, so the rollout is one pass. Add to it whenever a change needs a production step.
 
 ## Database (production Supabase project)
-- [ ] Run `packages/pipeline/migrations/007_user_store.sql` (#15).
-- [ ] Create the SELECT-only `compass_api` role and use it in the API's `DATABASE_URL` (#131 O2;
-      SQL in `docs/07-security/security-review-2026-09.md`).
+- [ ] Run the migrations not yet on production: `007_user_store.sql` (#15) and
+      `008_lock_public_tables.sql` (row-level security on every table; Supabase's public API closed
+      to the data tables). `npm run migrate` targets staging only: use the SQL editor or an
+      approved run against production.
+- [ ] Create the SELECT-only `compass_api` role **with its read policies** (needed because of 008)
+      and use it in the API's `DATABASE_URL` (#131 O2; SQL in
+      `docs/07-security/security-review-2026-09.md`). Then check the API still loads its data.
 - [ ] Download the CA certificate (Project Settings → Database → SSL); set `DATABASE_CA_CERT` on the
       API service and for the pipeline (#131 O3).
 
@@ -28,5 +32,6 @@ step held back, so the rollout is one pass. Add to it whenever a change needs a 
       sync work on the production URL.
 
 ## Staging, before the rollout
-- [ ] Turn off Email sign-up on staging; `npm run check:supabase -w @mhtcet/web` all PASS.
+- [x] Turn off Email sign-up on staging; `npm run check:supabase -w @mhtcet/web` all PASS (2026-10-02).
+- [x] 007 and 008 applied to staging (2026-10-02); the API reads as owner and is unaffected.
 - [ ] Same Railway settings on the staging services, to rehearse.

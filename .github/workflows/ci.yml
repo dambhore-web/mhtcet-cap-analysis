@@ -39,7 +39,9 @@ jobs:
     name: Playwright e2e
     runs-on: ubuntu-latest
     # Runs the real API over the demo dataset (apps/api/src/demo): no database or secrets needed.
-    if: github.event_name == 'pull_request'
+    # Also on every push to Dev, since work merges there directly (#23). Sign-in tests use a fake
+    # Supabase inside the browser (e2e/fixtures/supabase.ts): no accounts, no network.
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/Dev'
 
     steps:
       - uses: actions/checkout@v4
