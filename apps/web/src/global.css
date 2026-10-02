@@ -41,9 +41,35 @@ h1,
 h2,
 h3 {
   font-family: var(--font-head);
-  letter-spacing: -0.03em;
+  font-stretch: var(--display-stretch);
+  letter-spacing: -0.005em;
   line-height: 1.1;
   text-wrap: balance;
+}
+
+/* Figures: big ones in the display face, small ones (codes, axes, tables) in mono */
+.num-xl,
+.num-l {
+  font-family: var(--font-display);
+  font-stretch: 82%;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--navy-deep);
+  line-height: 1;
+}
+
+.num-xl {
+  font-size: 34px;
+}
+
+.num-l {
+  font-size: 24px;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 img,
@@ -111,14 +137,17 @@ svg {
   margin: 0;
   font-size: var(--text-2xl);
   font-weight: 700;
-  color: var(--navy);
+  font-stretch: 82%;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
+  color: var(--navy-deep);
 }
 
 .page-header-sub {
   margin: 0;
-  font-size: var(--text-sm);
+  font-size: 15px;
   color: var(--muted);
-  max-width: 68ch;
+  max-width: 64ch;
 }
 
 .page-header-actions {
@@ -163,59 +192,79 @@ svg {
   color: var(--muted-2);
 }
 
-/* ── Sub navigation (My CAP plan) ───────────────────────────────────── */
+/* ── Sub navigation (My CAP plan): a numbered rail, because the steps are a real sequence ── */
 .subnav {
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  margin: 0 0 20px;
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0 0 24px;
+  border-top: 2px solid var(--line);
   overflow-x: auto;
+  scrollbar-width: none;
 }
 
 .subnav a {
-  flex: 1 0 auto;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  min-height: 40px;
-  padding: 0 14px;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--muted);
+  padding: 10px 10px 0 0;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--muted-2);
   text-decoration: none;
   white-space: nowrap;
 }
 
+.subnav a::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
 .subnav a:hover {
   color: var(--violet);
-  background: var(--lavender-2);
 }
 
 .subnav a.active {
+  color: var(--navy-deep);
+  font-weight: 600;
+}
+
+.subnav a.active::before {
+  background: var(--violet);
+}
+
+.subnav-num {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--line-soft);
+  color: var(--muted);
+}
+
+.subnav a.active .subnav-num {
   background: var(--violet);
   color: var(--white);
 }
 
-.subnav-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  font-size: var(--text-xs);
-  background: var(--lavender);
-  color: var(--violet);
-}
+@media (max-width: 639px) {
+  .subnav {
+    display: flex;
+  }
 
-.subnav a.active .subnav-num {
-  background: var(--lime);
-  color: var(--navy);
+  .subnav a {
+    flex: none;
+    padding-right: 16px;
+  }
 }
 
 /* ── Buttons ────────────────────────────────────────────────────────── */
@@ -230,7 +279,7 @@ svg {
   border: 1px solid transparent;
   font-family: var(--font-body);
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
@@ -295,17 +344,17 @@ svg {
 /* ── Cards, labels, badges ──────────────────────────────────────────── */
 .card {
   background: var(--white);
-  border: 1px solid var(--line);
+  border: 1px solid var(--card-line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
 }
 
 .label {
-  font-size: var(--text-xs);
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--muted-2);
 }
 
 .badge {
@@ -314,8 +363,8 @@ svg {
   gap: 4px;
   padding: 3px 10px;
   border-radius: var(--radius-pill);
-  font-size: var(--text-xs);
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
