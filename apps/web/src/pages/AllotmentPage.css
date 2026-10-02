@@ -90,7 +90,9 @@
 
 .allot-verdict h2 {
   margin: 4px 0 8px;
-  font-size: var(--text-xl);
+  font-size: 28px;
+  font-weight: 650;
+  color: var(--navy-deep);
 }
 
 .allot-verdict p {
@@ -125,9 +127,11 @@
 }
 
 .allot-pref {
-  font-family: var(--font-num);
+  font-family: var(--font-display);
+  font-stretch: 80%;
+  font-size: 22px;
   font-weight: 700;
-  color: var(--violet);
+  color: var(--muted-2);
   text-align: center;
 }
 
@@ -164,7 +168,9 @@
   flex-wrap: wrap;
   gap: 8px;
   margin: 0 0 8px;
-  font-size: var(--text-base);
+  font-size: 24px;
+  font-weight: 650;
+  color: var(--navy-deep);
 }
 
 .allot-choice p {
@@ -173,9 +179,10 @@
   color: var(--muted);
 }
 
+/* the option that follows from last year: a heavier blue border, the others stay quiet */
 .allot-choice.recommended {
-  border-color: var(--safe-text);
-  box-shadow: 0 0 0 1px var(--safe-text);
+  border-color: var(--violet);
+  box-shadow: 0 0 0 1px var(--violet);
 }
 
 .allot-choice.unavailable {

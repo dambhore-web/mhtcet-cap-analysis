@@ -79,12 +79,33 @@ export function ExportPage() {
 
           <section className="card export-preview" aria-labelledby="export-preview-title">
             <div className="export-preview-head">
-              <h2 id="export-preview-title">Preview · {items.length} {items.length === 1 ? "choice" : "choices"}</h2>
+              <div>
+                <h2 id="export-preview-title">Your choice codes, in order</h2>
+                <p className="export-preview-desc">
+                  Type them into the portal in this order. The first five digits are the college code (grey); the rest pick the branch.
+                </p>
+              </div>
               <span className="export-preview-meta">
                 {merit ? `Merit ${formatNumber(merit)} · ` : ""}
-                {categoryLabel}
+                {categoryLabel} · {items.length} {items.length === 1 ? "choice" : "choices"}
               </span>
             </div>
+            <ol className="export-codes">
+              {items.map((it, i) => (
+                <li key={it.id}>
+                  <span className="export-codes-n">{i + 1}</span>
+                  <span>
+                    <span className="export-codes-v" aria-label={it.choiceCode}>
+                      <span className="export-codes-college">{it.choiceCode.slice(0, 5)}</span>
+                      {it.choiceCode.slice(5)}
+                    </span>
+                    <span className="export-codes-t" title={`${it.collegeName}, ${it.branch}`}>{it.branch}, {it.collegeName}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <details className="export-full">
+              <summary>Show the full table</summary>
             <div className="table-scroll">
               <table className="export-table">
                 <thead>
@@ -112,6 +133,7 @@ export function ExportPage() {
                 </tbody>
               </table>
             </div>
+            </details>
           </section>
 
           <p className="export-note">
