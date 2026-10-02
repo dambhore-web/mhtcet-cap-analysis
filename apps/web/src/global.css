@@ -468,9 +468,9 @@ svg {
 }
 
 .save-btn.saved {
-  background: var(--lime);
-  border-color: var(--lime);
-  color: var(--navy);
+  background: var(--violet);
+  border-color: var(--violet);
+  color: var(--white);
   cursor: default;
 }
 

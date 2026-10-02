@@ -248,13 +248,13 @@
 .compare-add-btn {
   margin: 10px 12px 12px;
   padding: 9px 14px;
-  background: var(--lime);
+  background: var(--violet);
+  color: var(--white);
   border: none;
   border-radius: var(--radius-sm);
   font-family: var(--font-body);
   font-size: var(--text-xs);
   font-weight: 700;
-  color: var(--navy);
   cursor: pointer;
   width: calc(100% - 24px);
   transition: opacity 0.12s;
