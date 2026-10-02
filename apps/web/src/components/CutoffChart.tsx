@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { seatCategoryLabel, seatTypeShortLabel, seatLevelCode, seatTypeSortKey, LEVEL_LABELS } from "../lib/seatType";
 import { formatNumber, formatRound, roundIndex } from "../lib/format";
 import "./CutoffChart.css";
@@ -15,6 +15,51 @@ interface CutoffRow {
   sourcePage?: number | null;
 }
 
+/** The same values as a chart, as a table: reachable by keyboard, touch and screen readers. */
+function SeriesTable({ series, rounds, rowHeader, sources, getLink }: { series: ChartSeries[]; rounds: (number | string)[]; rowHeader: string; sources: string[]; getLink?: (s: ChartSeries) => string | undefined }) {
+  return (
+    <details className="cc-table-toggle">
+      <summary>Show as a table</summary>
+      <div className="table-scroll">
+        <table className="cc-table">
+          <thead>
+            <tr>
+              <th scope="col">{rowHeader}</th>
+              {rounds.map((r) => <th key={String(r)} scope="col" className="cc-num">{formatRound(r)}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {series.map((s) => {
+              const href = getLink?.(s);
+              return (
+                <tr key={s.label}>
+                  <th scope="row">{href ? <Link to={href}>{s.label}</Link> : s.label}</th>
+                  {s.roundValues.map((v, i) => <td key={i} className="cc-num">{v == null ? "—" : formatNumber(v)}</td>)}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {sources.length > 0 && (
+        <p className="cc-sources">Source: {sources.join("; ")}</p>
+      )}
+    </details>
+  );
+}
+
+/** "file.pdf (pages 12, 14)" for the rows behind a chart (NFR-001). */
+function sourceNotes(rows: CutoffRow[]): string[] {
+  const pages = new Map<string, Set<number>>();
+  for (const r of rows) {
+    if (!r.source) continue;
+    if (!pages.has(r.source)) pages.set(r.source, new Set());
+    if (r.sourcePage != null) pages.get(r.source)!.add(r.sourcePage);
+  }
+  return [...pages.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([file, ps]) => (ps.size ? `${file} (page ${[...ps].sort((a, b) => a - b).join(", ")})` : file));
+}
 
 interface ChartSeries {
   label: string;
@@ -381,6 +426,13 @@ export function CutoffChart({ cutoffs, collegeCode, controlledSeatType, onBranch
               <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
             )}
           </div>
+          <SeriesTable
+            series={series}
+            rounds={availableRounds}
+            rowHeader="Branch"
+            sources={sourceNotes(cutoffs.filter((r) => r.seatType === effectiveSeatType))}
+            getLink={collegeCode ? (s) => (s.choiceCode ? `/colleges/${collegeCode}/${s.choiceCode}` : undefined) : undefined}
+          />
         </>
       )}
     </section>
@@ -470,6 +522,12 @@ export function SeatCutoffChart({ cutoffs, branch, selectedLevel, merit }: SeatC
               <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
             )}
           </div>
+          <SeriesTable
+            series={series}
+            rounds={availableRounds}
+            rowHeader="Seat type"
+            sources={sourceNotes(cutoffs.filter((r) => r.branch === branch && r.seatType !== "AI"))}
+          />
           {cutoffs.some((r) => r.branch === branch && r.seatType === "AI") && (
             <p className="cc-note">All India seats use the All India merit number, so they aren't on this chart. Pick “All India” in the chart above.</p>
           )}
