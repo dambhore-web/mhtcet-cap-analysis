@@ -501,3 +501,39 @@ describe("GET /api/sitemap", () => {
     expect(b.colleges.flatMap((c) => c.branches)).not.toContain(cc);
   });
 });
+
+// ─── Fees: official basis and why a college has none (#42) ───────────────────
+
+describe("GET /api/colleges/:code/fees: basis and missing fees (#42)", () => {
+  const fraEntry = {
+    name: "Test Unaided", collegeCode: "1002", tuitionFee: 100000, developmentFee: 15000, otherFees: 0, totalAnnualFee: 115000,
+    tfwsAvailable: false, tfwsSeats: null, fraOrderRef: null, fraOrderUrl: null, sampleOnly: false, academicYear: "2026-27",
+    source: "FRA", sourceUrl: "https://ay26-27.mahafraportal.org/report?institute=EN1002", fraStatus: "No Upward Revision",
+  };
+
+  it("treats a fee from the FRA's approved-fee report as official, with its status and year", async () => {
+    const cache = seedCache();
+    cache.fees = { "1002": fraEntry };
+    const body = (await (await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/fees")).json()) as Record<string, unknown>;
+    expect(body).toMatchObject({ available: true, verified: true, basis: "fra-report", fraStatus: "No Upward Revision", year: "2026-27" });
+    expect(body.disclaimer).toBe("From the Fee Regulating Authority's approved-fee report for 2026-27. Confirm with the college before paying.");
+  });
+
+  it("says a government college's fees are set by the state, not the FRA", async () => {
+    const cache = seedCache();
+    cache.fees = {};
+    const code = [...cache.colleges.keys()][0];
+    cache.colleges.set(code, { ...cache.colleges.get(code)!, collegeType: "Government" });
+    const body = (await (await createApp(cache, stubPool).request(`http://localhost/api/colleges/${code}/fees`)).json()) as Record<string, unknown>;
+    expect(body).toMatchObject({ available: false, code, collegeType: "Government", reason: "state-set" });
+  });
+
+  it("says a private college is not on the FRA report, and still gives TFWS seats", async () => {
+    const cache = seedCache();
+    cache.seats.set("1002119110", new Map([["TFWS", 3]]));
+    cache.fees = {};
+    cache.colleges.set("1002", { ...cache.colleges.get("1002")!, collegeType: "Unaided" });
+    const body = (await (await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/fees")).json()) as Record<string, unknown>;
+    expect(body).toMatchObject({ available: false, reason: "not-on-fra-report", tfwsSeats: 3, tfwsBranches: 1 });
+  });
+});

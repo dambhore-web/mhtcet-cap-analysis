@@ -15,14 +15,42 @@ export function collegeTfws(cache: AppCache, code: string): { seats: number; bra
   return { seats, branches };
 }
 
+/**
+ * Why a college has no fees on Compass (#42). The FRA (Fee Regulating Authority) approves the fees
+ * of unaided private institutes only; government, government-aided, university and deemed
+ * institutes have fees set by the state or the university, so they are never on its report.
+ */
+export type NoFeeReason = "state-set" | "not-on-fra-report" | "unknown";
+
+const STATE_SET = /^(government|government-aided|deemed university|university)/i;
+
+export function noFeeReason(collegeType: string | null | undefined): NoFeeReason {
+  if (!collegeType) return "unknown";
+  return STATE_SET.test(collegeType) ? "state-set" : "not-on-fra-report";
+}
+
 /** GET /api/colleges/:code/fees */
 export function getCollegeFees(c: Context, index: FeeIndex, cache: AppCache) {
   const code = c.req.param("code") ?? "";
   const entry = index.byCollege.get(code);
-  if (!entry) return c.json({ available: false, code }, 200);
-
-  const verified = !!entry.fraOrderUrl;
   const tfws = collegeTfws(cache, code);
+  if (!entry) {
+    const collegeType = cache.colleges.get(code)?.collegeType ?? null;
+    return c.json({
+      available: false,
+      code,
+      collegeType,
+      reason: noFeeReason(collegeType),
+      // TFWS seats come from the seat matrix, so they are known even without fees
+      tfwsSeats: tfws ? tfws.seats : null,
+      tfwsBranches: tfws ? tfws.branches : null,
+    }, 200);
+  }
+
+  // Official either way: the FRA's own fee order, or its published approved-fee report
+  const fromOrder = !!entry.fraOrderUrl;
+  const fromReport = !fromOrder && (entry.source ?? "FRA") === "FRA" && !!entry.sourceUrl;
+  const verified = fromOrder || fromReport;
   return c.json({
     available: true,
     code,
@@ -44,8 +72,12 @@ export function getCollegeFees(c: Context, index: FeeIndex, cache: AppCache) {
     fraOrderUrl: entry.fraOrderUrl,
     sampleOnly: entry.sampleOnly,
     verified,
-    disclaimer: verified
+    basis: fromOrder ? "fra-order" : fromReport ? "fra-report" : "unverified",
+    fraStatus: entry.fraStatus ?? null,
+    disclaimer: fromOrder
       ? "From the Fee Regulating Authority's approved fee order. Confirm with the college before paying."
-      : "Not yet checked against the Fee Regulating Authority's order. Confirm with the college before paying.",
+      : fromReport
+        ? `From the Fee Regulating Authority's approved-fee report for ${feeYear(entry)}. Confirm with the college before paying.`
+        : "Not yet checked against the Fee Regulating Authority. Confirm with the college before paying.",
   });
 }

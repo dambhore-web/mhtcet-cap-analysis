@@ -269,7 +269,13 @@ export function ComparePage() {
                         <span className="compare-fee-val">{formatInr(totalFee)}</span>
                       </div>
                     ) : (
-                      <div className="compare-na-row">Fees not published yet</div>
+                      <div className="compare-na-row">
+                        {fees && !fees.available && fees.reason === "state-set"
+                          ? "Set by the state or university: see the college"
+                          : fees && !fees.available && fees.reason === "not-on-fra-report"
+                            ? "Not on the FRA fee report: ask the college"
+                            : "Fees not published yet"}
+                      </div>
                     )}
 
                     <AddCollegeBtn code={c.code} name={c.name} branch={branch} cutoffs={data.cutoffs} />

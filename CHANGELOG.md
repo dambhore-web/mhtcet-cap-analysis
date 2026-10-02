@@ -27,6 +27,12 @@
   rate-limit message no longer says "Upgrade", and the Terms say Compass is free (sections on paid
   plans, refunds and GST removed).
 ### Added
+- Fees for every college (#42, `docs/03-domain/fees.md`): FRA figures now show as "FRA-approved,
+  2026-27" with a link to the FRA report and its status explained, instead of "Unverified". The
+  27 government, aided and deemed colleges (COEP, VJTI, ...) and the 41 private colleges on neither
+  FRA report get a Fees section that says why there is no number, with their TFWS seats. Coverage:
+  319 of 387 CAP 2026 colleges; FRA reports re-checked 2026-10-02, unchanged. Compare gives the
+  same reason.
 - SEO, first step (`docs/09-devops/seo.md`): every page sets its own title, description, canonical
   URL and share tags (college and branch pages from their data); personal pages and missing
   colleges are `noindex`; the build writes `robots.txt` and, when `VITE_SITE_URL` is set (production

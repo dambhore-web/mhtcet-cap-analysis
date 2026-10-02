@@ -28,8 +28,8 @@
     },
     "year": "2026-27",
     "note": "Keyed by 5-digit CAP college code. Each entry's academicYear says which FRA report it comes from: 2026-27 (the fees CAP 2026 admits pay) or, when a college is not on that report yet, 2025-26. Matched by FRA institute id (EN<code>, normalised) or, failing that, by exact normalised name. otherFees = totalAnnualFee - tuitionFee - developmentFee. The FRA report states no TFWS information and no order reference or URL, so tfwsAvailable is false (not stated), tfwsSeats, fraOrderRef and fraOrderUrl are null. Government, government-aided and university colleges are not on the FRA report (FRA approves fees of unaided private institutes) and have no entry.",
-    "lastUpdated": "2026-09-28",
-    "fetchedOn": "2026-09-28",
+    "lastUpdated": "2026-10-02",
+    "fetchedOn": "2026-10-02",
     "currentColleges": 387,
     "totalEntries": 319,
     "entriesByYear": {

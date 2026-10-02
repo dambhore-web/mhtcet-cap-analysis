@@ -153,8 +153,12 @@ export interface CollegeFees {
   fraOrderRef: string | null;
   fraOrderUrl: string | null;
   sampleOnly: boolean;
-  /** True when the amounts link to the Fee Regulating Authority's order. */
+  /** True when the amounts come from the Fee Regulating Authority (its order or its approved-fee report). */
   verified?: boolean;
+  /** Where the amounts come from (#42). */
+  basis?: "fra-order" | "fra-report" | "unverified";
+  /** The FRA report's status, e.g. "Approved", "No Upward Revision", "Interim Order of High Court". */
+  fraStatus?: string | null;
   disclaimer: string;
 }
 
@@ -199,6 +203,11 @@ export interface CollegePlacement {
 export interface CollegeFeesUnavailable {
   available: false;
   code: string;
+  collegeType?: string | null;
+  /** Why there are no fees (#42): set by the state/university, or not on the FRA's report. */
+  reason?: "state-set" | "not-on-fra-report" | "unknown";
+  tfwsSeats?: number | null;
+  tfwsBranches?: number | null;
 }
 
 export interface SimulateRequest {
