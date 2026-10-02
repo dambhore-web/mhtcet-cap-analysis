@@ -1794,6 +1794,44 @@
     }
    ]
   },
+  "03199": {
+   "nirfName": "Shri Vile Parle Kelavani Mandal`s Dwarkadas J. Sanghvi College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 699,
+     "placed": 356,
+     "medianSalary": 840000,
+     "higherStudies": 281,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33777",
+     "sourceUrl": "http://www.djsce.ac.in/docs/nirf/NIRF%202026%20ENGG%20DATA.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 732,
+     "placed": 423,
+     "medianSalary": 780007,
+     "higherStudies": 203,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33777",
+     "sourceUrl": "http://www.djsce.ac.in/docs/nirf/NIRF%202026%20ENGG%20DATA.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 863,
+     "placed": 565,
+     "medianSalary": 700000,
+     "higherStudies": 197,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33777",
+     "sourceUrl": "http://www.djsce.ac.in/docs/nirf/NIRF%202026%20ENGG%20DATA.pdf"
+    }
+   ]
+  },
   "03200": {
    "nirfName": "Finolex Academy of Management and Technology",
    "rows": [
@@ -6270,44 +6308,6 @@
      "nirfCategory": "Overall",
      "nirfInstituteId": "IR-O-C-50614",
      "sourceUrl": "https://www.dypcoei.edu.in/wp-content/uploads/2026/05/NIRF-2026.pdf"
-    }
-   ]
-  },
-  "03199": {
-   "nirfName": "Shri Vile Parle Kelavani Mandal`s Dwarkadas J. Sanghvi College of Engineering",
-   "rows": [
-    {
-     "graduationYear": "2022-23",
-     "graduates": 699,
-     "placed": 356,
-     "medianSalary": 840000,
-     "higherStudies": 281,
-     "nirfYear": 2026,
-     "nirfCategory": "Engineering",
-     "nirfInstituteId": "IR-E-C-33777",
-     "sourceUrl": "http://www.djsce.ac.in/docs/nirf/NIRF%202026%20ENGG%20DATA.pdf"
-    },
-    {
-     "graduationYear": "2023-24",
-     "graduates": 732,
-     "placed": 423,
-     "medianSalary": 780007,
-     "higherStudies": 203,
-     "nirfYear": 2026,
-     "nirfCategory": "Engineering",
-     "nirfInstituteId": "IR-E-C-33777",
-     "sourceUrl": "http://www.djsce.ac.in/docs/nirf/NIRF%202026%20ENGG%20DATA.pdf"
-    },
-    {
-     "graduationYear": "2024-25",
-     "graduates": 863,
-     "placed": 565,
-     "medianSalary": 700000,
-     "higherStudies": 197,
-     "nirfYear": 2026,
-     "nirfCategory": "Engineering",
-     "nirfInstituteId": "IR-E-C-33777",
-     "sourceUrl": "http://www.djsce.ac.in/docs/nirf/NIRF%202026%20ENGG%20DATA.pdf"
     }
    ]
   }
