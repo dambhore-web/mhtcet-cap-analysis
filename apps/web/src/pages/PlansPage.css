@@ -12,10 +12,11 @@
   padding: 24px;
 }
 
+/* the pass is marked by a heavier border and by what it adds, not by a coloured panel */
 .plan-card--pro {
-  background: linear-gradient(160deg, var(--violet) 0%, var(--violet-deep) 100%);
-  border-color: var(--violet-deep);
-  color: var(--white);
+  background: var(--white);
+  border: 2px solid var(--navy-deep);
+  color: var(--navy);
 }
 
 .plan-card-head {
@@ -32,9 +33,12 @@
 
 .plan-price {
   margin: 0;
-  font-family: var(--font-num);
-  font-size: var(--text-3xl);
+  font-family: var(--font-display);
+  font-stretch: 80%;
+  font-size: 54px;
   font-weight: 700;
+  line-height: 1;
+  color: var(--navy-deep);
   line-height: 1;
 }
 
@@ -74,7 +78,7 @@
 }
 
 .plan-card--pro .plan-features svg {
-  color: var(--lime);
+  color: var(--violet);
 }
 
 .plan-soon,

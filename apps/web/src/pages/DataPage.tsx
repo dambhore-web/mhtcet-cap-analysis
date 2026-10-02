@@ -74,7 +74,12 @@ export function DataPage() {
                       <tr key={`${l.list}-${l.round}`}>
                         <td>{l.list === "AI" ? "All India" : l.list === "MH" ? "Maharashtra state" : l.list}</td>
                         <td>{formatRound(l.round)}</td>
-                        <td className="num">{formatNumber(l.rows)}</td>
+                        <td className="num data-values">
+                          <span className="data-bar" aria-hidden="true">
+                            <i className={l.list === "MH" ? "mh" : l.list === "AI" ? "ai" : "other"} style={{ width: `${Math.max((l.rows / Math.max(...meta.lists.map((x) => x.rows))) * 100, 1)}%` }} />
+                          </span>
+                          {formatNumber(l.rows)}
+                        </td>
                         <td className="data-files">{l.files.join(", ") || "—"}</td>
                       </tr>
                     ))}

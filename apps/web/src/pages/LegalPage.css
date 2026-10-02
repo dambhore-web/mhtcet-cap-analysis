@@ -100,3 +100,12 @@
   font-size: var(--text-sm);
   color: var(--navy);
 }
+
+/* reading layout (TASK-0004): a narrow measure, generous line height, an 'in short' box first */
+.legal-content { max-width: 680px; }
+.legal-content h2 { font-size: 30px; font-weight: 650; color: var(--navy-deep); }
+.legal-content h3 { font-family: var(--font-display); font-stretch: 90%; font-size: 18px; font-weight: 650; color: var(--navy-deep); }
+.legal-content p, .legal-content li { font-size: 15px; line-height: 1.7; }
+.legal-tldr { margin: 16px 0 8px; padding: 14px 16px; border-left: 3px solid var(--violet); border-radius: 0 var(--radius-md) var(--radius-md) 0; background: var(--lavender-2); font-size: 14px; color: var(--navy-deep); }
+.legal-tldr ul { display: flex; flex-direction: column; gap: 4px; margin: 6px 0 0; padding-left: 18px; }
+.legal-tldr li { font-size: 14px; line-height: 1.5; }

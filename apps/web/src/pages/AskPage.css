@@ -115,7 +115,7 @@
 }
 
 .ask-bubble.user {
-  background: var(--violet);
+  background: var(--navy-deep);
   color: var(--white);
   border-radius: var(--radius-lg) 4px var(--radius-lg) var(--radius-lg);
 }

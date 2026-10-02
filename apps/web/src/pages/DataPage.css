@@ -120,3 +120,15 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* list sizes as bars: later rounds have fewer seats left to allot (TASK-0004) */
+.data-values { white-space: nowrap; }
+.data-bar { display: inline-block; width: 140px; height: 10px; margin-right: 10px; border-radius: 5px; background: var(--line-soft); vertical-align: 0; overflow: hidden; }
+.data-bar i { display: block; height: 100%; border-radius: 5px; }
+.data-bar i.mh { background: var(--violet); }
+.data-bar i.ai { background: var(--violet-soft); }
+.data-bar i.other { background: var(--orange); }
+.data-table td.num, .data-files { font-family: var(--font-mono); font-size: 12px; }
+@media (max-width: 639px) { .data-bar { width: 60px; } }
+.data-steps h2 { margin: 0 0 4px; font-family: var(--font-display); font-stretch: 88%; font-size: 18px; font-weight: 650; color: var(--navy-deep); }
+.data-steps li > svg { flex: none; color: var(--violet); }

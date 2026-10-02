@@ -51,7 +51,7 @@ export function PlansPage() {
           {isPaid ? (
             <p className="plan-active-msg">You're all set for this CAP season.</p>
           ) : (
-            <button type="button" className="btn btn-accent btn-block" disabled aria-describedby="plan-soon">
+            <button type="button" className="btn btn-primary btn-block" disabled aria-describedby="plan-soon">
               Get {seasonPass.name}
             </button>
           )}

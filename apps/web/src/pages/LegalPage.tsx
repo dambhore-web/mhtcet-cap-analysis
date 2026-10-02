@@ -51,6 +51,14 @@ function DisclaimerTab() {
     <div className="legal-content">
       <h2>Disclaimer</h2>
       <p className="legal-updated">Last updated: September 2026</p>
+      <div className="legal-tldr">
+        <strong>In short</strong>
+        <ul>
+          <li>Compass is unofficial and not linked to the CET Cell or DTE.</li>
+          <li>Cutoffs are from past rounds. They guide you; they don't guarantee a seat.</li>
+          <li>Your details and option form are saved in your browser.</li>
+        </ul>
+      </div>
 
       <h3>Unofficial product</h3>
       <p>
