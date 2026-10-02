@@ -103,7 +103,7 @@ export function LandingPage() {
           )}
           </div>
           <div className="landing-art" aria-hidden="true">
-            <img src="/student-hero.png" width={1374} height={1145} alt="" fetchPriority="high" />
+            <img src="/student-hero.webp" width={1000} height={833} alt="" fetchPriority="high" />
           </div>
         </section>
 
@@ -191,7 +191,7 @@ export function LandingPage() {
                 <h3>{g}</h3>
                 <GroupStrip vals={vals} merit={merit} domain={domain} />
                 <span className="landing-group-count">
-                  {rows ? <><b>{formatNumber(vals.filter((v) => merit <= v).length)}</b> of {formatNumber(vals.length)} within reach</> : " "}
+                  {rows ? <><b>{formatNumber(vals.filter((v) => merit <= v).length)}</b> of {formatNumber(vals.length)} within reach on open seats</> : " "}
                 </span>
               </Link>
             ))}

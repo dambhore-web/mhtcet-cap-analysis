@@ -314,7 +314,7 @@ export function BranchesPage() {
                   <GroupBarcode vals={groupVals.get(g) ?? []} merit={merit ?? null} domain={groupDomain} active={g === group} />
                   <span className="branches-group-count">
                     {merit
-                      ? `${formatNumber((groupVals.get(g) ?? []).filter((v) => merit <= v).length)} of ${formatNumber((groupVals.get(g) ?? []).length)} within reach`
+                      ? `${formatNumber((groupVals.get(g) ?? []).filter((v) => merit <= v).length)} of ${formatNumber((groupVals.get(g) ?? []).length)} within reach on open seats`
                       : `${formatNumber((groupVals.get(g) ?? []).length)} branches`}
                   </span>
                 </>

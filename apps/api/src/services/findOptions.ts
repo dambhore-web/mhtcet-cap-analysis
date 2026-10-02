@@ -58,7 +58,7 @@ export interface FoundOption {
   seats: { seatType: number | null; branch: number | null };
 }
 
-/** One earlier year: the last round's closing rank (the basis of "ranks to spare"). */
+/** One earlier year: the last round's closing rank (the basis of the better/worse comparison). */
 export interface PastYear {
   year: number;
   lastRoundClosing: number;

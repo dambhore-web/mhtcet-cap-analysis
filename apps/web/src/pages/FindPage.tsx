@@ -18,6 +18,7 @@ import { ScanProgress } from "../components/ScanProgress";
 import { MeritRuler } from "../components/MeritRuler";
 import "./FindPage.css";
 import { pastSummary } from "../lib/yearTrend";
+import { describeMeritGap } from "../lib/meritGap";
 
 /** What the last search was run with, so results can say "All India" or "estimated". */
 interface SearchKind {
@@ -708,8 +709,8 @@ function OptionRow({ opt, merit, domain, showCollege = false }: { opt: FindOptio
             ? `closed ${formatNumber(opt.firstRoundClosing)} → ${formatNumber(opt.lastRoundClosing)}`
             : `closed at ${formatNumber(opt.closingMerit)}`}
           {margin !== 0 && (
-            <span className={`surplus${margin > 0 ? " pos" : " neg"}`}>
-              ({margin > 0 ? `${formatNumber(margin)} ranks to spare` : `${formatNumber(-margin)} ranks short`})
+            <span className={`surplus${margin > 0 ? " pos" : " neg"}`} title={describeMeritGap(merit, opt.lastRoundClosing ?? opt.closingMerit).long}>
+              ({describeMeritGap(merit, opt.lastRoundClosing ?? opt.closingMerit).short})
             </span>
           )}
           <SeatCount opt={opt} />
@@ -810,8 +811,7 @@ async function generateParentPDF(options: FindOption[], merit: number, profile: 
     margin: { left: 12, right: 12 },
     head: [["#", "College", "Branch", "Seat Type", "Closing Merit", "Your Position"]],
     body: top5.map((o, i) => {
-      const surplus = o.closingMerit - merit;
-      const pos = surplus >= 0 ? `+${surplus.toLocaleString("en-IN")} seats to spare` : `${Math.abs(surplus).toLocaleString("en-IN")} below cutoff`;
+      const pos = describeMeritGap(merit, o.closingMerit).short;
       return [
         String(i + 1),
         o.collegeName,

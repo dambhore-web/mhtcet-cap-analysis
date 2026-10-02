@@ -31,6 +31,9 @@ test("J1 · Which colleges could I get with my merit number?", async ({ page }) 
   // the saved answers search straight away
   await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
   await expect(page.getByText(/options in \d+ colleges were within reach/)).toBeVisible();
+  // merit compared only as better / worse than the closing rank (#140)
+  await expect(page.getByText(/\(\d[\d,]* (better|worse)\)/).first()).toBeVisible();
+  await expect(page.getByText(/to spare|ranks short/)).toHaveCount(0);
   // earlier years on each option: how this merit fared against the same seat in 2023–2025
   await expect(page.getByText(/2023–2025: within the cutoff in \d of 3 years/).first()).toBeVisible();
   // seats of that seat type in the branch, from the CAP seat matrix

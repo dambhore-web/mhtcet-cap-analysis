@@ -1,14 +1,15 @@
 import type { ListItem } from "./list";
 import { seatTypeLabel } from "./seatType";
+import { describeMeritGap } from "./meritGap";
 
 /**
  * Exports of the option form (journey J8): CSV, Excel, PDF and a plain list of choice codes.
  * One row per choice, in the order the student will enter them on the CET Cell portal.
  */
 
-export const EXPORT_HEADER = ["Preference", "Choice code", "College", "Branch", "Seat type", "Seat type (meaning)", "Closing rank", "Ranks to spare"] as const;
+export const EXPORT_HEADER = ["Preference", "Choice code", "College", "Branch", "Seat type", "Seat type (meaning)", "Closing rank", "Your merit vs closing"] as const;
 
-export type ExportRow = [number, string, string, string, string, string, number, number | null];
+export type ExportRow = [number, string, string, string, string, string, number, string | null];
 
 export function exportRows(items: ListItem[], merit: number | null): ExportRow[] {
   return items.map((it, i) => [
@@ -19,7 +20,8 @@ export function exportRows(items: ListItem[], merit: number | null): ExportRow[]
     it.seatType,
     seatTypeLabel(it.seatType),
     it.closingMerit,
-    merit ? it.closingMerit - merit : null,
+    // "1,000 better" / "1,000 worse" (#140): a smaller merit number is better
+    merit ? describeMeritGap(merit, it.closingMerit).short : null,
   ]);
 }
 
@@ -53,7 +55,7 @@ export async function downloadXLSX(items: ListItem[], merit: number | null) {
     r.map((v) => (v === null ? null : typeof v === "number" ? { type: Number, value: v } : { type: String, value: v })),
   );
   const blob = await writeXlsxFile([header, ...body], {
-    columns: [{ width: 11 }, { width: 14 }, { width: 48 }, { width: 38 }, { width: 11 }, { width: 36 }, { width: 13 }, { width: 14 }],
+    columns: [{ width: 11 }, { width: 14 }, { width: 48 }, { width: 38 }, { width: 11 }, { width: 36 }, { width: 13 }, { width: 22 }],
     sheet: "Option form",
     stickyRowsCount: 1,
   });
@@ -84,10 +86,10 @@ export async function downloadPDF(items: ListItem[], merit: number | null, categ
 
   autoTable(doc, {
     startY: 36,
-    head: [["#", "Choice code", "College", "Branch", "Seat type", "Closing rank", "To spare"]],
+    head: [["#", "Choice code", "College", "Branch", "Seat type", "Closing rank", "Your merit vs closing"]],
     body: exportRows(items, merit).map((r) => [
       String(r[0]), r[1], r[2], r[3], r[4], r[6].toLocaleString("en-IN"),
-      r[7] == null ? "" : r[7] >= 0 ? r[7].toLocaleString("en-IN") : `${(-r[7]).toLocaleString("en-IN")} short`,
+      r[7] ?? "",
     ]),
     styles: { fontSize: 8, cellPadding: 2 },
     headStyles: { fillColor: [101, 82, 216] },
