@@ -7,6 +7,10 @@
   home / other-than-home-university open seats. `open-latest` now falls back to GOPENO, GOPENH, then
   ladies open seats, and says which per row; the colleges list labels non-state-level strips.
 ### Added
+- Find colleges: a "What should I do next?" card (#135) with one action for the student's CAP
+  stage (estimate, add choices, test, export, allotment, family summary). Progress dates kept in
+  this browser (`compass_progress_v1`); After allotment gets "I've made my choice on the CET Cell
+  portal".
 - Option form checks: a Coverage block (#137) with the list's Likely / Target / Reach bar,
   branch groups, districts and size, and two suggestions: more than 80% in one branch group, or
   every choice in one district (lists of 5+). Branch groups moved to core (`branchGroupOf`).

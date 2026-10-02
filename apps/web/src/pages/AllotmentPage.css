@@ -211,3 +211,23 @@
     grid-column: 2;
   }
 }
+
+/* #135: the student marks the decision so the next-step card moves on to the family summary */
+.allot-decided {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 16px 0;
+}
+
+.allot-decided .allot-hint {
+  margin: 0;
+}
+
+@media (max-width: 639px) {
+  .allot-decided .btn {
+    width: 100%;
+    white-space: normal;
+  }
+}

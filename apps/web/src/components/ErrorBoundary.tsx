@@ -12,7 +12,7 @@ interface State {
   error: Error | null;
 }
 
-const STORAGE_KEYS = ["compass_profile_v1", "compass_list_v1", "compass_compare_v1", "compass_session_v1"];
+const STORAGE_KEYS = ["compass_profile_v1", "compass_list_v1", "compass_compare_v1", "compass_session_v1", "compass_progress_v1"];
 
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { error: null };

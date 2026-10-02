@@ -30,7 +30,8 @@ _Last updated: 2026-10-02_
 - Tests: 33 vitest tests with synthetic fixtures, incl. a privacy regression test for masking
 
 - **#136** Find colleges: Likely / Target / Reach tiles (Reach = up to 10% worse than last
-  year's closing; `docs/03-domain/result-bands.md`). **#138** College page section links. **#137** Option form coverage.
+  year's closing; `docs/03-domain/result-bands.md`). **#138** College page section links. **#137** Option form coverage. **#135** Next-step card. Fix: colleges without
+  state-level open seats (254 of 387) now shown.
   Branch `feat/find-bands-college-nav`.
 
 ## In progress
@@ -110,7 +111,7 @@ ADR-001 to ADR-006 accepted. Schema: `packages/pipeline/migrations/001_initial_s
 AG-002 ran its first build (this change). AG-001 designed only. LLM provider: `DECISION REQUIRED`.
 
 ## Test status
-`npm run typecheck` clean; `npm test` 369/369 passing; Playwright e2e 47/47 on the demo dataset (2026-10-02).
+`npm run typecheck` clean; `npm test` 378/378 passing; Playwright e2e 50/50 on the demo dataset (2026-10-02).
 
 ## Deployment status
 Nothing deployed. Data exists only in the Supabase **staging** project. The COEP dashboard is a

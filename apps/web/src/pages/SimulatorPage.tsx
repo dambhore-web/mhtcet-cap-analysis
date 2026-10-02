@@ -9,6 +9,7 @@ import { Icon } from "../components/Icon";
 import { formatNumber, formatRound } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { CATEGORY_OPTIONS } from "../lib/categories";
+import { markSimulated } from "../lib/progress";
 import "./SimulatorPage.css";
 
 const ROUNDS = ["I", "II", "III", "IV"] as const;
@@ -60,6 +61,7 @@ export function SimulatorPage() {
         }),
       );
       setRunCount((n) => n + 1);
+      markSimulated();
     } catch {
       setError("Couldn't run the simulation. Check your connection and try again.");
     } finally {
