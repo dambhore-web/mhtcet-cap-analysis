@@ -31,6 +31,13 @@ step held back, so the rollout is one pass. Add to it whenever a change needs a 
 - [ ] After deploy: API logs show no `security_warning`; rank finder, simulator, Ask, sign-in and
       sync work on the production URL.
 
+## SEO (`docs/09-devops/seo.md`)
+- [ ] Choose the public domain (open decision in `docs/DECISIONS.md`).
+- [ ] Production web service: `VITE_SITE_URL=https://<domain>` (build time). Never on staging.
+- [ ] After deploy: `/robots.txt` allows crawling and lists the sitemap; `/sitemap.xml` has every
+      college and branch page.
+- [ ] Google Search Console: verify the domain and submit `https://<domain>/sitemap.xml`.
+
 ## Staging, before the rollout
 - [x] Turn off Email sign-up on staging; `npm run check:supabase -w @mhtcet/web` all PASS (2026-10-02).
 - [x] 007 and 008 applied to staging (2026-10-02); the API reads as owner and is unaffected.

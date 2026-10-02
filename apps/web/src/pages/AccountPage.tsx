@@ -15,6 +15,7 @@ import { formatNumber, formatRound } from "../lib/format";
 import { seatTypeLabel } from "../lib/seatType";
 import { CAP_CALENDAR } from "../data/capCalendar";
 import { formatSpan, timeline, todayInIndia } from "../lib/capCalendar";
+import { usePageMeta } from "../lib/seo";
 import "./AccountPage.css";
 
 const FLAG_LABELS: [keyof CandidateProfile & ("ews" | "tfws" | "defence" | "pwd" | "orphan"), string][] = [
@@ -31,6 +32,7 @@ function formatEdited(iso: string | undefined): string | null {
  * and the CAP timeline, from what this browser (and, signed in, the account) knows.
  */
 export function AccountPage() {
+  usePageMeta({ title: "My account", noindex: true });
   const { profile, hasProfile } = useProfile();
   const { user } = useAuth();
   const items = useList();

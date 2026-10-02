@@ -9,6 +9,7 @@ import { Icon, type IconName } from "../components/Icon";
 import { formatNumber, formatRound } from "../lib/format";
 import { seatTypeShortLabel } from "../lib/seatType";
 import { decidedOn, markDecided, useProgress } from "../lib/progress";
+import { usePageMeta } from "../lib/seo";
 import "./AllotmentPage.css";
 
 const ROUNDS: Round[] = ["I", "II", "III", "IV"];
@@ -29,6 +30,7 @@ const CHOICES: { id: "freeze" | "float" | "slide"; title: string; icon: IconName
 
 /** My CAP plan step 4, journey J10: "I got a seat. Freeze or float?" */
 export function AllotmentPage() {
+  usePageMeta({ title: "After allotment: freeze, float or slide", noindex: true });
   const items = useList();
   const { profile } = useProfile();
   const allotment = useAllotment();

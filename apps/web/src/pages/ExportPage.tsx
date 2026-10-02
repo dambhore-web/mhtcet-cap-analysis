@@ -10,12 +10,14 @@ import { formatNumber } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { choiceCodesText, downloadCSV, downloadPDF, downloadXLSX } from "../lib/exportForm";
 import { markExported } from "../lib/progress";
+import { usePageMeta } from "../lib/seo";
 import "./ExportPage.css";
 
 type Busy = "pdf" | "xlsx" | null;
 
 /** My CAP plan step 3, journey J8: the option form ready for the CET Cell portal. */
 export function ExportPage() {
+  usePageMeta({ title: "Export your option form", noindex: true });
   const { profile } = useProfile();
   const items = useList();
   const [copied, setCopied] = useState(false);

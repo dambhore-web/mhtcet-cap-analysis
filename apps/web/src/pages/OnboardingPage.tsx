@@ -18,6 +18,7 @@ import {
 } from "../lib/onboarding";
 import { Icon } from "../components/Icon";
 import { MeritRuler } from "../components/MeritRuler";
+import { usePageMeta } from "../lib/seo";
 import "./OnboardingPage.css";
 
 /**
@@ -61,6 +62,7 @@ const OPTIONAL: StepId[] = ["university", "special", "minority", "branches"];
 
 /** /welcome/start: the student's details, one question per screen (#142). */
 export function OnboardingWizard() {
+  usePageMeta({ title: "Find your colleges", noindex: true });
   const { setProfile } = useProfile();
   const navigate = useNavigate();
   const [a, setA] = useState<Answers>(EMPTY_ANSWERS);

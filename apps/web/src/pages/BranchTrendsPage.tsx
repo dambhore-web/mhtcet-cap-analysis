@@ -11,6 +11,7 @@ import { formatNumber, formatRound, roundIndex } from "../lib/format";
 import { roundMerit } from "../lib/logScale";
 import { seatTypeLabel, seatTypeSortKey } from "../lib/seatType";
 import { trendVerdict, yearSeries, yearsWithin, type HistoryRow, type RoundMode } from "../lib/yearTrend";
+import { branchMeta, usePageMeta } from "../lib/seo";
 import "./BranchTrendsPage.css";
 
 interface Row {
@@ -57,6 +58,14 @@ export function BranchTrendsPage() {
 
   const branchRows = useMemo(() => rows.filter((r) => r.choiceCode === choiceCode), [rows, choiceCode]);
   const branch = branchRows[0]?.branch ?? "Branch";
+  const dataYears = useMemo(() => [...new Set((history ?? []).map((r) => r.year))], [history]);
+  usePageMeta(
+    status === "error" || (status === "done" && branchRows.length === 0)
+      ? { title: "Branch not found", noindex: true }
+      : college && branchRows.length > 0
+        ? branchMeta(college.name, branch, dataYears.length ? dataYears : year ? [year] : [])
+        : null,
+  );
   const seatTypes = useMemo(
     () => [...new Set((history ?? []).map((r) => r.seatType))].sort((a, b) => seatTypeSortKey(a) - seatTypeSortKey(b)),
     [history],

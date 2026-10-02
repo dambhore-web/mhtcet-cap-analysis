@@ -7,6 +7,7 @@ import { formatNumber } from "../lib/format";
 import { CATEGORY_OPTIONS } from "../lib/categories";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
+import { usePageMeta } from "../lib/seo";
 import "./AskPage.css";
 
 const FREE_LIMIT = PLANS.free.askQuestions;
@@ -46,6 +47,7 @@ const FOLLOW_UPS = [
 
 
 export function AskPage() {
+  usePageMeta({ title: "Ask Compass", noindex: true });
   const { profile } = useProfile();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
