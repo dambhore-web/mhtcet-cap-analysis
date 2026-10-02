@@ -17,7 +17,34 @@ import {
   type StepId,
 } from "../lib/onboarding";
 import { Icon } from "../components/Icon";
+import { MeritRuler } from "../components/MeritRuler";
 import "./OnboardingPage.css";
+
+/**
+ * A first answer at the merit step: every branch's open, state-level closing rank as a barcode,
+ * with the typed merit as the pin. Category and seat details come later, so this says so.
+ */
+function MeritPreview({ text, onChange }: { text: string; onChange: (merit: number) => void }) {
+  const [vals, setVals] = useState<number[] | null>(null);
+  useEffect(() => {
+    let live = true;
+    api.openLatest().then((r) => live && setVals(r.rows.map((x) => x[4]))).catch(() => live && setVals([]));
+    return () => {
+      live = false;
+    };
+  }, []);
+  const merit = parseInt(text.replace(/\D/g, ""), 10);
+  if (!vals || vals.length === 0 || !(merit > 0)) return null;
+  const n = vals.filter((v) => merit <= v).length;
+  return (
+    <div className="ob-preview" aria-live="polite">
+      <p className="ob-preview-verdict">
+        <b>{formatNumber(n)}</b> branches took a merit of {formatNumber(merit)} or worse (open seats). Your category adds more.
+      </p>
+      <MeritRuler marks={vals.map((value) => ({ value }))} merit={merit} onMeritChange={onChange} barcode hint={null} ariaLabel="Every branch's closing rank, with your merit number" />
+    </div>
+  );
+}
 
 const SECTION: Record<StepId, string> = {
   exam: "About your exam",
@@ -217,6 +244,7 @@ export function OnboardingWizard() {
                 Don't have it yet?{" "}
                 <button type="button" className="ob-link-btn" onClick={() => update({ have: "percentile" })}>Use your percentile instead</button>
               </p>
+              {a.exam !== "AI" && <MeritPreview text={a.merit} onChange={(v) => update({ merit: String(v) })} />}
             </>
           )}
 
