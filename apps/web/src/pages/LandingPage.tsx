@@ -85,6 +85,7 @@ export function LandingPage() {
 
       <main>
         <section className="landing-hero">
+          <div className="landing-hero-text">
           <p className="landing-eyebrow">
             <span>MHT-CET CAP planner</span>
             {yearSpan && <span>Official CET Cell lists, CAP <span className="mono">{yearSpan}</span></span>}
@@ -100,6 +101,10 @@ export function LandingPage() {
               Continue to my results
             </Link>
           )}
+          </div>
+          <div className="landing-art" aria-hidden="true">
+            <img src="/student-hero.png" width={1374} height={1145} alt="" fetchPriority="high" />
+          </div>
         </section>
 
         <section className="card landing-try" aria-label="Try your merit number">
