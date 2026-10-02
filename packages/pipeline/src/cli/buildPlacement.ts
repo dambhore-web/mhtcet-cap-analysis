@@ -34,16 +34,24 @@ async function download(url: string, dest: string): Promise<string | null> {
   const wait = last + MIN_GAP_MS - Date.now();
   if (wait > 0) await new Promise((r) => setTimeout(r, wait));
   last = Date.now();
-  try {
-    const res = await fetch(url, { headers: { "user-agent": USER_AGENT }, signal: AbortSignal.timeout(90_000) });
-    if (!res.ok) return `HTTP ${res.status}`;
-    const body = Buffer.from(await res.arrayBuffer());
-    if (body.subarray(0, 4).toString() !== "%PDF") return "not a PDF";
-    await writeFile(dest, body);
-    return null;
-  } catch (err) {
-    return (err as Error).message;
+  // College sites drop connections and DNS now and then: two more tries before giving up, so a
+  // passing blip doesn't drop a college's figures (#134). HTTP errors and non-PDFs are not retried.
+  let failure = "";
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt) await new Promise((r) => setTimeout(r, 5_000 * attempt));
+    try {
+      const res = await fetch(url, { headers: { "user-agent": USER_AGENT }, signal: AbortSignal.timeout(90_000) });
+      if (!res.ok) return `HTTP ${res.status}`;
+      const body = Buffer.from(await res.arrayBuffer());
+      if (body.subarray(0, 4).toString() !== "%PDF") return "not a PDF";
+      await writeFile(dest, body);
+      return null;
+    } catch (err) {
+      const cause = (err as { cause?: { code?: string } }).cause?.code;
+      failure = cause ? `${(err as Error).message} (${cause})` : (err as Error).message;
+    }
   }
+  return `${failure} (3 tries)`;
 }
 
 async function readItems(path: string): Promise<PdfItem[]> {
@@ -86,6 +94,18 @@ for (const r of rows) {
   const { collegeCode: _code, ...rest } = r;
   c.rows.push(rest);
 }
+// A college whose PDFs all failed to download (site down for now) keeps its previous figures rather
+// than vanishing from the app; parse problems still drop it, since those mean the data itself is wrong.
+const previous = existsSync(OUT) ? ((JSON.parse(await readFile(OUT, "utf8")) as { colleges?: Record<string, unknown> }).colleges ?? {}) : {};
+const kept: string[] = [];
+for (const code of Object.keys(sources)) {
+  if (code.startsWith("_") || colleges[code] || !previous[code]) continue;
+  const downloadedAny = docs.some((d) => d.collegeCode === code);
+  if (!downloadedAny) {
+    colleges[code] = previous[code];
+    kept.push(code);
+  }
+}
 const out = {
   _note:
     "Placement of UG 4-year (B.E./B.Tech) graduates per college, from the data each institution submitted to NIRF and published on its website. Self-reported by the institution. Built by `npm run placement` from data/placement-sources.json.",
@@ -94,3 +114,4 @@ const out = {
 await writeFile(OUT, JSON.stringify(out, null, 1) + "\n");
 console.log(`[PLACEMENT] ${rows.length} rows for ${Object.keys(colleges).length} colleges from ${docs.length} PDFs`);
 for (const p of problems) console.log(`[PLACEMENT] ${p.collegeCode} ${p.problem} (${p.sourceUrl})`);
+for (const code of kept) console.log(`[PLACEMENT] ${code} kept its previous figures: none of its PDFs could be downloaded this time`);
