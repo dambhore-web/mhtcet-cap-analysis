@@ -9,6 +9,7 @@ import { MeritRuler } from "../components/MeritRuler";
 import { seatLevelCode, seatTypeLabel, seatTypeShortLabel, seatTypeSortKey, LEVEL_LABELS } from "../lib/seatType";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
+import { SectionNav, type NavSection } from "../components/SectionNav";
 import { avatarTint, collegeInitials, formatNumber, formatRound, roundIndex } from "../lib/format";
 import { formatInr } from "../lib/plans";
 import { eligibleSeatTypes, type CandidateProfile } from "@mhtcet/core";
@@ -226,6 +227,14 @@ export function CollegePage() {
 
   const crumbs = [{ label: "Colleges", to: "/colleges" }, { label: data?.college.name ?? "College" }];
 
+  // #138: only sections this college actually has; Cutoffs first, since it is why people come here
+  const navSections = useMemo(() => {
+    const s: NavSection[] = [{ id: "cutoffs", label: "Cutoffs" }, { id: "branches", label: "Branches" }];
+    if (fees && fees.available) s.push({ id: "fees", label: "Fees" });
+    if (placement) s.push({ id: "placement", label: "Placement" });
+    return s;
+  }, [fees, placement]);
+
   if (loading) {
     return (
       <div className="page college-page">
@@ -300,6 +309,8 @@ export function CollegePage() {
           </>
         }
       />
+
+      <SectionNav label="Sections on this page" sections={navSections} />
 
       <div className="cp-layout">
 
@@ -380,15 +391,17 @@ export function CollegePage() {
         {/* ── LEFT: charts ── */}
         <div className="cp-col">
 
+          <div id="cutoffs" className="cp-anchor">
           <CutoffChart
             cutoffs={data.cutoffs}
             collegeCode={data.college.code}
             controlledSeatType={localSeatType}
             merit={localMerit}
           />
+          </div>
 
           {/* Drill into a branch */}
-          <section ref={drillRef} id="cp-drill" className="card cp-drill" aria-labelledby="cp-drill-title">
+          <section ref={drillRef} id="branches" className="card cp-drill cp-anchor" aria-labelledby="cp-drill-title">
             <div className="card-head">
               <div>
                 <h2 id="cp-drill-title">One branch, every seat type</h2>
@@ -470,7 +483,7 @@ export function CollegePage() {
 
           {/* Fees — standalone details card */}
           {fees && fees.available && (
-            <details className="card cp-fees-card">
+            <details id="fees" className="card cp-fees-card cp-anchor">
               <summary>
                 <div className="card-head"><h2>Fees per year</h2></div>
                 <div className="cp-fees-total-row">
@@ -513,7 +526,7 @@ export function CollegePage() {
             </details>
           )}
 
-          {placement && <PlacementCard data={placement} />}
+          {placement && <div id="placement" className="cp-anchor"><PlacementCard data={placement} /></div>}
         </aside>
       </div>
     </div>

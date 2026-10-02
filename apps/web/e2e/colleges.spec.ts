@@ -43,6 +43,28 @@ test.describe("Colleges directory", () => {
     await expect(page.getByRole("region", { name: /placement/i })).toHaveCount(0);
   });
 
+  test("section links jump within the page and only list sections the college has (#138)", async ({ page }) => {
+    await page.goto("/colleges/16006#placement");
+    const nav = page.getByRole("navigation", { name: "Sections on this page" });
+    await expect(nav.getByRole("link", { name: "Cutoffs" })).toBeVisible();
+    const placement = nav.getByRole("link", { name: "Placement" });
+    await expect(placement).toHaveAttribute("aria-current", "location");
+    await expect(page.getByRole("region", { name: /placement/i })).toBeInViewport();
+    // the sticky row never covers the heading it jumped to
+    await nav.getByRole("link", { name: "Branches" }).click();
+    await expect(page).toHaveURL(/#branches$/);
+    const heading = page.getByRole("heading", { name: "One branch, every seat type" });
+    await expect(heading).toBeInViewport();
+    const navBox = (await nav.boundingBox())!;
+    await expect.poll(async () => (await heading.boundingBox())!.y).toBeGreaterThanOrEqual(navBox.y + navBox.height);
+    await expect(nav.getByRole("link", { name: "Branches" })).toHaveAttribute("aria-current", "location");
+    // a college without placement figures has no Placement link
+    await page.goto("/colleges/06007");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Vishwakarma");
+    await expect(nav.getByRole("link", { name: "Cutoffs" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Placement" })).toHaveCount(0);
+  });
+
   test("college page breadcrumb returns to the directory", async ({ page }) => {
     await page.goto("/colleges/16006");
     await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Colleges" }).click();

@@ -46,7 +46,7 @@
 
 .cp-side {
   position: sticky;
-  top: 72px;
+  top: calc(var(--section-offset) - 4px);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -521,4 +521,13 @@ details.cp-fees-card:not([open]) .cp-more-c {
   .cp-ruler-hint span:nth-child(2) {
     display: none;
   }
+}
+
+/* #138: sections linked from the sticky section nav land below it, not under it */
+.cp-anchor {
+  scroll-margin-top: var(--section-offset);
+}
+
+.college-page .section-nav {
+  margin-bottom: 20px;
 }
