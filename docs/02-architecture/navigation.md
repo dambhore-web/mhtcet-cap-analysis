@@ -68,6 +68,26 @@ over". Find colleges lives at `/find`; old result links (`/?merit=…`) redirect
 
 All five steps are linked, and each page ends with a "Next step" link.
 
+### "What should I do next?" card (#135)
+Near the top of Find colleges, one card names the student's next step with one primary action and at
+most one secondary link (`components/NextStepCard.tsx`, rule in `lib/nextStep.ts`):
+
+| What the browser knows | Primary action | Goes to |
+|---|---|---|
+| No merit number | Estimate where you stand | `/estimate` |
+| Merit number, empty option form | Add choices to your option form | the results on Find |
+| Choices, not yet simulated | Test your list in the simulator | `/simulator` |
+| Simulated, not yet exported | Export for the CAP portal | `/export` |
+| Exported, no allotment | When your allotment comes out | `/allotment` |
+| An allotment entered | Freeze, float or slide? | `/allotment` |
+| Decision marked for that allotment | Share the family summary | `/summary` |
+
+"Simulated", "exported" and "decided" are dates in `compass_progress_v1` (`lib/progress.ts`), set
+when a simulation runs, when the form is downloaded or copied, and by "I've made my choice on the
+CET Cell portal" on After allotment. A decision holds only for the seat it was made on. The card can
+be hidden for the session; it comes back when the step changes. Wording names the step, never an
+outcome.
+
 ## The 14 journeys
 The tier (Free or Plus) comes from the mockup. The free vs paid split is still
 `DECISION REQUIRED` (`01-requirements/pricing-and-plans.md`), so treat the tiers as

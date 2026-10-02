@@ -16,6 +16,7 @@ import { parseBranchGroups, parseMerit } from "../lib/onboarding";
 import { AnswerTiles } from "../components/AnswerTiles";
 import { ScanProgress } from "../components/ScanProgress";
 import { MeritRuler } from "../components/MeritRuler";
+import { NextStepCard } from "../components/NextStepCard";
 import "./FindPage.css";
 import { pastSummary } from "../lib/yearTrend";
 import { BAND_LABELS, bandOf, type Band } from "@mhtcet/core";
@@ -351,6 +352,8 @@ export function FindPage() {
             <Icon name="arrowRight" size={16} />
           </Link>
         </div>
+
+        <NextStepCard />
 
         <AnswerTiles
           answers={form}

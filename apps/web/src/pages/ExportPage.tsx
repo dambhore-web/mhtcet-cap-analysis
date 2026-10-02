@@ -9,6 +9,7 @@ import { CATEGORY_OPTIONS } from "../lib/categories";
 import { formatNumber } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { choiceCodesText, downloadCSV, downloadPDF, downloadXLSX } from "../lib/exportForm";
+import { markExported } from "../lib/progress";
 import "./ExportPage.css";
 
 type Busy = "pdf" | "xlsx" | null;
@@ -26,6 +27,7 @@ export function ExportPage() {
     setBusy(kind);
     try {
       await fn();
+      markExported();
     } finally {
       setBusy(null);
     }
@@ -34,6 +36,7 @@ export function ExportPage() {
   async function copy() {
     try {
       await navigator.clipboard.writeText(choiceCodesText(items));
+      markExported();
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
@@ -67,7 +70,7 @@ export function ExportPage() {
             <button type="button" className="btn btn-secondary" onClick={() => run("xlsx", () => downloadXLSX(items, merit))} disabled={busy !== null}>
               {busy === "xlsx" ? "Preparing Excel…" : "Download Excel"}
             </button>
-            <button type="button" className="btn btn-secondary" onClick={() => downloadCSV(items, merit)}>
+            <button type="button" className="btn btn-secondary" onClick={() => { downloadCSV(items, merit); markExported(); }}>
               Download CSV
             </button>
             <button type="button" className="btn btn-secondary" onClick={copy}>

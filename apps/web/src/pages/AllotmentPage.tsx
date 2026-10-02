@@ -8,6 +8,7 @@ import { PlanNextStep, PlanSubnav } from "../components/PlanSubnav";
 import { Icon, type IconName } from "../components/Icon";
 import { formatNumber, formatRound } from "../lib/format";
 import { seatTypeShortLabel } from "../lib/seatType";
+import { decidedOn, markDecided, useProgress } from "../lib/progress";
 import "./AllotmentPage.css";
 
 const ROUNDS: Round[] = ["I", "II", "III", "IV"];
@@ -31,6 +32,8 @@ export function AllotmentPage() {
   const items = useList();
   const { profile } = useProfile();
   const allotment = useAllotment();
+  const progress = useProgress();
+  const decided = decidedOn(progress, allotment);
   const merit = profile.meritNumber;
   const round = allotment?.round ?? "I";
   const analysis = allotment ? analyseAllotment(items, allotment, merit) : null;
@@ -155,6 +158,18 @@ export function AllotmentPage() {
               );
             })}
           </section>
+
+          {analysis && (
+            <div className="allot-decided">
+              <button type="button" className={`btn ${decided ? "btn-secondary" : "btn-primary"}`} aria-pressed={decided} onClick={() => markDecided(decided ? null : allotment)}>
+                <Icon name={decided ? "check" : "steps"} size={16} />
+                {decided ? "Choice made on the CET Cell portal" : "I've made my choice on the CET Cell portal"}
+              </button>
+              <p className="allot-hint">
+                {decided ? "Tap again if you haven't. Your next step is the family summary." : "Mark it once you have chosen freeze, float or slide on the portal. Nothing is sent anywhere."}
+              </p>
+            </div>
+          )}
 
           <section className="card allot-checklist" aria-labelledby="allot-checklist-title">
             <h2 id="allot-checklist-title" className="label">Before you accept</h2>
