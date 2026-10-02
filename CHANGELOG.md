@@ -5,6 +5,10 @@
 - Web: the Content Security Policy now allows the Supabase origin; built deployments would
   otherwise have blocked sign-in and sync (#131).
 - API: a dropped idle database connection no longer crashes the process (logged as `db_idle_error`).
+- Colleges, landing, by-branch and estimate: 254 of 387 colleges were missing ("No state-level
+  open seats") because only GOPENS was used, and most university-affiliated colleges have only
+  home / other-than-home-university open seats. `open-latest` now falls back to GOPENO, GOPENH, then
+  ladies open seats, and says which per row; the colleges list labels non-state-level strips.
 ### Security
 - Supabase "RLS disabled": every data table in `public` (cutoff, merit_lookup, college, fee, ...)
   allowed the public anon key to read, change and delete rows through Supabase's REST API.
@@ -16,10 +20,12 @@
   production the API warns at startup about a missing `CORS_ORIGINS`, CA certificate or read-only
   role; `npm run check:supabase -w @mhtcet/web` checks a project's sign-in setup; every held-back
   production step is listed in `docs/09-devops/production-rollout.md`.
-- Colleges, landing, by-branch and estimate: 254 of 387 colleges were missing ("No state-level
-  open seats") because only GOPENS was used, and most university-affiliated colleges have only
-  home / other-than-home-university open seats. `open-latest` now falls back to GOPENO, GOPENH, then
-  ladies open seats, and says which per row; the colleges list labels non-state-level strips.
+### Changed
+- No paid plans while payments are deferred until there is traffic (owner decision 2026-10-02):
+  `PAYMENTS_ENABLED = false` in `apps/web/src/lib/plans.ts` hides every Plans link and upgrade
+  prompt, `/plans` goes home, Ask Compass's limit messages no longer sell a Season Pass, the API's
+  rate-limit message no longer says "Upgrade", and the Terms say Compass is free (sections on paid
+  plans, refunds and GST removed).
 ### Added
 - My account (#139): `/profile` is now a dashboard with your numbers, the next step, the option
   form (count, top five, last edit, links) and a CAP timeline read from sourced CET Cell dates
