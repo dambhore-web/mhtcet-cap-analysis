@@ -30,6 +30,10 @@ _Last updated: 2026-09-27_
 - Tests: 33 vitest tests with synthetic fixtures, incl. a privacy regression test for masking
 
 ## In progress
+- **App redesign (TASK-0004)** on branch `feat/app-redesign` (from `Dev`, not pushed): every page
+  restyled to the October 2026 mockups in `docs/mockups/`, plus `GET /api/cutoffs/open-latest`.
+  Typecheck and tests pass; every route checked in the browser at desktop width and for overflow
+  at 375px. Awaiting owner review before merging into `Dev`.
 - **Journeys J1–J13 (tracking #119)** on branch `claude/magical-ritchie-wcwhc0`, for review into
   `Dev`. All 13 pass end to end on the demo dataset (`apps/web/e2e/journeys`). Blocked:
   - J14 and accounts: need sign-in and payment decisions/credentials (#15, #21, #34, #117).

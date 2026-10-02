@@ -2,6 +2,27 @@
 
 ## Unreleased
 ### Added
+- App redesign from the October 2026 mockups (TASK-0004, `docs/mockups/`), on branch
+  `feat/app-redesign`.
+  - Type: Anek Latin for headings and big figures, Geist Mono for small figures, Poppins for text;
+    the Calm blue palette is unchanged. Cards, buttons, top nav, footer and the My CAP plan steps
+    (a numbered rail) follow.
+  - The merit ruler: a log-scale strip of closing ranks with a pin for the student (drag, click or
+    arrow keys). Landing: every branch as a barcode. Find colleges: every option, and the pin is
+    the "what if my merit were…" control. College: its branches. Branch trends: one tick per year.
+    Onboarding: at the merit step.
+  - Branch trends: per-year vertical dumbbells (Round I to final round), every seat type in one
+    chart with the table folded, chances by year, other branches at the college.
+  - Charts share one encoding: Round I hollow blue, latest round amber, the student's merit as a
+    dashed line; the cutoff chart's right-hand value column is gone (hover shows every round).
+  - Colleges list: a strip of each college's branch cutoffs and "N of M within reach", sortable.
+  - Option form: the auto-freeze zones drawn as bars down the list.
+  - Compare: every branch on one chart with one mark shape per college. Eligibility: what each
+    special seat adds for the student. My details: the seat codes the answers unlock (from core).
+    CAP guide: a seat-code decoder. Export: big numbered choice codes. Family summary: an A4 sheet.
+    Merit estimate: the range as a band over every branch. Simulator: rounds reveal in turn.
+  - API: `GET /api/cutoffs/open-latest`, every branch's GOPENS Round I and latest-round closing
+    rank with its branch group, for the landing, colleges, by-branch and estimate pages.
 - Answer tiles on Find colleges (#142). The answers from the step-by-step questions (exam, merit
   number, category, gender, home university, special seats, minority community, branches) sit as
   tiles above the results. Each one changes with a dropdown and the results update straight away,
