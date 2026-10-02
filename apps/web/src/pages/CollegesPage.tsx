@@ -28,7 +28,8 @@ export function CollegesPage() {
   const { pin, unpin, isPinned, canPin } = useCompare();
   const { profile } = useProfile();
   const merit = profile.meritNumber;
-  const [sort, setSort] = useState<Sort>(merit ? "reach" : "az");
+  // Opens with the hardest colleges first (owner decision 2026-10-02)
+  const [sort, setSort] = useState<Sort>("hard");
   // Each college's branches at their latest-round general open, state-level closing rank
   const [byCollege, setByCollege] = useState<Map<string, number[]> | null>(null);
 
@@ -58,6 +59,7 @@ export function CollegesPage() {
     if (sort === "reach") list.sort((a, b) => reachOf(b) - reachOf(a) || hardest(a) - hardest(b));
     else if (sort === "hard") list.sort((a, b) => hardest(a) - hardest(b));
     else if (sort === "easy") list.sort((a, b) => easiest(b) - easiest(a));
+    else list.sort((a, b) => a.name.localeCompare(b.name));
     return list;
   }, [colleges, byCollege, sort, merit]);
 
@@ -145,8 +147,8 @@ export function CollegesPage() {
         <label className="colleges-sort">
           <span>Sort</span>
           <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
-            {merit ? <option value="reach">Most branches within reach</option> : null}
             <option value="hard">Hardest to get first</option>
+            {merit ? <option value="reach">Most branches within reach</option> : null}
             <option value="easy">Easiest to get first</option>
             <option value="az">Name, A to Z</option>
           </select>
