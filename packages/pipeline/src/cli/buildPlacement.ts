@@ -109,7 +109,8 @@ for (const code of Object.keys(sources)) {
 const out = {
   _note:
     "Placement of UG 4-year (B.E./B.Tech) graduates per college, from the data each institution submitted to NIRF and published on its website. Self-reported by the institution. Built by `npm run placement` from data/placement-sources.json.",
-  colleges,
+  // by college code, so kept entries do not move around between runs
+  colleges: Object.fromEntries(Object.entries(colleges).sort(([p], [q]) => p.localeCompare(q))),
 };
 await writeFile(OUT, JSON.stringify(out, null, 1) + "\n");
 console.log(`[PLACEMENT] ${rows.length} rows for ${Object.keys(colleges).length} colleges from ${docs.length} PDFs`);
