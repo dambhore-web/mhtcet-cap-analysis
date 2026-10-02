@@ -188,3 +188,62 @@
     clip: rect(0, 0, 0, 0);
   }
 }
+
+/* ── Strips: each college's branches on one shared log axis (TASK-0004) ── */
+.colleges-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+  font-size: var(--text-xs);
+  color: var(--muted-2);
+}
+
+.colleges-sort select {
+  min-height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.colleges-axis {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--line);
+  background: #fbfcfe;
+  font-size: 11px;
+  color: var(--muted-2);
+}
+
+.colleges-axis > span:first-child { flex: 1; padding-left: 52px; }
+.colleges-axis-ticks { position: relative; flex: 0 0 30%; height: 14px; font-family: var(--font-mono); }
+.colleges-axis-ticks span { position: absolute; transform: translateX(-50%); }
+.colleges-axis > span:nth-child(3) { flex: 0 0 86px; }
+.colleges-axis > span:last-child { flex: 0 0 104px; }
+
+.college-item-strip { flex: 0 0 30%; min-width: 0; }
+.college-item-strip svg { display: block; width: 100%; height: 24px; }
+.college-item-none { font-size: var(--text-xs); color: var(--muted-2); }
+.strip-bg { fill: var(--page); }
+.strip-in { fill: var(--lavender); }
+.strip-line { stroke: #94a3b8; stroke-width: 2; }
+.strip-line.reach { stroke: var(--violet); }
+.strip-you { stroke: var(--navy-deep); stroke-width: 2; }
+
+.college-item-reach { flex: 0 0 86px; font-size: var(--text-xs); color: var(--muted); }
+.college-item-reach b { font-family: var(--font-display); font-stretch: 85%; font-size: 18px; font-weight: 700; color: var(--violet-deep); }
+.college-item-reach.none b { color: var(--muted-2); }
+.college-item-pin { min-width: 104px; justify-content: center; }
+
+@media (max-width: 899px) {
+  .colleges-axis { display: none; }
+  .college-item { flex-wrap: wrap; }
+  .college-item-strip { order: 5; flex: 1 1 60%; margin-left: 52px; }
+  .college-item-reach { order: 6; }
+  .college-item-pin { min-width: 0; }
+}

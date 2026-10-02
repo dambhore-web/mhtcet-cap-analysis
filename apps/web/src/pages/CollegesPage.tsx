@@ -1,14 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { api, type College } from "../lib/api";
 import { useCompare } from "../lib/CompareContext";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
-import { avatarTint, collegeInitials } from "../lib/format";
+import { avatarTint, collegeInitials, formatNumber } from "../lib/format";
+import { logBounds, logScale, tickLabel, ticksIn } from "../lib/logScale";
+import { useProfile } from "../lib/ProfileContext";
 import { UNIVERSITIES } from "../lib/universities";
 import "./CollegesPage.css";
 
 type Status = "loading" | "done" | "error";
+type Sort = "az" | "reach" | "hard" | "easy";
 
 export function CollegesPage() {
   const [query, setQuery] = useState("");
@@ -23,6 +26,40 @@ export function CollegesPage() {
   const [retry, setRetry] = useState(0);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { pin, unpin, isPinned, canPin } = useCompare();
+  const { profile } = useProfile();
+  const merit = profile.meritNumber;
+  const [sort, setSort] = useState<Sort>(merit ? "reach" : "az");
+  // Each college's branches at their latest-round general open, state-level closing rank
+  const [byCollege, setByCollege] = useState<Map<string, number[]> | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    api
+      .openLatest()
+      .then((r) => {
+        if (!live) return;
+        const m = new Map<string, number[]>();
+        for (const row of r.rows) m.set(row[1], [...(m.get(row[1]) ?? []), row[4]]);
+        setByCollege(m);
+      })
+      .catch(() => live && setByCollege(new Map()));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const domain = useMemo(() => logBounds(byCollege ? [...byCollege.values()].flat() : []), [byCollege]);
+  const sorted = useMemo(() => {
+    const vals = (c: College) => byCollege?.get(c.code) ?? [];
+    const reachOf = (c: College) => (merit ? vals(c).filter((v) => merit <= v).length : 0);
+    const hardest = (c: College) => (vals(c).length ? Math.min(...vals(c)) : Infinity);
+    const easiest = (c: College) => (vals(c).length ? Math.max(...vals(c)) : -Infinity);
+    const list = [...colleges];
+    if (sort === "reach") list.sort((a, b) => reachOf(b) - reachOf(a) || hardest(a) - hardest(b));
+    else if (sort === "hard") list.sort((a, b) => hardest(a) - hardest(b));
+    else if (sort === "easy") list.sort((a, b) => easiest(b) - easiest(a));
+    return list;
+  }, [colleges, byCollege, sort, merit]);
 
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
@@ -105,6 +142,15 @@ export function CollegesPage() {
       </div>
 
       <div className="colleges-meta" aria-live="polite">
+        <label className="colleges-sort">
+          <span>Sort</span>
+          <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
+            {merit ? <option value="reach">Most branches within reach</option> : null}
+            <option value="hard">Hardest to get first</option>
+            <option value="easy">Easiest to get first</option>
+            <option value="az">Name, A to Z</option>
+          </select>
+        </label>
         <span>
           {status === "done" &&
             (hasFilter
@@ -133,8 +179,20 @@ export function CollegesPage() {
         </div>
       ) : (
         <ul className="colleges-list">
-          {colleges.map((c) => {
+          <li className="colleges-axis" aria-hidden="true">
+            <span>College</span>
+            <span className="colleges-axis-ticks">
+              {ticksIn(domain, true).map((t) => (
+                <span key={t} style={{ left: `${logScale(domain, 0, 100)(t)}%` }}>{tickLabel(t)}</span>
+              ))}
+            </span>
+            <span>{merit ? "Within reach" : "Branches"}</span>
+            <span />
+          </li>
+          {sorted.map((c) => {
             const pinned = isPinned(c.code);
+            const vals = byCollege?.get(c.code) ?? [];
+            const reach = merit ? vals.filter((v) => merit <= v).length : null;
             return (
               <li key={c.code} className="college-item">
                 <span className="college-item-tile" style={{ background: avatarTint(c.code) }} aria-hidden="true">
@@ -149,6 +207,16 @@ export function CollegesPage() {
                     {c.homeUniversity ? ` · ${c.homeUniversity}` : c.collegeType ? "" : " · Autonomous"}
                   </span>
                 </Link>
+                <span className="college-item-strip">
+                  {vals.length ? (
+                    <CollegeStrip vals={vals} merit={merit} domain={domain} name={c.name} />
+                  ) : byCollege ? (
+                    <span className="college-item-none">No state-level open seats</span>
+                  ) : null}
+                </span>
+                <span className={`college-item-reach${reach === 0 ? " none" : ""}`}>
+                  {vals.length ? (reach != null ? <><b>{reach}</b> of {vals.length}</> : <><b>{vals.length}</b> branches</>) : null}
+                </span>
                 <button
                   type="button"
                   className={`college-item-pin${pinned ? " pinned" : ""}`}
@@ -167,5 +235,26 @@ export function CollegesPage() {
         </ul>
       )}
     </div>
+  );
+}
+
+/** One college's branches as lines on the shared log axis, with the student's merit as a dark line. */
+function CollegeStrip({ vals, merit, domain, name }: { vals: number[]; merit: number | null; domain: [number, number]; name: string }) {
+  const W = 300;
+  const x = logScale(domain, 3, W - 6);
+  return (
+    <svg
+      viewBox={`0 0 ${W} 24`}
+      preserveAspectRatio="none"
+      role="img"
+      aria-label={`${name}: ${vals.length} branches, closing ranks ${formatNumber(Math.min(...vals))} to ${formatNumber(Math.max(...vals))}`}
+    >
+      <rect x={0} y={4} width={W} height={16} rx={3} className="strip-bg" />
+      {merit != null && <rect x={x(merit)} y={4} width={Math.max(W - x(merit), 0)} height={16} className="strip-in" />}
+      {vals.map((v, i) => (
+        <line key={i} x1={x(v)} x2={x(v)} y1={4} y2={20} className={merit != null && merit <= v ? "strip-line reach" : "strip-line"} />
+      ))}
+      {merit != null && <line x1={x(merit)} x2={x(merit)} y1={0} y2={24} className="strip-you" />}
+    </svg>
   );
 }
