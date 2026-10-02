@@ -1,94 +1,218 @@
-.trends-insight {
-  margin: 0 0 16px;
-  padding: 14px 16px;
-  font-size: var(--text-sm);
-  border-left: 4px solid var(--violet);
-}
-
-.trends-table {
-  padding: 16px 20px;
-}
-
-.trends-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.trends-head h2 {
-  margin: 0;
-  font-size: var(--text-lg);
-}
-
-.trends-table table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-sm);
-}
-
-.trends-table th,
-.trends-table td {
-  padding: 8px 10px;
-  text-align: left;
-  border-bottom: 1px solid var(--line-soft);
-}
-
-.trends-table thead th {
-  font-size: var(--text-xs);
-  letter-spacing: var(--label-tracking);
-  text-transform: uppercase;
+.trends-college {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.52em;
+  font-weight: 500;
+  font-stretch: 90%;
+  letter-spacing: 0;
   color: var(--muted);
 }
 
-.trends-table .num {
-  text-align: right;
-  font-family: var(--font-num);
-  white-space: nowrap;
+/* the ruler card: controls on the left, verdict and ruler on the right */
+.trends-focus {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 10px 34px;
+  align-items: center;
+  padding: 20px 24px 16px;
 }
 
-.trends-table abbr {
+.trends-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trends-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trends-field select {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.trends-merit {
+  width: 100%;
+  padding: 4px 0 6px;
+  border: 0;
+  border-bottom: 2px solid var(--line);
+  background: none;
+  font-family: var(--font-display);
+  font-stretch: 85%;
+  font-size: 38px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--navy-deep);
+}
+
+.trends-merit:focus {
+  outline: none;
+  border-bottom-color: var(--violet);
+}
+
+.trends-seg {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+}
+
+.trends-seg button {
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.trends-seg button[aria-pressed="true"] {
+  background: var(--navy-deep);
+  color: var(--white);
+}
+
+.trends-verdict-wrap { min-width: 0; }
+
+.trends-verdict {
+  margin: 0;
+  font-family: var(--font-display);
+  font-stretch: 88%;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--navy-deep);
+}
+
+.trends-verdict b { color: var(--violet); font-weight: 700; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+.trends-verdict-sub {
+  margin: 4px 0 8px;
+  font-size: var(--text-xs);
+  color: var(--muted-2);
+}
+
+/* two columns below */
+.trends-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px 24px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.trends-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.trends-side {
+  position: sticky;
+  top: calc(var(--top-nav-h) + 12px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.trends-card {
+  padding: 22px 24px;
+}
+
+.trends-side .trends-card { padding: 18px; }
+
+.trends-card h2 {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 650;
+  color: var(--navy-deep);
+}
+
+.trends-side .trends-card h2 { font-size: var(--text-lg); }
+
+.trends-desc {
+  margin: 4px 0 0;
+  font-size: var(--text-xs);
+  color: var(--muted-2);
+}
+
+.trends-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 12px 0 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.trends-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.trends-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.trends-legend .dot-r1 { border: 2px solid var(--violet); background: var(--white); }
+.trends-legend .dot-last { background: var(--orange); }
+.trends-legend .dash { width: 16px; height: 0; border-radius: 0; border-top: 2px dashed var(--navy-deep); }
+
+.trends-years {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0 10px;
+}
+
+.trends-years dt { font-size: 11px; color: var(--muted-2); }
+.trends-years dd { display: flex; align-items: center; gap: 6px; margin: 2px 0 0; }
+.trends-cut { font-size: 12px; color: var(--muted-2); }
+.trends-none { font-size: 12px; color: var(--muted-2); }
+
+.trends-others {
+  display: flex;
+  flex-direction: column;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trends-others a {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 13px;
+  color: var(--navy);
   text-decoration: none;
 }
 
-.trends-ladder-col {
-  width: 34%;
-  min-width: 160px;
+.trends-others a:hover { color: var(--violet); }
+.trends-others .mono { font-size: 12px; color: var(--muted-2); }
+
+.trends-skeleton { height: 220px; }
+
+.trends-foot {
+  margin: 20px 0 0;
+  font-size: var(--text-xs);
+  color: var(--muted-2);
 }
 
-.trends-axis {
-  margin-left: 66%;
+@media (max-width: 899px) {
+  .trends-split { grid-template-columns: 1fr; }
+  .trends-side { position: static; }
 }
 
-.trends-missing {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.trends-missing section {
-  padding: 14px 16px;
-  font-size: var(--text-sm);
-}
-
-.trends-missing h2 {
-  margin: 0 0 6px;
-}
-
-.trends-missing p {
-  margin: 0;
-  color: var(--muted);
-}
-
-@media (max-width: 767px) {
-  .trends-missing {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .trends-axis {
-    display: none;
-  }
+@media (max-width: 639px) {
+  .trends-focus { grid-template-columns: 1fr; padding: 16px; gap: 14px; }
+  .trends-controls { display: grid; grid-template-columns: 1fr 1fr; }
+  .trends-controls .trends-field:first-child { grid-column: 1 / -1; }
+  .trends-verdict { font-size: 21px; }
+  .trends-card { padding: 16px; }
 }

@@ -51,12 +51,15 @@ interface ChartSvgProps {
   onRowEnter: (idx: number) => void;
   onRowLeave: () => void;
   onRowClick?: (s: ChartSeries) => void;
+  /** The student's merit: drawn as a dashed line, and rows it reaches get blue labels. */
+  merit?: number | null;
 }
 
-function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowClick }: ChartSvgProps) {
+function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowClick, merit }: ChartSvgProps) {
   const narrow = svgWidth < 520;
   const LEFT = narrow ? 112 : 170;
-  const RIGHT = narrow ? 60 : 90;
+  // no value column on the right: hovering a row shows every round (owner request, 2026-10-01)
+  const RIGHT = narrow ? 14 : 22;
   const ROW_H = 38;
   const TOP = 14;
   const BTM = 34;
@@ -65,6 +68,7 @@ function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowC
 
   const allMerits = series.flatMap((s) => [s.firstMerit, s.lastMerit]);
   if (allMerits.length === 0) return null;
+  if (merit) allMerits.push(merit);
   const { a, z } = bestLogBounds(Math.min(...allMerits), Math.max(...allMerits));
   const xOf = (v: number) => xScale(v, a, z, LEFT, CW);
   const allTicks = LOG_TICKS.filter((t) => t >= a && t <= z);
@@ -95,6 +99,7 @@ function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowC
         const maxChars = narrow ? 14 : 22;
         const rowLabel = s.label.length > maxChars ? s.label.slice(0, maxChars - 1) + "…" : s.label;
         const isHov = hoveredIdx === i;
+        const reach = merit != null && merit <= s.lastMerit;
 
         return (
           <g key={s.label}>
@@ -119,7 +124,8 @@ function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowC
             <text
               x={LEFT - 10} y={cy + 4}
               textAnchor="end" fontSize={12}
-              fill={isHov ? "var(--violet)" : "var(--navy)"}
+              fill={isHov || reach ? "var(--violet-deep)" : "var(--muted)"}
+              fontWeight={reach ? 600 : 400}
               fontFamily="var(--font-body)"
               style={{ pointerEvents: "none" }}
             >
@@ -144,18 +150,19 @@ function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowC
                 <title>Last round: {formatNumber(s.lastMerit)}</title>
               </circle>
             )}
-
-            <text
-              x={LEFT + CW + 8} y={cy + 4}
-              fontSize={11} fill="var(--muted)"
-              fontFamily="var(--font-num)" fontWeight={600}
-              style={{ pointerEvents: "none" }}
-            >
-              {formatNumber(s.lastMerit)}
-            </text>
           </g>
         );
       })}
+
+      {merit != null && merit > 0 && (
+        <line
+          x1={xOf(merit)} x2={xOf(merit)} y1={TOP - 4} y2={H - BTM}
+          stroke="var(--navy-deep)" strokeWidth={1.5} strokeDasharray="4 3"
+          style={{ pointerEvents: "none" }}
+        >
+          <title>Your merit {formatNumber(merit)}</title>
+        </line>
+      )}
     </svg>
   );
 }
@@ -225,9 +232,10 @@ interface CutoffChartProps {
   controlledSeatType?: string;
   /** When provided: call this instead of navigating on row click. */
   onBranchSelect?: (branch: string) => void;
+  merit?: number | null;
 }
 
-export function CutoffChart({ cutoffs, collegeCode, controlledSeatType, onBranchSelect }: CutoffChartProps) {
+export function CutoffChart({ cutoffs, collegeCode, controlledSeatType, onBranchSelect, merit }: CutoffChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgWidth = useContainerWidth(containerRef);
   const { hovered, setHovered, pos, onMouseMove, onMouseLeave } = useTooltip();
@@ -345,6 +353,7 @@ export function CutoffChart({ cutoffs, collegeCode, controlledSeatType, onBranch
           <div className="cc-legend">
             <span className="cc-legend-item"><span className="cc-dot cc-dot-r1" aria-hidden="true" />{formatRound(1)}</span>
             <span className="cc-legend-item"><span className="cc-dot cc-dot-last" aria-hidden="true" />Latest round</span>
+            {merit != null && merit > 0 && <span className="cc-legend-item"><span className="cc-dash" aria-hidden="true" />Your merit</span>}
             <span className="cc-legend-hint">Hover a row, or open the table below, to see every round</span>
           </div>
           <div
@@ -366,6 +375,7 @@ export function CutoffChart({ cutoffs, collegeCode, controlledSeatType, onBranch
                 ? (s) => s.choiceCode && navigate(`/colleges/${collegeCode}/${s.choiceCode}`)
                 : undefined
             }
+              merit={merit}
             />
             {hoveredSeries && (
               <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
@@ -383,9 +393,10 @@ interface SeatCutoffChartProps {
   cutoffs: CutoffRow[];
   branch: string;
   selectedLevel: string;
+  merit?: number | null;
 }
 
-export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffChartProps) {
+export function SeatCutoffChart({ cutoffs, branch, selectedLevel, merit }: SeatCutoffChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgWidth = useContainerWidth(containerRef);
   const { hovered, setHovered, pos, onMouseMove, onMouseLeave } = useTooltip();
@@ -438,6 +449,7 @@ export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffCh
           <div className="cc-legend">
             <span className="cc-legend-item"><span className="cc-dot cc-dot-r1" aria-hidden="true" />{formatRound(1)}</span>
             <span className="cc-legend-item"><span className="cc-dot cc-dot-last" aria-hidden="true" />Latest round</span>
+            {merit != null && merit > 0 && <span className="cc-legend-item"><span className="cc-dash" aria-hidden="true" />Your merit</span>}
             <span className="cc-legend-hint">Hover a row, or open the table below, to see every round</span>
           </div>
           <div
@@ -452,6 +464,7 @@ export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffCh
               hoveredIdx={hovered}
               onRowEnter={setHovered}
               onRowLeave={() => setHovered(null)}
+              merit={merit}
             />
             {hoveredSeries && (
               <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />

@@ -87,7 +87,8 @@
 }
 
 .cp-merit-in {
-  font: 700 36px/1 var(--font-display);
+  font: 700 38px/1 var(--font-display);
+  font-stretch: 85%;
   font-variant-numeric: tabular-nums;
   color: var(--navy-deep);
   border: 0;
@@ -114,9 +115,10 @@
   width: 100%;
 }
 
+/* one field per row, so the category names are never cut off */
 .cp-row2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -126,7 +128,8 @@
 }
 
 .cp-verdict {
-  font: 600 22px/1.2 var(--font-display);
+  font: 600 26px/1.15 var(--font-display);
+  font-stretch: 88%;
   color: var(--navy-deep);
   margin: 0 0 4px;
 }
@@ -137,7 +140,6 @@
 }
 
 .cp-verdict-num {
-  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 

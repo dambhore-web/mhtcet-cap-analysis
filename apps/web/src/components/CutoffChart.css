@@ -212,3 +212,19 @@
   font-size: var(--text-xs);
   color: var(--muted);
 }
+
+.cc-dash {
+  display: inline-block;
+  width: 16px;
+  border-top: 2px dashed var(--navy-deep);
+  vertical-align: 3px;
+}
+
+.cutoff-chart {
+  padding: 22px 24px;
+}
+@media (max-width: 639px) {
+  .cutoff-chart {
+    padding: 16px;
+  }
+}

@@ -56,7 +56,7 @@ export function CollegePage() {
   );
   const [localMerit, setLocalMerit] = useState<number | null>(() => profile.meritNumber);
   const [localMeritInput, setLocalMeritInput] = useState<string>(() =>
-    profile.meritNumber ? String(profile.meritNumber) : ""
+    profile.meritNumber ? formatNumber(profile.meritNumber) : ""
   );
 
   const drillRef = useRef<HTMLDivElement>(null);
@@ -208,7 +208,7 @@ export function CollegePage() {
 
   function handleRulerMeritChange(merit: number) {
     setLocalMerit(merit);
-    setLocalMeritInput(String(merit));
+    setLocalMeritInput(formatNumber(merit));
   }
 
   function handleSearch(e: React.FormEvent) {
@@ -320,7 +320,8 @@ export function CollegePage() {
                     const v = parseInt(e.target.value.replace(/[^0-9]/g, ""), 10);
                     if (v > 0) setLocalMerit(v);
                   }}
-                  placeholder="e.g. 10000"
+                  onBlur={() => localMerit && setLocalMeritInput(formatNumber(localMerit))}
+                  placeholder="e.g. 10,000"
                 />
               </label>
               <div className="cp-row2">
@@ -331,7 +332,7 @@ export function CollegePage() {
                     onChange={(e) => setLocalSeatType(e.target.value)}
                   >
                     {heroSeatTypeOptions.map((st) => (
-                      <option key={st} value={st}>{seatTypeShortLabel(st)}</option>
+                      <option key={st} value={st}>{seatTypeLabel(st)}</option>
                     ))}
                   </select>
                 </label>
@@ -383,6 +384,7 @@ export function CollegePage() {
             cutoffs={data.cutoffs}
             collegeCode={data.college.code}
             controlledSeatType={localSeatType}
+            merit={localMerit}
           />
 
           {/* Drill into a branch */}
@@ -443,7 +445,7 @@ export function CollegePage() {
               </div>
             </div>
 
-            <SeatCutoffChart cutoffs={data.cutoffs} branch={selectedBranch} selectedLevel={seatLevel} />
+            <SeatCutoffChart cutoffs={data.cutoffs} branch={selectedBranch} selectedLevel={seatLevel} merit={localMerit} />
           </section>
 
           <p className="cp-footnote">
