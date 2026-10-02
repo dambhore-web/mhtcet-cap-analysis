@@ -116,17 +116,17 @@ describe("JEE estimate (#8)", () => {
 });
 
 describe("fees (#42)", () => {
-  it("resolves fee entries to 5-digit college codes and marks unverified amounts", async () => {
+  it("resolves fee entries to 5-digit college codes; the FRA report counts as official", async () => {
     const res = await app.request("http://localhost/api/colleges/06007/fees");
     const body = (await res.json()) as Record<string, any>;
-    expect(body).toMatchObject({ available: true, code: "06007", year: "2026-27", verified: false, fraOrderUrl: null });
+    expect(body).toMatchObject({ available: true, code: "06007", year: "2026-27", verified: true, basis: "fra-report", fraOrderUrl: null });
     expect(body.fees.totalAnnualFee).toBe(body.fees.tuitionFee + body.fees.developmentFee + body.fees.otherFees);
-    expect(body.disclaimer).toMatch(/Not yet checked/);
+    expect(body.disclaimer).toMatch(/approved-fee report for 2026-27\. Confirm with the college/);
   });
 
-  it("serves no fees for a government college the FRA report doesn't list", async () => {
-    const res = await app.request("http://localhost/api/colleges/16006/fees");
-    expect(((await res.json()) as Record<string, any>).available).toBe(false);
+  it("serves no fees for a college the FRA report doesn't list, with the reason", async () => {
+    const res = await app.request("http://localhost/api/colleges/03012/fees");
+    expect((await res.json()) as Record<string, any>).toMatchObject({ available: false, collegeType: "Government", reason: "state-set" });
   });
 
   it("never serves fees under a legacy 4-digit key", async () => {
