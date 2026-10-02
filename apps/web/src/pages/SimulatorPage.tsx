@@ -35,6 +35,8 @@ export function SimulatorPage() {
   const [result, setResult] = useState<SimulateResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Bumped on every run so the rounds replay their reveal
+  const [runCount, setRunCount] = useState(0);
   const merit = profile.meritNumber;
   const noMerit = !merit;
   const noPrefs = items.length === 0;
@@ -57,6 +59,7 @@ export function SimulatorPage() {
           preferences: items.map((i) => i.choiceCode),
         }),
       );
+      setRunCount((n) => n + 1);
     } catch {
       setError("Couldn't run the simulation. Check your connection and try again.");
     } finally {
@@ -127,16 +130,20 @@ export function SimulatorPage() {
               <p className="sim-note">{result.assumptions}</p>
 
               <ol className="sim-rounds" aria-label="Round by round">
-                {result.rounds.map((r) => (
-                  <li key={r.round} className={`card sim-round${r.preference ? " allotted" : ""}`}>
+                {result.rounds.map((r, i) => (
+                  <li
+                    key={`${runCount}-${r.round}`}
+                    className={`card sim-round${r.preference ? " allotted" : ""}${r.movedUp ? " moved" : ""}`}
+                    style={{ animationDelay: `${i * 220}ms` }}
+                  >
                     <div className="sim-round-head">
                       <span className="sim-round-label">{formatRound(r.round)}</span>
                       <span className="sim-round-zone">{zoneText(r.round, result.freezeZones)}</span>
                     </div>
                     {r.preference && r.choice ? (
                       <div className="sim-round-body">
+                        <span className="sim-choice">Choice {r.preference}</span>
                         <span className="sim-tags">
-                          <span className="badge badge-safe"><Icon name="check" size={12} />Choice {r.preference}</span>
                           {r.movedUp && <span className="badge badge-later"><Icon name="arrowUp" size={12} />Moved up</span>}
                           {r.frozen && !r.frozenEarlier && <span className="badge badge-out"><Icon name="lock" size={12} />Frozen</span>}
                           {r.frozenEarlier && <span className="badge badge-out"><Icon name="lock" size={12} />Frozen earlier</span>}
@@ -186,7 +193,8 @@ export function SimulatorPage() {
                             return (
                               <td key={r} className={`num sim-cell${held ? " held" : seat ? " open" : ""}`}>
                                 {held && <span className="sr-only">Your seat: </span>}
-                                {seat ? formatNumber(seat.closingMerit) : <span aria-label="no seat">—</span>}
+                                <span className="sim-dot" aria-hidden="true" />
+                                <span className="sim-val">{seat ? formatNumber(seat.closingMerit) : <span aria-label="no seat">—</span>}</span>
                               </td>
                             );
                           })}
