@@ -37,14 +37,26 @@ export function LandingPage() {
   const [merit, setMerit] = useState<number>(profile.meritNumber ?? EXAMPLE_MERIT);
   const [meritText, setMeritText] = useState(formatNumber(profile.meritNumber ?? EXAMPLE_MERIT));
 
+  // Bumped by "Try again" when the cutoff lists couldn't be loaded
+  const [retry, setRetry] = useState(0);
+
   useEffect(() => {
     let live = true;
     api.meta().then((m) => live && setMeta(m)).catch(() => undefined);
-    api.openLatest().then((r) => live && setRows(r.rows)).catch(() => live && setRows([]));
     return () => {
       live = false;
     };
   }, []);
+
+  useEffect(() => {
+    let live = true;
+    setRows(null);
+    api.openLatest().then((r) => live && setRows(r.rows)).catch(() => live && setRows([]));
+    return () => {
+      live = false;
+    };
+  }, [retry]);
+  const loadFailed = rows !== null && rows.length === 0;
 
   const values = useMemo(() => (rows ?? []).map((r) => r[4]), [rows]);
   const domain = useMemo(() => logBounds(values), [values]);
@@ -153,7 +165,10 @@ export function LandingPage() {
             ) : rows === null ? (
               <div className="landing-ruler-skeleton" aria-busy="true" />
             ) : (
-              <p className="landing-verdict-sub">The cutoff lists couldn't be loaded just now. You can still start with your merit number.</p>
+              <p className="landing-verdict-sub" role="alert">
+                The cutoff lists couldn't be loaded just now. You can still start with your merit number.{" "}
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setRetry((n) => n + 1)}>Try again</button>
+              </p>
             )}
           </div>
         </section>
@@ -185,6 +200,12 @@ export function LandingPage() {
         <section id="branches" className="landing-section">
           <h2>Explore by branch</h2>
           <p className="landing-section-desc">Each strip is every college offering that branch. Blue lines took someone with your merit number or worse.</p>
+          {loadFailed ? (
+            <p className="landing-load-error" role="alert">
+              The cutoff lists couldn't be loaded just now, so the strips are empty.{" "}
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => setRetry((n) => n + 1)}>Try again</button>
+            </p>
+          ) : null}
           <div className="landing-groups">
             {groups.map(({ g, vals }) => (
               <Link key={g} to={`/branches?group=${encodeURIComponent(g)}`} className="card landing-group">
