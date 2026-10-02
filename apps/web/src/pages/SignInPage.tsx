@@ -47,7 +47,12 @@ export function SignInPage() {
 
         <div className="signin-coming-soon">
           <span className="badge badge-sample">Coming soon</span>
-          <p>Accounts are not live yet. Everything you save is kept in this browser until then.</p>
+          <p>Accounts are not live yet. Until then, this browser keeps:</p>
+          <ul className="signin-kept">
+            <li><Icon name="check" size={14} />Your details (merit number, category, home university)</li>
+            <li><Icon name="check" size={14} />Your option form, in order</li>
+            <li><Icon name="check" size={14} />Colleges you're comparing</li>
+          </ul>
         </div>
 
         <Link to="/" className="btn btn-ghost btn-block">

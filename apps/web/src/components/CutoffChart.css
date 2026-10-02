@@ -5,13 +5,6 @@
   gap: 14px;
 }
 
-/* Header */
-.cc-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .cc-title {
   margin: 0;
   font-size: var(--text-lg);
@@ -19,9 +12,9 @@
 }
 
 .cc-desc {
-  font-size: var(--text-sm);
-  color: var(--muted);
-  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--muted-2);
+  margin: 2px 0 0;
 }
 
 /* Filter area — wraps one or two label+select pairs, equal-width columns */
@@ -218,4 +211,20 @@
   margin: 8px 0 0;
   font-size: var(--text-xs);
   color: var(--muted);
+}
+
+.cc-dash {
+  display: inline-block;
+  width: 16px;
+  border-top: 2px dashed var(--navy-deep);
+  vertical-align: 3px;
+}
+
+.cutoff-chart {
+  padding: 22px 24px;
+}
+@media (max-width: 639px) {
+  .cutoff-chart {
+    padding: 16px;
+  }
 }

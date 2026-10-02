@@ -88,6 +88,33 @@ export function EligibilityPage() {
 
   const extra = counts ? counts.withFlags - counts.base : null;
 
+  // What each special seat adds on its own, so a card shows its worth before it's ticked. One search
+  // per seat type, one at a time (the API rate-limits bursts).
+  const [gains, setGains] = useState<Partial<Record<Flag, number>>>({});
+  useEffect(() => {
+    if (!merit) return;
+    let live = true;
+    setGains({});
+    (async () => {
+      const none = { ews: false, tfws: false, defence: false, pwd: false, orphan: false };
+      const reach = (o: { status: string }[]) => o.filter((x) => x.status !== "out-of-range").length;
+      const base = { merit, homeUniversity: profile.homeUniversity || null, category: profile.category ?? null, gender: profile.gender, minorityCommunity: profile.minorityCommunity, subjectGroup: profile.subjectGroup };
+      try {
+        const b = reach((await api.find({ ...base, flags: none })).options);
+        for (const s of SEATS) {
+          if (!live) return;
+          const n = reach((await api.find({ ...base, flags: { ...none, [s.key]: true } })).options);
+          if (live) setGains((g) => ({ ...g, [s.key]: n - b }));
+        }
+      } catch {
+        // counts are a nice-to-have; the cards work without them
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [merit, profile.homeUniversity, profile.category, profile.gender, profile.minorityCommunity, profile.subjectGroup]);
+
   function apply() {
     setProfile({ ...profile, ...flags });
     navigate(merit ? `/?merit=${merit}` : "/");
@@ -112,6 +139,13 @@ export function EligibilityPage() {
               </span>
               <span className="elig-who">{s.who}</span>
               <span className="elig-proof"><strong>Proof:</strong> {s.proof}</span>
+              {merit && gains[s.key] != null && (
+                <span className={`elig-gain${gains[s.key] ? "" : " none"}`}>
+                  {gains[s.key]
+                    ? `+${formatNumber(gains[s.key]!)} branches for merit ${formatNumber(merit)} last year`
+                    : `No extra branches for merit ${formatNumber(merit)} last year with your other details`}
+                </span>
+              )}
             </span>
           </label>
         ))}

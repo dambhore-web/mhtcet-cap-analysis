@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Find Colleges</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/find.js"></script>
+<style>
+.answers { margin-top:18px; display:grid; grid-template-columns:200px repeat(4,minmax(0,1fr)) auto; gap:12px 16px; align-items:end; padding:16px 20px; }
+body.phone .answers { grid-template-columns:1fr 1fr; padding:14px; }
+body.phone .answers .field:first-child { grid-column:1/-1; }
+body.phone .answers .btn { grid-column:1/-1; }
+.answers .big-input { font-size:30px; }
+.overview { margin-top:16px; display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:24px; align-items:center; }
+body.phone .overview { grid-template-columns:1fr; gap:12px; }
+.counts { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.count { border-radius:var(--r-md); padding:12px 14px; }
+.count.safe { background:var(--safe-bg); }
+.count.later { background:var(--amber-bg); }
+.count .num-l { display:block; }
+.count.safe .num-l { color:var(--safe-text); }
+.count.later .num-l { color:var(--amber-text); }
+.count span:last-child { font-size:12px; color:var(--muted); }
+.toolbar2 { display:flex; gap:10px 14px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+.toolbar2 select { width:auto; min-width:150px; }
+.toolbar2 .right { margin-left:auto; }
+.group { padding:0; overflow:hidden; }
+.group-head { display:flex; gap:12px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line-soft); }
+.group-head .t { min-width:0; flex:1; }
+.group-head a { color:var(--ink); text-decoration:none; font:650 17px/1.2 var(--display); font-stretch:90%; }
+.group-head a:hover { color:var(--blue); }
+.group-head .meta { font-size:12px; color:var(--muted-2); }
+.opt { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(160px,1fr) 118px 34px; gap:6px 16px; align-items:center; padding:11px 18px; border-bottom:1px solid var(--line-soft); }
+.opt:last-child { border-bottom:0; }
+body.phone .opt { grid-template-columns:minmax(0,1fr) 34px; padding:12px 14px; }
+body.phone .opt .ladder { grid-column:1/-1; grid-row:2; }
+body.phone .opt .badge { display:none; }
+.opt .b { font-weight:600; color:var(--ink); font-size:14px; }
+.opt .m { font-size:12px; color:var(--muted-2); }
+.opt .m .pos { color:var(--safe-text); }
+.opt .m .neg { color:var(--danger, #b91c1c); }
+.opt .past { font-size:11px; color:var(--muted-2); }
+.ladder svg { display:block; width:100%; height:22px; }
+.add { width:32px; height:32px; border-radius:50%; border:1px solid var(--line); background:#fff; color:var(--blue); font-size:18px; line-height:1; cursor:pointer; }
+.add[aria-pressed="true"] { background:var(--blue); border-color:var(--blue); color:#fff; }
+.group-more { display:block; width:100%; border:0; background:var(--tint-2); color:var(--blue); font:500 12px var(--body); padding:9px; cursor:pointer; }
+.axis-note { display:flex; justify-content:space-between; font-size:11px; color:var(--muted-2); margin:4px 0 8px; }
+.form-count { display:flex; align-items:baseline; gap:6px; margin-top:8px; }
+.form-list { list-style:none; padding:0; margin-top:10px; display:flex; flex-direction:column; gap:6px; font-size:12px; }
+.form-list li { display:flex; gap:8px; }
+.form-list .i { font:600 11px var(--mono); color:var(--muted-2); width:16px; }
+</style>
+</head>
+<body data-page="find" data-mock="Find colleges (results) · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <div class="head-row">
+      <div>
+        <div class="eyebrow"><span>Your answers</span><span>Change any of them and the results update</span></div>
+        <h1 class="h1" style="margin-top:6px">Colleges for merit <span id="h-merit" class="tnum"></span></h1>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button">Parent summary PDF</button>
+        <button class="btn" type="button">Share results</button>
+      </div>
+    </div>
+
+    <form class="card answers" onsubmit="event.preventDefault()">
+      <label class="field"><span>State merit number</span><input class="big-input" id="merit" inputmode="numeric" autocomplete="off"></label>
+      <label class="field"><span>Category</span><select><option>OBC</option><option>Open</option><option>SC</option><option>ST</option><option>SEBC</option></select></label>
+      <label class="field"><span>Gender</span><select><option>Male</option><option>Female</option></select></label>
+      <label class="field"><span>Home university</span><select><option>Savitribai Phule Pune University</option><option>University of Mumbai</option></select></label>
+      <label class="field"><span>Branches</span><select><option>All branches</option><option>Computer &amp; IT</option><option>Mechanical</option></select></label>
+      <a class="btn btn-ghost" href="onboarding.html">One question at a time →</a>
+    </form>
+    <p class="info">The five answer tiles become one compact form row, with the merit number as the big field. Selects are illustrative; only the merit number and the pin change the results in this mockup. The data is the real API answer for merit 12,000, so moving the pin far from 12,000 shows fewer options than the live app would.</p>
+
+    <section class="card overview" aria-label="Summary">
+      <div>
+        <p class="verdict" aria-live="polite" id="verdict"></p>
+        <p class="small" style="margin-top:4px">Based on last year's official closing ranks for the seats you can take. A guide, not a guarantee.</p>
+        <div class="chart-wrap" id="ruler" style="margin-top:10px"></div>
+        <div class="ruler-hint"><span>← harder to get</span><span class="mid">Drag the pin to ask “what if my merit were…”</span><span>easier to get →</span></div>
+      </div>
+      <div class="counts">
+        <div class="count safe"><span class="num-l" id="n-r1"></span><span>likely in Round I</span></div>
+        <div class="count later"><span class="num-l" id="n-later"></span><span>likely in a later round</span></div>
+        <p class="small" style="grid-column:1/-1" id="n-cols"></p>
+        <a class="small" href="eligibility.html" style="grid-column:1/-1">Could other seat types add options?</a>
+      </div>
+    </section>
+    <p class="info">Summary: the same merit ruler, now holding every option for this student. The “What if my merit were…” slider in the sidebar is gone; the pin does it, and every list below follows it.</p>
+
+    <div class="split" style="margin-top:20px">
+      <div class="col">
+        <div>
+          <div class="toolbar2">
+            <div class="seg-light" role="group" aria-label="Group results">
+              <button type="button" data-view="college" aria-pressed="true">By college</button>
+              <button type="button" data-view="all" aria-pressed="false">All options</button>
+            </div>
+            <select id="f-district" aria-label="District"></select>
+            <select id="f-type" aria-label="College type"></select>
+            <span class="legend right"><span><span class="dot dot-r1"></span>Round I</span><span><span class="dot dot-last"></span>Latest round</span><span><span class="dash"></span>You</span></span>
+          </div>
+          <div class="stack" id="list"></div>
+          <button class="btn" style="width:100%;margin-top:14px" id="more" type="button"></button>
+        </div>
+      </div>
+      <aside class="col side">
+        <section class="card">
+          <h2 class="h2">Your option form</h2>
+          <div class="form-count"><span class="num-l" id="form-n">0</span><span class="small">choices saved</span></div>
+          <ol class="form-list" id="form-list"></ol>
+          <p class="small" id="form-empty" style="margin-top:6px">Press + on any branch to add it.</p>
+          <a class="btn btn-primary" href="list.html" style="width:100%;margin-top:12px">Build my option form</a>
+        </section>
+        <section class="card">
+          <h2 class="h2">Next</h2>
+          <ul class="link-list" style="margin-top:10px">
+            <li><a href="compare.html">Compare colleges side by side</a></li>
+            <li><a href="branches.html">See one branch across all colleges</a></li>
+            <li><a href="ask.html">Ask Compass which is safest</a></li>
+          </ul>
+        </section>
+        <p class="info">The option form card fills as you press +, so the sidebar shows progress rather than instructions.</p>
+      </aside>
+    </div>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+
+<script>
+const C = Compass;
+const COLS = FIND.colleges.map(([code, name, district, type]) => ({ code, name, district, type }));
+const OPTS = FIND.rows.map(([ci, choice, branch, seat, r1, last, past, seats, intake]) => ({ col: COLS[ci], choice, branch, seat, r1, last, past, seats, intake }));
+const DOMAIN = C.bounds(OPTS.flatMap((o) => [o.r1, o.last]).concat(1000));
+let merit = FIND.merit, view = "college", shown = 8, district = "", type = "";
+const form = [];
+const input = document.getElementById("merit");
+
+const statusOf = (o) => (merit <= o.r1 ? "r1" : merit <= o.last ? "later" : "out");
+const BADGE = { r1: '<span class="badge badge-safe">✓ Round I</span>', later: '<span class="badge badge-later">◷ Later round</span>', out: '<span class="badge badge-out">– Out of reach</span>' };
+
+function ladder(o) {
+  // zoomed to a factor of 4 either side of the student, so the gap to the cutoff is readable
+  const W = 240, x = C.scale([merit / 4, merit * 4], 4, W - 8), x1 = x(o.r1), x2 = x(o.last), you = x(merit);
+  return `<svg viewBox="0 0 ${W} 22" preserveAspectRatio="none" aria-label="Round I ${C.fmt(o.r1)}, latest ${C.fmt(o.last)}, you ${C.fmt(merit)}">
+    <line x1="4" x2="${W - 4}" y1="11" y2="11" stroke="#e2e8f0" stroke-width="2"/>
+    ${o.r1 !== o.last ? `<line x1="${x1}" x2="${x2}" y1="11" y2="11" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" opacity=".45"/>` : ""}
+    <circle cx="${x1}" cy="11" r="4.5" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+    ${o.r1 !== o.last ? `<circle cx="${x2}" cy="11" r="4.5" fill="#f59e0b"/>` : ""}
+    <line x1="${you}" x2="${you}" y1="1" y2="21" stroke="#0f172a" stroke-width="1.5" stroke-dasharray="3 2"/>
+  </svg>`;
+}
+function optRow(o, withCollege) {
+  const margin = o.last - merit, st = statusOf(o), inForm = form.includes(o);
+  const pastIn = o.past.filter(([, v]) => merit <= v).length;
+  return `<div class="opt">
+    <div>
+      ${withCollege ? `<div class="small" style="color:var(--muted)">${C.esc(o.col.name)}</div>` : ""}
+      <div class="b">${C.esc(o.branch)}</div>
+      <div class="m">${C.esc(C.seatLabel(o.seat, true))} · closed <span class="tnum">${C.fmt(o.r1)} → ${C.fmt(o.last)}</span>
+        ${margin ? `<span class="${margin > 0 ? "pos" : "neg"}">(${C.fmt(Math.abs(margin))} ranks ${margin > 0 ? "to spare" : "short"})</span>` : ""}
+        ${o.seats != null ? ` · ${o.seats} seat${o.seats === 1 ? "" : "s"}${o.seats <= 2 ? " (small pool)" : ""}` : ""}</div>
+      ${o.past.length ? `<div class="past">${o.past[0][0]}–${o.past.at(-1)[0]}: within the cutoff in ${pastIn} of ${o.past.length} years</div>` : ""}
+    </div>
+    <span class="ladder">${ladder(o)}</span>
+    ${BADGE[st]}
+    <button type="button" class="add" aria-pressed="${inForm}" aria-label="${inForm ? "Remove from" : "Add to"} option form" data-add="${OPTS.indexOf(o)}">${inForm ? "✓" : "+"}</button>
+  </div>`;
+}
+
+function render() {
+  input.value = C.fmt(merit);
+  document.getElementById("h-merit").textContent = C.fmt(merit);
+  const pool = OPTS.filter((o) => (!district || o.col.district === district) && (!type || o.col.type === type));
+  const r1 = pool.filter((o) => statusOf(o) === "r1"), later = pool.filter((o) => statusOf(o) === "later");
+  const within = [...r1, ...later];
+  const nCols = new Set(within.map((o) => o.col.code)).size;
+  document.getElementById("verdict").innerHTML = `At <span class="tnum">${C.fmt(merit)}</span>, <b>${C.fmt(within.length)} options</b> in ${C.fmt(nCols)} colleges were within reach.`;
+  document.getElementById("n-r1").textContent = C.fmt(r1.length);
+  document.getElementById("n-later").textContent = C.fmt(later.length);
+  document.getElementById("n-cols").textContent = `OBC · male · Savitribai Phule Pune University home university · PCM`;
+  C.ruler(document.getElementById("ruler"), pool.map((o) => ({ value: o.last })), { merit, domain: DOMAIN, barcode: true, onChange: setMerit, aria: "Your options' closing ranks, with your merit number" });
+
+  const list = document.getElementById("list"), more = document.getElementById("more");
+  if (view === "college") {
+    const groups = new Map();
+    for (const o of within) { if (!groups.has(o.col.code)) groups.set(o.col.code, []); groups.get(o.col.code).push(o); }
+    const gs = [...groups.values()];
+    list.innerHTML = gs.slice(0, shown).map((opts) => {
+      const c = opts[0].col, best = opts.some((o) => statusOf(o) === "r1") ? "r1" : "later";
+      const href = c.code === "03012" ? "../mockups/college-page-reorder.html" : "#";
+      return `<article class="card group">
+        <header class="group-head">
+          <span class="tile-av" style="background:${C.tint(c.code)}">${C.initials(c.name)}</span>
+          <div class="t"><a href="${href}">${C.esc(c.name)}</a><div class="meta">${opts.length} option${opts.length === 1 ? "" : "s"} · code <span class="mono">${c.code}</span> · ${C.esc(c.district ?? "")} · ${C.esc(c.type ?? "")}</div></div>
+          ${BADGE[best]}
+        </header>
+        ${opts.slice(0, 3).map((o) => optRow(o)).join("")}
+        ${opts.length > 3 ? `<button type="button" class="group-more" data-expand="${c.code}">Show ${opts.length - 3} more</button>` : ""}
+      </article>`;
+    }).join("");
+    more.hidden = gs.length <= shown;
+    more.textContent = `Show more colleges (${C.fmt(gs.length - shown)} left)`;
+  } else {
+    list.innerHTML = `<div class="card group">${within.slice(0, shown * 3).map((o) => optRow(o, true)).join("")}</div>`;
+    more.hidden = within.length <= shown * 3;
+    more.textContent = `Show more options (${C.fmt(within.length - shown * 3)} left)`;
+  }
+  const fl = document.getElementById("form-list");
+  document.getElementById("form-n").textContent = form.length;
+  document.getElementById("form-empty").hidden = form.length > 0;
+  fl.innerHTML = form.slice(0, 5).map((o, i) => `<li><span class="i">${i + 1}</span><span>${C.esc(C.short(o.branch))}, ${C.esc(o.col.name.split(",")[0])}</span></li>`).join("") + (form.length > 5 ? `<li class="small">and ${form.length - 5} more</li>` : "");
+}
+function setMerit(v) { if (v === merit) return; merit = v; render(); }
+
+const uniq = (k) => [...new Set(COLS.map((c) => c[k]).filter(Boolean))].sort();
+document.getElementById("f-district").innerHTML = `<option value="">All districts</option>` + uniq("district").map((d) => `<option>${C.esc(d)}</option>`).join("");
+document.getElementById("f-type").innerHTML = `<option value="">All college types</option>` + uniq("type").map((d) => `<option>${C.esc(d)}</option>`).join("");
+document.getElementById("f-district").onchange = (e) => { district = e.target.value; shown = 8; render(); };
+document.getElementById("f-type").onchange = (e) => { type = e.target.value; shown = 8; render(); };
+document.querySelectorAll("[data-view]").forEach((b) => (b.onclick = () => {
+  view = b.dataset.view; shown = 8;
+  document.querySelectorAll("[data-view]").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  render();
+}));
+document.getElementById("more").onclick = () => { shown += 8; render(); };
+document.getElementById("list").onclick = (e) => {
+  const add = e.target.closest("[data-add]");
+  if (add) { const o = OPTS[+add.dataset.add], i = form.indexOf(o); i >= 0 ? form.splice(i, 1) : form.push(o); render(); return; }
+  const ex = e.target.closest("[data-expand]");
+  if (ex) {
+    const art = ex.closest(".group"), code = ex.dataset.expand;
+    const opts = OPTS.filter((o) => o.col.code === code && statusOf(o) !== "out");
+    ex.insertAdjacentHTML("beforebegin", opts.slice(3).map((o) => optRow(o)).join(""));
+    ex.remove();
+  }
+};
+input.oninput = () => { const v = parseInt(input.value.replace(/\D/g, ""), 10); if (v > 0) { merit = v; render(); input.focus(); } };
+C.onRender(render);
+</script>
+</body>
+</html>

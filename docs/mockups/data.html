@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Data Sources</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<style>
+.pipe { list-style:none; padding:0; margin-top:24px; display:grid; grid-template-columns:repeat(4,1fr); gap:0; }
+.pipe li { padding:0 18px 0 0; position:relative; }
+.pipe li + li { padding-left:18px; border-left:1px solid var(--line); }
+.pipe .k { font:700 13px var(--mono); color:var(--blue); }
+.pipe b { display:block; font:650 18px/1.2 var(--display); font-stretch:88%; color:var(--ink); margin-top:4px; }
+.pipe p { font-size:13px; color:var(--muted); margin-top:4px; }
+body.phone .pipe { grid-template-columns:1fr; gap:14px; }
+body.phone .pipe li + li { border-left:0; padding-left:0; border-top:1px solid var(--line); padding-top:14px; }
+.stats { margin-top:26px; display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.stats div { padding:16px 0; }
+.stats div + div { border-left:1px solid var(--line); padding-left:22px; }
+.stats .s { display:block; font-size:12px; color:var(--muted-2); margin-top:4px; }
+body.phone .stats { grid-template-columns:1fr 1fr; }
+.bars { margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+.bar { display:grid; grid-template-columns:150px minmax(0,1fr) 70px; gap:12px; align-items:center; font-size:13px; }
+.bar .t { height:16px; border-radius:4px; background:var(--line-soft); overflow:hidden; }
+.bar .t i { display:block; height:100%; background:var(--blue); border-radius:4px; }
+.bar.ai .t i { background:var(--blue-soft); }
+.bar.dip .t i { background:var(--amber); }
+.bar .n { text-align:right; font-family:var(--mono); font-size:12px; }
+.bar .f { grid-column:2/-1; font:11px var(--mono); color:var(--muted-2); margin-top:-6px; }
+body.phone .bar { grid-template-columns:100px minmax(0,1fr) 56px; }
+.cov { margin-top:16px; display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+body.phone .cov { grid-template-columns:1fr; }
+.cov .card p { font-size:13px; color:var(--muted); margin-top:4px; }
+.meter { height:8px; border-radius:4px; background:var(--line-soft); margin-top:10px; overflow:hidden; }
+.meter i { display:block; height:100%; background:var(--safe-text); }
+</style>
+</head>
+<body data-page="" data-mock="Where our numbers come from · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <h1 class="h1">Where our numbers come from</h1>
+    <p class="lede">Every cutoff in Compass is read by software from the PDFs the State CET Cell publishes, checked, and stored with the file and page it came from.</p>
+    <ol class="pipe">
+      <li><span class="k">01</span><b>Official PDFs</b><p>Cutoff lists for every round, merit lists, the seat matrix and allotment lists, from the State CET Cell.</p></li>
+      <li><span class="k">02</span><b>Read by code</b><p>Parsers pull out college, branch, seat type, round and closing merit. Nobody types numbers in by hand.</p></li>
+      <li><span class="k">03</span><b>Checked</b><p>Seat counts must match each branch's printed “CAP Seats”, and Round I cutoffs must match the allotment lists.</p></li>
+      <li><span class="k">04</span><b>Stored with source</b><p>Each value keeps its PDF name and page, so any number can be traced back. No candidate names or application IDs are kept.</p></li>
+    </ol>
+    <p class="info">This is a real pipeline, in order, so the steps are numbered. Everything below is the live <span class="mono">/api/meta</span> answer.</p>
+
+    <section class="stats" aria-label="What's loaded">
+      <div><span class="num-xl">401</span><span class="s">colleges</span></div>
+      <div><span class="num-xl">2,505</span><span class="s">branches</span></div>
+      <div><span class="num-xl">1,11,754</span><span class="s">cutoff values</span></div>
+      <div><span class="num-xl">2026</span><span class="s">CAP year, plus 2023–25 trends</span></div>
+    </section>
+
+    <section class="card" style="margin-top:22px">
+      <h2 class="h2">Cutoff lists loaded</h2>
+      <p class="desc">Values per list and round. Fewer seats are left to allot in later rounds, so later lists are shorter.</p>
+      <div class="bars" id="bars"></div>
+    </section>
+
+    <div class="cov">
+      <div class="card"><h3 class="h3">Fees</h3><p>319 of 401 colleges, 0 checked against the Fee Regulating Authority's order yet.</p><div class="meter"><i style="width:0%"></i></div></div>
+      <div class="card"><h3 class="h3">Districts</h3><p>387 of 401 colleges.</p><div class="meter"><i style="width:96.5%"></i></div></div>
+      <div class="card"><h3 class="h3">Earlier years</h3><p>2023, 2024 and 2025 state-level cutoffs, shown as year-by-year trends on each branch page.</p></div>
+      <div class="card"><h3 class="h3">Seats left after each round</h3><p>Not shown yet.</p></div>
+    </div>
+    <p class="small" style="margin-top:18px">Last data load: 29 September 2026, succeeded. Compass is an unofficial guide. Past cutoffs describe what happened, not what will happen. <a href="legal.html">Read the disclaimer</a></p>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const C = Compass;
+const L = [["Maharashtra state", "I", 36059, "2026ENGG_CAP1_MH_CutOff_V1.pdf", ""], ["Maharashtra state", "II", 34391, "2026ENGG_CAP2_MH_CutOff.pdf", ""], ["Maharashtra state", "III", 19839, "2026ENGG_CAP3_MH_CutOff.pdf", ""], ["Maharashtra state", "IV", 14764, "2026ENGG_CAP4_MH_CutOff.pdf", ""],
+  ["All India", "I", 2004, "2026ENGG_CAP1_AI_CutOff.pdf", "ai"], ["All India", "II", 1753, "2026ENGG_CAP2_AI_CutOff.pdf", "ai"], ["All India", "III", 1472, "2026ENGG_CAP3_AI_CutOff.pdf", "ai"], ["All India", "IV", 1332, "2026ENGG_CAP4_AI_CutOff.pdf", "ai"], ["Diploma", "IV", 140, "2026ENGG_CAP4_Diploma_CutOff.pdf", "dip"]];
+const max = Math.max(...L.map((l) => l[2]));
+document.getElementById("bars").innerHTML = L.map(([l, r, n, f, k]) => `<div class="bar ${k}"><span>${l}, Round ${r}</span><span class="t"><i style="width:${Math.max((n / max) * 100, 0.6)}%"></i></span><span class="n">${C.fmt(n)}</span><span class="f">${f}</span></div>`).join("");
+</script>
+</body>
+</html>

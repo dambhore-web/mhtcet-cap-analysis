@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { seatCategoryLabel, seatTypeShortLabel, seatLevelCode, seatTypeSortKey, LEVEL_LABELS } from "../lib/seatType";
 import { formatNumber, formatRound, roundIndex } from "../lib/format";
 import "./CutoffChart.css";
@@ -15,51 +15,6 @@ interface CutoffRow {
   sourcePage?: number | null;
 }
 
-/** The same values as a chart, as a table: reachable by keyboard, touch and screen readers. */
-function SeriesTable({ series, rounds, rowHeader, sources, getLink }: { series: ChartSeries[]; rounds: (number | string)[]; rowHeader: string; sources: string[]; getLink?: (s: ChartSeries) => string | undefined }) {
-  return (
-    <details className="cc-table-toggle">
-      <summary>Show as a table</summary>
-      <div className="table-scroll">
-        <table className="cc-table">
-          <thead>
-            <tr>
-              <th scope="col">{rowHeader}</th>
-              {rounds.map((r) => <th key={String(r)} scope="col" className="cc-num">{formatRound(r)}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {series.map((s) => {
-              const href = getLink?.(s);
-              return (
-                <tr key={s.label}>
-                  <th scope="row">{href ? <Link to={href}>{s.label}</Link> : s.label}</th>
-                  {s.roundValues.map((v, i) => <td key={i} className="cc-num">{v == null ? "—" : formatNumber(v)}</td>)}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {sources.length > 0 && (
-        <p className="cc-sources">Source: {sources.join("; ")}</p>
-      )}
-    </details>
-  );
-}
-
-/** "file.pdf (pages 12, 14)" for the rows behind a chart (NFR-001). */
-function sourceNotes(rows: CutoffRow[]): string[] {
-  const pages = new Map<string, Set<number>>();
-  for (const r of rows) {
-    if (!r.source) continue;
-    if (!pages.has(r.source)) pages.set(r.source, new Set());
-    if (r.sourcePage != null) pages.get(r.source)!.add(r.sourcePage);
-  }
-  return [...pages.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([file, ps]) => (ps.size ? `${file} (page ${[...ps].sort((a, b) => a - b).join(", ")})` : file));
-}
 
 interface ChartSeries {
   label: string;
@@ -96,12 +51,15 @@ interface ChartSvgProps {
   onRowEnter: (idx: number) => void;
   onRowLeave: () => void;
   onRowClick?: (s: ChartSeries) => void;
+  /** The student's merit: drawn as a dashed line, and rows it reaches get blue labels. */
+  merit?: number | null;
 }
 
-function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowClick }: ChartSvgProps) {
+function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowClick, merit }: ChartSvgProps) {
   const narrow = svgWidth < 520;
   const LEFT = narrow ? 112 : 170;
-  const RIGHT = narrow ? 60 : 90;
+  // no value column on the right: hovering a row shows every round (owner request, 2026-10-01)
+  const RIGHT = narrow ? 14 : 22;
   const ROW_H = 38;
   const TOP = 14;
   const BTM = 34;
@@ -110,6 +68,7 @@ function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowC
 
   const allMerits = series.flatMap((s) => [s.firstMerit, s.lastMerit]);
   if (allMerits.length === 0) return null;
+  if (merit) allMerits.push(merit);
   const { a, z } = bestLogBounds(Math.min(...allMerits), Math.max(...allMerits));
   const xOf = (v: number) => xScale(v, a, z, LEFT, CW);
   const allTicks = LOG_TICKS.filter((t) => t >= a && t <= z);
@@ -140,6 +99,7 @@ function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowC
         const maxChars = narrow ? 14 : 22;
         const rowLabel = s.label.length > maxChars ? s.label.slice(0, maxChars - 1) + "…" : s.label;
         const isHov = hoveredIdx === i;
+        const reach = merit != null && merit <= s.lastMerit;
 
         return (
           <g key={s.label}>
@@ -164,7 +124,8 @@ function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowC
             <text
               x={LEFT - 10} y={cy + 4}
               textAnchor="end" fontSize={12}
-              fill={isHov ? "var(--violet)" : "var(--navy)"}
+              fill={isHov || reach ? "var(--violet-deep)" : "var(--muted)"}
+              fontWeight={reach ? 600 : 400}
               fontFamily="var(--font-body)"
               style={{ pointerEvents: "none" }}
             >
@@ -189,18 +150,19 @@ function ChartSvg({ series, svgWidth, hoveredIdx, onRowEnter, onRowLeave, onRowC
                 <title>Last round: {formatNumber(s.lastMerit)}</title>
               </circle>
             )}
-
-            <text
-              x={LEFT + CW + 8} y={cy + 4}
-              fontSize={11} fill="var(--muted)"
-              fontFamily="var(--font-num)" fontWeight={600}
-              style={{ pointerEvents: "none" }}
-            >
-              {formatNumber(s.lastMerit)}
-            </text>
           </g>
         );
       })}
+
+      {merit != null && merit > 0 && (
+        <line
+          x1={xOf(merit)} x2={xOf(merit)} y1={TOP - 4} y2={H - BTM}
+          stroke="var(--navy-deep)" strokeWidth={1.5} strokeDasharray="4 3"
+          style={{ pointerEvents: "none" }}
+        >
+          <title>Your merit {formatNumber(merit)}</title>
+        </line>
+      )}
     </svg>
   );
 }
@@ -266,9 +228,14 @@ function useTooltip() {
 interface CutoffChartProps {
   cutoffs: CutoffRow[];
   collegeCode?: string;
+  /** When provided: use this seat type and hide the internal category filter. */
+  controlledSeatType?: string;
+  /** When provided: call this instead of navigating on row click. */
+  onBranchSelect?: (branch: string) => void;
+  merit?: number | null;
 }
 
-export function CutoffChart({ cutoffs, collegeCode }: CutoffChartProps) {
+export function CutoffChart({ cutoffs, collegeCode, controlledSeatType, onBranchSelect, merit }: CutoffChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgWidth = useContainerWidth(containerRef);
   const { hovered, setHovered, pos, onMouseMove, onMouseLeave } = useTooltip();
@@ -293,19 +260,22 @@ export function CutoffChart({ cutoffs, collegeCode }: CutoffChartProps) {
 
   const [selectedSeatType, setSelectedSeatType] = useState<string>(() => seatTypesAtLevel[0] ?? "");
 
-  // Keep selectedSeatType valid when level changes
+  // Keep selectedSeatType valid when level changes (skip when externally controlled)
   useEffect(() => {
+    if (controlledSeatType !== undefined) return;
     if (!seatTypesAtLevel.includes(selectedSeatType) && seatTypesAtLevel.length > 0) {
       setSelectedSeatType(seatTypesAtLevel[0]);
     }
-  }, [seatTypesAtLevel, selectedSeatType]);
+  }, [seatTypesAtLevel, selectedSeatType, controlledSeatType]);
+
+  const effectiveSeatType = controlledSeatType ?? selectedSeatType;
 
   const availableRounds = useMemo(() => {
     return [...new Set(cutoffs.map((r) => r.round))].sort((a, b) => roundIndex(a) - roundIndex(b));
   }, [cutoffs]);
 
   const series = useMemo((): ChartSeries[] => {
-    const rows = cutoffs.filter((r) => r.seatType === selectedSeatType);
+    const rows = cutoffs.filter((r) => r.seatType === effectiveSeatType);
     const byBranch = new Map<string, Map<number | string, number>>();
     const branchChoiceCode = new Map<string, string>();
     for (const row of rows) {
@@ -327,50 +297,54 @@ export function CutoffChart({ cutoffs, collegeCode }: CutoffChartProps) {
       })
       .filter((s) => s.firstMerit > 0)
       .sort((a, b) => a.firstMerit - b.firstMerit);
-  }, [cutoffs, selectedSeatType, availableRounds]);
+  }, [cutoffs, effectiveSeatType, availableRounds]);
 
   if (availableLevels.length === 0) return null;
 
   const hoveredSeries = hovered !== null ? series[hovered] ?? null : null;
   const levelLabel = selectedLevel === "all" ? "all levels" : (LEVEL_LABELS[selectedLevel] ?? selectedLevel);
-  const catLabel = seatTypeShortLabel(selectedSeatType);
+  const catLabel = seatTypeShortLabel(effectiveSeatType);
 
   return (
     <section className="cutoff-chart card" aria-label="Cutoff visualization">
-      <div className="cc-header">
-        <h2 className="cc-title">Closing rank by branch</h2>
-        <p className="cc-desc">Last merit number admitted to each branch. Lower = harder to get.</p>
+      <div className="card-head">
+        <div>
+          <h2 className="cc-title">Closing rank by branch</h2>
+          <p className="cc-desc">The last merit number admitted to each branch. Lower is harder to get.</p>
+        </div>
       </div>
 
-      <div className="cc-filters">
-        <div className="cc-filter-row">
-          <label className="label" htmlFor="cc-level-select">University</label>
-          <select
-            id="cc-level-select"
-            className="cc-select"
-            value={selectedLevel}
-            onChange={(e) => { setSelectedLevel(e.target.value); setHovered(null); }}
-          >
-            <option value="all">All levels</option>
-            {availableLevels.map((l) => (
-              <option key={l} value={l}>{LEVEL_LABELS[l]}</option>
-            ))}
-          </select>
+      {controlledSeatType === undefined && (
+        <div className="cc-filters">
+          <div className="cc-filter-row">
+            <label className="label" htmlFor="cc-level-select">University</label>
+            <select
+              id="cc-level-select"
+              className="cc-select"
+              value={selectedLevel}
+              onChange={(e) => { setSelectedLevel(e.target.value); setHovered(null); }}
+            >
+              <option value="all">All levels</option>
+              {availableLevels.map((l) => (
+                <option key={l} value={l}>{LEVEL_LABELS[l]}</option>
+              ))}
+            </select>
+          </div>
+          <div className="cc-filter-row">
+            <label className="label" htmlFor="cc-seat-select">Category</label>
+            <select
+              id="cc-seat-select"
+              className="cc-select"
+              value={selectedSeatType}
+              onChange={(e) => { setSelectedSeatType(e.target.value); setHovered(null); }}
+            >
+              {seatTypesAtLevel.map((st) => (
+                <option key={st} value={st}>{seatTypeShortLabel(st)}</option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div className="cc-filter-row">
-          <label className="label" htmlFor="cc-seat-select">Category</label>
-          <select
-            id="cc-seat-select"
-            className="cc-select"
-            value={selectedSeatType}
-            onChange={(e) => { setSelectedSeatType(e.target.value); setHovered(null); }}
-          >
-            {seatTypesAtLevel.map((st) => (
-              <option key={st} value={st}>{seatTypeShortLabel(st)}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+      )}
 
       {series.length === 0 ? (
         <div className="cc-empty">No closing ranks for {catLabel} · {levelLabel}</div>
@@ -379,6 +353,7 @@ export function CutoffChart({ cutoffs, collegeCode }: CutoffChartProps) {
           <div className="cc-legend">
             <span className="cc-legend-item"><span className="cc-dot cc-dot-r1" aria-hidden="true" />{formatRound(1)}</span>
             <span className="cc-legend-item"><span className="cc-dot cc-dot-last" aria-hidden="true" />Latest round</span>
+            {merit != null && merit > 0 && <span className="cc-legend-item"><span className="cc-dash" aria-hidden="true" />Your merit</span>}
             <span className="cc-legend-hint">Hover a row, or open the table below, to see every round</span>
           </div>
           <div
@@ -393,19 +368,19 @@ export function CutoffChart({ cutoffs, collegeCode }: CutoffChartProps) {
               hoveredIdx={hovered}
               onRowEnter={setHovered}
               onRowLeave={() => setHovered(null)}
-              onRowClick={collegeCode ? (s) => s.choiceCode && navigate(`/colleges/${collegeCode}/${s.choiceCode}`) : undefined}
+              onRowClick={
+              onBranchSelect
+                ? (s) => onBranchSelect(s.label)
+                : collegeCode
+                ? (s) => s.choiceCode && navigate(`/colleges/${collegeCode}/${s.choiceCode}`)
+                : undefined
+            }
+              merit={merit}
             />
             {hoveredSeries && (
               <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
             )}
           </div>
-          <SeriesTable
-            series={series}
-            rounds={availableRounds}
-            rowHeader="Branch"
-            sources={sourceNotes(cutoffs.filter((r) => r.seatType === selectedSeatType))}
-            getLink={collegeCode ? (s) => s.choiceCode ? `/colleges/${collegeCode}/${s.choiceCode}` : undefined : undefined}
-          />
         </>
       )}
     </section>
@@ -418,9 +393,10 @@ interface SeatCutoffChartProps {
   cutoffs: CutoffRow[];
   branch: string;
   selectedLevel: string;
+  merit?: number | null;
 }
 
-export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffChartProps) {
+export function SeatCutoffChart({ cutoffs, branch, selectedLevel, merit }: SeatCutoffChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgWidth = useContainerWidth(containerRef);
   const { hovered, setHovered, pos, onMouseMove, onMouseLeave } = useTooltip();
@@ -473,6 +449,7 @@ export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffCh
           <div className="cc-legend">
             <span className="cc-legend-item"><span className="cc-dot cc-dot-r1" aria-hidden="true" />{formatRound(1)}</span>
             <span className="cc-legend-item"><span className="cc-dot cc-dot-last" aria-hidden="true" />Latest round</span>
+            {merit != null && merit > 0 && <span className="cc-legend-item"><span className="cc-dash" aria-hidden="true" />Your merit</span>}
             <span className="cc-legend-hint">Hover a row, or open the table below, to see every round</span>
           </div>
           <div
@@ -487,17 +464,12 @@ export function SeatCutoffChart({ cutoffs, branch, selectedLevel }: SeatCutoffCh
               hoveredIdx={hovered}
               onRowEnter={setHovered}
               onRowLeave={() => setHovered(null)}
+              merit={merit}
             />
             {hoveredSeries && (
               <ChartTooltip series={hoveredSeries} rounds={availableRounds} x={pos.x} y={pos.y} maxX={svgWidth} />
             )}
           </div>
-          <SeriesTable
-            series={series}
-            rounds={availableRounds}
-            rowHeader="Seat type"
-            sources={sourceNotes(cutoffs.filter((r) => r.branch === branch && r.seatType !== "AI"))}
-          />
           {cutoffs.some((r) => r.branch === branch && r.seatType === "AI") && (
             <p className="cc-note">All India seats use the All India merit number, so they aren't on this chart. Pick “All India” in the chart above.</p>
           )}

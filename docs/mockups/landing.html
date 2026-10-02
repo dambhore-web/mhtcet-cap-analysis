@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Landing</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/colleges.js"></script>
+<style>
+.hero { padding:44px 40px 8px; display:grid; grid-template-columns:minmax(0,1fr); gap:10px; }
+body.phone .hero { padding:24px 16px 4px; }
+.hero .h1 { font-size:64px; max-width:900px; margin-top:6px; }
+body.phone .hero .h1 { font-size:36px; }
+.hero .h1 em { font-style:normal; color:var(--blue); }
+.try { margin:22px 40px 0; padding:22px 26px 18px; display:grid; grid-template-columns:240px minmax(0,1fr); gap:10px 34px; align-items:center; }
+body.phone .try { margin:16px 16px 0; grid-template-columns:1fr; padding:16px; gap:14px; }
+.try .cta { display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+.try .cta .btn { width:100%; }
+.verdict-sub { font-size:12px; color:var(--muted-2); margin-top:4px; max-width:720px; }
+.stats { margin:26px 40px 0; display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.stats div { padding:16px 0; }
+.stats div + div { border-left:1px solid var(--line); padding-left:22px; }
+.stats span:not(.num-xl) { display:block; font-size:12px; color:var(--muted-2); margin-top:4px; }
+body.phone .stats { margin:18px 16px 0; grid-template-columns:1fr 1fr; }
+body.phone .stats div:nth-child(3) { border-left:0; padding-left:0; }
+body.phone .stats div:nth-child(n+3) { border-top:1px solid var(--line); }
+.section { padding:44px 40px 0; }
+body.phone .section { padding:30px 16px 0; }
+.section > .h2 { font-size:30px; }
+body.phone .section > .h2 { font-size:24px; }
+.section > .desc { font-size:13px; margin-top:4px; }
+.steps { list-style:none; padding:0; margin-top:18px; display:grid; grid-template-columns:repeat(4,1fr); gap:0; counter-reset:s; }
+.steps li { padding:4px 22px 4px 0; position:relative; }
+.steps li + li { padding-left:22px; border-left:1px solid var(--line); }
+.steps li::before { counter-increment:s; content:counter(s); display:block; font:700 40px/1 var(--display); font-stretch:80%; color:var(--blue-soft); margin-bottom:6px; }
+.steps strong { display:block; font:650 17px/1.2 var(--display); font-stretch:88%; color:var(--ink); }
+.steps span { display:block; font-size:13px; color:var(--muted); margin-top:4px; }
+body.phone .steps { grid-template-columns:1fr; gap:14px; }
+body.phone .steps li + li { border-left:0; padding-left:0; border-top:1px solid var(--line); padding-top:14px; }
+.groups { margin-top:18px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+body.phone .groups { grid-template-columns:1fr; }
+.group { text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:6px; padding:16px 18px; transition:border-color .15s, transform .15s; }
+.group:hover { border-color:var(--blue-soft); transform:translateY(-1px); }
+.group .h3 { font-size:17px; }
+.group .count { font-size:12px; color:var(--muted-2); }
+.group .count b { color:var(--blue-deep); font-weight:600; }
+.group svg { display:block; width:100%; height:26px; }
+.more { margin-top:18px; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+body.phone .more { grid-template-columns:1fr; }
+.more a { text-decoration:none; color:inherit; }
+.more .h3 { font-size:17px; }
+.more p { font-size:13px; color:var(--muted); margin-top:4px; }
+.more .go { display:inline-block; margin-top:10px; font-size:12px; font-weight:500; color:var(--blue); }
+.bottom-pad { height:44px; }
+</style>
+</head>
+<body data-page="home" data-mock="Landing page · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+
+  <section class="hero">
+    <div class="eyebrow"><span>MHT-CET CAP planner</span><span>Official CET Cell lists, CAP <span class="mono">2023–26</span></span></div>
+    <h1 class="h1">Find the colleges and branches your <em>merit number</em> can get</h1>
+    <p class="lede">Every line on the ruler below is one engineering branch, placed at the last merit number it admitted in CAP 2026. Put in your merit number and see how many took someone like you.</p>
+  </section>
+
+  <section class="card try" aria-label="Try your merit number">
+    <div>
+      <label class="field"><span>Your state merit number</span><input class="big-input" id="merit" inputmode="numeric" autocomplete="off"></label>
+      <div class="cta">
+        <a class="btn btn-primary btn-lg" href="onboarding.html">Find my colleges →</a>
+        <span class="small" style="text-align:center">Adds your category, gender and home university</span>
+        <a class="btn" href="colleges.html">Browse all colleges</a>
+      </div>
+    </div>
+    <div>
+      <p class="verdict" aria-live="polite" id="verdict"></p>
+      <p class="verdict-sub" id="verdict-sub"></p>
+      <div class="chart-wrap" id="ruler" style="margin-top:8px"></div>
+      <div class="ruler-hint"><span>← harder to get</span><span class="mid">Drag the pin, or type your merit number</span><span>easier to get →</span></div>
+    </div>
+  </section>
+  <p class="info" style="margin:12px 40px 0">Hero thesis: the whole of CAP on one ruler, a barcode of every real branch cutoff for open, state-level seats (latest round). The pin works exactly like the one on the college page, so the idea a student meets here carries through every page. Replaces the illustration and the “Example result” card. The second button keeps the old “Find my colleges” flow; the copy now says what it adds (your seat type).</p>
+
+  <section class="stats" aria-label="The data Compass checks">
+    <div><span class="num-xl">401</span><span>colleges in CAP 2026</span></div>
+    <div><span class="num-xl">2,505</span><span>branches</span></div>
+    <div><span class="num-xl">1,11,754</span><span>closing merit numbers</span></div>
+    <div><span class="num-xl">2023–26</span><span>CAP years, from the <a href="data.html">official CET Cell lists</a></span></div>
+  </section>
+
+  <section class="section" id="how">
+    <h2 class="h2">How it works</h2>
+    <ol class="steps">
+      <li><strong>Your merit number</strong><span>Or your percentile, if the merit list isn't out yet. We estimate a range.</span></li>
+      <li><strong>Your seat details</strong><span>Category, gender, home university and special seats decide which seats you can take.</span></li>
+      <li><strong>Colleges by chance</strong><span>Where a student like you got a seat last year, and in which round.</span></li>
+      <li><strong>Your option form</strong><span>Order your choices, test them in the simulator, export for the CAP portal.</span></li>
+    </ol>
+  </section>
+
+  <section class="section" id="branches">
+    <h2 class="h2">Explore by branch</h2>
+    <p class="desc">Each strip is every college offering that branch. Blue lines took someone with your merit number or worse.</p>
+    <div class="groups" id="groups"></div>
+    <p class="info">Branch chips become small rulers that respond to the same pin, so a student sees at a glance that Civil is wide open at their merit while Computer is not.</p>
+  </section>
+
+  <section class="section" aria-label="After you find your colleges">
+    <h2 class="h2">After the first allotment</h2>
+    <div class="more">
+      <a class="card" href="allotment.html"><h3 class="h3">Freeze, float or slide?</h3><p>See which higher choices opened up in later rounds last year before you decide.</p><span class="go">Check my allotment →</span></a>
+      <a class="card" href="summary.html"><h3 class="h3">A page for your family</h3><p>One shareable summary: current seat, top options, fees and dates.</p><span class="go">Make the summary →</span></a>
+      <a class="card" href="ask.html"><h3 class="h3">Ask Compass</h3><p>Plain answers about CAP, with the source for every figure.</p><span class="go">Ask a question →</span></a>
+    </div>
+  </section>
+  <div class="bottom-pad"></div>
+  <footer data-foot></footer>
+</div></div>
+
+<script>
+const C = Compass;
+const GROUPS = {
+  "Computer & IT": /computer|information\s+tech|data\s+sc|artificial\s+int|machine\s+learn|cyber/i,
+  "Electronics & Telecom": /electronics|e\.?\s*t\.?\s*c|telecom/i,
+  "Mechanical": /mechanical/i, "Civil": /civil/i, "Electrical": /electrical/i,
+  "Chemical": /chemical|petroleum|plastic/i, "Instrumentation": /instrument/i, "Aerospace": /aeronautical|aerospace/i,
+};
+// every college-branch with open seats, latest round
+// state-level open seats only: any Maharashtra candidate can take these
+const ALL = COLLEGES.flatMap((c) => c.b.filter((b) => b[3] === "S").map(([name, r1, last]) => ({ code: c.code, college: c.name, branch: name, value: last })));
+const LANDMARKS = [["03012", "Computer Engineering", "VJTI Computer"], ["16006", "Computer Science and Engineering", "COEP CSE"],
+  ["03215", "Computer Engineering", "SPIT Computer"], ["06271", "Computer Engineering", "PICT Computer"],
+  ["06273", "Computer Engineering", "VIT Pune Computer"], ["02008", "Computer Science and Engineering", "GEC Sambhajinagar CSE"]]
+  .map(([code, b, label]) => ({ label, value: ALL.find((x) => x.code === code && x.branch === b)?.value })).filter((m) => m.value);
+const DOMAIN = C.bounds(ALL.map((x) => x.value));
+let merit = 12000;
+const input = document.getElementById("merit");
+
+function render() {
+  const reach = ALL.filter((x) => merit <= x.value).length;
+  document.getElementById("verdict").innerHTML = `At <span class="tnum">${C.fmt(merit)}</span>, <b>${C.fmt(reach)} of ${C.fmt(ALL.length)}</b> branches took someone with your merit or worse.`;
+  document.getElementById("verdict-sub").textContent = `Open, state-level seats in the latest CAP 2026 round. Your category, gender and home university open more seats than this; the next step counts those.`;
+  C.ruler(document.getElementById("ruler"), [...ALL.map((x) => ({ value: x.value })), ...LANDMARKS], {
+    merit, domain: DOMAIN, barcode: true, onChange: setMerit, aria: "Every branch's closing rank, with your merit number",
+  });
+  document.getElementById("groups").innerHTML = Object.entries(GROUPS).map(([g, re]) => {
+    const vals = ALL.filter((x) => re.test(x.branch)).map((x) => x.value);
+    const n = vals.filter((v) => merit <= v).length;
+    const W = 260, x = C.scale(DOMAIN, 2, W - 4), px = x(merit);
+    const lines = vals.map((v) => `<line x1="${x(v).toFixed(1)}" x2="${x(v).toFixed(1)}" y1="3" y2="23" stroke="${merit <= v ? "#2563eb" : "#cbd5e1"}" stroke-width="1" opacity="${merit <= v ? 0.6 : 0.9}"/>`).join("");
+    return `<a class="card group" href="branches.html?group=${encodeURIComponent(g)}">
+      <h3 class="h3">${C.esc(g)}</h3>
+      <svg viewBox="0 0 ${W} 26" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="3" width="${W}" height="20" rx="3" fill="#f8fafc"/>${lines}<line x1="${px}" x2="${px}" y1="0" y2="26" stroke="#0f172a" stroke-width="2"/></svg>
+      <span class="count"><b>${C.fmt(n)}</b> of ${C.fmt(vals.length)} within reach</span>
+    </a>`;
+  }).join("");
+}
+function setMerit(v) { if (v === merit) return; merit = v; input.value = C.fmt(merit); render(); }
+input.value = C.fmt(merit);
+input.oninput = () => { const v = parseInt(input.value.replace(/\D/g, ""), 10); if (v > 0) { merit = v; render(); } };
+input.onblur = () => (input.value = C.fmt(merit));
+C.onRender(render);
+</script>
+</body>
+</html>

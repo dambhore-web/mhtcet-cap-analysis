@@ -98,8 +98,12 @@
 
 .sim-headline {
   margin: 0;
-  font-size: var(--text-lg);
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-stretch: 88%;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--navy-deep);
 }
 
 .sim-rounds {
@@ -111,8 +115,28 @@
   list-style: none;
 }
 
+/* rounds reveal one after another, like the real allotments */
 .sim-round {
   overflow: hidden;
+  animation: sim-reveal 0.35s ease-out both;
+}
+
+.sim-round.moved {
+  border-color: var(--violet-soft);
+}
+
+@keyframes sim-reveal {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.sim-choice {
+  font-family: var(--font-display);
+  font-stretch: 80%;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--navy-deep);
 }
 
 .sim-round-head {
@@ -235,16 +259,33 @@
   color: var(--muted);
 }
 
-.sim-cell.open {
-  background: var(--safe-bg);
-  color: var(--safe-text);
+/* each cell: a dot (pale = a seat was open for you, big blue = your seat) and the closing rank */
+.sim-cell .sim-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  vertical-align: -1px;
 }
 
-.sim-cell.held {
-  background: var(--violet);
-  color: var(--white);
-  font-weight: 700;
+.sim-cell .sim-val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-2);
 }
+
+.sim-cell.open .sim-dot { background: var(--violet-soft); }
+
+.sim-cell.held .sim-dot {
+  width: 14px;
+  height: 14px;
+  background: var(--violet);
+  box-shadow: 0 0 0 4px var(--lavender);
+}
+
+.sim-cell.held .sim-val { color: var(--navy-deep); font-weight: 600; }
 
 .sim-legend {
   display: flex;
@@ -263,8 +304,9 @@
   border-radius: 3px;
 }
 
+.sim-key { border-radius: 50%; }
 .sim-key.held { background: var(--violet); }
-.sim-key.open { background: var(--safe-bg); border: 1px solid var(--safe-text); }
+.sim-key.open { background: var(--violet-soft); }
 
 @media (max-width: 1199px) {
   .sim-rounds {

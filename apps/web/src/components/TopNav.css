@@ -20,8 +20,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-head);
-  font-size: var(--text-lg);
+  font-family: var(--font-display);
+  font-stretch: 95%;
+  font-size: 21px;
   font-weight: 700;
   color: var(--navy);
   text-decoration: none;
@@ -35,8 +36,8 @@
   width: 30px;
   height: 30px;
   background: var(--violet);
-  color: var(--lime);
-  border-radius: var(--radius-sm);
+  color: var(--white);
+  border-radius: 50%;
 }
 
 .top-nav-links {
@@ -53,22 +54,25 @@
   min-height: 40px;
   padding: 0 12px;
   border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--muted);
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s, box-shadow 0.15s;
 }
 
 .top-nav-link:hover {
   color: var(--violet);
-  background: var(--lavender-2);
 }
 
+/* the current section: blue text with an underline on the bar's bottom edge */
 .top-nav-link.active {
   color: var(--violet);
-  background: var(--lavender);
+  font-weight: 600;
+  border-radius: 0;
+  box-shadow: inset 0 -2px 0 var(--violet);
+  min-height: var(--top-nav-h);
 }
 
 .top-nav-right {

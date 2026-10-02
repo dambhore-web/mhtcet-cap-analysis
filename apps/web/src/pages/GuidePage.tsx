@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
 import { Icon, type IconName } from "../components/Icon";
-import { seatTypeLabel } from "../lib/seatType";
+import { seatTypeLabel, seatTypeParts } from "../lib/seatType";
 import "./GuidePage.css";
 
 type Tab = "how" | "freeze" | "float" | "slide" | "codes" | "faq";
@@ -103,9 +104,45 @@ function HowContent() {
 
 const CODE_EXAMPLES = ["GOPENS", "GOPENH", "GOPENO", "LOPENS", "GOBCH", "LSCS", "GNT2S", "DEFOPENS", "PWDOPENH", "TFWS", "EWS"];
 
+/** Type a seat code from a cutoff list and see its parts: the pattern is learned, not looked up. */
+function SeatCodeDecoder() {
+  const [code, setCode] = useState("GOBCS");
+  const parts = seatTypeParts(code);
+  return (
+    <div className="guide-decoder">
+      <div>
+        <label className="label" htmlFor="guide-code">Seat code</label>
+        <input id="guide-code" className="guide-code-in" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="off" spellCheck={false} />
+        <div className="guide-code-examples">
+          {["GOPENS", "LOBCH", "PWDRSCS", "DEFOBCS", "TFWS"].map((c) => (
+            <button key={c} type="button" className="chip" onClick={() => setCode(c)}>{c}</button>
+          ))}
+        </div>
+      </div>
+      <div className="guide-code-parts-live" aria-live="polite">
+        {parts ? (
+          parts.map((p) => (
+            <div key={p.part} className="guide-code-part">
+              <span className="guide-code-part-code">{p.code}</span>
+              <span className="label">{p.part}</span>
+              <span className="guide-code-part-meaning">{p.meaning}</span>
+            </div>
+          ))
+        ) : (
+          <p className="guide-code-none">Not a seat code we recognise. Codes look like <code>GOPENS</code>: quota, then category, then level.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function CodesContent() {
   return (
     <div className="guide-content">
+      <div className="guide-section">
+        <h3>Decode a seat code</h3>
+        <SeatCodeDecoder />
+      </div>
       <div className="guide-section">
         <h3>Reading a seat code</h3>
         <p>

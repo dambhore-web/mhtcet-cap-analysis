@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass CAP Guide</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<style>
+.gnav { position:sticky; top:0; z-index:3; background:var(--page); display:flex; gap:6px; flex-wrap:wrap; padding:12px 0; margin-top:14px; border-bottom:1px solid var(--line); }
+.sec { padding-top:34px; }
+.sec > .h2 { font-size:30px; }
+body.phone .sec > .h2 { font-size:24px; }
+.timeline { list-style:none; padding:0; margin-top:18px; counter-reset:t; position:relative; }
+.timeline li { position:relative; padding:0 0 22px 56px; }
+.timeline li::before { counter-increment:t; content:counter(t); position:absolute; left:0; top:-4px; width:38px; height:38px; border-radius:50%; background:#fff; border:2px solid var(--blue); display:grid; place-items:center; font:700 18px/1 var(--display); color:var(--blue-deep); }
+.timeline li::after { content:""; position:absolute; left:19px; top:36px; bottom:0; width:2px; background:var(--line); }
+.timeline li:last-child::after { display:none; }
+.timeline b { display:block; font:650 18px/1.2 var(--display); font-stretch:88%; color:var(--ink); }
+.timeline p { font-size:13px; color:var(--muted); margin-top:4px; max-width:620px; }
+.ffs { margin-top:18px; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+body.phone .ffs { grid-template-columns:1fr; }
+.ffs .card p { font-size:13px; color:var(--muted); margin-top:6px; }
+.ffs svg { display:block; width:100%; height:64px; margin-top:12px; }
+.decoder { margin-top:18px; display:grid; grid-template-columns:260px minmax(0,1fr); gap:24px; align-items:start; }
+body.phone .decoder { grid-template-columns:1fr; }
+.code-in { font:600 34px/1 var(--mono); letter-spacing:.06em; text-transform:uppercase; width:100%; border:0; border-bottom:2px solid var(--line); padding:6px 0; background:none; color:var(--ink); }
+.code-in:focus { outline:none; border-bottom-color:var(--blue); }
+.parts { display:flex; gap:8px; flex-wrap:wrap; }
+.part { flex:1; min-width:120px; border-radius:var(--r-md); padding:12px 14px; border:1px solid var(--line); background:#fff; }
+.part .c { font:600 24px/1 var(--mono); color:var(--blue-deep); }
+.part .k { font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin-top:8px; }
+.part .v { font-weight:600; color:var(--ink); font-size:14px; }
+.examples { margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
+.faq { margin-top:14px; }
+.faq details { border-bottom:1px solid var(--line); padding:14px 0; }
+.faq summary { font:650 17px/1.25 var(--display); font-stretch:90%; color:var(--ink); display:flex; justify-content:space-between; gap:12px; }
+.faq summary::after { content:"+"; color:var(--blue); font-family:var(--body); }
+.faq details[open] summary::after { content:"–"; }
+.faq p { font-size:14px; color:var(--muted); margin-top:8px; max-width:700px; }
+</style>
+</head>
+<body data-page="guide" data-mock="CAP guide · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <h1 class="h1">CAP guide</h1>
+    <p class="lede">How the Centralised Admission Process works, what to do after each allotment, and what the seat codes mean.</p>
+    <nav class="gnav" aria-label="On this page"><a class="chip" href="#how">How CAP works</a><a class="chip" href="#ffs">Freeze, float, slide</a><a class="chip" href="#codes">Seat codes</a><a class="chip" href="#faq">FAQ</a></nav>
+
+    <section class="sec" id="how">
+      <h2 class="h2">How CAP works</h2>
+      <ol class="timeline">
+        <li><b>Register and verify documents</b><p>Fill the CAP application on the CET Cell portal and get your documents verified (e-scrutiny or at a facilitation centre).</p></li>
+        <li><b>Check the merit lists</b><p>A provisional merit list comes first, then the final state merit list. Your state merit number is your rank in it.</p></li>
+        <li><b>Fill the option form</b><p>List up to 300 choice codes (college + branch) in the order you prefer them. You're allotted the highest choice your rank qualifies for. <a href="list.html">Build yours</a></p></li>
+        <li><b>Round I allotment</b><p>CET Cell publishes the allotment. If you got a seat, you choose to freeze, float or slide, and report online or at the institute.</p></li>
+        <li><b>Rounds II and III</b><p>Seats left after each round are allotted again. You can edit your option form between rounds. Later rounds usually close at higher (easier) ranks.</p></li>
+        <li><b>Report to the institute</b><p>Once you freeze a seat, report to the college with original documents and pay the fees before the deadline.</p></li>
+      </ol>
+    </section>
+
+    <section class="sec" id="ffs">
+      <h2 class="h2">Freeze, float or slide</h2>
+      <p class="desc" style="font-size:13px">What happens to your seat in the next round. The arrow shows where you can still move.</p>
+      <div class="ffs">
+        <div class="card"><h3 class="h3">Freeze</h3><p>Accept this seat and stop. You won't be considered for higher choices again.</p>
+          <svg viewBox="0 0 240 64" aria-hidden="true"><rect x="10" y="22" width="60" height="22" rx="6" fill="#0f172a"/><text x="40" y="37" text-anchor="middle" font-size="10" fill="#fff" font-family="var(--body)">Your seat</text><line x1="80" y1="33" x2="230" y2="33" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="4 4"/></svg></div>
+        <div class="card"><h3 class="h3">Float</h3><p>Keep this seat and stay in line for higher choices at any college. If one opens you move up; if not, you keep this seat.</p>
+          <svg viewBox="0 0 240 64" aria-hidden="true"><rect x="10" y="22" width="60" height="22" rx="6" fill="#2563eb"/><text x="40" y="37" text-anchor="middle" font-size="10" fill="#fff" font-family="var(--body)">Your seat</text><path d="M80 33 H220" stroke="#2563eb" stroke-width="2"/><path d="M214 27 l8 6 -8 6" fill="none" stroke="#2563eb" stroke-width="2"/><text x="150" y="20" text-anchor="middle" font-size="10" fill="#475569" font-family="var(--body)">any college</text></svg></div>
+        <div class="card"><h3 class="h3">Slide</h3><p>Keep this seat and stay in line only for higher choices at the same college. You never move to another college.</p>
+          <svg viewBox="0 0 240 64" aria-hidden="true"><rect x="10" y="10" width="220" height="44" rx="10" fill="#eff6ff"/><rect x="20" y="22" width="60" height="22" rx="6" fill="#2563eb"/><text x="50" y="37" text-anchor="middle" font-size="10" fill="#fff" font-family="var(--body)">Your seat</text><path d="M90 33 H200" stroke="#2563eb" stroke-width="2"/><path d="M194 27 l8 6 -8 6" fill="none" stroke="#2563eb" stroke-width="2"/><text x="150" y="24" text-anchor="middle" font-size="10" fill="#475569" font-family="var(--body)">same college</text></svg></div>
+      </div>
+      <p class="small" style="margin-top:10px">The auto-freeze rule overrides float and slide: a seat from your top choices locks (Round I: choice 1, Round II: 1–3, Round III: 1–6, as published for 2025-26).</p>
+    </section>
+
+    <section class="sec" id="codes">
+      <h2 class="h2">Seat codes</h2>
+      <p class="desc" style="font-size:13px">Every closing rank belongs to a seat code. Type one from a cutoff list to see what it means.</p>
+      <div class="decoder">
+        <div>
+          <label class="field"><span>Seat code</span><input class="code-in" id="code" value="GOBCS" autocomplete="off" spellcheck="false"></label>
+          <div class="examples"></div>
+        </div>
+        <div class="parts" id="parts" aria-live="polite"></div>
+      </div>
+      <p class="info">The seat-code table becomes a decoder: the code splits into its three parts as you type, which teaches the pattern (quota, category, level) instead of a 60-row glossary.</p>
+    </section>
+
+    <section class="sec" id="faq">
+      <h2 class="h2">FAQ</h2>
+      <div class="faq">
+        <details><summary>Can I change my choices after Round I?</summary><p>Yes, between rounds the option form opens again and you can edit it, unless your seat was frozen. Check each round's dates on the CET Cell portal.</p></details>
+        <details><summary>What is TFWS?</summary><p>Tuition fee waiver seats: the college waives tuition for Maharashtra candidates within the family income limit in that year's brochure. Other fees still apply. <a href="eligibility.html">See if it applies to you</a></p></details>
+        <details><summary>Is my percentile the same as my merit number?</summary><p>No. Your percentile compares you with your exam session; your merit number is your rank in the CAP merit list. <a href="estimate.html">Estimate it</a></p></details>
+        <details><summary>Will this year's cutoffs be the same?</summary><p>No one knows yet. Compass shows last year's official closing ranks as a guide; this year's can move.</p></details>
+      </div>
+      <p class="small" style="margin-top:16px">Dates and rules change every year. Always follow the official CAP information brochure and CET Cell notices.</p>
+    </section>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const C = Compass;
+const Q = { G: "General", L: "Ladies", DEF: "Defence", DEFR: "Defence, common reserved", PWD: "Disability (PWD)", PWDR: "PWD, common reserved" };
+const K = { OPEN: "Open", OBC: "OBC", SEBC: "SEBC", SC: "SC", ST: "ST", VJ: "VJ/DT", NT1: "NT-B", NT2: "NT-C", NT3: "NT-D" };
+const L = { S: "State level: open to all Maharashtra candidates", H: "Home university: students from that university area", O: "Other than home university" };
+const SOLO = { TFWS: "Tuition fee waiver", EWS: "Economically weaker section", ORPHAN: "Orphan", MI: "Minority" };
+document.querySelector(".examples").innerHTML = ["GOPENS", "LOBCH", "PWDRSCS", "DEFOBCS", "TFWS"].map((c) => `<button type="button" class="chip mono" data-c="${c}">${c}</button>`).join("");
+function render() {
+  const v = document.getElementById("code").value.trim().toUpperCase();
+  const m = v.match(/^(PWDR|PWD|DEFR|DEF|G|L)(OPEN|OBC|SEBC|SC|ST|VJ|NT1|NT2|NT3)([HOS])$/);
+  const solo = Object.keys(SOLO).find((k) => v.startsWith(k));
+  document.getElementById("parts").innerHTML = m
+    ? [[m[1], "Quota", Q[m[1]]], [m[2], "Category", K[m[2]]], [m[3], "Level", L[m[3]]]].map(([c, k, t]) => `<div class="part"><div class="c">${c}</div><div class="k">${k}</div><div class="v">${t}</div></div>`).join("")
+    : solo ? `<div class="part"><div class="c">${solo}</div><div class="k">Special seat</div><div class="v">${SOLO[solo]}</div></div>`
+    : `<p class="small">Not a seat code we recognise. Codes look like <span class="mono">GOPENS</span>: quota, then category, then level.</p>`;
+}
+document.getElementById("code").oninput = render;
+document.querySelector(".examples").onclick = (e) => { const b = e.target.closest("[data-c]"); if (b) { document.getElementById("code").value = b.dataset.c; render(); } };
+render();
+</script>
+</body>
+</html>

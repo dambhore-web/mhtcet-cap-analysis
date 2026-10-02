@@ -10,7 +10,20 @@ import { listItemFrom } from "../lib/list";
 import { LadderAxis, LadderLegend, MeritLadder, ladderDomain } from "../components/MeritLadder";
 import { formatNumber } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
+import { logBounds, logScale } from "../lib/logScale";
 import "./BranchesPage.css";
+
+/** One branch group's closing ranks as a small barcode, with the student's merit as a line. */
+function GroupBarcode({ vals, merit, domain, active }: { vals: number[]; merit: number | null; domain: [number, number]; active: boolean }) {
+  const W = 200;
+  const x = logScale(domain, 1, W - 2);
+  return (
+    <svg className={`branches-group-strip${active ? " active" : ""}`} viewBox={`0 0 ${W} 16`} preserveAspectRatio="none" aria-hidden="true">
+      {vals.map((v, i) => <line key={i} x1={x(v)} x2={x(v)} y1={1} y2={15} className={merit != null && merit <= v ? "reach" : undefined} />)}
+      {merit != null && <line x1={x(merit)} x2={x(merit)} y1={0} y2={16} className="you" />}
+    </svg>
+  );
+}
 
 type BranchGroup = (typeof BRANCH_GROUPS)[number];
 type Status = "loading" | "done" | "error";
@@ -115,6 +128,25 @@ export function BranchesPage() {
   const [status, setStatus] = useState<Status>("loading");
   const [retry, setRetry] = useState(0);
   const merit = profile.meritNumber;
+
+  // Every branch's open, state-level latest-round closing rank, by branch group, for the group cards
+  const [groupVals, setGroupVals] = useState<Map<string, number[]> | null>(null);
+  useEffect(() => {
+    let live = true;
+    api
+      .openLatest()
+      .then((r) => {
+        if (!live) return;
+        const m = new Map<string, number[]>();
+        for (const row of r.rows) if (row[5]) m.set(row[5], [...(m.get(row[5]) ?? []), row[4]]);
+        setGroupVals(m);
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, []);
+  const groupDomain = useMemo(() => logBounds(groupVals ? [...groupVals.values()].flat() : []), [groupVals]);
   const [selectedFilterIdx, setSelectedFilterIdx] = useState<number>(() => {
     const cat = profile.category ?? "";
     const gender = profile.gender;
@@ -276,7 +308,17 @@ export function BranchesPage() {
                 setParams({ group: g }, { replace: true });
               }}
             >
-              {g}
+              <span className="branches-group-name">{g}</span>
+              {groupVals && (
+                <>
+                  <GroupBarcode vals={groupVals.get(g) ?? []} merit={merit ?? null} domain={groupDomain} active={g === group} />
+                  <span className="branches-group-count">
+                    {merit
+                      ? `${formatNumber((groupVals.get(g) ?? []).filter((v) => merit <= v).length)} of ${formatNumber((groupVals.get(g) ?? []).length)} within reach`
+                      : `${formatNumber((groupVals.get(g) ?? []).length)} branches`}
+                  </span>
+                </>
+              )}
             </button>
           ))}
         </div>

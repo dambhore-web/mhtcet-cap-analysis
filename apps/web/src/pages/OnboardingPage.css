@@ -21,8 +21,9 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-head);
-  font-size: var(--text-lg);
+  font-family: var(--font-display);
+  font-stretch: 95%;
+  font-size: 21px;
   font-weight: 700;
   color: var(--navy);
   text-decoration: none;
@@ -33,7 +34,7 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   background: var(--violet);
   color: var(--white);
 }
@@ -385,3 +386,10 @@
   .ob-nav-right { flex: 1; justify-content: flex-end; }
   .ob-progress-text span { display: none; }
 }
+
+/* merit step: first answer as a barcode ruler (TASK-0004) */
+.ob-preview { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+.ob-preview-verdict { margin: 0 0 6px; font-family: var(--font-display); font-stretch: 88%; font-size: 19px; font-weight: 600; line-height: 1.2; color: var(--navy-deep); }
+.ob-preview-verdict b { color: var(--violet); font-weight: 700; }
+.ob-card h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; font-stretch: 82%; letter-spacing: -0.01em; line-height: 1.05; color: var(--navy-deep); }
+.ob-input { font-family: var(--font-display); font-stretch: 85%; font-size: 40px; font-weight: 700; font-variant-numeric: tabular-nums; }

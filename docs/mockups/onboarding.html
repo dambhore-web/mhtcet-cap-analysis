@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Onboarding</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/colleges.js"></script>
+<style>
+.ob-top { height:60px; background:#fff; border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 40px; }
+.ob-top .btn { margin-left:auto; }
+body.phone .ob-top { padding:0 16px; }
+.wiz { max-width:680px; margin:36px auto 60px; padding:0 20px; }
+.prog { display:flex; gap:4px; }
+.prog i { flex:1; height:4px; border-radius:2px; background:var(--line); }
+.prog i.done { background:var(--blue); }
+.step-meta { display:flex; justify-content:space-between; font-size:12px; color:var(--muted-2); margin-top:10px; }
+.q { margin-top:26px; }
+.q .h1 { font-size:40px; }
+body.phone .q .h1 { font-size:28px; }
+.q .lede { margin-top:8px; }
+.opts { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+.op { display:flex; gap:14px; align-items:flex-start; padding:16px 18px; border:2px solid var(--card-line); border-radius:var(--r-md); background:#fff; cursor:pointer; text-align:left; font:inherit; }
+.op:hover { border-color:var(--blue-soft); }
+.op[aria-checked="true"] { border-color:var(--blue); background:var(--tint-2); }
+.op .k { flex:none; width:28px; height:28px; border-radius:8px; display:grid; place-items:center; font:600 12px var(--mono); background:var(--line-soft); color:var(--muted); }
+.op[aria-checked="true"] .k { background:var(--blue); color:#fff; }
+.op b { display:block; color:var(--ink); font-weight:600; }
+.op span.d { font-size:12px; color:var(--muted-2); }
+.grid2 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:20px; }
+body.phone .grid2 { grid-template-columns:1fr 1fr; }
+.grid2 .op { padding:12px 14px; }
+.nav2 { display:flex; justify-content:space-between; margin-top:26px; }
+.preview { margin-top:16px; }
+.foot-note { text-align:center; font-size:12px; color:var(--muted-2); margin-top:24px; }
+</style>
+</head>
+<body data-page="home" data-mock="Onboarding (one question at a time) · mockup">
+<div class="stage"><div class="device">
+  <header class="ob-top"><a class="brand" href="landing.html"><span class="brand-mark" id="mark"></span>Compass</a><a class="btn btn-sm" href="colleges.html">Browse colleges instead</a></header>
+  <main class="wiz">
+    <div class="prog" id="prog"></div>
+    <div class="step-meta"><span id="sn"></span><span id="sec"></span></div>
+    <section class="q" id="q" aria-live="polite"></section>
+    <div class="nav2"><button class="btn" id="back" type="button">← Back</button><button class="btn btn-primary btn-lg" id="next" type="button">Continue →</button></div>
+    <p class="foot-note">Your answers stay on this device.</p>
+    <p class="info">One question per screen stays, with the answer options as large keyboard-labelled cards (press 1, 2, 3…). The merit step shows the ruler live as the student types, so the first payoff arrives at step 2, not at the end.</p>
+  </main>
+</div></div>
+<script>
+const C = Compass;
+document.getElementById("mark").innerHTML = C.icon.compass;
+const ALL = COLLEGES.flatMap((c) => c.b.filter((b) => b[3] === "S").map((b) => ({ value: b[2] })));
+const A = { exam: "MHT-CET", merit: 12000, category: "OBC", gender: "Male", uni: "Savitribai Phule Pune University" };
+const STEPS = [
+  { sec: "About your exam", key: "exam", q: "How are you applying?", d: "This decides which merit list and which seats we check.", opts: [["MHT-CET", "State merit list · Maharashtra state-quota seats"], ["JEE Main", "Your All India merit number from the CET Cell's All India list (not your JEE rank) · All India seats"]] },
+  { sec: "About your exam", key: "merit", q: "What's your state merit number?", d: "It's on the final merit list from CET Cell.", merit: true },
+  { sec: "Your seat details", key: "category", q: "Which category are you in?", d: "Only choose a reserved category if you have the certificate for it.", grid: ["Open", "OBC", "SEBC", "SC", "ST", "VJ/DT", "NT-B", "NT-C", "NT-D"] },
+  { sec: "Your seat details", key: "gender", q: "Are you applying as…", d: "Female candidates can also take ladies seats.", opts: [["Male", ""], ["Female", "Adds ladies seats (L…) to your results"]] },
+  { sec: "Your seat details", key: "uni", q: "Where did you pass Class 12?", d: "Your home university area decides the home-university (H) seats you can take.", grid: ["University of Mumbai", "Savitribai Phule Pune University", "Dr. Babasaheb Ambedkar Marathwada University", "Sant Gadge Baba Amravati University", "Rashtrasant Tukadoji Maharaj Nagpur University", "Not sure"] },
+];
+let i = 0;
+function render() {
+  const s = STEPS[i];
+  document.getElementById("prog").innerHTML = STEPS.map((_, k) => `<i class="${k <= i ? "done" : ""}"></i>`).join("");
+  document.getElementById("sn").textContent = `Step ${i + 1} of ${STEPS.length}`;
+  document.getElementById("sec").textContent = s.sec;
+  let body = `<h1 class="h1">${s.q}</h1><p class="lede">${s.d}</p>`;
+  if (s.opts) body += `<div class="opts" role="radiogroup">${s.opts.map(([t, d], k) => `<button type="button" class="op" role="radio" aria-checked="${A[s.key] === t}" data-v="${C.esc(t)}"><span class="k">${k + 1}</span><span><b>${C.esc(t)}</b>${d ? `<span class="d">${C.esc(d)}</span>` : ""}</span></button>`).join("")}</div>`;
+  if (s.grid) body += `<div class="grid2" role="radiogroup">${s.grid.map((t, k) => `<button type="button" class="op" role="radio" aria-checked="${A[s.key] === t}" data-v="${C.esc(t)}"><span class="k">${k + 1}</span><b>${C.esc(t)}</b></button>`).join("")}</div>`;
+  if (s.merit) body += `<label class="field" style="margin-top:20px"><span>State merit number</span><input class="big-input" id="m" inputmode="numeric" value="${C.fmt(A.merit)}" style="font-size:52px"></label>
+    <p class="small" style="margin-top:8px">Merit list not out yet? <a href="estimate.html">Estimate it from your percentile</a></p>
+    <div class="preview"><p class="verdict" style="font-size:20px" id="pv"></p><div class="chart-wrap" id="ruler" style="margin-top:6px"></div></div>`;
+  document.getElementById("q").innerHTML = body;
+  document.getElementById("back").style.visibility = i ? "visible" : "hidden";
+  document.getElementById("next").textContent = i === STEPS.length - 1 ? "See my colleges →" : "Continue →";
+  if (s.merit) drawRuler();
+}
+function drawRuler() {
+  const n = ALL.filter((x) => A.merit <= x.value).length;
+  document.getElementById("pv").innerHTML = `<b>${C.fmt(n)}</b> branches took a merit of ${C.fmt(A.merit)} or worse (open seats). Your category adds more.`;
+  C.ruler(document.getElementById("ruler"), ALL, { merit: A.merit, barcode: true, onChange: (v) => { A.merit = v; document.getElementById("m").value = C.fmt(v); drawRuler(); } });
+}
+document.getElementById("q").onclick = (e) => { const b = e.target.closest(".op"); if (!b) return; A[STEPS[i].key] = b.dataset.v; render(); };
+document.getElementById("q").oninput = (e) => { if (e.target.id === "m") { const v = parseInt(e.target.value.replace(/\D/g, ""), 10); if (v > 0) { A.merit = v; drawRuler(); } } };
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT") return;
+  const n = parseInt(e.key, 10), bs = document.querySelectorAll("#q .op");
+  if (n >= 1 && n <= bs.length) bs[n - 1].click();
+});
+document.getElementById("next").onclick = () => { if (i === STEPS.length - 1) location.href = "find.html"; else { i++; render(); } };
+document.getElementById("back").onclick = () => { if (i) { i--; render(); } };
+C.onRender(() => { if (STEPS[i].merit) drawRuler(); });
+render();
+</script>
+</body>
+</html>

@@ -14,7 +14,7 @@ import { postSimulate } from "./routes/simulate.ts";
 import { getJeeEstimate } from "./routes/jeeEstimate.ts";
 import { postAssistant } from "./routes/assistant.ts";
 import { getMeta } from "./routes/meta.ts";
-import { getBranches, getBranchHistory } from "./routes/branches.ts";
+import { getBranches, getBranchHistory, getOpenLatest } from "./routes/branches.ts";
 import type { AppCache } from "./startup.ts";
 import { buildFeeIndex } from "./feeIndex.ts";
 import { compressJson } from "./compress.ts";
@@ -83,6 +83,7 @@ export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = 
   app.get("/api/jee-estimate", (c) => getJeeEstimate(c, pool));
   app.get("/api/branches", (c) => getBranches(c, cache));
   app.get("/api/branches/:choiceCode/history", (c) => getBranchHistory(c, cache));
+  app.get("/api/cutoffs/open-latest", (c) => getOpenLatest(c, cache));
   app.get("/api/colleges/:code/fees", (c) => getCollegeFees(c, fees, cache));
   app.get("/api/colleges/:code/placement", (c) => getCollegePlacement(c, cache));
   app.post("/api/assistant", (c) => postAssistant(c, cache, options.assistantClient));

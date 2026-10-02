@@ -261,6 +261,9 @@ export const api = {
       `/api/branches/${encodeURIComponent(choiceCode)}/history`,
     ),
   meta: () => get<DataMeta>("/api/meta"),
+  /** Every branch's general open, state-level closing rank: [choiceCode, collegeCode, branch, roundI, latest, group]. */
+  openLatest: () =>
+    get<{ year: number; seatType: string; rows: [string, string, string, number | null, number, string | null][] }>("/api/cutoffs/open-latest"),
   collegeCutoffs: (code: string) =>
     get<{
       college: { code: string; name: string; status?: string | null; homeUniversity?: string | null; district?: string | null; collegeType?: string | null; totalIntake?: number | null };

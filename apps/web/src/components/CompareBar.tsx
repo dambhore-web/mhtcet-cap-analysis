@@ -31,7 +31,7 @@ export function CompareBar() {
             </div>
           ))}
         </div>
-        <Link to="/compare" className="btn btn-accent btn-sm compare-bar-btn">
+        <Link to="/compare" className="btn btn-primary btn-sm compare-bar-btn">
           Compare {pinned.length}
           <Icon name="arrowRight" size={16} />
         </Link>

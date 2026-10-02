@@ -15,6 +15,7 @@ import { activeFlags, categoryLabel, minorityLabel, type TileAnswers } from "../
 import { parseBranchGroups, parseMerit } from "../lib/onboarding";
 import { AnswerTiles } from "../components/AnswerTiles";
 import { ScanProgress } from "../components/ScanProgress";
+import { MeritRuler } from "../components/MeritRuler";
 import "./FindPage.css";
 import { pastSummary } from "../lib/yearTrend";
 
@@ -284,10 +285,6 @@ export function FindPage() {
     () => ladderDomain(options.flatMap((o) => [o.firstRoundClosing ?? o.closingMerit, o.lastRoundClosing ?? o.closingMerit]).concat(effMerit ? [effMerit] : [])),
     [options, effMerit],
   );
-  const sliderMax = useMemo(() => {
-    const m = Math.max(searchedMerit, ...options.map((o) => o.lastRoundClosing ?? o.closingMerit));
-    return Math.max(1000, Math.ceil((m * 1.25) / 100) * 100);
-  }, [options, searchedMerit]);
   const districts = useMemo(() => [...new Set(options.map((o) => o.district).filter((d): d is string => !!d))].sort(), [options]);
   const collegeTypes = useMemo(() => [...new Set(options.map((o) => o.collegeType).filter((t): t is string => !!t))].sort(), [options]);
   const formCount = useList().length;
@@ -437,20 +434,38 @@ export function FindPage() {
 
             <div className="results-layout">
             <div className="results-main">
-            <div className="results-stats">
-              <div className="stat-card">
-                <strong>{formatNumber(roundI.length + later.length)}</strong>
-                <span>options within reach, in {formatNumber(new Set([...roundI, ...later].map((o) => o.collegeCode)).size)} colleges</span>
+            <section className="card results-overview" aria-label="Summary">
+              <div className="results-overview-main">
+                <p className="results-verdict" aria-live="polite">
+                  At <span className="tnum">{formatNumber(effMerit)}</span>, <b>{formatNumber(roundI.length + later.length)} options</b> in{" "}
+                  {formatNumber(new Set([...roundI, ...later].map((o) => o.collegeCode)).size)} colleges were within reach.
+                </p>
+                <MeritRuler
+                  marks={options.map((o) => ({ value: o.lastRoundClosing ?? o.closingMerit }))}
+                  merit={effMerit}
+                  onMeritChange={(v) => setWhatIf(v === searchedMerit ? null : v)}
+                  barcode
+                  ariaLabel="Closing ranks of your options, with your merit number"
+                  hint="Drag the pin to ask “what if my merit were…”"
+                />
+                {whatIf != null && (
+                  <p className="results-whatif-note">
+                    {whatIfLoading ? "Fetching results…" : `Showing results for ${formatNumber(whatIf)}.`}{" "}
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setWhatIf(null)}>Back to {formatNumber(searchedMerit)}</button>
+                  </p>
+                )}
               </div>
-              <div className="stat-card safe">
-                <strong>{formatNumber(roundI.length)}</strong>
-                <span><Icon name="check" size={14} /> Likely in {formatRound(1)}</span>
+              <div className="results-counts">
+                <div className="results-count safe">
+                  <strong>{formatNumber(roundI.length)}</strong>
+                  <span><Icon name="check" size={14} /> Likely in {formatRound(1)}</span>
+                </div>
+                <div className="results-count later">
+                  <strong>{formatNumber(later.length)}</strong>
+                  <span><Icon name="clock" size={14} /> Likely in a later round</span>
+                </div>
               </div>
-              <div className="stat-card later">
-                <strong>{formatNumber(later.length)}</strong>
-                <span><Icon name="clock" size={14} /> Likely in a later round</span>
-              </div>
-            </div>
+            </section>
 
             <div className="results-toolbar">
               <div className="view-toggle" role="group" aria-label="Group results">
@@ -553,34 +568,13 @@ export function FindPage() {
 
             <aside className="results-side" aria-label="Explore your results">
               <section className="card results-side-card">
-                <h2 className="label"><label htmlFor="whatif">What if my merit were…</label></h2>
-                <p className="results-whatif-value">{formatNumber(effMerit)}</p>
-                <input
-                  id="whatif"
-                  type="range"
-                  min={1}
-                  max={sliderMax}
-                  step={Math.max(10, Math.round(sliderMax / 400 / 10) * 10)}
-                  value={effMerit}
-                  onChange={(e) => setWhatIf(parseInt(e.target.value, 10))}
-                  aria-valuetext={`merit ${formatNumber(effMerit)}`}
-                />
-                <p className="results-side-note">
-                  {whatIf == null ? "Move it to see how the results change." : whatIfLoading ? "Fetching results…" : `${formatNumber(roundI.length)} in Round I, ${formatNumber(later.length)} in a later round.`}
-                </p>
-                {whatIf != null && (
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => setWhatIf(null)}>
-                    Back to {formatNumber(searchedMerit)}
-                  </button>
-                )}
-              </section>
-              <section className="card results-side-card">
-                <h2 className="label">Your option form</h2>
-                <p>{formCount ? `${formCount} ${formCount === 1 ? "choice" : "choices"} saved.` : "Use + on any branch to add it."}</p>
+                <h2>Your option form</h2>
+                <p className="results-form-count"><strong>{formatNumber(formCount)}</strong> {formCount === 1 ? "choice" : "choices"} saved</p>
+                {!formCount && <p>Press + on any branch to add it.</p>}
                 <Link to="/list" className="btn btn-primary btn-block btn-sm">Build my option form</Link>
               </section>
               <section className="card results-side-card">
-                <h2 className="label">Next</h2>
+                <h2>Next</h2>
                 <ul className="results-side-links">
                   <li><Link to="/compare">Compare colleges side by side</Link></li>
                   <li><Link to="/branches">See one branch across all colleges</Link></li>

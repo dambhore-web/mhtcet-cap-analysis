@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Compare</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/colleges.js"></script>
+<style>
+.heads { margin-top:20px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+body.phone .heads { grid-template-columns:1fr; gap:10px; }
+.head { padding:16px 18px; border-top:4px solid var(--c); display:flex; flex-direction:column; gap:8px; }
+.head .h3 { font-size:17px; }
+.head .meta { font-size:12px; color:var(--muted-2); }
+.head .x { align-self:flex-start; font-size:12px; color:var(--muted-2); background:none; border:0; padding:0; cursor:pointer; }
+.facts { width:100%; border-collapse:collapse; font-size:13px; }
+.facts th { text-align:left; font-weight:500; color:var(--muted-2); font-size:12px; padding:10px 12px 10px 0; width:22%; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+.facts td { padding:10px 12px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+.facts td .num-l { font-size:20px; }
+.facts td.best .num-l { color:var(--blue-deep); }
+.facts td.best::after { content:"best"; display:inline-block; margin-left:6px; font:600 10px var(--body); color:var(--safe-text); background:var(--safe-bg); border-radius:999px; padding:1px 7px; vertical-align:3px; }
+.mk { display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:-1px; }
+.key { display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin:12px 0 6px; }
+body.phone .facts th { width:30%; }
+</style>
+</head>
+<body data-page="colleges" data-mock="Compare colleges · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <nav class="crumbs"><a href="colleges.html">Colleges</a><span>/</span><span>Compare</span></nav>
+    <div class="head-row" style="margin-top:6px">
+      <div><h1 class="h1">Compare colleges</h1><p class="lede">Closing ranks, fees and placement side by side, against your merit number <b class="tnum">12,000</b>.</p></div>
+      <a class="btn" href="colleges.html">+ Add a college</a>
+    </div>
+    <div class="heads" id="heads"></div>
+
+    <section class="card" style="margin-top:20px">
+      <div class="card-head"><div><h2 class="h2">Branch by branch</h2><p class="desc">Latest-round closing rank, open seats. Each row is a branch; each mark is one college. Further left is harder.</p></div></div>
+      <div class="key" id="key"></div>
+      <div class="chart-wrap" id="chart"></div>
+    </section>
+    <p class="info">Compare keeps one chart for every shared branch, with one mark shape per college (circle, square, diamond), so colour is never the only difference. A branch a college doesn't offer simply has no mark.</p>
+
+    <section class="card" style="margin-top:20px">
+      <h2 class="h2">The facts</h2>
+      <div style="overflow-x:auto;margin-top:8px"><table class="facts" id="facts"></table></div>
+      <p class="small" style="margin-top:10px">Fees from the Fee Regulating Authority portal, not yet checked against its order. Placement as published by the college; empty where the college hasn't published it.</p>
+    </section>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const C = Compass;
+const merit = 12000;
+const PICK = [
+  { code: "06274", c: "#2563eb", shape: "circle", fee: 136000, tfws: 33, placement: null },
+  { code: "03197", c: "#0f172a", shape: "square", fee: 195000, tfws: 24, placement: "Highest ₹13 L · average ₹4 L (2024-25)" },
+  { code: "06282", c: "#d97706", shape: "diamond", fee: 142000, tfws: 39, placement: null },
+].map((p) => ({ ...p, col: COLLEGES.find((x) => x.code === p.code) }));
+const mark = (shape, x, y, c, r = 6) => shape === "circle" ? `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`
+  : shape === "square" ? `<rect x="${x - r + 1}" y="${y - r + 1}" width="${2 * r - 2}" height="${2 * r - 2}" fill="${c}"/>`
+  : `<rect x="${x - r + 1.5}" y="${y - r + 1.5}" width="${2 * r - 3}" height="${2 * r - 3}" fill="${c}" transform="rotate(45 ${x} ${y})"/>`;
+const svgMark = (p) => `<svg width="12" height="12" class="mk" viewBox="0 0 12 12">${mark(p.shape, 6, 6, p.c, 5.5)}</svg>`;
+
+function render() {
+  document.getElementById("heads").innerHTML = PICK.map((p) => `<article class="card head" style="--c:${p.c}">
+    <span class="small">${svgMark(p)}<span class="mono">${p.code}</span></span>
+    <h2 class="h3"><a href="#" style="color:inherit;text-decoration:none">${C.esc(p.col.name)}</a></h2>
+    <span class="meta">${C.esc(p.col.district ?? "")} · ${C.esc(p.col.type ?? "")}</span>
+    <button class="x" type="button">Remove</button></article>`).join("");
+  document.getElementById("key").innerHTML = PICK.map((p) => `<span>${svgMark(p)}${C.esc(p.col.name.split(/[,(]/)[0].slice(0, 42))}</span>`).join("") + `<span><span class="dash"></span>You</span>`;
+
+  // union of branches (state-level open seats), hardest first by best mark
+  const by = new Map();
+  PICK.forEach((p, k) => p.col.b.filter((b) => b[3] === "S").forEach((b) => { if (!by.has(b[0])) by.set(b[0], []); by.get(b[0])[k] = b[2]; }));
+  const rows = [...by.entries()].map(([name, v]) => ({ name, v, min: Math.min(...v.filter(Boolean)) })).sort((a, b) => a.min - b.min);
+  const wrap = document.getElementById("chart");
+  const W = wrap.clientWidth || 700, narrow = W < 520, LEFT = narrow ? 110 : 230, RIGHT = 20, ROW = 32, TOP = 6, BTM = 30;
+  const H = TOP + rows.length * ROW + BTM, dom = C.bounds(rows.flatMap((r) => r.v.filter(Boolean)).concat(merit)), x = C.scale(dom, LEFT, W - LEFT - RIGHT);
+  let ticks = C.TICKS.filter((t) => t >= dom[0] && t <= dom[1]); if (narrow) ticks = ticks.filter((_, i) => i % 2 === 0);
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="height:${H}px" role="img" aria-label="Closing rank by branch for three colleges">`;
+  rows.forEach((r, i) => { if (i % 2 === 0) s += `<rect x="0" y="${TOP + i * ROW}" width="${W}" height="${ROW}" fill="#fafbfd"/>`; });
+  for (const t of ticks) s += `<line x1="${x(t)}" x2="${x(t)}" y1="${TOP}" y2="${H - BTM}" stroke="var(--line)"/><text x="${x(t)}" y="${H - BTM + 16}" text-anchor="middle" font-size="11" fill="var(--muted-2)" font-family="var(--mono)">${C.tick(t)}</text>`;
+  rows.forEach((r, i) => {
+    const cy = TOP + i * ROW + ROW / 2, max = narrow ? 14 : 32, reach = r.v.some((v) => v && merit <= v);
+    s += `<text x="${LEFT - 12}" y="${cy + 4}" text-anchor="end" font-size="12" font-family="var(--body)" fill="${reach ? "var(--blue-deep)" : "var(--muted)"}" font-weight="${reach ? 600 : 400}">${C.esc(r.name.length > max ? r.name.slice(0, max - 1) + "…" : r.name)}<title>${C.esc(r.name)}</title></text>`;
+    const xs = r.v.map((v) => (v ? x(v) : null)).filter((v) => v != null);
+    if (xs.length > 1) s += `<line x1="${Math.min(...xs)}" x2="${Math.max(...xs)}" y1="${cy}" y2="${cy}" stroke="#cbd5e1" stroke-width="2"/>`;
+    PICK.forEach((p, k) => { if (r.v[k]) s += `<g>${mark(p.shape, x(r.v[k]), cy, p.c)}<title>${C.esc(p.col.name)}: ${C.fmt(r.v[k])}</title></g>`; });
+  });
+  s += `<line x1="${x(merit)}" x2="${x(merit)}" y1="${TOP - 2}" y2="${H - BTM}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3"/></svg>`;
+  wrap.innerHTML = s;
+
+  const reachN = (p) => p.col.b.filter((b) => b[3] === "S" && merit <= b[2]).length;
+  const fact = (label, vals, fmt, better) => {
+    const best = better ? vals.reduce((bi, v, i) => (v != null && (bi < 0 || better(v, vals[bi])) ? i : bi), -1) : -1;
+    return `<tr><th>${label}</th>${vals.map((v, i) => `<td class="${i === best ? "best" : ""}">${fmt(v)}</td>`).join("")}</tr>`;
+  };
+  document.getElementById("facts").innerHTML = `<thead><tr><th></th>${PICK.map((p) => `<th style="color:var(--ink);font-weight:600">${svgMark(p)}${C.esc(p.col.name.split(/[,(]/)[0].slice(0, 30))}</th>`).join("")}</tr></thead><tbody>
+    ${fact("Branches within reach at 12,000", PICK.map(reachN), (v) => `<span class="num-l">${v}</span>`, (a, b) => a > b)}
+    ${fact("Fees per year, 2026-27", PICK.map((p) => p.fee), (v) => `<span class="num-l">₹${C.fmt(v)}</span>`, (a, b) => a < b)}
+    ${fact("TFWS seats", PICK.map((p) => p.tfws), (v) => `<span class="num-l">${v}</span>`, (a, b) => a > b)}
+    ${fact("Branches in CAP", PICK.map((p) => p.col.b.length), (v) => v)}
+    ${fact("Home university", PICK.map((p) => p.col.uni), (v) => C.esc(v ?? "None (state level only)"))}
+    ${fact("Placement", PICK.map((p) => p.placement), (v) => (v ? C.esc(v) : '<span class="small">Not published</span>'))}
+  </tbody>`;
+}
+C.onRender(render);
+</script>
+</body>
+</html>

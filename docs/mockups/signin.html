@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Sign In</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<style>
+.box { max-width:440px; margin:56px auto 72px; text-align:center; }
+.box .h1 { font-size:40px; }
+.box .card { margin-top:22px; text-align:left; display:flex; flex-direction:column; gap:12px; }
+.g-btn { position:relative; }
+.soon { position:absolute; right:10px; top:50%; transform:translateY(-50%); }
+.keep { list-style:none; padding:0; display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--muted); }
+.keep li::before { content:"✓"; color:var(--safe-text); font-weight:700; margin-right:8px; }
+</style>
+</head>
+<body data-page="" data-mock="Sign in · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <div class="box">
+      <h1 class="h1">Sign in to Compass</h1>
+      <p class="lede" style="margin:8px auto 0">Keep your details and option form in sync across your phone and laptop.</p>
+      <div class="card">
+        <button class="btn btn-lg g-btn" type="button" disabled>Continue with Google <span class="badge badge-sample soon">Coming soon</span></button>
+        <p class="small">Accounts aren't live yet. Until then, this browser keeps:</p>
+        <ul class="keep"><li>Your details (merit number, category, home university)</li><li>Your option form, in order</li><li>Colleges you're comparing</li></ul>
+        <a class="btn" href="find.html">Continue without signing in</a>
+      </div>
+      <p class="small" style="margin-top:14px">By signing in you agree to our <a href="legal.html">Terms and Privacy policy</a>.</p>
+    </div>
+    <p class="info">Since sign-in isn't live, the page leads with what's already saved in the browser, so “Coming soon” doesn't read as a dead end.</p>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+</body>
+</html>

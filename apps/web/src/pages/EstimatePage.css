@@ -84,9 +84,11 @@
 .estimate-range {
   margin: 0;
   font-family: var(--font-num);
-  font-size: var(--text-3xl);
+  font-size: 46px;
+  font-stretch: 80%;
+  font-variant-numeric: tabular-nums;
   font-weight: 700;
-  color: var(--violet);
+  color: var(--navy-deep);
   line-height: 1.1;
 }
 
@@ -125,3 +127,14 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* range band over every branch's closing rank (TASK-0004) */
+.estimate-band { margin: 14px 0 6px; }
+.estimate-band-text { margin: 0 0 8px; font-family: var(--font-display); font-stretch: 88%; font-size: 19px; font-weight: 600; line-height: 1.2; color: var(--navy-deep); }
+.estimate-band-text b { color: var(--violet); font-weight: 700; }
+.eb-bg { fill: var(--page); }
+.eb-line { stroke: #cbd5e1; stroke-width: 1; opacity: 0.8; }
+.eb-line.maybe { stroke: #60a5fa; }
+.eb-line.sure { stroke: var(--violet); opacity: 0.5; }
+.eb-range { fill: rgba(15, 23, 42, 0.08); stroke: var(--navy-deep); stroke-width: 1.5; }
+.eb-axis { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted-2); }

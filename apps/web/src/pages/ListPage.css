@@ -24,11 +24,41 @@
 .list-table-head,
 .list-row {
   display: grid;
-  grid-template-columns: 36px 36px minmax(0, 1fr) 150px 112px;
+  grid-template-columns: 30px 36px 36px minmax(0, 1fr) 150px 112px;
   align-items: center;
   gap: 12px;
-  padding: 10px 16px;
+  padding: 0 16px 0 0;
 }
+
+.list-row { min-height: 68px; }
+.list-table-head { padding-left: 10px; }
+
+/* freeze zones: one bar per round in the row's left edge (TASK-0004) */
+.list-gutter {
+  align-self: stretch;
+  display: flex;
+  gap: 3px;
+  padding-left: 10px;
+}
+
+.list-gutter .fz { display: block; width: 5px; }
+.list-gutter .fz.top { border-top-left-radius: 3px; border-top-right-radius: 3px; margin-top: 8px; }
+.list-gutter .fz.bot { border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; margin-bottom: 8px; }
+.fz-0.on, .list-freeze-key .fz-0 { background: var(--violet); }
+.fz-1.on, .list-freeze-key .fz-1 { background: #60a5fa; }
+.fz-2.on, .list-freeze-key .fz-2 { background: var(--violet-soft); }
+
+.list-freeze-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.list-freeze-key span { display: inline-flex; align-items: center; gap: 6px; }
+.list-freeze-key i { display: inline-block; width: 5px; height: 12px; border-radius: 2px; }
 
 .list-table-head {
   padding-top: 12px;
@@ -321,20 +351,23 @@
 
   .list-table-head,
   .list-row {
-    grid-template-columns: 32px 28px minmax(0, 1fr);
+    grid-template-columns: 24px 32px 28px minmax(0, 1fr);
     gap: 8px;
-    padding: 10px 8px;
+    padding: 10px 8px 10px 0;
   }
 
+  .list-gutter { padding-left: 6px; gap: 2px; }
+  .list-gutter .fz { width: 4px; }
+
   .list-merit-col {
-    grid-column: 3;
+    grid-column: 4;
     flex-direction: row;
     align-items: baseline;
     gap: 8px;
   }
 
   .list-actions {
-    grid-column: 3;
+    grid-column: 4;
     grid-row: 3;
     justify-content: flex-start;
   }

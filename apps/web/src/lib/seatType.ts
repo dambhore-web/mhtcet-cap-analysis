@@ -49,6 +49,29 @@ const STANDALONE: Record<string, string> = {
   AI: "All India",
 };
 
+export interface SeatTypePart {
+  code: string;
+  part: "Quota" | "Category" | "Level" | "Special seat";
+  meaning: string;
+}
+
+/**
+ * A seat code split into its parts for the guide's decoder: "GOBCS" → G (General), OBC (OBC),
+ * S (state level). Standalone codes are one part. Null when the code doesn't fit the grammar.
+ */
+export function seatTypeParts(code: string): SeatTypePart[] | null {
+  const c = code.trim().toUpperCase();
+  if (STANDALONE[c]) return [{ code: c, part: "Special seat", meaning: STANDALONE[c] }];
+  const m = RESERVED_RE.exec(c);
+  if (!m) return null;
+  const [, quota, category, level] = m;
+  return [
+    { code: quota, part: "Quota", meaning: QUOTA[quota] },
+    { code: category, part: "Category", meaning: category === "OPEN" ? "Open (general)" : CATEGORY[category] },
+    { code: level, part: "Level", meaning: LEVEL[level].charAt(0).toUpperCase() + LEVEL[level].slice(1) },
+  ];
+}
+
 /** e.g. "GOPENH" → "General open, home university"; "LOPENS" → "Ladies open, state level". */
 export function seatTypeLabel(code: string): string {
   const c = code.trim().toUpperCase();

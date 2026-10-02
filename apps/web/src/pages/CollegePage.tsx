@@ -1,11 +1,12 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api, type CollegeFees, type CollegeFeesUnavailable, type CollegePlacement } from "../lib/api";
 import { PlacementCard } from "../components/PlacementCard";
 import { useProfile } from "../lib/ProfileContext";
 import { useCompare } from "../lib/CompareContext";
 import { CutoffChart, SeatCutoffChart } from "../components/CutoffChart";
-import { seatLevelCode, LEVEL_LABELS } from "../lib/seatType";
+import { MeritRuler } from "../components/MeritRuler";
+import { seatLevelCode, seatTypeLabel, seatTypeShortLabel, seatTypeSortKey, LEVEL_LABELS } from "../lib/seatType";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
 import { avatarTint, collegeInitials, formatNumber, formatRound, roundIndex } from "../lib/format";
@@ -36,31 +37,29 @@ interface CollegeData {
   cutoffs: CutoffRow[];
 }
 
-type BranchStatus = "round-I" | "later" | "out";
-
-function getBranchStatus(cutoffs: CutoffRow[], branch: string, merit: number): BranchStatus {
-  const rows = cutoffs.filter((r) => r.branch === branch && r.seatType === "GOPENS");
-  if (rows.length === 0) return "out";
-  const r1 = rows.find((r) => roundIndex(r.round) === 1);
-  if (r1 && merit <= r1.closingMerit) return "round-I";
-  if (rows.some((r) => merit <= r.closingMerit)) return "later";
-  return "out";
-}
-
 export function CollegePage() {
   const { code } = useParams<{ code: string }>();
-  const { profile } = useProfile();
+  const { profile, setProfile } = useProfile();
   const { pin, unpin, isPinned: checkPinned, canPin } = useCompare();
   const [data, setData] = useState<CollegeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedBranch, setSelectedBranch] = useState<string>("");
   const [seatLevel, setSeatLevel] = useState<string>("all");
-  const [whatifMerit, setWhatifMerit] = useState<number>(() => profile.meritNumber ?? 10000);
-  const [showWhatif, setShowWhatif] = useState(false);
   const [fees, setFees] = useState<CollegeFees | CollegeFeesUnavailable | null>(null);
   const [placement, setPlacement] = useState<CollegePlacement | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
+
+  // Local profile state for the on-page search form (pre-populated from global profile)
+  const [localSeatType, setLocalSeatType] = useState<string>(() =>
+    profile.category ? `G${profile.category}S` : "GOPENS"
+  );
+  const [localMerit, setLocalMerit] = useState<number | null>(() => profile.meritNumber);
+  const [localMeritInput, setLocalMeritInput] = useState<string>(() =>
+    profile.meritNumber ? formatNumber(profile.meritNumber) : ""
+  );
+
+  const drillRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!code) return;
@@ -81,6 +80,11 @@ export function CollegePage() {
       .finally(() => setLoading(false));
   }, [code]);
 
+  // Sync localSeatType when profile.category changes externally
+  useEffect(() => {
+    setLocalSeatType(profile.category ? `G${profile.category}S` : "GOPENS");
+  }, [profile.category]);
+
   const branches = useMemo(() => {
     if (!data) return [];
     return [...new Set(data.cutoffs.map((r) => r.branch))].sort();
@@ -96,32 +100,46 @@ export function CollegePage() {
     return (["S", "H", "O"] as const).filter((l) => set.has(l));
   }, [data, selectedBranch]);
 
-  // Round I closing rank for general open (state level) seats: the student-facing headline
+  // State-level seat types available for the hero category select
+  const heroSeatTypeOptions = useMemo(() => {
+    if (!data) return [];
+    const re = /^(G|L)[A-Z0-9]+S$/;
+    return [...new Set(
+      data.cutoffs.map((r) => r.seatType).filter((t) => re.test(t) || t === "TFWS" || t === "EWS")
+    )].sort((a, b) => seatTypeSortKey(a) - seatTypeSortKey(b));
+  }, [data]);
+
+  // Branch chips: branches sorted by R1 closing merit for the selected seat type
+  const branchChips = useMemo(() => {
+    if (!data) return [];
+    return branches.map((b) => {
+      const r1 = data.cutoffs.find((r) => r.branch === b && r.seatType === localSeatType && roundIndex(r.round) === 1);
+      return { branch: b, r1Merit: r1?.closingMerit ?? null };
+    }).sort((a, b) => (a.r1Merit ?? 999999) - (b.r1Merit ?? 999999));
+  }, [data, branches, localSeatType]);
+
+  // Headline: Round I closing ranks for the local seat type
   const headline = useMemo(() => {
     if (!data) return null;
-    const r1 = data.cutoffs.filter((r) => r.seatType === "GOPENS" && roundIndex(r.round) === 1);
+    let r1 = data.cutoffs.filter((r) => r.seatType === localSeatType && roundIndex(r.round) === 1);
+    const seatTypeUsed = r1.length > 0 ? localSeatType : "GOPENS";
+    if (r1.length === 0) r1 = data.cutoffs.filter((r) => r.seatType === "GOPENS" && roundIndex(r.round) === 1);
     if (r1.length === 0) return null;
     const sorted = [...r1].sort((x, y) => x.closingMerit - y.closingMerit);
-    const merit = profile.meritNumber;
-    const reachable = merit
-      ? new Set(data.cutoffs.filter((r) => r.seatType === "GOPENS" && merit <= r.closingMerit).map((r) => r.branch)).size
+    const reachable = localMerit
+      ? new Set(data.cutoffs.filter((r) => r.seatType === seatTypeUsed && localMerit <= r.closingMerit).map((r) => r.branch)).size
       : null;
     return {
       hardest: sorted[0],
       easiest: sorted[sorted.length - 1],
       branchCount: new Set(r1.map((r) => r.branch)).size,
-      merit,
+      merit: localMerit,
       reachable,
+      seatTypeUsed,
     };
-  }, [data, profile.meritNumber]);
+  }, [data, localMerit, localSeatType]);
 
-  const sliderMax = useMemo(() => {
-    if (!data) return 140000;
-    const max = Math.max(...data.cutoffs.map((r) => r.closingMerit));
-    return Math.ceil((max + 5000) / 1000) * 1000;
-  }, [data]);
-
-  // Seat types this student can apply for at this college (packages/core eligibility rules)
+  // Seat types this student can apply for (packages/core eligibility rules — used for "add to form")
   const eligible = useMemo(() => {
     if (!data) return null;
     const candidate: CandidateProfile = {
@@ -141,7 +159,7 @@ export function CollegePage() {
     return new Set(eligibleSeatTypes(candidate, { homeUniversity: data.college.homeUniversity ?? null, minorityCommunity: minorityOf(data.college.status) }));
   }, [data, profile]);
 
-  // The row the "add to option form" button uses: the student's best seat type for the branch
+  // Best seat type row for the selected branch (for "add to option form")
   const branchChoice = useMemo(() => {
     if (!data || !selectedBranch) return null;
     const rows = data.cutoffs.filter((r) => r.branch === selectedBranch && r.list !== "AI" && (!eligible || eligible.has(r.seatType)));
@@ -166,6 +184,45 @@ export function CollegePage() {
       lastRoundClosing: last,
     });
   }, [data, selectedBranch, eligible]);
+
+  // Branches for the merit ruler: latest round + R1 per branch for the selected seat type
+  const rulerBranches = useMemo(() => {
+    if (!data || !headline) return [];
+    const seatTypeUsed = headline.seatTypeUsed;
+    const byBranch = new Map<string, { r1: number | null; last: number; lastIdx: number }>();
+    for (const r of data.cutoffs) {
+      if (r.seatType !== seatTypeUsed) continue;
+      const idx = roundIndex(r.round);
+      const cur = byBranch.get(r.branch);
+      if (!cur) {
+        byBranch.set(r.branch, { r1: idx === 1 ? r.closingMerit : null, last: r.closingMerit, lastIdx: idx });
+      } else {
+        if (idx === 1) cur.r1 = r.closingMerit;
+        if (idx > cur.lastIdx) { cur.last = r.closingMerit; cur.lastIdx = idx; }
+      }
+    }
+    return [...byBranch.entries()]
+      .map(([label, v]) => ({ label, r1Merit: v.r1 ?? v.last, lastMerit: v.last }))
+      .sort((a, b) => a.lastMerit - b.lastMerit);
+  }, [data, headline]);
+
+  function handleRulerMeritChange(merit: number) {
+    setLocalMerit(merit);
+    setLocalMeritInput(formatNumber(merit));
+  }
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const v = parseInt(localMeritInput.replace(/[^0-9]/g, ""), 10);
+    const merit = v > 0 ? v : null;
+    setLocalMerit(merit);
+    if (merit) setProfile({ ...profile, meritNumber: merit });
+  }
+
+  function handleBranchSelect(branch: string) {
+    setSelectedBranch(branch);
+    setTimeout(() => drillRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  }
 
   const crumbs = [{ label: "Colleges", to: "/colleges" }, { label: data?.college.name ?? "College" }];
 
@@ -244,187 +301,221 @@ export function CollegePage() {
         }
       />
 
-      <div className="cp-summary">
-        {headline && (
-          <section className="cp-headline card" aria-labelledby="cp-headline-title">
-            <h2 id="cp-headline-title" className="label">Your chances here</h2>
-            {headline.merit && headline.reachable !== null ? (
-              <p className="cp-headline-main">
-                With merit <strong>{formatNumber(headline.merit)}</strong>, you were within last year's general open cutoff for{" "}
-                <strong>{headline.reachable} of {headline.branchCount}</strong> branches.
-              </p>
-            ) : (
-              <p className="cp-headline-main">
-                <Link to="/welcome/start">Enter your merit number</Link> to see which branches here are within reach.
-              </p>
-            )}
-            <dl className="cp-headline-stats">
-              <div>
-                <dt>Hardest branch</dt>
-                <dd>
-                  <span className="cp-stat-num">{formatNumber(headline.hardest.closingMerit)}</span>
-                  <span className="cp-stat-sub">{headline.hardest.branch}</span>
-                </dd>
-              </div>
-              <div>
-                <dt>Easiest branch</dt>
-                <dd>
-                  <span className="cp-stat-num">{formatNumber(headline.easiest.closingMerit)}</span>
-                  <span className="cp-stat-sub">{headline.easiest.branch}</span>
-                </dd>
-              </div>
-            </dl>
-            <p className="cp-headline-note">{formatRound(1)} closing ranks, general open seats (state level).</p>
-          </section>
-        )}
+      <div className="cp-layout">
 
-        {fees && fees.available && (
-          <section className="cp-fees card" aria-labelledby="cp-fees-title">
-            <h2 id="cp-fees-title" className="label">Fees per year ({fees.year})</h2>
-            <p className="cp-fees-total">{formatInr(fees.fees.totalAnnualFee)}</p>
-            <dl className="cp-fees-grid">
-              {fees.fees.tuitionFee !== null && <div><dt>Tuition</dt><dd>{formatInr(fees.fees.tuitionFee)}</dd></div>}
-              {fees.fees.developmentFee !== null && <div><dt>Development</dt><dd>{formatInr(fees.fees.developmentFee)}</dd></div>}
-              {fees.fees.otherFees !== null && <div><dt>Other</dt><dd>{formatInr(fees.fees.otherFees)}</dd></div>}
-            </dl>
-            {fees.tfwsAvailable && (
-              <p className="cp-fees-tfws">
-                <Icon name="tag" size={14} />
-                Tuition fee waiver (TFWS):{" "}
-                {fees.tfwsSeats != null
-                  ? `${fees.tfwsSeats} seat${fees.tfwsSeats === 1 ? "" : "s"}${fees.tfwsBranches ? ` across ${fees.tfwsBranches} branch${fees.tfwsBranches === 1 ? "" : "es"}` : ""}`
-                  : "seats available"}
-                . Maharashtra candidates whose parents earn less than ₹8 lakh a year pay no tuition fee; other fees still apply.
-              </p>
-            )}
-            <p className="cp-fees-note">
-              {fees.verified ? (
+        {/* ── HERO: full-width merit ruler ── */}
+        <section className="cp-hero">
+          <div className="cp-ruler-card">
+            <form className="cp-controls" onSubmit={handleSearch}>
+              <label className="cp-field">
+                <span>Your state merit number</span>
+                <input
+                  className="cp-merit-in"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={localMeritInput}
+                  onChange={(e) => {
+                    setLocalMeritInput(e.target.value);
+                    const v = parseInt(e.target.value.replace(/[^0-9]/g, ""), 10);
+                    if (v > 0) setLocalMerit(v);
+                  }}
+                  onBlur={() => localMerit && setLocalMeritInput(formatNumber(localMerit))}
+                  placeholder="e.g. 10,000"
+                />
+              </label>
+              <div className="cp-row2">
+                <label className="cp-field">
+                  <span>Category</span>
+                  <select
+                    value={localSeatType}
+                    onChange={(e) => setLocalSeatType(e.target.value)}
+                  >
+                    {heroSeatTypeOptions.map((st) => (
+                      <option key={st} value={st}>{seatTypeLabel(st)}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="cp-field">
+                  <span>University</span>
+                  <select value={seatLevel} onChange={(e) => setSeatLevel(e.target.value)}>
+                    <option value="all">All levels</option>
+                    {availableSeatLevels.map((l) => (
+                      <option key={l} value={l}>{LEVEL_LABELS[l]}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            </form>
+
+            <div className="cp-ruler-right">
+              {localMerit && headline && headline.reachable !== null ? (
                 <>
-                  As approved by the Fee Regulating Authority
-                  {fees.fraOrderUrl ? (
-                    <>
-                      {" "}(<a href={fees.fraOrderUrl} target="_blank" rel="noreferrer">FRA order{fees.fraOrderRef ? ` ${fees.fraOrderRef}` : ""}</a>)
-                    </>
-                  ) : null}
-                  . Confirm with the college before paying.
+                  <p className="cp-verdict" aria-live="polite">
+                    At <span className="cp-verdict-num">{formatNumber(localMerit)}</span>,{" "}
+                    <b>{headline.reachable} of {headline.branchCount}</b> branches here were within reach.
+                  </p>
+                  <p className="cp-verdict-sub">
+                    Latest CAP {data.year},{" "}
+                    {seatTypeLabel(headline.seatTypeUsed).replace(/^General /i, "").toLowerCase()} seats.
+                    {headline.reachable > 0 && (
+                      <> Hardest within reach: {headline.hardest.branch} ({formatNumber(headline.hardest.closingMerit)}).</>
+                    )}
+                  </p>
                 </>
               ) : (
-                <>
-                  <span className="badge badge-sample">Unverified</span> Not yet checked against the Fee Regulating Authority's order. Confirm with the college before paying.
-                </>
+                <p className="cp-verdict-empty">
+                  Enter your merit number to see which branches here are within reach.
+                </p>
               )}
-            </p>
-          </section>
-        )}
-      </div>
-
-      <section className="page-section cp-glance card" aria-label="At a glance">
-        <dl>
-          <div><dt>Branches in CAP</dt><dd>{branches.length}</dd></div>
-          {data.college.totalIntake ? <div><dt>Total intake</dt><dd>{formatNumber(data.college.totalIntake)}</dd></div> : null}
-          <div><dt>Home university</dt><dd>{data.college.homeUniversity ?? "None (state level only)"}</dd></div>
-          {data.college.district ? <div><dt>District</dt><dd>{data.college.district}</dd></div> : null}
-        </dl>
-      </section>
-
-      {placement && <PlacementCard data={placement} />}
-
-      <div className="page-section">
-        <CutoffChart cutoffs={data.cutoffs} collegeCode={data.college.code} />
-      </div>
-
-      <section className="page-section card cp-detail" aria-labelledby="cp-detail-title">
-        <div className="cp-detail-head">
-          <div>
-            <h2 id="cp-detail-title">Every seat type, one branch</h2>
-            <p>Pick a branch to see the closing rank for each seat type in each CAP round.</p>
-          </div>
-          <button
-            type="button"
-            className={`btn btn-sm ${showWhatif ? "btn-primary" : "btn-secondary"}`}
-            aria-expanded={showWhatif}
-            onClick={() => setShowWhatif((v) => !v)}
-          >
-            <Icon name="sparkle" size={16} />
-            Try a different merit number
-          </button>
-        </div>
-
-        {showWhatif && (
-          <div className="cp-whatif">
-            <label className="cp-slider-row">
-              <span className="label">Merit</span>
-              <input
-                type="range"
-                min={1}
-                max={sliderMax}
-                step={50}
-                value={whatifMerit}
-                onChange={(e) => setWhatifMerit(parseInt(e.target.value, 10))}
-                className="cp-slider"
+              <MeritRuler
+                branches={rulerBranches}
+                merit={localMerit}
+                onMeritChange={handleRulerMeritChange}
               />
-              <span className="cp-slider-val">{formatNumber(whatifMerit)}</span>
-            </label>
-            <div className="cp-whatif-legend">
-              <span className="badge badge-safe"><Icon name="check" size={12} />{formatRound(1)}</span>
-              <span className="badge badge-later"><Icon name="clock" size={12} />Later round</span>
-              <span className="badge badge-out"><Icon name="minus" size={12} />Out of reach</span>
-              <span className="cp-whatif-hint">General open seats, colour shown on each branch</span>
             </div>
           </div>
-        )}
+        </section>
 
-        <div className="cp-branch-picker">
-          <div className="cc-filter-row">
-            <label className="label" htmlFor="cp-level-select">University</label>
-            <select
-              id="cp-level-select"
-              className="cc-select"
-              value={seatLevel}
-              onChange={(e) => setSeatLevel(e.target.value)}
-            >
-              <option value="all">All levels</option>
-              {availableSeatLevels.map((l) => (
-                <option key={l} value={l}>{LEVEL_LABELS[l]}</option>
-              ))}
-            </select>
-          </div>
-          <div className="cc-filter-row">
-            <label className="label" htmlFor="cp-branch-select">Branch</label>
-            <select
-              id="cp-branch-select"
-              className="cc-select cc-select-branch"
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
-            >
-              {branches.map((b) => {
-                const st = showWhatif ? getBranchStatus(data.cutoffs, b, whatifMerit) : null;
-                const tag = st === "round-I" ? ` — ${formatRound(1)}` : st === "later" ? " — later round" : st === "out" ? " — out of reach" : "";
-                return <option key={b} value={b}>{b}{tag}</option>;
+        {/* ── LEFT: charts ── */}
+        <div className="cp-col">
+
+          <CutoffChart
+            cutoffs={data.cutoffs}
+            collegeCode={data.college.code}
+            controlledSeatType={localSeatType}
+            merit={localMerit}
+          />
+
+          {/* Drill into a branch */}
+          <section ref={drillRef} id="cp-drill" className="card cp-drill" aria-labelledby="cp-drill-title">
+            <div className="card-head">
+              <div>
+                <h2 id="cp-drill-title">One branch, every seat type</h2>
+                <p className="desc">Closing ranks for OBC, ladies, TFWS and the rest, in the branch you pick.</p>
+              </div>
+            </div>
+
+            <div className="cp-chips" role="group" aria-label="Branch">
+              {branchChips.map(({ branch, r1Merit }) => {
+                const reach = localMerit != null && r1Merit != null && localMerit <= r1Merit;
+                return (
+                  <button
+                    key={branch}
+                    type="button"
+                    className={`cp-chip${reach ? " reach" : ""}`}
+                    aria-pressed={selectedBranch === branch}
+                    onClick={() => setSelectedBranch(branch)}
+                  >
+                    {branch}
+                    {r1Merit != null && (
+                      <span className="cp-chip-rk">{formatNumber(r1Merit)}</span>
+                    )}
+                  </button>
+                );
               })}
-            </select>
-          </div>
+            </div>
+
+            {branchChoice && (
+              <div className="cp-add">
+                <span>
+                  Choice code <strong className="cp-code">{branchChoice.choiceCode}</strong> · {selectedBranch}
+                </span>
+                <span className="cp-add-actions">
+                  <Link to={`/colleges/${data.college.code}/${branchChoice.choiceCode}`} className="btn btn-ghost btn-sm">Branch trends</Link>
+                  <AddToFormButton item={branchChoice} variant="button" />
+                </span>
+              </div>
+            )}
+
+            <div className="cp-branch-picker">
+              <div className="cc-filter-row">
+                <label className="label" htmlFor="cp-level-select">University</label>
+                <select
+                  id="cp-level-select"
+                  className="cc-select"
+                  value={seatLevel}
+                  onChange={(e) => setSeatLevel(e.target.value)}
+                >
+                  <option value="all">All levels</option>
+                  {availableSeatLevels.map((l) => (
+                    <option key={l} value={l}>{LEVEL_LABELS[l]}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <SeatCutoffChart cutoffs={data.cutoffs} branch={selectedBranch} selectedLevel={seatLevel} merit={localMerit} />
+          </section>
+
+          <p className="cp-footnote">
+            Closing ranks from official CET Cell CAP {data.year} allotment lists. Past cutoffs are a guide, not a guarantee.{" "}
+            <Link to="/legal">Disclaimer</Link>
+          </p>
         </div>
 
-        {branchChoice && (
-          <div className="cp-add">
-            <span>
-              Choice code <strong className="cp-code">{branchChoice.choiceCode}</strong> · {selectedBranch}
-            </span>
-            <span className="cp-add-actions">
-              <Link to={`/colleges/${data.college.code}/${branchChoice.choiceCode}`} className="btn btn-ghost btn-sm">Branch trends</Link>
-              <AddToFormButton item={branchChoice} variant="button" />
-            </span>
-          </div>
-        )}
+        {/* ── RIGHT: sidebar ── */}
+        <aside className="cp-side">
 
-        <SeatCutoffChart cutoffs={data.cutoffs} branch={selectedBranch} selectedLevel={seatLevel} />
-      </section>
+          {/* At a glance */}
+          <section className="card cp-glance-card" aria-label="At a glance">
+            <div className="card-head"><h2>At a glance</h2></div>
+            <dl className="cp-kv">
+              <div><dt>Branches in CAP</dt><dd className="big">{branches.length}</dd></div>
+              {data.college.totalIntake ? <div><dt>Total intake</dt><dd className="big">{formatNumber(data.college.totalIntake)}</dd></div> : null}
+              <div><dt>Home university</dt><dd>{data.college.homeUniversity ?? "None (state level only)"}</dd></div>
+              {data.college.district ? <div><dt>District</dt><dd>{data.college.district}</dd></div> : null}
+            </dl>
+          </section>
 
-      <p className="cp-footnote">
-        Closing ranks from official CET Cell CAP {data.year} allotment lists. Past cutoffs are a guide, not a guarantee.{" "}
-        <Link to="/legal">Disclaimer</Link>
-      </p>
+          {/* Fees — standalone details card */}
+          {fees && fees.available && (
+            <details className="card cp-fees-card">
+              <summary>
+                <div className="card-head"><h2>Fees per year</h2></div>
+                <div className="cp-fees-total-row">
+                  <span className="cp-fees-num">{formatInr(fees.fees.totalAnnualFee)}</span>
+                  {!fees.verified && <span className="badge badge-sample">Unverified</span>}
+                </div>
+                <span className="cp-more">
+                  <span className="cp-more-o">Show breakdown ↓</span>
+                  <span className="cp-more-c">Hide breakdown ↑</span>
+                </span>
+              </summary>
+              <dl className="cp-fees-grid">
+                {fees.fees.tuitionFee !== null && <div><dt>Tuition</dt><dd>{formatInr(fees.fees.tuitionFee)}</dd></div>}
+                {fees.fees.developmentFee !== null && <div><dt>Development</dt><dd>{formatInr(fees.fees.developmentFee)}</dd></div>}
+                {fees.fees.otherFees !== null && <div><dt>Other</dt><dd>{formatInr(fees.fees.otherFees)}</dd></div>}
+              </dl>
+              {fees.tfwsAvailable && (
+                <p className="cp-fees-tfws">
+                  <Icon name="tag" size={14} />
+                  TFWS:{" "}
+                  {fees.tfwsSeats != null
+                    ? `${fees.tfwsSeats} seat${fees.tfwsSeats === 1 ? "" : "s"}${fees.tfwsBranches ? ` across ${fees.tfwsBranches} branch${fees.tfwsBranches === 1 ? "" : "es"}` : ""}`
+                    : "seats available"}
+                  . Parents earning under ₹8L/yr pay no tuition fee.
+                </p>
+              )}
+              <p className="cp-fees-note">
+                {fees.verified ? (
+                  <>
+                    As approved by the Fee Regulating Authority
+                    {fees.fraOrderUrl ? (
+                      <> (<a href={fees.fraOrderUrl} target="_blank" rel="noreferrer">FRA order{fees.fraOrderRef ? ` ${fees.fraOrderRef}` : ""}</a>)</>
+                    ) : null}
+                    . Confirm with the college before paying.
+                  </>
+                ) : (
+                  <>Not yet checked against the FRA order. Confirm with the college before paying.</>
+                )}
+              </p>
+            </details>
+          )}
+
+          {placement && <PlacementCard data={placement} />}
+        </aside>
+      </div>
     </div>
   );
 }

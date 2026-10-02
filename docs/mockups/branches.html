@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Branches</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/colleges.js"></script>
+<style>
+.groups { margin-top:20px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+body.phone .groups { grid-template-columns:1fr 1fr; }
+.g { font:inherit; text-align:left; cursor:pointer; display:flex; flex-direction:column; gap:4px; padding:12px 14px; border:2px solid var(--card-line); background:#fff; border-radius:var(--r-md); }
+.g:hover { border-color:var(--blue-soft); }
+.g[aria-pressed="true"] { border-color:var(--ink); background:var(--ink); color:#fff; }
+.g b { font:650 16px/1.15 var(--display); font-stretch:88%; }
+.g span { font-size:11px; color:var(--muted-2); }
+.g[aria-pressed="true"] span { color:#cbd5e1; }
+.g svg { display:block; width:100%; height:16px; margin-top:4px; }
+.bar2 { display:flex; gap:12px; align-items:end; flex-wrap:wrap; margin:22px 0 10px; }
+.bar2 .field { width:220px; }
+.bar2 .right { margin-left:auto; }
+</style>
+</head>
+<body data-page="branches" data-mock="Branches · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <div class="eyebrow"><span>CAP <span class="mono">2026</span></span><span>Open, state-level seats</span></div>
+    <h1 class="h1" style="margin-top:6px">By branch</h1>
+    <p class="lede">Every college offering a branch, with where it closed in Round I and in the last round, against your merit number.</p>
+    <div class="groups" id="groups" role="group" aria-label="Branch group"></div>
+    <p class="info">The branch-group chips carry a mini barcode each (same as the landing page), so choosing a group already tells you how much of it is within reach.</p>
+
+    <div class="bar2">
+      <label class="field"><span>Your merit</span><input class="input tnum" id="merit" inputmode="numeric"></label>
+      <label class="field"><span>Seat type</span><select disabled title="Only General open in this mockup"><option>General open</option></select></label>
+      <label class="field"><span>District</span><select id="dist"></select></label>
+      <p class="verdict right" style="font-size:20px" id="verdict"></p>
+    </div>
+    <section class="card">
+      <div class="legend"><span><span class="dot dot-r1"></span>Round I</span><span><span class="dot dot-last"></span>Latest round</span><span><span class="dash"></span>Your merit</span><span style="color:var(--muted-2)">Click a row to open the college</span></div>
+      <div class="chart-wrap" id="chart" style="margin-top:8px"></div>
+      <button class="btn" type="button" id="more" style="width:100%;margin-top:10px"></button>
+    </section>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const C = Compass;
+const GROUPS = {
+  "Computer & IT": /computer|information\s+tech|data\s+sc|artificial\s+int|machine\s+learn|cyber/i,
+  "Electronics & Telecom": /electronics|e\.?\s*t\.?\s*c|telecom/i,
+  "Mechanical": /mechanical/i, "Civil": /civil/i, "Electrical": /electrical/i,
+  "Chemical": /chemical|petroleum|plastic/i, "Instrumentation": /instrument/i, "Aerospace": /aeronautical|aerospace/i,
+};
+const ALL = COLLEGES.flatMap((c) => c.b.filter((b) => b[3] === "S").map(([branch, r1, last]) => ({ c, branch, r1, last })));
+let group = new URLSearchParams(location.search).get("group") || "Computer & IT", merit = 12000, shown = 40;
+const $ = (id) => document.getElementById(id);
+$("dist").innerHTML = `<option value="">All districts</option>` + [...new Set(COLLEGES.map((c) => c.district).filter(Boolean))].sort().map((d) => `<option>${C.esc(d)}</option>`).join("");
+const DOM = C.bounds(ALL.map((x) => x.last));
+
+function render() {
+  $("merit").value = C.fmt(merit);
+  $("groups").innerHTML = Object.entries(GROUPS).map(([g, re]) => {
+    const vals = ALL.filter((x) => re.test(x.branch)).map((x) => x.last), n = vals.filter((v) => merit <= v).length;
+    const W = 200, x = C.scale(DOM, 1, W - 2), sel = g === group;
+    return `<button type="button" class="g" aria-pressed="${sel}" data-g="${C.esc(g)}"><b>${C.esc(g)}</b><span>${n} of ${vals.length} within reach</span>
+      <svg viewBox="0 0 ${W} 16" preserveAspectRatio="none" aria-hidden="true">${vals.map((v) => `<line x1="${x(v).toFixed(1)}" x2="${x(v).toFixed(1)}" y1="1" y2="15" stroke="${merit <= v ? (sel ? "#93c5fd" : "#2563eb") : sel ? "#475569" : "#cbd5e1"}" opacity=".8"/>`).join("")}<line x1="${x(merit)}" x2="${x(merit)}" y1="0" y2="16" stroke="${sel ? "#fff" : "#0f172a"}" stroke-width="2"/></svg></button>`;
+  }).join("");
+  const d = $("dist").value;
+  const rows = ALL.filter((x) => GROUPS[group].test(x.branch) && (!d || x.c.district === d)).sort((a, b) => a.last - b.last);
+  const n = rows.filter((x) => merit <= x.last).length;
+  $("verdict").innerHTML = `<b>${C.fmt(n)}</b> of ${C.fmt(rows.length)} within reach`;
+  C.dumbbell($("chart"), rows.slice(0, shown).map((x) => ({ label: `${x.c.name.split(/[,(]/)[0]} · ${C.short(x.branch)}`, tipTitle: `${x.c.name}: ${x.branch}`, r1: x.r1, last: x.last, code: x.c.code })), {
+    merit, left: $("chart").clientWidth < 520 ? 130 : 330, row: 30, domain: DOM, aria: `${group} closing ranks across colleges`,
+    onRow: (s) => { location.href = s.code === "03012" ? "college-page-reorder.html" : "#"; },
+  });
+  $("more").hidden = rows.length <= shown;
+  $("more").textContent = `Show more (${C.fmt(rows.length - shown)} left)`;
+}
+$("groups").onclick = (e) => { const b = e.target.closest("[data-g]"); if (b) { group = b.dataset.g; shown = 40; render(); } };
+$("dist").onchange = () => { shown = 40; render(); };
+$("merit").onchange = () => { const v = parseInt($("merit").value.replace(/\D/g, ""), 10); if (v > 0) merit = v; render(); };
+$("more").onclick = () => { shown += 40; render(); };
+C.onRender(render);
+</script>
+</body>
+</html>

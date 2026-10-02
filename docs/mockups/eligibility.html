@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Eligibility</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/plan.js"></script>
+<style>
+.cards { margin-top:22px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+body.phone .cards { grid-template-columns:1fr; }
+.st { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:4px 14px; align-items:start; cursor:pointer; border-width:2px; }
+.st:has(input:checked) { border-color:var(--blue); background:var(--tint-2); }
+.st input { width:20px; height:20px; margin-top:3px; accent-color:var(--blue); }
+.st .h3 { font-size:18px; }
+.st .code { font:600 11px var(--mono); color:var(--muted-2); background:var(--line-soft); border-radius:6px; padding:3px 7px; }
+.st p { grid-column:2/-1; font-size:13px; color:var(--muted); }
+.st .proof { grid-column:2/-1; font-size:12px; color:var(--muted-2); }
+.st .gain { grid-column:2/-1; font-size:12px; font-weight:600; color:var(--blue-deep); }
+.st.na { opacity:.55; cursor:default; }
+.total { position:sticky; bottom:0; z-index:4; margin-top:18px; background:#fff; border:1px solid var(--card-line); border-radius:var(--r-lg); box-shadow:0 -6px 24px rgba(15,23,42,.08); padding:14px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+.total .verdict { font-size:20px; }
+.total .btn { margin-left:auto; }
+.auto { margin-top:24px; }
+.auto dl { display:grid; grid-template-columns:200px minmax(0,1fr); gap:10px 20px; margin-top:10px; font-size:13px; }
+.auto dt { font-weight:600; color:var(--ink); }
+.auto dd { margin:0; color:var(--muted); }
+body.phone .auto dl { grid-template-columns:1fr; gap:2px; }
+body.phone .auto dd { margin-bottom:10px; }
+</style>
+</head>
+<body data-page="find" data-mock="Eligibility · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <nav class="crumbs"><a href="find.html">Find colleges</a><span>/</span><span>Which seats can I apply for?</span></nav>
+    <h1 class="h1" style="margin-top:6px">Which seats can you apply for?</h1>
+    <p class="lede">Besides general seats, CAP keeps seats for specific groups. Tick the ones that apply to you and Compass adds them to your results.</p>
+    <div class="cards" id="cards"></div>
+    <div class="total"><p class="verdict" id="total" aria-live="polite"></p><a class="btn btn-primary" href="find.html">Save and update my results →</a></div>
+    <p class="info">Each card shows what it's worth to this student before they tick it: the extra branches that seat type opened for merit 12,000 last year, from the real search. Cards for seats the student can't claim (EWS for an OBC student) stay visible but greyed, with the reason.</p>
+
+    <section class="card auto">
+      <h2 class="h2">Used automatically from your details</h2>
+      <dl>
+        <dt>Home university (H, O)</dt><dd>Some seats are kept for students who passed Class 12 in the same university area. Add your home university in <a href="profile.html">My details</a> and Compass uses it.</dd>
+        <dt>Ladies seats (L…)</dt><dd>Reserved for female candidates. Included automatically when your details say Female.</dd>
+        <dt>Category seats</dt><dd>OBC, SEBC, SC, ST, VJ/DT, NT-B, NT-C, NT-D. Used when your category is set. You need a valid caste certificate and, where required, a validity certificate.</dd>
+      </dl>
+      <p class="small" style="margin-top:14px">Rules and certificate formats are set in the official CAP information brochure; the CET Cell's document check decides. <a href="guide.html#codes">Read the seat-code guide</a> · <a href="ask.html">Ask Compass</a></p>
+    </section>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const C = Compass;
+const E = PLAN.eligibility, base = E.none.branches;
+const TYPES = [
+  ["tfws", "Tuition fee waiver", "TFWS", "Maharashtra candidates whose family income is within the limit set for the year (₹8 lakh a year in recent brochures). The college waives tuition; you pay other fees.", "Family income certificate for the previous financial year, from the competent authority."],
+  ["ews", "Economically weaker section", "EWS", "Candidates not covered by caste reservation whose family income and assets are within the EWS limits.", "EWS eligibility certificate issued by the competent authority."],
+  ["defence", "Defence", "DEF…", "Children of defence personnel and ex-servicemen, in the order of priority set in the brochure.", "Defence certificate in the format given in the CAP information brochure."],
+  ["pwd", "Persons with disability", "PWD…", "Candidates with a benchmark disability (40% or more).", "Disability certificate from a competent medical authority; the CET Cell may verify it."],
+  ["orphan", "Orphan", "ORPHAN", "Candidates declared orphan under the state's rules.", "Orphan certificate issued by the Women and Child Development Department."],
+];
+const on = new Set();
+function render() {
+  document.getElementById("cards").innerHTML = TYPES.map(([k, t, code, d, proof]) => {
+    const na = k === "ews";
+    const gain = E[k] ? E[k].branches - base : null;
+    return `<label class="card st${na ? " na" : ""}">
+      <input type="checkbox" data-k="${k}" ${on.has(k) ? "checked" : ""} ${na ? "disabled" : ""}>
+      <h2 class="h3">${t}</h2><span class="code">${code}</span>
+      <p>${d}</p>
+      <span class="proof">Proof: ${proof}</span>
+      <span class="gain">${na ? "Only for the Open category, so not for you (OBC)." : `+${C.fmt(gain)} branches for merit 12,000 last year`}</span>
+    </label>`;
+  }).join("");
+  const ticked = [...on];
+  const n = ticked.length === 0 ? base : ticked.length === 1 ? E[ticked[0]].branches : null;
+  const atLeast = Math.max(...ticked.map((k) => E[k].branches), base);
+  document.getElementById("total").innerHTML = n != null
+    ? `With what you've ticked, merit 12,000 reached <b>${C.fmt(n)}</b> branches last year.`
+    : `With what you've ticked, merit 12,000 reached <b>at least ${C.fmt(atLeast)}</b> branches last year.`;
+}
+document.getElementById("cards").onchange = (e) => { const k = e.target.dataset.k; if (!k) return; e.target.checked ? on.add(k) : on.delete(k); render(); };
+C.onRender(render);
+</script>
+</body>
+</html>

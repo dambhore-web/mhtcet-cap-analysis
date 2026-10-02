@@ -24,7 +24,8 @@ export function AddOptionsPage() {
   const [retry, setRetry] = useState(0);
   const [query, setQuery] = useState("");
   const [district, setDistrict] = useState("");
-  const [onlyReach, setOnlyReach] = useState(false);
+  // last year's result for this merit: any, Round I, later round (stretch) or out of reach
+  const [reachFilter, setReachFilter] = useState<"" | FindOption["status"]>("");
   const [shown, setShown] = useState(PAGE);
   const added = list.length;
   const [startCount] = useState(added);
@@ -61,11 +62,11 @@ export function AddOptionsPage() {
       (o) =>
         (!q || `${o.collegeName} ${o.branch} ${o.choiceCode} ${o.collegeCode}`.toLowerCase().includes(q)) &&
         (!district || o.district === district) &&
-        (!onlyReach || !merit || o.status !== "out-of-range"),
+        (!reachFilter || !merit || o.status === reachFilter),
     );
-  }, [all, query, district, onlyReach, merit]);
+  }, [all, query, district, reachFilter, merit]);
 
-  useEffect(() => setShown(PAGE), [query, district, onlyReach]);
+  useEffect(() => setShown(PAGE), [query, district, reachFilter]);
 
   return (
     <div className="page add-options-page">
@@ -97,10 +98,15 @@ export function AddOptionsPage() {
           </>
         )}
         {merit ? (
-          <label className="add-toggle">
-            <input type="checkbox" checked={onlyReach} onChange={(e) => setOnlyReach(e.target.checked)} />
-            Only where my merit got in
-          </label>
+          <>
+            <label htmlFor="add-reach" className="sr-only">Last year, for your merit</label>
+            <select id="add-reach" value={reachFilter} onChange={(e) => setReachFilter(e.target.value as typeof reachFilter)} className="add-select">
+              <option value="">Any result last year</option>
+              <option value="round-I">Got in by Round I</option>
+              <option value="later-round">Got in later (stretch choices)</option>
+              <option value="out-of-range">Didn't reach my merit</option>
+            </select>
+          </>
         ) : null}
       </div>
 

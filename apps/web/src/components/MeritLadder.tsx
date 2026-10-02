@@ -31,7 +31,7 @@ interface Props {
 }
 
 /**
- * One row of the merit ladder: Round I closing (filled dot) to last-round closing (ring),
+ * One row of the merit ladder: Round I closing (hollow blue) to last-round closing (amber),
  * with the student's merit as a vertical line. Lower numbers are on the left.
  */
 export function MeritLadder({ first, last, you, domain, label }: Props) {

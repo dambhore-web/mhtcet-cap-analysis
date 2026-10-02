@@ -4,12 +4,14 @@ import { api } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
 import { AddToFormButton } from "../components/AddToFormButton";
+import { MeritRuler } from "../components/MeritRuler";
+import { YearDumbbells, SeatTrails, YearTable } from "../components/YearTrend";
 import { listItemFrom } from "../lib/list";
 import { formatNumber, formatRound, roundIndex } from "../lib/format";
-import { seatTypeSortKey } from "../lib/seatType";
+import { roundMerit } from "../lib/logScale";
+import { seatTypeLabel, seatTypeSortKey } from "../lib/seatType";
+import { trendVerdict, yearSeries, yearsWithin, type HistoryRow, type RoundMode } from "../lib/yearTrend";
 import "./BranchTrendsPage.css";
-import { YearTrend } from "../components/YearTrend";
-import type { HistoryRow } from "../lib/yearTrend";
 
 interface Row {
   choiceCode: string;
@@ -18,13 +20,11 @@ interface Row {
   round: string;
   seatType: string;
   closingMerit: number;
-  source?: string | null;
-  sourcePage?: number | null;
 }
 
 type Status = "loading" | "done" | "error";
 
-/** Journey J4 step 3 (#85): how one branch's closing ranks moved, per seat type. */
+/** Journey J4 step 3 (#85): how one branch's closing ranks moved, per seat type and year. */
 export function BranchTrendsPage() {
   const { code = "", choiceCode = "" } = useParams();
   const { profile } = useProfile();
@@ -33,7 +33,10 @@ export function BranchTrendsPage() {
   const [year, setYear] = useState<number | null>(null);
   const [status, setStatus] = useState<Status>("loading");
   const [history, setHistory] = useState<HistoryRow[] | null>(null);
-  const merit = profile.meritNumber;
+  const [seat, setSeat] = useState<string | null>(null);
+  const [mode, setMode] = useState<RoundMode>("first");
+  const [merit, setMerit] = useState<number | null>(profile.meritNumber);
+  const [meritText, setMeritText] = useState(profile.meritNumber ? formatNumber(profile.meritNumber) : "");
 
   useEffect(() => {
     setStatus("loading");
@@ -42,29 +45,62 @@ export function BranchTrendsPage() {
       .then((d) => {
         setCollege(d.college);
         setYear(d.year);
-        setRows((d.cutoffs as Row[]).filter((r) => r.choiceCode === choiceCode && r.list !== "AI"));
+        setRows((d.cutoffs as Row[]).filter((r) => r.list !== "AI"));
         setStatus("done");
       })
       .catch(() => setStatus("error"));
     // Earlier years are optional: the page still works if the history call fails.
     setHistory(null);
+    setSeat(null);
     api.branchHistory(choiceCode).then((h) => setHistory(h.rows)).catch(() => setHistory([]));
   }, [code, choiceCode]);
 
-  const branch = rows[0]?.branch ?? "Branch";
-  const seats = useMemo(() => {
-    const by = new Map<string, Row[]>();
-    for (const r of rows) by.set(r.seatType, [...(by.get(r.seatType) ?? []), r]);
-    return [...by.entries()]
-      .sort(([a], [b]) => seatTypeSortKey(a) - seatTypeSortKey(b))
-      .map(([seatType, rs]) => {
-        const sorted = [...rs].sort((a, b) => roundIndex(a.round) - roundIndex(b.round));
-        const first = sorted.find((r) => roundIndex(r.round) === 1)?.closingMerit ?? null;
-        const last = sorted[sorted.length - 1].closingMerit;
-        return { seatType, rows: sorted, first, last };
-      });
-  }, [rows]);
-  const gopens = seats.find((s) => s.seatType === "GOPENS");
+  const branchRows = useMemo(() => rows.filter((r) => r.choiceCode === choiceCode), [rows, choiceCode]);
+  const branch = branchRows[0]?.branch ?? "Branch";
+  const seatTypes = useMemo(
+    () => [...new Set((history ?? []).map((r) => r.seatType))].sort((a, b) => seatTypeSortKey(a) - seatTypeSortKey(b)),
+    [history],
+  );
+
+  // Default seat type: the student's own general seat if this branch has it, else general open.
+  useEffect(() => {
+    if (seat || seatTypes.length === 0) return;
+    const own = profile.category ? `G${profile.category}S` : null;
+    setSeat(own && seatTypes.includes(own) ? own : seatTypes.includes("GOPENS") ? "GOPENS" : seatTypes[0]);
+  }, [seatTypes, seat, profile.category]);
+
+  // Without a saved merit number, start the pin in the middle of this seat type's Round I cutoffs.
+  useEffect(() => {
+    if (merit != null || !history || !seat) return;
+    const r1 = yearSeries(history, seat, "first").map((p) => p.closingMerit).sort((a, b) => a - b);
+    if (r1.length) {
+      const m = roundMerit(r1[Math.floor(r1.length / 2)]);
+      setMerit(m);
+      setMeritText(formatNumber(m));
+    }
+  }, [history, seat, merit]);
+
+  const points = useMemo(() => (history && seat ? yearSeries(history, seat, mode) : []), [history, seat, mode]);
+  const within = merit != null ? yearsWithin(points, merit) : [];
+  const verdict = trendVerdict(points);
+  const roundText = mode === "first" ? formatRound(1) : "the last round";
+
+  const gopens = useMemo(() => {
+    const rs = branchRows.filter((r) => r.seatType === "GOPENS").sort((a, b) => roundIndex(a.round) - roundIndex(b.round));
+    if (!rs.length) return null;
+    return { first: rs.find((r) => roundIndex(r.round) === 1)?.closingMerit ?? null, last: rs[rs.length - 1].closingMerit };
+  }, [branchRows]);
+
+  // Other branches at this college, by their latest general open closing rank
+  const others = useMemo(() => {
+    const by = new Map<string, { branch: string; last: number; round: number }>();
+    for (const r of rows) {
+      if (r.choiceCode === choiceCode || r.seatType !== "GOPENS") continue;
+      const prev = by.get(r.choiceCode);
+      if (!prev || roundIndex(r.round) > prev.round) by.set(r.choiceCode, { branch: r.branch, last: r.closingMerit, round: roundIndex(r.round) });
+    }
+    return [...by.entries()].sort(([, a], [, b]) => a.last - b.last);
+  }, [rows, choiceCode]);
 
   const crumbs = [
     { label: "Colleges", to: "/colleges" },
@@ -72,7 +108,7 @@ export function BranchTrendsPage() {
     { label: branch },
   ];
 
-  if (status === "error" || (status === "done" && rows.length === 0)) {
+  if (status === "error" || (status === "done" && branchRows.length === 0)) {
     return (
       <div className="page trends-page">
         <PageHeader title="Branch not found" breadcrumb={crumbs} />
@@ -81,12 +117,31 @@ export function BranchTrendsPage() {
     );
   }
 
+  const commitMerit = (text: string) => {
+    const v = parseInt(text.replace(/\D/g, ""), 10);
+    if (v > 0) {
+      setMerit(v);
+      setMeritText(formatNumber(v));
+    } else setMeritText(merit ? formatNumber(merit) : "");
+  };
+  const moveMerit = (v: number) => {
+    setMerit(v);
+    setMeritText(formatNumber(v));
+  };
+
   return (
     <div className="page trends-page">
       <PageHeader
         breadcrumb={crumbs}
-        title={status === "loading" ? "Loading…" : `${branch} at ${college?.name}`}
-        subtitle={`Choice code ${choiceCode}. How the closing rank moved from Round I to the last round, for each seat type${year ? `, CAP ${year}` : ""}.`}
+        title={
+          status === "loading" ? "Loading…" : (
+            <>
+              {branch}
+              <span className="trends-college">{college?.name}</span>
+            </>
+          )
+        }
+        subtitle={<>Choice code <span className="mono">{choiceCode}</span> · CAP {history && history.length ? `${Math.min(...history.map((r) => r.year))}–${String(Math.max(...history.map((r) => r.year))).slice(2)}` : year}, state-level lists</>}
         actions={
           gopens && college ? (
             <AddToFormButton
@@ -97,24 +152,126 @@ export function BranchTrendsPage() {
         }
       />
 
-      {gopens && gopens.first != null && gopens.last !== gopens.first && (
-        <p className="card trends-insight">
-          <strong>Worth knowing:</strong> for general open seats this branch closed at {formatNumber(gopens.first)} in {formatRound(1)} but reached{" "}
-          {formatNumber(gopens.last)} by {formatRound(gopens.rows[gopens.rows.length - 1].round)}.
-          {merit && merit > gopens.first && merit <= gopens.last
-            ? " Your merit was inside that gap, so listing it above a safer choice could have moved you up in a later round."
-            : ""}
-        </p>
+      {history && history.length > 0 && seat ? (
+        <>
+          <section className="card trends-focus" aria-label="Four years for one seat type">
+            <div className="trends-controls">
+              <label className="trends-field">
+                <span className="label">Your state merit number</span>
+                <input
+                  className="trends-merit"
+                  inputMode="numeric"
+                  value={meritText}
+                  onChange={(e) => setMeritText(e.target.value)}
+                  onBlur={(e) => commitMerit(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && commitMerit((e.target as HTMLInputElement).value)}
+                  aria-describedby="trends-verdict"
+                />
+              </label>
+              <label className="trends-field">
+                <span className="label">Seat type</span>
+                <select value={seat} onChange={(e) => setSeat(e.target.value)}>
+                  {seatTypes.map((st) => <option key={st} value={st}>{seatTypeLabel(st)}</option>)}
+                </select>
+              </label>
+              <div className="trends-field">
+                <span className="label">Round</span>
+                <div className="trends-seg" role="group" aria-label="Round">
+                  <button type="button" aria-pressed={mode === "first"} onClick={() => setMode("first")}>{formatRound(1)}</button>
+                  <button type="button" aria-pressed={mode === "last"} onClick={() => setMode("last")}>Last round</button>
+                </div>
+              </div>
+            </div>
+            <div className="trends-verdict-wrap">
+              <p className="trends-verdict" id="trends-verdict" aria-live="polite">
+                {merit != null ? <>At <span className="tnum">{formatNumber(merit)}</span>, you'd have got in <b>{within.length} of {points.length}</b> years.</> : "Put in your merit number to see which years you'd have got in."}
+              </p>
+              {verdict && (
+                <p className="trends-verdict-sub">
+                  {seatTypeLabel(seat)}, {roundText}: closed at {formatNumber(verdict.from.closingMerit)} in {verdict.from.year} and {formatNumber(verdict.to.closingMerit)} in {verdict.to.year}
+                  {verdict.direction === "steady" ? ", about the same." : verdict.direction === "harder" ? ", harder now." : ", easier now."}
+                </p>
+              )}
+              <MeritRuler
+                marks={points.map((p) => ({ value: p.closingMerit, label: String(p.year) }))}
+                merit={merit}
+                onMeritChange={moveMerit}
+                ariaLabel={`${seatTypeLabel(seat)} closing rank in each year, with your merit number`}
+                hint="Each tick is one year's closing rank"
+              />
+            </div>
+          </section>
+
+          <div className="trends-split">
+            <div className="trends-main">
+              <section className="card trends-card" aria-labelledby="trends-year-title">
+                <h2 id="trends-year-title">Closing rank by year</h2>
+                <p className="trends-desc">{seatTypeLabel(seat)}. One dumbbell per year, from {formatRound(1)} to the final round. Higher on the chart is harder to get.</p>
+                <div className="trends-legend">
+                  <span><i className="dot-r1" />{formatRound(1)}</span>
+                  <span><i className="dot-last" />Final round</span>
+                  {merit != null && <span><i className="dash" />Your merit</span>}
+                </div>
+                <YearDumbbells rows={history} seatType={seat} merit={merit} />
+              </section>
+
+              <section className="card trends-card" aria-labelledby="trends-seats-title">
+                <h2 id="trends-seats-title">Every seat type, {points.length > 1 ? `${new Set(history.map((r) => r.year)).size} years` : "by year"}</h2>
+                <p className="trends-desc">Each row is a seat type ({roundText}). Dots run from the oldest year (pale) to the newest (dark). Further left is harder. Pick a row to show it above.</p>
+                <SeatTrails rows={history} mode={mode} selected={seat} merit={merit} onSelect={(st) => { setSeat(st); window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }} />
+                <YearTable rows={history} mode={mode} />
+              </section>
+            </div>
+
+            <aside className="trends-side">
+              <section className="card trends-card">
+                <h2>Your chances, by year</h2>
+                {merit != null ? (
+                  <dl className="trends-years">
+                    {[...new Set(history.map((r) => r.year))].sort().map((yr) => {
+                      const p = points.find((q) => q.year === yr);
+                      return (
+                        <div key={yr}>
+                          <dt>{yr}</dt>
+                          <dd>
+                            {!p ? <span className="trends-none">no seats</span> : merit <= p.closingMerit ? <span className="badge badge-safe">✓ In</span> : <span className="badge badge-out">– Out</span>}
+                            {p && <span className="mono trends-cut">{formatNumber(p.closingMerit)}</span>}
+                          </dd>
+                        </div>
+                      );
+                    })}
+                  </dl>
+                ) : (
+                  <p className="trends-desc">Add your merit number above.</p>
+                )}
+                <p className="trends-desc">{seatTypeLabel(seat)}, {roundText}. A closing rank that swings a lot between years usually means a small seat pool.</p>
+              </section>
+              {others.length > 0 && (
+                <section className="card trends-card">
+                  <h2>Other branches here</h2>
+                  <ul className="trends-others">
+                    {others.map(([cc, o]) => (
+                      <li key={cc}>
+                        <Link to={`/colleges/${code}/${cc}`}><span>{o.branch}</span><span className="mono">{formatNumber(o.last)}</span></Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="trends-desc">General open, latest round.</p>
+                </section>
+              )}
+            </aside>
+          </div>
+        </>
+      ) : history === null ? (
+        <div className="card trends-skeleton" aria-busy="true" />
+      ) : (
+        <section className="card trends-card">
+          <h2>Closing rank by year</h2>
+          <p className="trends-desc">Earlier years aren't loaded for this branch, so there's no year-on-year trend yet.</p>
+        </section>
       )}
 
-      {history && history.length > 0 && <YearTrend rows={history} merit={merit ?? null} />}
-
-      <div className="trends-missing">
-        <section className="card">
-          <h2 className="label">Seats left after each round</h2>
-          <p>Vacancies after each round aren't shown. <Link to="/data">What's loaded</Link></p>
-        </section>
-      </div>
+      <p className="trends-foot">Vacancies after each round aren't shown. <Link to="/data">What's loaded</Link></p>
     </div>
   );
 }

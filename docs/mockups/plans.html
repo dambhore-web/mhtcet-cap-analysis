@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Plans</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<style>
+.plans { margin-top:26px; display:grid; grid-template-columns:1fr 1fr; gap:18px; max-width:900px; }
+body.phone .plans { grid-template-columns:1fr; }
+.plan { display:flex; flex-direction:column; gap:12px; }
+.plan.pass { border:2px solid var(--ink); }
+.price { font:700 54px/1 var(--display); font-stretch:80%; color:var(--ink); }
+.price small { font:500 14px var(--body); color:var(--muted-2); margin-left:6px; }
+.plan ul { list-style:none; padding:0; display:flex; flex-direction:column; gap:8px; font-size:13px; }
+.plan li { display:flex; gap:8px; }
+.plan li::before { content:"✓"; color:var(--safe-text); font-weight:700; }
+.plan li.plus::before { content:"+"; color:var(--blue); }
+.plan .btn { margin-top:auto; }
+.timeline-strip { margin-top:30px; max-width:900px; }
+.timeline-strip svg { display:block; width:100%; height:70px; }
+</style>
+</head>
+<body data-page="" data-mock="Plans · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <nav class="crumbs"><span>Account</span><span>/</span><span>Plans</span></nav>
+    <h1 class="h1" style="margin-top:6px">Plans</h1>
+    <p class="lede">Finding colleges is free. The Season Pass adds the simulator and unlimited questions, for one payment covering the 2026–27 CAP cycle.</p>
+    <div class="plans">
+      <article class="card plan">
+        <span class="label">Free · your plan</span>
+        <div class="price">₹0</div>
+        <ul>
+          <li>Rank finder: unlimited searches</li><li>All 387 colleges and their cutoffs, every round</li><li>Option form with up to 300 choices, CSV and PDF export</li><li>Compare up to 3 colleges</li><li>Shareable results and parent summary PDF</li><li>Ask Compass: 3 questions</li>
+        </ul>
+        <a class="btn" href="find.html">Find my options</a>
+      </article>
+      <article class="card plan pass">
+        <span class="label" style="color:var(--blue-deep)">Season Pass</span>
+        <div class="price">₹299<small>one payment</small></div>
+        <ul>
+          <li>Everything in Free</li><li class="plus">CAP round simulator (Rounds I–III)</li><li class="plus">Freeze, float or slide advice after each allotment</li><li class="plus">Ask Compass: unlimited questions</li>
+        </ul>
+        <button class="btn btn-primary btn-lg" type="button" disabled>Payments open soon</button>
+        <p class="small">Price may change before launch. Payment by a secure provider, with a GST invoice and a 7-day refund if the pass is unused.</p>
+      </article>
+    </div>
+    <section class="timeline-strip">
+      <h2 class="h3">What the pass covers</h2>
+      <svg viewBox="0 0 900 70" aria-label="Season Pass covers registration through Round IV">
+        <line x1="20" x2="880" y1="36" y2="36" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round"/>
+        <line x1="260" x2="880" y1="36" y2="36" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </section>
+    <p class="info">The Season Pass card gets the heavier border and the plus marks only on what it adds, so the difference is the first thing read. A strip shows the stretch of the CAP cycle the pass covers (from the option form to Round IV).</p>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const pts = [[20, "Register"], [140, "Merit list"], [260, "Option form"], [415, "Round I"], [570, "Round II"], [725, "Round III"], [880, "Round IV"]];
+document.querySelector(".timeline-strip svg").insertAdjacentHTML("beforeend", pts.map(([x, t], i) => `<circle cx="${x}" cy="36" r="7" fill="${x >= 260 ? "#2563eb" : "#cbd5e1"}" stroke="#fff" stroke-width="2"/><text x="${x}" y="${i % 2 ? 64 : 18}" text-anchor="${i === 0 ? "start" : i === pts.length - 1 ? "end" : "middle"}" font-size="12" fill="#475569" font-family="Poppins, sans-serif">${t}</text>`).join(""));
+</script>
+</body>
+</html>

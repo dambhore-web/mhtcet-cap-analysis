@@ -1,5 +1,12 @@
+/* designed as the printed page it becomes: an A4-shaped sheet with a heavy rule under the header */
 .summary-sheet {
-  padding: 24px;
+  padding: 40px 48px;
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--line), 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 639px) {
+  .summary-sheet { padding: 22px 18px; }
 }
 
 .summary-sheet section {
@@ -9,7 +16,9 @@
 
 .summary-sheet h2 {
   margin: 0 0 8px;
-  font-size: var(--text-lg);
+  font-size: 20px;
+  font-weight: 650;
+  color: var(--navy-deep);
 }
 
 .summary-sheet p,
@@ -25,24 +34,30 @@
 .summary-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
   gap: 8px;
-  padding-bottom: 12px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--navy-deep);
 }
 
 .summary-brand {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-head);
+  font-family: var(--font-display);
+  font-stretch: 95%;
+  font-size: 17px;
   font-weight: 700;
-  color: var(--violet);
+  color: var(--navy-deep);
 }
 
 .summary-facts {
-  font-size: var(--text-sm);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-stretch: 85%;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy-deep);
 }
 
 .summary-choices {
@@ -66,9 +81,11 @@
 }
 
 .summary-pref {
-  font-family: var(--font-num);
+  font-family: var(--font-display);
+  font-stretch: 80%;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--violet);
+  color: var(--muted-2);
   text-align: center;
 }
 
@@ -83,7 +100,9 @@
 }
 
 .summary-rank {
-  font-family: var(--font-num);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
   white-space: nowrap;
 }
 
