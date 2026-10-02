@@ -127,3 +127,16 @@
 .add-more {
   margin-top: 12px;
 }
+
+.add-phone-meta { display: none; }
+
+/* phones: drop the code and closing-rank columns so the status and + button stay on screen */
+@media (max-width: 639px) {
+  .add-table th:nth-child(2), .add-table td:nth-child(2),
+  .add-table th:nth-child(3), .add-table td:nth-child(3) { display: none; }
+  .add-phone-meta { display: block; margin-top: 2px; font-size: 12px; color: var(--muted-2); }
+  .add-phone-meta .mono { font-family: var(--font-mono); }
+  .add-results { padding: 10px 8px 12px; }
+  .add-table th, .add-table td { padding: 8px 6px; }
+  .add-table th { white-space: normal; }
+}

@@ -319,3 +319,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* phones: the grid scrolls sideways instead of squeezing college names to a word per line */
+@media (max-width: 639px) {
+  .sim-grid table { min-width: 600px; }
+}

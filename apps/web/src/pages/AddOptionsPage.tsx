@@ -145,6 +145,10 @@ export function AddOptionsPage() {
                         {o.branch} · <abbr title={seatTypeLabel(o.seatType)}>{seatTypeShortLabel(o.seatType)}</abbr>
                         {o.district ? ` · ${o.district}` : ""}
                       </span>
+                      {/* phones: the code and closing rank columns are hidden, so they sit here */}
+                      <span className="add-phone-meta">
+                        <span className="mono">{o.choiceCode}</span> · {o.firstRoundClosing != null && o.lastRoundClosing != null ? `${formatNumber(o.firstRoundClosing)} → ${formatNumber(o.lastRoundClosing)}` : formatNumber(o.closingMerit)}
+                      </span>
                     </td>
                     <td className="add-code">{o.choiceCode}</td>
                     <td className="num">

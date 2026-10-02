@@ -91,12 +91,15 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
         side = side === "up" ? "dn" : "up";
         lane = ends[side].findIndex((e) => e < tx - w / 2 - 6);
       }
-      if (lane < 0) lane = lanes - 1;
-      ends[side][lane] = tx + w / 2;
+      // No free lane on either side (crowded rulers on phones): keep the tick, drop the label rather
+      // than print it over another one. The value is still in the tick's tooltip and the charts.
+      const hidden = lane < 0;
+      if (hidden) lane = 0;
+      else ends[side][lane] = tx + w / 2;
       const ly = side === "up" ? top - 8 - lane * LANE_H : base + 16 + lane * LANE_H;
       const anchor: "start" | "middle" | "end" = tx - w / 2 < 0 ? "start" : tx + w / 2 > W ? "end" : "middle";
       const lx = anchor === "start" ? Math.max(tx - 4, 0) : anchor === "end" ? Math.min(tx + 4, W) : tx;
-      return { m, name, tx, side, ly, anchor, lx, full: m.label! };
+      return { m, name, tx, side, ly, anchor, lx, full: m.label!, hidden };
     });
     return { W, H, x, dom, top, base, band, chipY, narrow, placed, ticks: ticksIn(dom, narrow) };
   }, [width, allMarks, merit, domain, barcode]);
@@ -173,10 +176,12 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
                 key={i}
                 x1={p.tx}
                 x2={p.tx}
-                y1={p.side === "up" ? p.ly + 4 : g.top}
-                y2={p.side === "up" ? g.base : p.ly - 11}
+                y1={p.hidden ? g.top + 2 : p.side === "up" ? p.ly + 4 : g.top}
+                y2={p.hidden ? g.base - 2 : p.side === "up" ? g.base : p.ly - 11}
                 className={reach ? "mr-tick reach" : "mr-tick"}
-              />
+              >
+                <title>{`${p.full}: ${formatNumber(p.m.value)}`}</title>
+              </line>
             );
           })}
 
@@ -212,6 +217,7 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
 
           <g pointerEvents="none">
             {g.placed.map((p, i) => {
+              if (p.hidden) return null;
               const reach = merit != null && merit <= p.m.value;
               return (
                 <text key={i} x={p.lx} y={p.ly} textAnchor={p.anchor} className={reach ? "mr-label reach" : "mr-label"}>

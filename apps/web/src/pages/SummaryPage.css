@@ -139,3 +139,9 @@
     padding: 0;
   }
 }
+
+/* phones: the closing ranks go under the choice so names keep their width */
+@media (max-width: 639px) {
+  .summary-choices li { grid-template-columns: 28px minmax(0, 1fr); }
+  .summary-rank { grid-column: 2; }
+}
