@@ -36,5 +36,13 @@ const insert = await fetch(`${url}/rest/v1/user_store`, {
 });
 check("Signed-out visitors can't insert rows directly", insert.status === 401 || insert.status === 403, `HTTP ${insert.status}`);
 
+// the data tables are served by our API only; Supabase's public API must not expose them (migration 008)
+for (const table of ["cutoff", "college", "merit_lookup", "fee"]) {
+  const res = await fetch(`${url}/rest/v1/${table}?select=*&limit=1`, { headers });
+  check(`Signed-out visitors can't read ${table}`, res.status === 401 || res.status === 403, `HTTP ${res.status}`);
+}
+const wipe = await fetch(`${url}/rest/v1/college?code=eq.__check__`, { method: "DELETE", headers });
+check("Signed-out visitors can't delete data rows", wipe.status === 401 || wipe.status === 403, `HTTP ${wipe.status}`);
+
 for (const r of results) console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.name}${r.ok ? "" : `  (${r.detail})`}`);
 process.exit(results.every((r) => r.ok) ? 0 : 1);

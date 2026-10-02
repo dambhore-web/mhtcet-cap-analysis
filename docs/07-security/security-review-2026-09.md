@@ -57,7 +57,20 @@ grant usage on schema public to compass_api;
 grant select on all tables in schema public to compass_api;
 alter default privileges in schema public grant select on tables to compass_api;
 alter role compass_api set default_transaction_read_only = on;
+-- Row-level security is on for every table (migration 008), so a non-owner role sees no rows
+-- without a policy: let compass_api read every data table, never user_store.
+do $$
+declare t record;
+begin
+  for t in select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+           where n.nspname = 'public' and c.relkind in ('r', 'p') and c.relname <> 'user_store' loop
+    execute format('drop policy if exists compass_api_read on public.%I', t.relname);
+    execute format('create policy compass_api_read on public.%I for select to compass_api using (true)', t.relname);
+  end loop;
+end $$;
+revoke all on public.user_store from compass_api;
 ```
+A table added later needs the same policy (or re-run the block).
 
 ## Open: later
 

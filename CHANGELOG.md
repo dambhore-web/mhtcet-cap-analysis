@@ -6,6 +6,12 @@
   otherwise have blocked sign-in and sync (#131).
 - API: a dropped idle database connection no longer crashes the process (logged as `db_idle_error`).
 ### Security
+- Supabase "RLS disabled": every data table in `public` (cutoff, merit_lookup, college, fee, ...)
+  allowed the public anon key to read, change and delete rows through Supabase's REST API.
+  Migration 008 turns row-level security on for every table, revokes anon/authenticated rights
+  (signed-in students keep their own `user_store` rows) and closes future tables by default.
+  Applied to staging; the API reads as the table owner and is unaffected. The `compass_api` role
+  setup now includes read policies.
 - #131 follow-ups: `DATABASE_CA_CERT` verifies the database certificate (API and pipeline); in
   production the API warns at startup about a missing `CORS_ORIGINS`, CA certificate or read-only
   role; `npm run check:supabase -w @mhtcet/web` checks a project's sign-in setup; every held-back
