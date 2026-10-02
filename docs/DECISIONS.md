@@ -28,13 +28,14 @@
 | 2026-10-02 | Auth: **Supabase Auth** with Google. The web app reads and writes the student's own data straight to Supabase (`user_store`, row-level security, `put_user_item`); the API stays read-only and has no auth code | Supabase already hosts the DB; keeps the API's read-only database role (security review) instead of adding a write path | user (#15) | `09-devops/google-sign-in.md` |
 | 2026-10-02 | Signed-in sync covers details, option form, compare list, allotment and next-step progress; per piece, the newest copy wins | The dashboard (#139) needs the saved list; no merge prompts | user (#15) | `apps/web/src/lib/sync.ts` |
 | 2026-10-02 | Sign-out removes the synced pieces from that browser (they stay in the account) | Shared family computers | Claude (#15) | `09-devops/google-sign-in.md` |
+| 2026-10-02 | Payments deferred: no Razorpay, paid plans or usage metering until there is real traffic. #21, #34 and #22 stay open but are out of scope until then, and do not block the first production rollout | Validate demand first | user | #21 |
 
 ## Open decisions
 | Decision | Needed by |
 |---|---|
 | API framework (Hono recommended) | Phase 6 |
-| Payment provider (Razorpay recommended) | Phase 8 |
-| Plans, prices, free vs paid split (parked) | Phase 8 |
+| Payment provider (Razorpay recommended) | after real traffic (deferred 2026-10-02) |
+| Plans, prices, free vs paid split (parked) | after real traffic (deferred 2026-10-02) |
 | LLM provider and model (chosen on eval results) | Phase 7 |
 | Store assistant conversations? Retention? | Phase 7 |
 | Domain | before launch |
