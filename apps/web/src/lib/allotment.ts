@@ -31,6 +31,8 @@ export function useAllotment(): Allotment | null {
     const f = () => setA(loadAllotment());
     window.addEventListener(EVENT, f);
     window.addEventListener(SYNC_APPLIED_EVENT, f);
+    // re-read once: a change between the first render and this subscription would otherwise be missed
+    f();
     return () => {
       window.removeEventListener(EVENT, f);
       window.removeEventListener(SYNC_APPLIED_EVENT, f);

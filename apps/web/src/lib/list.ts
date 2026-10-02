@@ -72,6 +72,8 @@ export function useList(): ListItem[] {
     window.addEventListener(CHANGE_EVENT, refresh);
     window.addEventListener("storage", refresh);
     window.addEventListener(SYNC_APPLIED_EVENT, refresh);
+    // re-read once: a change between the first render and this subscription would otherwise be missed
+    refresh();
     return () => {
       window.removeEventListener(CHANGE_EVENT, refresh);
       window.removeEventListener("storage", refresh);

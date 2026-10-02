@@ -23,6 +23,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       setHasProfile(p !== null);
     };
     window.addEventListener(SYNC_APPLIED_EVENT, reload);
+    // re-read once: a change between the first render and this subscription would otherwise be missed
+    reload();
     return () => window.removeEventListener(SYNC_APPLIED_EVENT, reload);
   }, []);
 
