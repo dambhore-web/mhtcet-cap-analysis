@@ -4,6 +4,7 @@ import { seatTypeLabel } from "../lib/seatType";
 import { useNavigate, Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
 import { AccountPanel } from "../components/AccountPanel";
+import { useAuth } from "../lib/AuthContext";
 import type { Category } from "../lib/api";
 import { CATEGORY_OPTIONS, MINORITY_OPTIONS } from "../lib/categories";
 import { UNIVERSITIES } from "../lib/universities";
@@ -15,6 +16,7 @@ import "./ProfilePage.css";
 
 export function ProfilePage() {
   const { profile, setProfile, resetProfile, hasProfile } = useProfile();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [merit, setMerit] = useState(profile.meritNumber ? String(profile.meritNumber) : "");
@@ -87,7 +89,7 @@ export function ProfilePage() {
     <div className="page page--narrow profile-page">
       <PageHeader
         title="My details"
-        subtitle="Used to match you to the seat types you are eligible for. Saved only in this browser."
+        subtitle={`Used to match you to the seat types you are eligible for. ${user ? "Saved to your account when you click Save details." : "Saved only in this browser."}`}
       />
 
       <div className="profile-body card">
