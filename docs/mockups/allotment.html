@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass After Allotment</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/plan.js"></script>
+<style>
+.pick { margin-top:22px; display:grid; grid-template-columns:180px minmax(0,1fr); gap:14px; padding:18px 22px; align-items:end; }
+body.phone .pick { grid-template-columns:1fr; padding:14px; }
+.above { margin-top:12px; }
+.ab { display:grid; grid-template-columns:34px minmax(0,1fr) repeat(3,92px); gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid var(--line-soft); }
+.ab.head { font-size:11px; color:var(--muted-2); border-bottom:1px solid var(--line); padding-top:0; }
+.ab .n { font:700 20px/1 var(--display); font-stretch:80%; color:var(--muted-2); }
+.ab .b { font-weight:600; color:var(--ink); font-size:13px; }
+.ab .c { font-size:11px; color:var(--muted-2); }
+.ab .r { text-align:center; font:500 12px var(--mono); color:var(--muted-2); }
+.ab .r.open { color:var(--safe-text); font-weight:600; }
+.ab .r.open::before { content:"●"; margin-right:4px; }
+.ab.mine { background:var(--tint-2); border-radius:var(--r-sm); }
+body.phone .ab { grid-template-columns:28px minmax(0,1fr) repeat(3,52px); }
+.choices3 { margin-top:20px; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+body.phone .choices3 { grid-template-columns:1fr; }
+.opt { display:flex; flex-direction:column; gap:8px; border-width:2px; }
+.opt.rec { border-color:var(--blue); }
+.opt .h2 { font-size:26px; }
+.opt p { font-size:13px; color:var(--muted); }
+.opt .why { font-size:12px; color:var(--ink); background:var(--tint-2); border-radius:var(--r-sm); padding:8px 10px; }
+.opt .rbadge { align-self:flex-start; }
+.lock { margin-top:16px; display:flex; gap:10px; align-items:flex-start; background:var(--ink); color:#fff; border-radius:var(--r-md); padding:12px 14px; font-size:13px; }
+</style>
+</head>
+<body data-page="list" data-mock="After allotment · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <nav class="crumbs"><a href="list.html">My CAP plan</a><span>/</span><span>After allotment</span></nav>
+    <h1 class="h1" style="margin-top:6px">After your allotment</h1>
+    <p class="lede">Tell Compass which seat you were allotted. It shows which of your higher choices opened up last year, and what freeze, float and slide would mean for you.</p>
+    <div id="steps" style="margin-top:20px"></div>
+
+    <form class="card pick" onsubmit="event.preventDefault()">
+      <label class="field"><span>Round</span><select id="round"><option value="I">Round I</option><option value="II">Round II</option><option value="III">Round III</option></select></label>
+      <label class="field"><span>Seat you were allotted</span><select id="seat"></select></label>
+    </form>
+
+    <div id="lock"></div>
+    <section class="card" style="margin-top:20px">
+      <div class="card-head"><div><h2 class="h2">Your higher choices, last year</h2><p class="desc">Did a seat open up for your merit in a later round? A green dot means yes, at that closing rank.</p></div></div>
+      <div class="above" id="above"></div>
+    </section>
+    <p class="info">Instead of three equal explanations, the page answers the student's real question first (“would waiting have paid off?”) from last year's later rounds, then marks the option that follows from it. The recommendation is a reading of last year, and says so.</p>
+
+    <div class="choices3" id="opts"></div>
+    <section class="card" style="margin-top:20px">
+      <h2 class="h3">Before you accept</h2>
+      <ul class="link-list" style="margin-top:8px;color:var(--muted)">
+        <li>Pay the seat acceptance fee shown on the CET Cell portal before the deadline.</li>
+        <li>Keep your documents ready for reporting (the list is on the portal).</li>
+      </ul>
+    </section>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const C = Compass;
+const G = PLAN.sim.grid, Z = PLAN.sim.freezeZones;
+C.planSteps(document.getElementById("steps"), 3);
+const seatSel = document.getElementById("seat"), roundSel = document.getElementById("round");
+seatSel.innerHTML = G.map((g) => `<option value="${g.preference}">${g.preference}. ${C.esc((g.collegeName ?? "").split(/[,(]/)[0])} · ${C.esc(g.branch ?? "")}</option>`).join("");
+seatSel.value = "3";
+const LATER = { I: ["II", "III", "IV"], II: ["III", "IV"], III: ["IV"] };
+
+function render() {
+  const p = +seatSel.value, round = roundSel.value, mine = G[p - 1];
+  const later = LATER[round];
+  const locked = Z[round] != null && p <= Z[round];
+  document.getElementById("lock").innerHTML = locked
+    ? `<div class="lock"><b>Locked.</b><span>Choice ${p} is inside the Round ${round} auto-freeze zone (choices 1–${Z[round]}), so this seat freezes automatically. You can't float or slide.</span></div>` : "";
+  const higher = G.filter((g) => g.preference < p);
+  document.getElementById("above").innerHTML = `<div class="ab head"><span>#</span><span>Choice</span>${["II", "III", "IV"].map((r) => `<span class="r">${later.includes(r) ? "Round " + r : ""}</span>`).join("")}</div>` +
+    [...higher, mine].map((g) => `<div class="ab${g === mine ? " mine" : ""}"><span class="n">${g.preference}</span>
+      <span><span class="b">${C.esc(g.branch ?? "")}</span><br><span class="c">${C.esc((g.collegeName ?? "").split(/[,(]/)[0])}${g === mine ? " · your seat" : ""}</span></span>
+      ${["II", "III", "IV"].map((r) => { const c = later.includes(r) && g !== mine ? g.byRound[r] : null; return `<span class="r${c ? " open" : ""}">${!later.includes(r) || g === mine ? "" : c ? C.fmt(c.closingMerit) : "—"}</span>`; }).join("")}
+    </div>`).join("");
+
+  const opened = higher.filter((g) => later.some((r) => g.byRound[r]));
+  const sameCollege = opened.filter((g) => g.collegeCode === mine.collegeCode);
+  const rec = locked ? null : opened.length ? (sameCollege.length === opened.length ? "Slide" : "Float") : "Freeze";
+  const why = {
+    Freeze: opened.length ? "" : "None of your higher choices opened for your merit in a later round last year.",
+    Float: opened.length ? `Last year, ${opened.length} higher choice${opened.length === 1 ? "" : "s"} opened later (best: choice ${opened[0].preference}, ${C.short(opened[0].branch)}).` : "",
+    Slide: sameCollege.length ? `A better branch at the same college opened later (choice ${sameCollege[0].preference}).` : "Only useful if a better branch at this college opens.",
+  };
+  document.getElementById("opts").innerHTML = [
+    ["Freeze", "Accept this seat and stop. You won't be considered for any higher choice again. Report to the college with your documents."],
+    ["Float", "Accept this seat and stay in line for higher choices at any college. If one opens in a later round you move up; if not, you keep this seat."],
+    ["Slide", "Accept this seat and stay in line only for higher choices at the same college. You never move to another college."],
+  ].map(([t, d]) => `<article class="card opt${rec === t ? " rec" : ""}">
+    ${rec === t ? '<span class="badge badge-safe rbadge">Fits last year</span>' : ""}
+    <h2 class="h2">${t}</h2><p>${d}</p>${why[t] ? `<p class="why">${C.esc(why[t])}</p>` : ""}
+  </article>`).join("");
+}
+seatSel.onchange = render; roundSel.onchange = render;
+C.onRender(render);
+</script>
+</body>
+</html>

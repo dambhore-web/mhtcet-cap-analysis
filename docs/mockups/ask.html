@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Ask</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/plan.js"></script>
+<style>
+.chat { display:flex; flex-direction:column; gap:16px; padding:22px 24px; min-height:420px; }
+.msg.me { align-self:flex-end; max-width:80%; background:var(--ink); color:#fff; border-radius:16px 16px 4px 16px; padding:10px 14px; font-size:14px; }
+.msg.ai { max-width:92%; }
+.msg.ai .who { display:flex; gap:8px; align-items:center; font-size:12px; color:var(--muted-2); margin-bottom:6px; }
+.msg.ai .who .brand-mark { width:22px; height:22px; }
+.msg.ai .who .brand-mark svg { width:13px; height:13px; }
+.msg.ai p { font-size:14px; color:var(--text); margin-top:8px; }
+.msg.ai p:first-of-type { margin-top:0; }
+.cite { display:inline-grid; place-items:center; min-width:18px; height:18px; border-radius:5px; background:var(--tint); color:var(--blue-deep); font:600 10px var(--mono); vertical-align:2px; margin-left:2px; padding:0 4px; text-decoration:none; }
+.rounds { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px; }
+.rounds div { background:var(--tint-2); border-radius:var(--r-sm); padding:8px 10px; }
+.rounds .r { font-size:11px; color:var(--muted-2); }
+.rounds .v { font:700 20px/1.1 var(--display); font-stretch:85%; color:var(--ink); }
+.rounds .ok .v { color:var(--safe-text); }
+.composer { display:flex; gap:10px; padding:14px 16px; border-top:1px solid var(--line); }
+.composer textarea { flex:1; font:inherit; font-size:14px; border:1px solid var(--line); border-radius:var(--r-md); padding:10px 12px; resize:none; height:46px; }
+.sugg { display:flex; gap:8px; flex-wrap:wrap; padding:0 24px 16px; }
+.src { list-style:none; padding:0; display:flex; flex-direction:column; gap:10px; margin-top:10px; font-size:12px; }
+.src li { display:flex; gap:8px; }
+.src .mono { color:var(--ink); }
+.prof { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.prof span { font-size:12px; background:var(--line-soft); border-radius:999px; padding:3px 10px; }
+.quota { display:flex; gap:4px; margin-top:10px; }
+.quota i { flex:1; height:6px; border-radius:3px; background:var(--blue); }
+.quota i.used { background:var(--line); }
+</style>
+</head>
+<body data-page="ask" data-mock="Ask Compass · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <h1 class="h1">Ask Compass</h1>
+    <p class="lede">Answers come from the official cutoff lists, and every number links to the page it came from. Past cutoffs are not a guarantee of admission.</p>
+    <div class="split" style="margin-top:20px">
+      <section class="card" style="padding:0;overflow:hidden">
+        <div class="chat" id="chat"></div>
+        <div class="sugg"><button class="chip" type="button">What's the difference between freeze, float and slide?</button><button class="chip" type="button">What is TFWS and how do I qualify?</button><button class="chip" type="button">Can I change my choices after Round I?</button></div>
+        <form class="composer" onsubmit="event.preventDefault()"><label class="sr-only" for="qq">Your question</label><textarea id="qq" placeholder="Ask about cutoffs, your chances, seat types…"></textarea><button class="btn btn-primary" type="submit">Ask</button></form>
+      </section>
+      <aside class="col side">
+        <section class="card">
+          <div class="card-head"><h2 class="h2">Answering for</h2><a class="small right" href="profile.html">Edit</a></div>
+          <div class="prof"><span>Merit 12,000</span><span>OBC</span><span>Male</span><span>Savitribai Phule Pune University</span></div>
+        </section>
+        <section class="card">
+          <h2 class="h2">Sources in this answer</h2>
+          <ol class="src" id="src"></ol>
+        </section>
+        <section class="card">
+          <h2 class="h2">Free questions</h2>
+          <div class="quota"><i class="used"></i><i></i><i></i></div>
+          <p class="small" style="margin-top:8px">2 of 3 left. <a href="plans.html">Unlimited with the Season Pass</a></p>
+        </section>
+      </aside>
+    </div>
+    <p class="info">The answer is built for checking: round-by-round figures as tiles, and a numbered marker on every figure that matches a source in the sidebar (file and page). The sample answer uses this student's real data; the reply text is illustrative of the assistant's style, not a recorded answer.</p>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const C = Compass;
+const o = PLAN.list[0], g = PLAN.sim.grid[0];
+const R = ["I", "II", "III", "IV"];
+const val = (r) => g.byRound[r];
+document.getElementById("chat").innerHTML = `
+  <div class="msg me">Can I get ${C.esc(o.branch)} at PVG with my merit?</div>
+  <div class="msg ai">
+    <div class="who"><span class="brand-mark">${C.icon.compass}</span>Compass</div>
+    <p>Probably not in Round I, but quite possibly later. Last year ${C.esc(o.branch)} at ${C.esc(o.college)} (choice code <span class="mono">${o.choice}</span>) closed in Round I at <b>${C.fmt(o.r1)}</b> for General open, which is above your 12,000, and in the last round at <b>${C.fmt(o.last)}</b><a class="cite" href="#s1">1</a>.</p>
+    <p>In later rounds, the seat you can take opened up for your merit:</p>
+    <div class="rounds">${R.map((r) => { const v = val(r); return `<div class="${v && 12000 <= v.closingMerit ? "ok" : ""}"><div class="r">Round ${r}${v ? " · " + C.esc(C.seatLabel(v.seatType)) : ""}</div><div class="v">${v ? C.fmt(v.closingMerit) : "—"}</div></div>`; }).join("")}</div>
+    <p>So list it <b>above</b> your safe choices. If you get it in Round II while it's in your top 3, it locks under the auto-freeze rule<a class="cite" href="#s2">2</a>. Run your form through the <a href="simulator.html">simulator</a> to see the order play out.</p>
+  </div>`;
+document.getElementById("src").innerHTML = `
+  <li id="s1"><span class="cite">1</span><span><span class="mono">${o.source.file}</span>, page ${o.source.page}<br><span class="small">Official CET Cell cutoff list, last round</span></span></li>
+  <li id="s2"><span class="cite">2</span><span>CAP information brochure 2025-26, auto-freeze rule<br><span class="small"><a href="guide.html">Read it in the CAP guide</a></span></span></li>`;
+</script>
+</body>
+</html>

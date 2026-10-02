@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Disclaimer</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<style>
+.doc { display:grid; grid-template-columns:200px minmax(0,1fr); gap:40px; margin-top:24px; align-items:start; }
+body.phone .doc { grid-template-columns:1fr; gap:16px; }
+.toc { position:sticky; top:72px; display:flex; flex-direction:column; gap:4px; }
+.toc a { font-size:13px; color:var(--muted); text-decoration:none; padding:6px 10px; border-left:2px solid var(--line); }
+.toc a:hover { color:var(--blue); border-color:var(--blue); }
+body.phone .toc { position:static; flex-direction:row; flex-wrap:wrap; }
+.prose { max-width:680px; }
+.prose h2 { font:650 26px/1.15 var(--display); font-stretch:86%; color:var(--ink); margin-top:34px; }
+.prose h2:first-child { margin-top:0; }
+.prose h3 { font:650 17px/1.25 var(--display); font-stretch:90%; color:var(--ink); margin-top:20px; }
+.prose p { font-size:15px; line-height:1.7; color:var(--text); margin-top:8px; }
+.tldr { background:var(--tint-2); border-left:3px solid var(--blue); border-radius:0 var(--r-md) var(--r-md) 0; padding:14px 16px; font-size:14px; color:var(--ink); }
+.tldr ul { margin:6px 0 0; padding-left:18px; display:flex; flex-direction:column; gap:4px; }
+</style>
+</head>
+<body data-page="" data-mock="Disclaimer, privacy and terms · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <h1 class="h1">Disclaimer, privacy and terms</h1>
+    <p class="small" style="margin-top:8px">Last updated: September 2026</p>
+    <div class="doc">
+      <nav class="toc" aria-label="Sections"><a href="#disclaimer">Disclaimer</a><a href="#privacy">Privacy</a><a href="#terms">Terms</a></nav>
+      <article class="prose">
+        <div class="tldr"><b>In short</b><ul><li>Compass is unofficial and not linked to the CET Cell or DTE.</li><li>Cutoffs are last year's. They guide you; they don't guarantee a seat.</li><li>Your details stay in your browser.</li></ul></div>
+        <h2 id="disclaimer">Disclaimer</h2>
+        <h3>Unofficial product</h3>
+        <p>Compass is an independent information tool. It is not affiliated with, endorsed by, or operated by the Maharashtra State Common Entrance Test Cell (CET Cell), the Directorate of Technical Education (DTE), the Government of Maharashtra, or any university listed on this platform.</p>
+        <h3>Past data, not a guarantee</h3>
+        <p>All cutoff data on Compass comes from official DTE Maharashtra / CET Cell publications for the 2026 academic year. It reflects past admission rounds only and does not predict or guarantee any future outcome. Cutoffs in upcoming rounds may differ significantly.</p>
+        <h3>Use at your own discretion</h3>
+        <p>Compass helps students and families understand their options. It is not a substitute for official DTE communications, allotment letters, or counselling. Always check admission details at cetcell.mahacet.org before acting.</p>
+        <h3>Accuracy and completeness</h3>
+        <p>We work to publish accurate, complete data but can't guarantee it is free from errors, omissions or delays. If you find a discrepancy, please report it.</p>
+        <h3>Fee data</h3>
+        <p>Annual fees are based on Fee Regulating Authority (FRA) orders and are indicative. Confirm fees directly with the college.</p>
+        <h2 id="privacy">Privacy</h2>
+        <p>Your details and option form are saved in this browser only. Compass never stores candidate names or application IDs from the official lists.</p>
+        <h2 id="terms">Terms</h2>
+        <p>The full terms are unchanged from the current app; this mockup shows the page layout only.</p>
+      </article>
+    </div>
+    <p class="info">A reading layout: a narrow measure at 15px with generous line height, a sticky table of contents, and an “in short” box first, because most people read only that.</p>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+</body>
+</html>

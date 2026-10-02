@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Mockups</title>
+<link rel="stylesheet" href="compass.css">
+<style>
+body { background:var(--page); }
+.wrap { max-width:1100px; margin:0 auto; padding:48px 24px 64px; }
+.h1 { font-size:52px; }
+.system { margin-top:22px; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.system .card p { font-size:13px; color:var(--muted); margin-top:4px; }
+.sw { display:flex; gap:6px; margin-top:10px; }
+.sw i { width:28px; height:28px; border-radius:8px; display:block; border:1px solid var(--line); }
+.batch { margin-top:40px; }
+.batch .h2 { font-size:26px; }
+.grid { margin-top:14px; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.page-card { text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:6px; }
+.page-card:hover { border-color:var(--blue-soft); }
+.page-card p { font-size:13px; color:var(--muted); }
+.page-card .route { font:500 11px var(--mono); color:var(--muted-2); }
+.page-card.todo { opacity:.6; pointer-events:none; box-shadow:none; background:transparent; border-style:dashed; }
+@media (max-width:760px) { .system, .grid { grid-template-columns:1fr; } .h1 { font-size:36px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow"><span>Compass</span><span>Design pass, October 2026</span></div>
+  <h1 class="h1" style="margin-top:6px">Mockups</h1>
+  <p class="lede">Static pages with real CAP 2026 data from the local API. Each one has a Desktop/Phone switch and design notes you can hide.</p>
+
+  <div class="system">
+    <div class="card"><h2 class="h3">Merit ruler</h2><p>One log-scale strip of closing ranks with a pin for “you”. The same idea on every page: all of CAP, one student's options, one college, one branch's years.</p></div>
+    <div class="card"><h2 class="h3">Type</h2><p><b style="font:700 18px var(--display);font-stretch:85%">Anek Latin</b> for headings and big numbers (Ek Type, Mumbai). Poppins for text. <span class="mono">Geist Mono</span> for small figures.</p></div>
+    <div class="card"><h2 class="h3">Colour</h2><p>The app's Calm blue palette, unchanged. Blue means within reach; amber is the latest round.</p>
+      <div class="sw"><i style="background:#0f172a"></i><i style="background:#2563eb"></i><i style="background:#93c5fd"></i><i style="background:#eff6ff"></i><i style="background:#f59e0b"></i><i style="background:#f8fafc"></i></div></div>
+  </div>
+
+  <section class="batch">
+    <h2 class="h2">Core flow</h2>
+    <div class="grid">
+      <a class="card page-card" href="landing.html"><span class="route">/</span><h3 class="h3">Landing</h3><p>All of CAP on one ruler; branch groups as small rulers.</p></a>
+      <a class="card page-card" href="find.html"><span class="route">/find</span><h3 class="h3">Find colleges</h3><p>Answers in one row, results grouped by college, pin replaces the what-if slider.</p></a>
+      <a class="card page-card" href="colleges.html"><span class="route">/colleges</span><h3 class="h3">Colleges</h3><p>Every college with a strip of its branch cutoffs; sort by what's within reach.</p></a>
+      <a class="card page-card" href="college-page-reorder.html"><span class="route">/colleges/:code</span><h3 class="h3">College</h3><p>VJTI: merit ruler hero, two dumbbell charts, facts on the right.</p></a>
+      <a class="card page-card" href="branch.html"><span class="route">/colleges/:code/:choice</span><h3 class="h3">Branch trends</h3><p>Four years as ticks on the ruler; every seat type's trail in one chart.</p></a>
+    </div>
+  </section>
+
+  <section class="batch">
+    <h2 class="h2">Option form</h2>
+    <div class="grid">
+      <a class="card page-card" href="list.html"><span class="route">/list</span><h3 class="h3">My option form</h3><p>Auto-freeze zones drawn in the gutter; drag rows through them; checks worked out from the list.</p></a>
+      <a class="card page-card" href="add.html"><span class="route">/list/add</span><h3 class="h3">Add options</h3><p>Search every choice; filter for stretch choices on purpose.</p></a>
+      <a class="card page-card" href="compare.html"><span class="route">/compare</span><h3 class="h3">Compare</h3><p>One chart, one mark shape per college; facts with the best value marked.</p></a>
+      <a class="card page-card" href="export.html"><span class="route">/export</span><h3 class="h3">Export</h3><p>Big numbered choice codes, split so the college part is easy to check.</p></a>
+      <a class="card page-card" href="summary.html"><span class="route">/summary</span><h3 class="h3">Family summary</h3><p>An A4-shaped sheet: what the family sees is what prints.</p></a>
+    </div>
+  </section>
+  <section class="batch">
+    <h2 class="h2">Tools</h2>
+    <div class="grid">
+      <a class="card page-card" href="simulator.html"><span class="route">/simulator</span><h3 class="h3">Simulator</h3><p>Rounds reveal one by one; a grid shows which choices were open each round.</p></a>
+      <a class="card page-card" href="estimate.html"><span class="route">/estimate</span><h3 class="h3">Merit estimate</h3><p>Percentile becomes a range, drawn as a band on every branch cutoff.</p></a>
+      <a class="card page-card" href="allotment.html"><span class="route">/allotment</span><h3 class="h3">After allotment</h3><p>“Would waiting have paid off?” answered from last year, then freeze, float or slide.</p></a>
+      <a class="card page-card" href="eligibility.html"><span class="route">/eligibility</span><h3 class="h3">Eligibility</h3><p>Each special seat shows how many branches it adds for you.</p></a>
+      <a class="card page-card" href="branches.html"><span class="route">/branches</span><h3 class="h3">Branches</h3><p>Group cards with mini barcodes; every college offering the branch as dumbbells.</p></a>
+    </div>
+  </section>
+  <section class="batch">
+    <h2 class="h2">Everything else</h2>
+    <div class="grid">
+      <a class="card page-card" href="onboarding.html"><span class="route">/welcome/start</span><h3 class="h3">Onboarding</h3><p>One question per screen; the ruler appears at the merit step.</p></a>
+      <a class="card page-card" href="ask.html"><span class="route">/ask</span><h3 class="h3">Ask Compass</h3><p>Answers with round-by-round tiles and numbered sources.</p></a>
+      <a class="card page-card" href="guide.html"><span class="route">/guide</span><h3 class="h3">CAP guide</h3><p>Timeline, freeze/float/slide diagrams, and a seat-code decoder.</p></a>
+      <a class="card page-card" href="profile.html"><span class="route">/profile</span><h3 class="h3">My details</h3><p>Category cards with full names; the seat codes your answers unlock.</p></a>
+      <a class="card page-card" href="signin.html"><span class="route">/signin</span><h3 class="h3">Sign in</h3><p>Leads with what's already saved, not “coming soon”.</p></a>
+      <a class="card page-card" href="plans.html"><span class="route">/plans</span><h3 class="h3">Plans</h3><p>Season Pass marked by what it adds, and when in CAP it helps.</p></a>
+      <a class="card page-card" href="data.html"><span class="route">/data</span><h3 class="h3">Data sources</h3><p>The four-step pipeline and what's loaded, from /api/meta.</p></a>
+      <a class="card page-card" href="legal.html"><span class="route">/legal</span><h3 class="h3">Disclaimer</h3><p>A reading layout with an “in short” box first.</p></a>
+    </div>
+  </section>
+</div>
+</body>
+</html>

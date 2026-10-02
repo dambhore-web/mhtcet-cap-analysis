@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Export</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/plan.js"></script>
+<style>
+.downloads { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px; }
+body.phone .downloads { grid-template-columns:1fr; }
+.codes { margin-top:14px; display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; counter-reset:c; }
+.code { display:flex; align-items:baseline; gap:10px; padding:10px 12px; border:1px solid var(--line); border-radius:var(--r-md); background:#fff; }
+.code .i { font:700 18px/1 var(--display); font-stretch:80%; color:var(--muted-2); width:22px; text-align:right; }
+.code .v { font:500 17px/1 var(--mono); letter-spacing:.02em; color:var(--ink); }
+.code .v span { color:var(--muted-2); }
+.code .t { display:block; font-size:11px; color:var(--muted-2); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; }
+.copied { color:var(--safe-text); font-size:12px; font-weight:500; }
+</style>
+</head>
+<body data-page="list" data-mock="Export for CAP portal · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <nav class="crumbs"><a href="list.html">My CAP plan</a><span>/</span><span>Export</span></nav>
+    <h1 class="h1" style="margin-top:6px">Export for the CAP portal</h1>
+    <p class="lede">Type these choice codes into the CET Cell portal in the same order. Compass doesn't submit your form.</p>
+    <div id="steps" style="margin-top:20px"></div>
+
+    <div class="split" style="margin-top:22px">
+      <div class="col">
+        <section class="card">
+          <div class="card-head"><div><h2 class="h2">Your choice codes, in order</h2><p class="desc">The first five digits are the college code (grey), the rest pick the branch. Check each one against the portal as you type it.</p></div>
+            <button class="btn btn-primary right" type="button" id="copy">Copy all codes</button></div>
+          <div class="codes" id="codes"></div>
+        </section>
+        <p class="info">The preview table becomes the thing the student actually needs at the portal: big, numbered choice codes, split so the college part can be checked at a glance. The full table is in the PDF and Excel files.</p>
+      </div>
+      <aside class="col side">
+        <section class="card">
+          <h2 class="h2">Download</h2>
+          <div class="downloads"><button class="btn" type="button">PDF</button><button class="btn" type="button">Excel</button><button class="btn" type="button">CSV</button></div>
+          <p class="small" style="margin-top:10px">Merit 12,000 · OBC · <span id="n"></span> choices</p>
+        </section>
+        <section class="card">
+          <h2 class="h2">Before you submit</h2>
+          <ul class="link-list" style="margin-top:8px;color:var(--muted)">
+            <li>Run the <a href="simulator.html">simulator</a> once more after any change.</li>
+            <li>Stretch choices go above safe ones.</li>
+            <li>Lock the form on the portal before the deadline.</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const C = Compass;
+document.getElementById("n").textContent = PLAN.list.length;
+document.getElementById("codes").innerHTML = PLAN.list.map((o, i) => `<div class="code"><span class="i">${i + 1}</span><span><span class="v"><span>${o.choice.slice(0, 5)}</span>${o.choice.slice(5)}</span><span class="t" title="${C.esc(o.college)}">${C.esc(C.short(o.branch))}, ${C.esc(o.college.split(/[,(]/)[0])}</span></span></div>`).join("");
+document.getElementById("copy").onclick = (e) => { navigator.clipboard?.writeText(PLAN.list.map((o) => o.choice).join("\n")).catch(() => {}); e.target.textContent = "✓ Copied"; setTimeout(() => (e.target.textContent = "Copy all codes"), 2000); };
+C.planSteps(document.getElementById("steps"), 2);
+</script>
+</body>
+</html>

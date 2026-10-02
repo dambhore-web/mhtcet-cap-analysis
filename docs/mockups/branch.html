@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Branch Trends</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/branch-history.js"></script>
+<script src="data/colleges.js"></script>
+<style>
+.focus { margin-top:22px; display:grid; grid-template-columns:240px minmax(0,1fr); gap:10px 34px; align-items:center; padding:20px 24px 16px; }
+body.phone .focus { grid-template-columns:1fr; padding:16px; gap:14px; }
+.focus .controls { display:flex; flex-direction:column; gap:12px; }
+.sub { font-size:12px; color:var(--muted-2); margin-top:4px; }
+.years { display:flex; gap:6px; align-items:center; font-size:11px; color:var(--muted); flex-wrap:wrap; }
+.yr { display:inline-flex; align-items:center; gap:5px; }
+.yr i { width:10px; height:10px; border-radius:50%; display:inline-block; }
+.kv { margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.kv dt { font-size:11px; color:var(--muted-2); }
+.kv dd { margin:2px 0 0; }
+.trend { font:600 12px var(--body); }
+.trend.harder { color:#b91c1c; } .trend.easier { color:var(--safe-text); } .trend.steady { color:var(--muted-2); }
+details.table summary { color:var(--blue); font-size:12px; font-weight:500; margin-top:8px; }
+.other { list-style:none; padding:0; display:flex; flex-direction:column; gap:2px; margin-top:8px; }
+.other a { display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--line-soft); font-size:13px; color:var(--text); text-decoration:none; }
+.other a:hover { color:var(--blue); }
+.other .mono { font-size:12px; color:var(--muted-2); }
+</style>
+</head>
+<body data-page="branch" data-mock="Branch trends · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="colleges.html">Colleges</a><span>/</span><a href="college-page-reorder.html">VJTI, Matunga, Mumbai</a><span>/</span><span id="crumb-branch"></span></nav>
+    <div class="head-row" style="margin-top:6px">
+      <div>
+        <h1 class="h1" id="title"></h1>
+        <div class="eyebrow" style="margin-top:8px"><span>Choice code <span class="mono" id="code"></span></span><span>CAP <span class="mono">2023–26</span>, state-level lists</span></div>
+      </div>
+      <div class="actions"><button class="btn" type="button">+ Compare</button><button class="btn btn-primary" type="button">+ Add to option form</button></div>
+    </div>
+
+    <section class="card focus" aria-label="Four years for one seat type">
+      <div class="controls">
+        <label class="field"><span>Your state merit number</span><input class="big-input" id="merit" inputmode="numeric" autocomplete="off"></label>
+        <label class="field"><span>Seat type</span><select id="seat"></select></label>
+        <div class="field"><span>Round</span>
+          <div class="seg-light" role="group" aria-label="Round"><button type="button" data-round="I" aria-pressed="true">Round I</button><button type="button" data-round="last" aria-pressed="false">Last round</button></div>
+        </div>
+      </div>
+      <div>
+        <p class="verdict" aria-live="polite" id="verdict"></p>
+        <p class="sub" id="verdict-sub"></p>
+        <div class="chart-wrap" id="ruler" style="margin-top:8px"></div>
+        <div class="ruler-hint"><span>← harder to get</span><span class="mid">Each tick is one year's closing rank</span><span>easier to get →</span></div>
+      </div>
+    </section>
+    <p class="info">The merit ruler again, but the ticks are years. A student sees in one glance whether their merit would have got in each year, instead of reading a line chart with an inverted axis.</p>
+
+    <div class="split" style="margin-top:20px">
+      <div class="col">
+        <section class="card">
+          <div class="card-head">
+            <div><h2 class="h2">Closing rank by year</h2><p class="desc" id="trend-desc"></p></div>
+          </div>
+          <div class="legend" style="margin:12px 0 4px"><span><span class="dot dot-r1"></span>Round I</span><span><span class="dot dot-last"></span>Final round</span><span><span class="dash"></span>Your merit</span><span style="color:var(--muted-2)">Higher on the chart = harder to get. One dumbbell per year; when only one dot shows, both rounds closed at the same rank.</span></div>
+          <div class="chart-wrap" id="trend"></div>
+          <p class="small" id="trend-note" style="margin-top:6px"></p>
+        </section>
+        <p class="info">The year-by-year chart is drawn as one vertical dumbbell per year (Round I to the final round), the same encoding as the college page, so each year reads on its own without a line implying a trend between years. Your merit is the dashed line. It follows the seat type picked above or clicked in the chart below.</p>
+        <section class="card">
+          <div class="card-head">
+            <div><h2 class="h2">Every seat type, four years</h2><p class="desc">Each row is a seat type. Dots run from 2023 (pale) to 2026 (dark). Further left is harder.</p></div>
+          </div>
+          <div class="years" id="year-key" style="margin:12px 0 4px"></div>
+          <div class="chart-wrap" id="trails"></div>
+          <details class="table">
+            <summary>Show as a table</summary>
+            <div style="overflow-x:auto;margin-top:8px"><table class="t" id="table"></table></div>
+          </details>
+        </section>
+        <p class="info">One chart for all seat types replaces the single-line chart plus the 27-row table: the table is still there, folded. Rows are sorted hardest first, and clicking a row moves the ruler above to that seat type.</p>
+      </div>
+      <aside class="col side">
+        <section class="card">
+          <h2 class="h2">Your chances, by year</h2>
+          <dl class="kv" id="chances"></dl>
+          <p class="small" id="chance-note" style="margin-top:10px"></p>
+        </section>
+        <section class="card">
+          <h2 class="h2">Other branches here</h2>
+          <ul class="other" id="other"></ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+
+<script>
+const C = Compass;
+const H = HISTORIES[new URLSearchParams(location.search).get("choice")] ?? HISTORY;
+const YEARS = H.years;
+const YC = ["#bfdbfe", "#93c5fd", "#3b82f6", "#1d4ed8"];
+const RI = { I: 1, II: 2, III: 3, IV: 4 };
+// start the pin in the middle of this branch's Round I open cutoffs, so the first view is a mixed answer
+const r1open = H.rows.filter((r) => r[1] === "I" && r[2] === "GOPENS").map((r) => r[3]).sort((p, q) => p - q);
+let merit = r1open.length ? C.roundMerit(r1open[Math.floor(r1open.length / 2)]) : 1000, seat = "GOPENS", round = "I";
+
+// value[seatType][year] for the chosen round ("I", or the last round published that year)
+function table(rd = round) {
+  const by = {};
+  for (const [y, r, st, v] of H.rows) {
+    const e = ((by[st] ??= {})[y] ??= {});
+    e[RI[r]] = v;
+  }
+  const out = {};
+  for (const [st, ys] of Object.entries(by)) {
+    out[st] = {};
+    for (const [y, rs] of Object.entries(ys)) {
+      const ks = Object.keys(rs).map(Number).sort();
+      out[st][y] = rd === "I" ? rs[1] ?? null : rs[ks.at(-1)];
+    }
+  }
+  return out;
+}
+function trendOf(vals) {
+  const v = YEARS.map((y) => vals[y]).filter((x) => x != null);
+  if (v.length < 2) return ["steady", "—"];
+  const ch = (v.at(-1) - v[0]) / v[0];
+  return Math.abs(ch) < 0.08 ? ["steady", "steady"] : ch < 0 ? ["harder", "harder"] : ["easier", "easier"];
+}
+
+function render() {
+  const T = table();
+  document.getElementById("title").innerHTML = `${C.esc(H.branch)}<span class="sub" style="display:block;font:500 .52em/1.2 var(--display);font-stretch:90%;color:var(--muted);margin-top:6px">${C.esc(H.collegeName.replace("Institute(VJTI)", "Institute (VJTI)"))}</span>`;
+  document.getElementById("code").textContent = H.choiceCode;
+  document.getElementById("crumb-branch").textContent = H.branch;
+  document.getElementById("merit").value = C.fmt(merit);
+
+  const seats = Object.keys(T).filter((st) => YEARS.some((y) => T[st][y] != null));
+  const sel = document.getElementById("seat");
+  if (!sel.options.length) sel.innerHTML = seats.map((s) => `<option value="${s}">${C.esc(C.seatLabel(s))}</option>`).join("");
+  sel.value = seat;
+
+  const v = T[seat] ?? {};
+  const marks = YEARS.filter((y) => v[y] != null).map((y) => ({ value: v[y], label: String(y) }));
+  const inYears = marks.filter((m) => merit <= m.value).length;
+  const r = round === "I" ? "Round I" : "the last round";
+  document.getElementById("verdict").innerHTML = `At <span class="tnum">${C.fmt(merit)}</span>, you'd have got in <b>${inYears} of ${marks.length}</b> years.`;
+  const first = marks[0], last = marks.at(-1);
+  document.getElementById("verdict-sub").textContent = first && last
+    ? `${C.seatLabel(seat)}, ${r}: closed at ${C.fmt(first.value)} in ${first.label} and ${C.fmt(last.value)} in ${last.label}${last.value < first.value ? ", harder now" : last.value > first.value ? ", easier now" : ""}.`
+    : "";
+  const allVals = Object.values(T).flatMap((o) => Object.values(o)).filter(Boolean);
+  const dom = C.bounds(allVals.concat(merit));
+  C.ruler(document.getElementById("ruler"), marks, { merit, domain: C.bounds(marks.map((m) => m.value).concat(merit)), onChange: setMerit, aria: "Closing rank by year, with your merit" });
+
+  // trails
+  const rows = seats.map((st) => ({ st, vals: T[st], min: Math.min(...YEARS.map((y) => T[st][y] ?? Infinity)) })).sort((a, b) => a.min - b.min);
+  const wrap = document.getElementById("trails");
+  const W = wrap.clientWidth || 600, narrow = W < 520, LEFT = narrow ? 110 : 190, RIGHT = narrow ? 50 : 70, ROW = 30, TOP = 6, BTM = 30;
+  const Hh = TOP + rows.length * ROW + BTM, x = C.scale(dom, LEFT, W - LEFT - RIGHT);
+  let ticks = C.TICKS.filter((t) => t >= dom[0] && t <= dom[1]);
+  if (narrow) ticks = ticks.filter((_, i) => i % 2 === 0);
+  let s = `<svg viewBox="0 0 ${W} ${Hh}" style="height:${Hh}px" role="img" aria-label="Closing rank for each seat type, 2023 to 2026">`;
+  rows.forEach((d, i) => { if (d.st === seat) s += `<rect x="0" y="${TOP + i * ROW}" width="${W}" height="${ROW}" fill="#eff6ff"/>`; else if (i % 2 === 0) s += `<rect x="0" y="${TOP + i * ROW}" width="${W}" height="${ROW}" fill="#fafbfd"/>`; });
+  for (const t of ticks) s += `<line x1="${x(t)}" x2="${x(t)}" y1="${TOP}" y2="${Hh - BTM}" stroke="var(--line)"/><text x="${x(t)}" y="${Hh - BTM + 16}" text-anchor="middle" font-size="11" fill="var(--muted-2)" font-family="var(--mono)">${C.tick(t)}</text>`;
+  rows.forEach((d, i) => {
+    const cy = TOP + i * ROW + ROW / 2;
+    const pts = YEARS.map((y, k) => (d.vals[y] != null ? [x(d.vals[y]), k] : null)).filter(Boolean);
+    const [tr, tl] = trendOf(d.vals);
+    const label = C.seatLabel(d.st), max = narrow ? 14 : 26;
+    s += `<g class="trow" data-st="${d.st}" tabindex="0" role="button" style="cursor:pointer;outline:none">
+      <rect x="0" y="${cy - ROW / 2}" width="${W}" height="${ROW}" fill="transparent"/>
+      <text x="${LEFT - 12}" y="${cy + 4}" text-anchor="end" font-size="12" fill="${d.st === seat ? "var(--blue-deep)" : "var(--muted)"}" font-weight="${d.st === seat ? 600 : 400}" font-family="var(--body)">${C.esc(label.length > max ? label.slice(0, max - 1) + "…" : label)}<title>${C.esc(label)}: ${YEARS.map((y) => `${y} ${d.vals[y] != null ? C.fmt(d.vals[y]) : "—"}`).join(", ")}</title></text>
+      ${pts.length > 1 ? `<polyline points="${pts.map(([px]) => `${px},${cy}`).join(" ")}" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>` : ""}
+      ${pts.map(([px, k]) => `<circle cx="${px}" cy="${cy}" r="${k === YEARS.length - 1 ? 5.5 : 4}" fill="${YC[k]}" stroke="#fff" stroke-width="1"/>`).join("")}
+      <text x="${W - RIGHT + 10}" y="${cy + 4}" font-size="11" class="trend ${tr}" fill="${tr === "harder" ? "#b91c1c" : tr === "easier" ? "#15803d" : "#64748b"}" font-family="var(--body)" font-weight="600">${tl}</text>
+    </g>`;
+  });
+  s += `<line x1="${x(merit)}" x2="${x(merit)}" y1="${TOP - 2}" y2="${Hh - BTM}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3"/></svg>`;
+  wrap.innerHTML = s;
+  wrap.querySelectorAll(".trow").forEach((g) => {
+    const pick = () => { seat = g.dataset.st; render(); document.getElementById("trend").closest(".card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }); };
+    g.onclick = pick; g.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } };
+  });
+  document.getElementById("year-key").innerHTML = YEARS.map((y, k) => `<span class="yr"><i style="background:${YC[k]}"></i>${y}</span>`).join("") + `<span class="yr" style="margin-left:8px"><span class="dash"></span>You</span>`;
+
+  document.getElementById("table").innerHTML = `<thead><tr><th>Seat type</th>${YEARS.map((y) => `<th class="n">${y}</th>`).join("")}<th>Trend</th></tr></thead><tbody>` +
+    rows.map((d) => `<tr><td>${C.esc(C.seatLabel(d.st))}</td>${YEARS.map((y) => `<td class="n">${d.vals[y] != null ? C.fmt(d.vals[y]) : "—"}</td>`).join("")}<td><span class="trend ${trendOf(d.vals)[0]}">${trendOf(d.vals)[1]}</span></td></tr>`).join("") + "</tbody>";
+
+  document.getElementById("chances").innerHTML = YEARS.map((y) => {
+    const val = v[y];
+    return `<div><dt>${y}</dt><dd>${val == null ? '<span class="small">no seats</span>' : merit <= val ? `<span class="badge badge-safe">✓ In</span> <span class="small mono">${C.fmt(val)}</span>` : `<span class="badge badge-out">– Out</span> <span class="small mono">${C.fmt(val)}</span>`}</dd></div>`;
+  }).join("");
+  document.getElementById("chance-note").textContent = `${C.seatLabel(seat)}, ${r}. A closing rank that swings a lot between years means the seat pool is small.`;
+
+  trend();
+  const col = COLLEGES.find((c) => c.code === H.collegeCode);
+  document.getElementById("other").innerHTML = (col?.b ?? []).filter((b) => b[0] !== H.branch && b[3] === "S").sort((a, b) => a[2] - b[2])
+    .map((b) => `<li><a href="${(() => { const h = Object.values(HISTORIES).find((x) => x.collegeCode === H.collegeCode && x.branch === b[0]); return h ? "branch.html?choice=" + h.choiceCode : "#"; })()}"><span>${C.esc(b[0])}</span><span class="mono">${C.fmt(b[2])}</span></a></li>`).join("");
+}
+// Year-by-year line chart: Round I and last round for the chosen seat type, log scale, harder at the top
+function trend() {
+  const a = table("I")[seat] ?? {}, b = table("last")[seat] ?? {};
+  const vals = YEARS.flatMap((y) => [a[y], b[y]]).filter((v) => v != null).concat(merit);
+  const wrap = document.getElementById("trend");
+  const W = wrap.clientWidth || 600, narrow = W < 520, L = narrow ? 44 : 56, R = 24, T = 26, B = 34, Hh = narrow ? 220 : 260;
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const dom = [lo / 1.25, hi * 1.25];
+  const y = (v) => T + ((Math.log(v) - Math.log(dom[0])) / (Math.log(dom[1]) - Math.log(dom[0]))) * (Hh - T - B);
+  const x = (k) => L + ((k + 0.5) / YEARS.length) * (W - L - R);
+  const nice = [];
+  for (let p = 1; p <= 1e6; p *= 10) for (const m of [1, 1.5, 2, 3, 5, 7]) nice.push(m * p);
+  let ticks = nice.filter((t) => t >= dom[0] && t <= dom[1]);
+  while (ticks.length > 7) ticks = ticks.filter((_, i) => i % 2 === 0);
+  const tk = (t) => (t >= 1000 ? (t / 1000).toLocaleString("en-IN") + "k" : String(t));
+  let s = `<svg viewBox="0 0 ${W} ${Hh}" style="height:${Hh}px" role="img" aria-label="Closing rank by year for ${C.esc(C.seatLabel(seat))}">`;
+  for (const t of ticks) s += `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L - 8}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted-2)" font-family="var(--mono)">${tk(t)}</text>`;
+  YEARS.forEach((yr, k) => { s += `<text x="${x(k)}" y="${Hh - 10}" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="var(--mono)">${yr}</text>`; });
+  s += `<line x1="${L}" x2="${W - R}" y1="${y(merit)}" y2="${y(merit)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${W - R}" y="${y(merit) - 6}" text-anchor="end" font-size="11" fill="var(--ink)" font-family="var(--mono)" font-weight="600">You ${C.fmt(merit)}</text>`;
+  // one vertical dumbbell per year: Round I (hollow blue) to the final round (amber), no line between years
+  YEARS.forEach((yr, k) => {
+    const v1 = a[yr], v2 = b[yr], cx = x(k);
+    if (v1 == null && v2 == null) { s += `<text x="${cx}" y="${(T + Hh - B) / 2}" text-anchor="middle" font-size="11" fill="var(--muted-2)" font-family="var(--body)">no seats</text>`; return; }
+    const y1 = v1 != null ? y(v1) : null, y2 = v2 != null ? y(v2) : null;
+    const lab = (val, yy, left, col) => `<text x="${left ? cx - 12 : cx + 12}" y="${yy + 4}" text-anchor="${left ? "end" : "start"}" font-size="12" font-weight="600" fill="${col}" font-family="var(--mono)" stroke="#fff" stroke-width="4" paint-order="stroke">${C.fmt(val)}</text>`;
+    s += `<g><title>${yr}: Round I ${v1 != null ? C.fmt(v1) : "—"}, final round ${v2 != null ? C.fmt(v2) : "—"}</title>`;
+    if (y1 != null && y2 != null && v1 !== v2) s += `<line x1="${cx}" x2="${cx}" y1="${y1}" y2="${y2}" stroke="var(--amber)" stroke-width="4" stroke-linecap="round" opacity=".45"/>`;
+    if (y2 != null && v2 !== v1) s += `<circle cx="${cx}" cy="${y2}" r="6" fill="var(--amber)"/>` + lab(v2, y2, false, "var(--amber-text)");
+    if (y1 != null) s += `<circle cx="${cx}" cy="${y1}" r="6" fill="#fff" stroke="var(--blue)" stroke-width="2.5"/>` + lab(v1, y1, true, "var(--blue-deep)");
+    s += "</g>";
+  });
+  wrap.innerHTML = s + "</svg>";
+  document.getElementById("trend-desc").textContent = `${C.seatLabel(seat)}, CAP ${YEARS[0]}–${YEARS.at(-1)}, state-level lists.`;
+  const ya = YEARS.filter((yr) => a[yr] != null);
+  document.getElementById("trend-note").textContent = ya.length > 1
+    ? `Round I: ${C.fmt(a[ya[0]])} in ${ya[0]} → ${C.fmt(a[ya.at(-1)])} in ${ya.at(-1)} (${a[ya.at(-1)] < a[ya[0]] ? "harder" : a[ya.at(-1)] > a[ya[0]] ? "easier" : "no change"}, ${Math.abs(Math.round((a[ya.at(-1)] / a[ya[0]] - 1) * 100))}%).`
+    : "";
+}
+function setMerit(m) { if (m === merit) return; merit = m; render(); }
+document.getElementById("seat").onchange = (e) => { seat = e.target.value; render(); };
+document.getElementById("merit").onchange = (e) => { const m = parseInt(e.target.value.replace(/\D/g, ""), 10); if (m > 0) merit = m; render(); };
+document.querySelectorAll("[data-round]").forEach((b) => (b.onclick = () => {
+  round = b.dataset.round;
+  document.querySelectorAll("[data-round]").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  render();
+}));
+C.onRender(render);
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Simulator</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/plan.js"></script>
+<style>
+.run { margin-top:22px; display:flex; gap:24px; align-items:center; flex-wrap:wrap; padding:18px 24px; }
+.run dl { display:flex; gap:28px; flex-wrap:wrap; }
+.run dt { font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.06em; font-weight:600; }
+.run dd { margin:2px 0 0; }
+.run .actions { margin-left:auto; }
+.outcome { margin-top:20px; display:grid; grid-template-columns:repeat(4,1fr); gap:0; padding:0; overflow:hidden; }
+body.phone .outcome { grid-template-columns:1fr 1fr; }
+.rd { padding:16px 18px; border-right:1px solid var(--line-soft); opacity:0; transform:translateY(6px); transition:opacity .35s, transform .35s; }
+.rd:last-child { border-right:0; }
+.rd.in { opacity:1; transform:none; }
+.rd .r { font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.06em; font-weight:600; }
+.rd .p { font:700 30px/1 var(--display); font-stretch:80%; color:var(--ink); margin-top:6px; }
+.rd .b { font-weight:600; color:var(--ink); font-size:13px; margin-top:4px; }
+.rd .c { font-size:12px; color:var(--muted); }
+.rd .tag { margin-top:8px; }
+.rd.up { background:var(--tint-2); }
+.grid-wrap { overflow-x:auto; }
+table.track { width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+table.track th { font-size:11px; color:var(--muted-2); font-weight:500; padding:8px 6px; border-bottom:1px solid var(--line); text-align:center; }
+table.track th:nth-child(-n+2) { text-align:left; }
+table.track td { padding:8px 6px; border-bottom:1px solid var(--line-soft); text-align:center; vertical-align:middle; }
+table.track td.n { font:700 18px/1 var(--display); font-stretch:80%; color:var(--muted-2); width:34px; text-align:left; }
+table.track td.who { text-align:left; }
+table.track td.who b { display:block; font-weight:600; color:var(--ink); }
+table.track td.who span { font-size:11px; color:var(--muted-2); }
+.cell { display:inline-flex; flex-direction:column; align-items:center; gap:2px; min-width:72px; }
+.cell .d { width:12px; height:12px; border-radius:50%; background:#e2e8f0; }
+.cell.open .d { background:#bfdbfe; }
+.cell.held .d { width:16px; height:16px; background:var(--blue); box-shadow:0 0 0 4px var(--tint); }
+.cell.held.lock .d { background:var(--ink); box-shadow:0 0 0 4px #e2e8f0; }
+.cell .v { font:500 11px var(--mono); color:var(--muted-2); }
+.cell.held .v { color:var(--ink); font-weight:600; }
+tr.fz td:first-child { box-shadow:inset 3px 0 0 var(--blue-soft); }
+.key { display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin:12px 0 6px; align-items:center; }
+.key i { display:inline-block; border-radius:50%; margin-right:6px; vertical-align:-2px; }
+</style>
+</head>
+<body data-page="list" data-mock="Simulator · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <nav class="crumbs"><a href="list.html">My CAP plan</a><span>/</span><span>Simulator</span></nav>
+    <h1 class="h1" style="margin-top:6px">Test your option form</h1>
+    <p class="lede">Replays last year's four CAP rounds with your list and the auto-freeze rule, so you can see where you'd have landed.</p>
+    <div id="steps" style="margin-top:20px"></div>
+
+    <section class="card run">
+      <dl><div><dt>Merit</dt><dd class="num-l">12,000</dd></div><div><dt>Category</dt><dd class="num-l">OBC</dd></div><div><dt>Choices</dt><dd class="num-l" id="nc"></dd></div></dl>
+      <div class="actions"><a class="btn" href="list.html">Edit option form</a><button class="btn btn-primary btn-lg" id="go" type="button">Run the rounds</button></div>
+    </section>
+
+    <div id="result" hidden>
+      <p class="verdict" style="margin-top:24px" id="verdict"></p>
+      <p class="small" style="margin-top:4px" id="assume"></p>
+      <section class="card outcome" id="outcome" aria-label="Seat after each round"></section>
+
+      <section class="card" style="margin-top:20px">
+        <div class="card-head"><div><h2 class="h2">Round by round, every choice</h2><p class="desc">A dot means that choice had a seat for your merit in that round last year. The big dot is the seat you'd hold.</p></div></div>
+        <div class="key"><span><i style="width:12px;height:12px;background:#bfdbfe"></i>Seat open for you</span><span><i style="width:14px;height:14px;background:var(--blue)"></i>Your seat</span><span><i style="width:14px;height:14px;background:var(--ink)"></i>Locked by auto-freeze</span><span><i style="width:3px;height:12px;border-radius:1px;background:var(--blue-soft)"></i>Freeze zone (top 6)</span></div>
+        <div class="grid-wrap"><table class="track" id="track"></table></div>
+      </section>
+      <p class="info">The simulator's answer is staged like the real thing: the four rounds reveal one after another, then the grid shows why. Reading down a column shows which choices were open; reading across a row shows when a choice opened up.</p>
+    </div>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const C = Compass;
+const S = PLAN.sim;
+document.getElementById("nc").textContent = PLAN.list.length;
+C.planSteps(document.getElementById("steps"), 1);
+const RN = ["I", "II", "III", "IV"];
+
+function show() {
+  document.getElementById("result").hidden = false;
+  const fin = S.rounds.at(-1);
+  document.getElementById("verdict").innerHTML = fin.choice
+    ? `You'd have ended with <b>choice ${fin.preference}</b>: ${C.esc(fin.choice.branch)}, ${C.esc(fin.choice.collegeName.split(/[,(]/)[0])}.`
+    : "You wouldn't have been allotted a seat from this list.";
+  document.getElementById("assume").textContent = S.assumptions;
+  document.getElementById("outcome").innerHTML = S.rounds.map((r) => `<div class="rd${r.movedUp ? " up" : ""}">
+    <div class="r">Round ${r.round}</div>
+    ${r.choice ? `<div class="p">Choice ${r.preference}</div><div class="b">${C.esc(C.short(r.choice.branch))}</div><div class="c">${C.esc(r.choice.collegeName.split(/[,(]/)[0])}</div>` : `<div class="p">—</div><div class="c">No seat this round</div>`}
+    <div class="tag">${r.frozen && !r.frozenEarlier ? '<span class="badge" style="background:var(--ink);color:#fff">Locked: auto-freeze</span>' : r.frozenEarlier ? '<span class="badge badge-out">Kept</span>' : r.movedUp ? '<span class="badge badge-safe">↑ Moved up</span>' : r.choice ? '<span class="badge badge-later">Floating</span>' : ""}</div>
+  </div>`).join("");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll(".rd").forEach((el, i) => setTimeout(() => el.classList.add("in"), reduce ? 0 : 250 * i));
+
+  const held = Object.fromEntries(S.rounds.map((r) => [r.round, r]));
+  document.getElementById("track").innerHTML = `<thead><tr><th>#</th><th>Choice</th>${RN.map((r) => `<th>Round ${r}</th>`).join("")}</tr></thead><tbody>` +
+    S.grid.map((g) => `<tr class="${g.preference <= (S.freezeZones.III ?? 0) ? "fz" : ""}"><td class="n">${g.preference}</td>
+      <td class="who"><b>${C.esc(g.branch ?? g.choiceCode)}</b><span>${C.esc((g.collegeName ?? "").split(/[,(]/)[0])} · <span class="mono">${g.choiceCode}</span></span></td>
+      ${RN.map((r) => {
+        const c = g.byRound[r], h = held[r]?.preference === g.preference, lock = h && held[r].frozen;
+        return `<td><span class="cell${c ? " open" : ""}${h ? " held" : ""}${lock ? " lock" : ""}"><span class="d"></span><span class="v">${c ? C.fmt(c.closingMerit) : "—"}</span></span></td>`;
+      }).join("")}</tr>`).join("") + "</tbody>";
+}
+document.getElementById("go").onclick = (e) => { e.target.textContent = "Run again"; show(); };
+</script>
+</body>
+</html>
