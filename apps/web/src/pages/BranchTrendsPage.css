@@ -210,8 +210,9 @@
 }
 
 @media (max-width: 639px) {
-  .trends-focus { grid-template-columns: 1fr; padding: 16px; gap: 14px; }
-  .trends-controls { display: grid; grid-template-columns: 1fr 1fr; }
+  .trends-focus { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 14px; }
+  .trends-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .trends-field select { width: 100%; min-width: 0; }
   .trends-controls .trends-field:first-child { grid-column: 1 / -1; }
   .trends-verdict { font-size: 21px; }
   .trends-card { padding: 16px; }

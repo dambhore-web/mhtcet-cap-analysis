@@ -455,9 +455,17 @@ details.cp-fees-card:not([open]) .cp-more-c {
 }
 
 @media (max-width: 799px) {
+  /* stretch, not the desktop grid's start, or the charts measure their own content width */
   .cp-layout {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cp-col,
+  .cp-side {
+    width: 100%;
+    min-width: 0;
   }
 
   .cp-side {
