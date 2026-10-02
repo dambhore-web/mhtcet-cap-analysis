@@ -174,7 +174,7 @@ export function EstimatePage() {
             <button type="button" className="btn btn-secondary" onClick={() => navigate(`/find?merit=${mid}&est=1`)}>
               Explore with {formatNumber(mid)}
             </button>
-            <Link to="/profile" className="btn btn-ghost">Save it in My details</Link>
+            <Link to="/profile/details" className="btn btn-ghost">Save it in My details</Link>
           </div>
         </section>
       )}

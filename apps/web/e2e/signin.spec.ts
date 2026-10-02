@@ -13,7 +13,7 @@ test.describe("Sign-in without account settings", () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
-  test("My details offers sign-in as coming soon, and the details stay put", async ({ page }) => {
+  test("My account offers sign-in as coming soon", async ({ page }) => {
     await page.goto("/profile");
     await expect(page.getByRole("link", { name: "Sign in (coming soon)" })).toBeVisible();
     await expect(page.getByRole("region", { name: "Your account" })).toHaveCount(0);

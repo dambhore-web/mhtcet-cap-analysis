@@ -203,13 +203,6 @@
   padding-top: 20px;
 }
 
-.profile-account-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-}
-
 .profile-flag {
   display: inline-flex;
   align-items: center;

@@ -199,7 +199,7 @@ export function ListPage() {
               <p className="list-merit-bar">
                 Your merit <strong>{formatNumber(merit)}</strong>
                 <span className="badge badge-sample">{categoryLabel}</span>
-                <Link to="/profile">Change</Link>
+                <Link to="/profile/details">Change</Link>
               </p>
             ) : null}
 

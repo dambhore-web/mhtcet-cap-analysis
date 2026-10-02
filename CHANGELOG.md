@@ -7,6 +7,10 @@
   home / other-than-home-university open seats. `open-latest` now falls back to GOPENO, GOPENH, then
   ladies open seats, and says which per row; the colleges list labels non-state-level strips.
 ### Added
+- My account (#139): `/profile` is now a dashboard with your numbers, the next step, the option
+  form (count, top five, last edit, links) and a CAP timeline read from sourced CET Cell dates
+  (`apps/web/src/data/capCalendar.ts`; hidden until a schedule is published). The details form
+  moved to `/profile/details`.
 - Google sign-in with Supabase Auth (#15). Signed in, details, option form, compare list, allotment
   and CAP progress follow the student across devices (`user_store`, row-level security; newest copy
   of each piece wins). My details shows the account, sync state, sign out and delete saved data.

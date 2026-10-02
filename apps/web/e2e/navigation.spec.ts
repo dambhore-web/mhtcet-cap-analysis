@@ -95,7 +95,7 @@ test.describe("Phone menu @phone", () => {
     for (const path of [
       "/", "/?merit=5200", "/colleges", "/colleges/16006", "/colleges/16006/1600601910", "/compare", "/branches",
       "/list", "/list/add", "/simulator", "/export", "/allotment", "/summary",
-      "/ask", "/guide", "/guide?tab=codes", "/estimate", "/eligibility", "/data", "/plans", "/profile", "/legal", "/signin",
+      "/ask", "/guide", "/guide?tab=codes", "/estimate", "/eligibility", "/data", "/plans", "/profile", "/profile/details", "/legal", "/signin",
     ]) {
       await page.goto(path);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

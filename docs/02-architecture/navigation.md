@@ -68,6 +68,12 @@ over". Find colleges lives at `/find`; old result links (`/?merit=…`) redirect
 
 All five steps are linked, and each page ends with a "Next step" link.
 
+### My account (#139)
+`/profile` is the account dashboard (account menu, no top-nav place): your numbers, the next-step card,
+the option form (count, top five, last edit) and the CAP timeline. Dates come only from
+`apps/web/src/data/capCalendar.ts`, each with its CET Cell notice and checked-on date; the
+timeline is hidden while that list is empty. The details form is `/profile/details`.
+
 ### "What should I do next?" card (#135)
 Near the top of Find colleges, one card names the student's next step with one primary action and at
 most one secondary link (`components/NextStepCard.tsx`, rule in `lib/nextStep.ts`):

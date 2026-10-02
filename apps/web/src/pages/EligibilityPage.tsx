@@ -162,7 +162,7 @@ export function EligibilityPage() {
             <p>Counting branches…</p>
           )
         ) : (
-          <p><Link to="/profile">Add your merit number</Link> to see how many branches these seats add.</p>
+          <p><Link to="/profile/details">Add your merit number</Link> to see how many branches these seats add.</p>
         )}
         <button type="button" className="btn btn-primary" onClick={apply}>
           <Icon name="check" size={18} />
