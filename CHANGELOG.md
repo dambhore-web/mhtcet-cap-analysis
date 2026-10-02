@@ -2,6 +2,9 @@
 
 ## Unreleased
 ### Added
+- Option form checks: a Coverage block (#137) with the list's Likely / Target / Reach bar,
+  branch groups, districts and size, and two suggestions: more than 80% in one branch group, or
+  every choice in one district (lists of 5+). Branch groups moved to core (`branchGroupOf`).
 - Find colleges: Likely / Target / Reach tiles above the results (#136). Likely = within last
   year's Round I closing, Target = within a later round, Reach = at most 10% worse than the
   closing (`bandOf` in core, `docs/03-domain/result-bands.md`). A tile filters the list; option

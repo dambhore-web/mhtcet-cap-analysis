@@ -21,3 +21,8 @@ displays it.
 - Badges on each option lead with the band and keep the round, e.g. "Likely · Round I",
   "Target · Round III", so the badge and the tile always agree.
 - Colour is never the only signal: each band has its own icon and text; Reach is drawn dashed.
+
+## Also used by
+
+The option form's Coverage block (#137, `listCoverage` in `apps/web/src/lib/optionForm.ts`) counts
+the list's choices with the same rule, using each choice's last-round closing for Reach.
