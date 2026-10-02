@@ -22,8 +22,10 @@
 .find-head h1 {
   margin: 0;
   font-size: var(--text-2xl);
-  line-height: 1.2;
-  color: var(--navy);
+  font-weight: 700;
+  font-stretch: 82%;
+  line-height: 1.02;
+  color: var(--navy-deep);
 }
 
 .find-head p {
@@ -94,9 +96,10 @@
 
 .results-header h2 {
   margin: 0 0 6px;
-  font-size: var(--text-2xl);
+  font-size: 30px;
   font-weight: 700;
-  color: var(--navy);
+  font-stretch: 84%;
+  color: var(--navy-deep);
 }
 
 .results-header p {
@@ -111,42 +114,77 @@
   flex-wrap: wrap;
 }
 
-.results-stats {
+/* Summary: the merit ruler over every option; its pin is the "what if my merit were…" control */
+.results-overview {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 12px 24px;
+  align-items: center;
   margin-bottom: 20px;
+  padding: 20px 24px 16px;
 }
 
-.stat-card {
+.results-overview-main { min-width: 0; }
+
+.results-verdict {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-stretch: 88%;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--navy-deep);
+}
+
+.results-verdict b { color: var(--violet); font-weight: 700; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+.results-whatif-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 6px 0 0;
+  font-size: var(--text-xs);
+  color: var(--orange-shadow);
+}
+
+.results-counts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.results-count {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 16px;
-  background: var(--white);
-  border: 1px solid var(--line);
+  padding: 12px 14px;
   border-radius: var(--radius-md);
 }
 
-.stat-card strong {
-  font-family: var(--font-num);
-  font-size: var(--text-3xl);
+.results-count.safe { background: var(--safe-bg); }
+.results-count.later { background: var(--later-bg); }
+
+.results-count strong {
+  font-family: var(--font-display);
+  font-stretch: 82%;
+  font-size: 30px;
   font-weight: 700;
-  color: var(--violet);
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
-.stat-card span {
+.results-count.safe strong { color: var(--safe-text); }
+.results-count.later strong { color: var(--later-text); }
+
+.results-count span {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--muted);
-  font-weight: 600;
 }
-
-.stat-card.safe strong { color: var(--safe-text); }
-.stat-card.later strong { color: var(--later-text); }
 
 .results-toolbar {
   display: flex;
@@ -397,18 +435,13 @@
 
 /* ─── Responsive ─── */
 @media (max-width: 639px) {
-  .results-stats {
+  .results-overview {
     grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
   }
 
-  .stat-card {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 10px;
-  }
-
-  .stat-card strong {
-    font-size: var(--text-2xl);
+  .results-verdict {
+    font-size: 20px;
   }
 
   .result-filters {
@@ -486,33 +519,35 @@
 }
 
 .results-side-card {
-  padding: 16px;
+  padding: 18px;
   font-size: var(--text-sm);
 }
 
 .results-side-card h2 {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
+  font-size: var(--text-lg);
+  font-weight: 650;
+  color: var(--navy-deep);
 }
 
 .results-side-card p {
   margin: 0 0 8px;
 }
 
-.results-side-card input[type="range"] {
-  width: 100%;
-  accent-color: var(--violet);
-}
-
-.results-whatif-value {
-  font-family: var(--font-num);
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  color: var(--orange-shadow);
-}
-
-.results-side-note {
+.results-form-count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--muted-2);
   font-size: var(--text-xs);
-  color: var(--muted);
+}
+
+.results-form-count strong {
+  font-family: var(--font-display);
+  font-stretch: 82%;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--navy-deep);
 }
 
 .results-side-links {
