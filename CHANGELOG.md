@@ -2,6 +2,14 @@
 
 ## Unreleased
 ### Fixed
+- Web: the Content Security Policy now allows the Supabase origin; built deployments would
+  otherwise have blocked sign-in and sync (#131).
+- API: a dropped idle database connection no longer crashes the process (logged as `db_idle_error`).
+### Security
+- #131 follow-ups: `DATABASE_CA_CERT` verifies the database certificate (API and pipeline); in
+  production the API warns at startup about a missing `CORS_ORIGINS`, CA certificate or read-only
+  role; `npm run check:supabase -w @mhtcet/web` checks a project's sign-in setup; every held-back
+  production step is listed in `docs/09-devops/production-rollout.md`.
 - Colleges, landing, by-branch and estimate: 254 of 387 colleges were missing ("No state-level
   open seats") because only GOPENS was used, and most university-affiliated colleges have only
   home / other-than-home-university open seats. `open-latest` now falls back to GOPENO, GOPENH, then

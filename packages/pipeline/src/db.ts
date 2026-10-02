@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import pg from "pg";
 
 /**
@@ -9,10 +10,24 @@ export async function connectStaging(): Promise<pg.Client> {
   const url = process.env.DATABASE_URL_STAGING;
   console.log(`[DB] DATABASE_URL_STAGING set: ${Boolean(url)}`);
   if (!url) throw new Error("[DB] DATABASE_URL_STAGING is not set; build and validate only");
-  // Supabase pooler presents a certificate chain Node does not trust by default.
-  const client = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
+  // Verified against DATABASE_CA_CERT when set; see dbSsl.
+  const client = new pg.Client({ connectionString: url, ssl: dbSsl() });
   await client.connect();
   return client;
+}
+
+/**
+ * TLS for the Supabase database (#131 O3). With DATABASE_CA_CERT set (the PEM text, with real or
+ * \\n line breaks, or a path to the .crt/.pem file from Supabase → Project Settings → Database → SSL),
+ * the server certificate is verified. Without it the connection is still encrypted but not
+ * verified, as before: the pooler's chain isn't in Node's default trust store.
+ */
+export function dbSsl(env: NodeJS.ProcessEnv = process.env): { ca?: string; rejectUnauthorized: boolean } {
+  const v = env.DATABASE_CA_CERT?.trim();
+  if (!v) return { rejectUnauthorized: false };
+  const ca = v.includes("BEGIN CERTIFICATE") ? v.replace(/\\n/g, "\n").trim() : readFileSync(v, "utf8");
+  if (!ca.includes("BEGIN CERTIFICATE")) throw new Error("DATABASE_CA_CERT is not a PEM certificate");
+  return { ca, rejectUnauthorized: true };
 }
 
 /** Multi-row INSERT ... ON CONFLICT DO UPDATE for one batch. */

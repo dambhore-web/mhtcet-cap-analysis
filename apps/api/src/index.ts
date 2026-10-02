@@ -2,11 +2,13 @@ import { serve } from "@hono/node-server";
 import { createPool } from "./db.ts";
 import { loadCache } from "./startup.ts";
 import { createApp } from "./app.ts";
+import { securityWarnings } from "./securityChecks.ts";
 
 const CACHE_YEAR = 2026;
 const PORT = parseInt(process.env.PORT ?? "3001", 10);
 
 async function main() {
+  for (const warning of securityWarnings()) console.warn(JSON.stringify({ ts: new Date().toISOString(), event: "security_warning", warning }));
   const pool = createPool();
   const cache = await loadCache(pool, CACHE_YEAR);
 

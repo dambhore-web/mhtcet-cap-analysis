@@ -16,3 +16,45 @@ describe("database pool", () => {
     log.mockRestore();
   });
 });
+
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { dbSsl } from "../src/db.ts";
+import { securityWarnings } from "../src/securityChecks.ts";
+
+const PEM = "-----BEGIN CERTIFICATE-----\nMIIBfake\n-----END CERTIFICATE-----\n";
+
+describe("database TLS (#131 O3)", () => {
+  it("stays unverified without a CA, as before", () => {
+    expect(dbSsl({})).toEqual({ rejectUnauthorized: false });
+  });
+
+  it("verifies against a CA given as PEM text, including \n-escaped text from an env panel", () => {
+    expect(dbSsl({ DATABASE_CA_CERT: PEM })).toEqual({ ca: PEM.trim(), rejectUnauthorized: true });
+    expect(dbSsl({ DATABASE_CA_CERT: PEM.replace(/\n/g, "\\n") }).ca).toBe(PEM.trim());
+  });
+
+  it("reads a CA file path, and rejects a file that isn't a certificate", () => {
+    const dir = mkdtempSync(join(tmpdir(), "ca-"));
+    writeFileSync(join(dir, "prod-ca.crt"), PEM);
+    writeFileSync(join(dir, "bad.crt"), "not a cert");
+    expect(dbSsl({ DATABASE_CA_CERT: join(dir, "prod-ca.crt") })).toEqual({ ca: PEM, rejectUnauthorized: true });
+    expect(() => dbSsl({ DATABASE_CA_CERT: join(dir, "bad.crt") })).toThrow(/not a PEM certificate/);
+  });
+});
+
+describe("startup security warnings (#131)", () => {
+  it("are silent outside production", () => {
+    expect(securityWarnings({})).toEqual([]);
+  });
+
+  it("name each missing production setting", () => {
+    const w = securityWarnings({ NODE_ENV: "production", DATABASE_URL: "postgresql://postgres.ref:pw@host:5432/postgres" });
+    expect(w.join(" | ")).toMatch(/CORS_ORIGINS.*\|.*DATABASE_CA_CERT.*\|.*compass_api/);
+  });
+
+  it("are quiet when production is set up", () => {
+    expect(securityWarnings({ NODE_ENV: "production", CORS_ORIGINS: "https://compass.example", DATABASE_CA_CERT: "x", DATABASE_URL: "postgresql://compass_api.ref:pw@host:5432/postgres" })).toEqual([]);
+  });
+});

@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "e2e": "playwright test",
-    "e2e:install": "playwright install chromium --with-deps"
+    "e2e:install": "playwright install chromium --with-deps",
+    "check:supabase": "node --env-file=.env.local scripts/check-supabase.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
