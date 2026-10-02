@@ -86,8 +86,8 @@ export async function postAssistant(c: Context, cache: AppCache, injected?: Chat
   if (!checkRateLimit(`assistant:${ip}`, RATE_WINDOW_MS, RATE_MAX)) {
     return c.json({
       error: "rate_limited",
-      message: "You've reached the free question limit for this hour. Upgrade for unlimited access.",
-      upgradeUrl: "/plans",
+      // no paid plans while payments are deferred (docs/DECISIONS.md, 2026-10-02)
+      message: "You've reached the question limit for this hour. Try again later.",
     }, 429);
   }
 

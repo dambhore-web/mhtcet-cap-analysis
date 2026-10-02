@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { PAYMENTS_ENABLED } from "../lib/plans";
 import { useAuth } from "../lib/AuthContext";
 import { useList } from "../lib/list";
 import { Icon, type IconName } from "./Icon";
@@ -115,7 +116,7 @@ export function TopNav() {
               <span className="top-nav-menu-email">{user.email}</span>
               <Link role="menuitem" to="/profile">My account</Link>
               <Link role="menuitem" to="/profile/details">My details</Link>
-              <Link role="menuitem" to="/plans">Plans</Link>
+              {PAYMENTS_ENABLED && <Link role="menuitem" to="/plans">Plans</Link>}
               <button role="menuitem" type="button" onClick={signOut}>Sign out</button>
             </div>
           )}
@@ -146,10 +147,12 @@ export function TopNav() {
             <Icon name="user" />
             My account
           </Link>
-          <Link to="/plans" className={`top-nav-sheet-link${pathname.startsWith("/plans") ? " active" : ""}`}>
-            <Icon name="tag" />
-            Plans
-          </Link>
+          {PAYMENTS_ENABLED && (
+            <Link to="/plans" className={`top-nav-sheet-link${pathname.startsWith("/plans") ? " active" : ""}`}>
+              <Icon name="tag" />
+              Plans
+            </Link>
+          )}
           {user ? (
             <button type="button" className="top-nav-sheet-link" onClick={signOut}>Sign out</button>
           ) : (
