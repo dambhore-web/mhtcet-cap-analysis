@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isOpenSeat, seatTypeLabel, seatTypeShortLabel, seatTypeSortKey } from "../src/lib/seatType";
+import { isOpenSeat, seatTypeLabel, seatTypeParts, seatTypeShortLabel, seatTypeSortKey } from "../src/lib/seatType";
 
 describe("seatTypeLabel", () => {
   it("reads quota, category and level", () => {
@@ -55,5 +55,21 @@ describe("isOpenSeat", () => {
     expect(isOpenSeat("LOPENH")).toBe(true);
     expect(isOpenSeat("GOBCS")).toBe(false);
     expect(isOpenSeat("DEFOPENS")).toBe(false);
+  });
+});
+
+describe("seatTypeParts", () => {
+  it("splits a reserved code into quota, category and level", () => {
+    expect(seatTypeParts("gobcs")).toEqual([
+      { code: "G", part: "Quota", meaning: "General" },
+      { code: "OBC", part: "Category", meaning: "OBC" },
+      { code: "S", part: "Level", meaning: "State level" },
+    ]);
+    expect(seatTypeParts("PWDRSCS")?.map((p) => p.code)).toEqual(["PWDR", "SC", "S"]);
+    expect(seatTypeParts("LOPENH")?.[1].meaning).toBe("Open (general)");
+  });
+  it("keeps standalone codes whole and rejects others", () => {
+    expect(seatTypeParts("TFWS")).toEqual([{ code: "TFWS", part: "Special seat", meaning: "Tuition fee waiver (TFWS)" }]);
+    expect(seatTypeParts("XYZ")).toBeNull();
   });
 });
