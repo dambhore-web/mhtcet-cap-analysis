@@ -30,6 +30,25 @@ const REACH_TEXT: Record<Reach, string> = {
   unknown: "",
 };
 
+/** Rounds with an auto-freeze zone (core AUTO_FREEZE_TOP_N: Round I choice 1, II 1–3, III 1–6). */
+const FREEZE_ROUNDS = (["I", "II", "III"] as const).filter((r) => AUTO_FREEZE_TOP_N[r] != null);
+
+/**
+ * Three bars in the row's left edge, one per round: a bar is drawn where this position would lock a
+ * seat in that round, so the freeze zones read as brackets down the list (TASK-0004).
+ */
+function FreezeGutter({ rank, count }: { rank: number; count: number }) {
+  return (
+    <span className="list-gutter" aria-hidden="true">
+      {FREEZE_ROUNDS.map((r, k) => {
+        const n = Math.min(AUTO_FREEZE_TOP_N[r] ?? 0, count);
+        const on = rank <= n;
+        return <i key={r} className={`fz fz-${k}${on ? " on" : ""}${on && rank === 1 ? " top" : ""}${on && rank === n ? " bot" : ""}`} />;
+      })}
+    </span>
+  );
+}
+
 function SortableRow({
   item,
   index,
@@ -57,6 +76,7 @@ function SortableRow({
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`list-row${isDragging ? " dragging" : ""}${freeze ? " in-freeze" : ""}`}
     >
+      <FreezeGutter rank={rank} count={count} />
       <button type="button" className="drag-handle" {...attributes} {...listeners} aria-label={`Drag to reorder choice ${rank}, ${what}`}>
         <Icon name="menu" size={16} />
       </button>
@@ -173,8 +193,14 @@ export function ListPage() {
               </p>
             ) : null}
 
+            <p className="list-freeze-key">
+              {FREEZE_ROUNDS.map((r, k) => (
+                <span key={r}><i className={`fz fz-${k}`} />Auto-freeze from {formatRound(r)} (choice{AUTO_FREEZE_TOP_N[r] === 1 ? "" : "s"} 1{AUTO_FREEZE_TOP_N[r] === 1 ? "" : `–${AUTO_FREEZE_TOP_N[r]}`})</span>
+              ))}
+            </p>
             <div className="list-table card">
               <div className="list-table-head" aria-hidden="true">
+                <span>Freeze</span>
                 <span />
                 <span>#</span>
                 <span>College, branch and choice code</span>
