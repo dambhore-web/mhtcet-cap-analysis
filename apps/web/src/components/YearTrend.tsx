@@ -1,25 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { formatNumber, formatRound } from "../lib/format";
 import { logScale } from "../lib/logScale";
+import { useWidth } from "../lib/useWidth";
 import { seatTypeLabel } from "../lib/seatType";
 import { trendVerdict, yearSeries, type HistoryRow, type RoundMode } from "../lib/yearTrend";
 import "./YearTrend.css";
-
-/** Width of the element, kept up to date (charts are drawn at their real pixel width). */
-function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] {
-  const ref = useRef<T>(null);
-  const [w, setW] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const update = () => el.clientWidth > 0 && setW(el.clientWidth);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  return [ref, w];
-}
 
 /** Round-number ticks (1, 1.5, 2, 3, 5, 7 × 10ⁿ) for a narrow rank range; at most 7. */
 function niceTicks(lo: number, hi: number): number[] {

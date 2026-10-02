@@ -357,8 +357,8 @@
 }
 
 .compare-dot.in {
-  background: var(--safe-text);
-  border-color: var(--safe-text);
+  background: var(--violet);
+  border-color: var(--violet);
 }
 
 .compare-dot.static {
@@ -392,4 +392,24 @@
   .compare-overview-axis > span:first-child {
     display: none;
   }
+}
+
+/* Branch by branch: one row per branch, one mark shape per college (TASK-0004) */
+.compare-branches { margin-top: 20px; padding: 22px 24px; }
+.compare-branches h2 { margin: 0; font-size: var(--text-xl); font-weight: 650; color: var(--navy-deep); }
+.compare-key { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 0 6px; font-size: var(--text-xs); color: var(--muted); }
+.compare-key span { display: inline-flex; align-items: center; gap: 6px; }
+.compare-mark { flex: none; margin-right: 6px; vertical-align: -1px; }
+.compare-branches-chart { min-width: 0; }
+.compare-branches-chart svg { display: block; width: 100%; overflow: visible; }
+.cb-alt { fill: #fafbfd; }
+.cb-grid { stroke: var(--line); }
+.cb-axis { font-family: var(--font-mono); font-size: 11px; fill: var(--muted-2); }
+.cb-label { font-family: var(--font-body); font-size: 12px; fill: var(--muted); }
+.cb-label.reach { fill: var(--violet-deep); font-weight: 600; }
+.cb-span { stroke: #cbd5e1; stroke-width: 2; }
+.cb-you { stroke: var(--navy-deep); stroke-width: 1.5; stroke-dasharray: 4 3; }
+
+@media (max-width: 639px) {
+  .compare-branches { padding: 16px; }
 }

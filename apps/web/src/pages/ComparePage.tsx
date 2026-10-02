@@ -9,7 +9,99 @@ import { Icon } from "../components/Icon";
 import { formatNumber, formatRound } from "../lib/format";
 import { formatInr } from "../lib/plans";
 import { LadderAxis, ladderDomain } from "../components/MeritLadder";
+import { logBounds, logScale, ticksIn, tickLabel } from "../lib/logScale";
+import { useWidth } from "../lib/useWidth";
 import "./ComparePage.css";
+
+/** One colour and one shape per column, so colour is never the only difference. */
+const MARKS = [
+  { color: "var(--violet)", shape: "circle" },
+  { color: "var(--navy-deep)", shape: "square" },
+  { color: "var(--orange-shadow)", shape: "diamond" },
+] as const;
+
+function Mark({ k, x, y, r = 6 }: { k: number; x: number; y: number; r?: number }) {
+  const m = MARKS[k % MARKS.length];
+  if (m.shape === "circle") return <circle cx={x} cy={y} r={r} fill={m.color} />;
+  if (m.shape === "square") return <rect x={x - r + 1} y={y - r + 1} width={2 * r - 2} height={2 * r - 2} fill={m.color} />;
+  return <rect x={x - r + 1.5} y={y - r + 1.5} width={2 * r - 3} height={2 * r - 3} fill={m.color} transform={`rotate(45 ${x} ${y})`} />;
+}
+
+function MarkKey({ k }: { k: number }) {
+  return (
+    <svg width={12} height={12} viewBox="0 0 12 12" aria-hidden="true" className="compare-mark">
+      <Mark k={k} x={6} y={6} r={5.5} />
+    </svg>
+  );
+}
+
+/**
+ * Every branch the pinned colleges offer, one row each, with one mark per college at its
+ * latest-round general open closing rank. Further left is harder; the dashed line is the student.
+ */
+function CompareBranchChart({ pinned, dataMap, merit }: { pinned: { code: string; name: string }[]; dataMap: Record<string, CollegeData | null>; merit: number }) {
+  const [ref, width] = useWidth<HTMLDivElement>();
+  const byBranch = new Map<string, (number | null)[]>();
+  pinned.forEach((c, k) => {
+    const data = dataMap[c.code];
+    if (!data) return;
+    for (const b of new Set(data.cutoffs.map((r) => r.branch))) {
+      const vals = data.cutoffs.filter((r) => r.branch === b && r.seatType === "GOPENS").map((r) => r.closingMerit);
+      if (!vals.length) continue;
+      const row = byBranch.get(b) ?? pinned.map(() => null);
+      row[k] = Math.max(...vals);
+      byBranch.set(b, row);
+    }
+  });
+  const rows = [...byBranch.entries()]
+    .map(([branch, v]) => ({ branch, v, min: Math.min(...v.filter((x): x is number => x != null)) }))
+    .sort((a, b) => a.min - b.min);
+  if (rows.length === 0) return null;
+  const W = width || 700, narrow = W < 520, LEFT = narrow ? 110 : 230, RIGHT = 20, ROW = 32, TOP = 6, BTM = 30;
+  const H = TOP + rows.length * ROW + BTM;
+  const dom = logBounds(rows.flatMap((r) => r.v.filter((x): x is number => x != null)).concat(merit || []));
+  const x = logScale(dom, LEFT, W - LEFT - RIGHT);
+  const max = narrow ? 14 : 32;
+  return (
+    <section className="card compare-branches" aria-labelledby="compare-branches-title">
+      <h2 id="compare-branches-title">Branch by branch</h2>
+      <p className="compare-overview-note">Latest-round closing rank, general open (state level). Each row is a branch; each mark is one college. Further left is harder.</p>
+      <p className="compare-key">
+        {pinned.map((c, k) => <span key={c.code}><MarkKey k={k} />{c.name.split(/[,(]/)[0]}</span>)}
+        {merit ? <span><span className="ladder-key ladder-key--you" />Your merit</span> : null}
+      </p>
+      <div ref={ref} className="compare-branches-chart">
+        {width > 0 && (
+          <svg viewBox={`0 0 ${W} ${H}`} style={{ height: H }} role="img" aria-label="Closing rank by branch for each college">
+            {rows.map((r, i) => i % 2 === 0 && <rect key={r.branch} x={0} y={TOP + i * ROW} width={W} height={ROW} className="cb-alt" />)}
+            {ticksIn(dom, narrow).map((t) => (
+              <g key={t}>
+                <line x1={x(t)} x2={x(t)} y1={TOP} y2={H - BTM} className="cb-grid" />
+                <text x={x(t)} y={H - BTM + 16} textAnchor="middle" className="cb-axis">{tickLabel(t)}</text>
+              </g>
+            ))}
+            {rows.map((r, i) => {
+              const cy = TOP + i * ROW + ROW / 2;
+              const xs = r.v.filter((v): v is number => v != null).map(x);
+              const reach = merit > 0 && r.v.some((v) => v != null && merit <= v);
+              return (
+                <g key={r.branch}>
+                  <title>{`${r.branch}: ${pinned.map((c, k) => `${c.name.split(/[,(]/)[0]} ${r.v[k] != null ? formatNumber(r.v[k]!) : "—"}`).join(", ")}`}</title>
+                  <text x={LEFT - 12} y={cy + 4} textAnchor="end" className={reach ? "cb-label reach" : "cb-label"}>
+                    {r.branch.length > max ? r.branch.slice(0, max - 1) + "…" : r.branch}
+                  </text>
+                  {xs.length > 1 && <line x1={Math.min(...xs)} x2={Math.max(...xs)} y1={cy} y2={cy} className="cb-span" />}
+                  {r.v.map((v, k) => (v != null ? <Mark key={k} k={k} x={x(v)} y={cy} /> : null))}
+                </g>
+              );
+            })}
+            {merit > 0 && <line x1={x(merit)} x2={x(merit)} y1={TOP - 2} y2={H - BTM} className="cb-you" />}
+          </svg>
+        )}
+      </div>
+    </section>
+  );
+}
 
 interface CutoffRow {
   choiceCode: string;
@@ -96,6 +188,7 @@ export function ComparePage() {
       />
 
       <CompareOverview pinned={pinned} dataMap={dataMap} feesMap={feesMap} merit={merit} />
+      <CompareBranchChart pinned={pinned} dataMap={dataMap} merit={merit} />
 
       <div className="compare-scroll table-scroll">
         <div className="compare-grid" style={{ gridTemplateColumns: `repeat(${pinned.length}, minmax(240px, 1fr))` }}>
@@ -111,6 +204,7 @@ export function ComparePage() {
               <div key={c.code} className="compare-col">
                 <div className="compare-col-head">
                   <h2 className="compare-col-name">
+                    <MarkKey k={pinned.indexOf(c)} />
                     <Link to={`/colleges/${c.code}`}>{c.name}</Link>
                   </h2>
                   <div className="compare-col-code">Code {c.code}</div>
