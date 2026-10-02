@@ -9,6 +9,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { AddToFormButton } from "../components/AddToFormButton";
 import { formatNumber } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
+import { usePageMeta } from "../lib/seo";
 import "./AddOptionsPage.css";
 
 const PAGE = 50;
@@ -16,6 +17,7 @@ type Status = "loading" | "done" | "error";
 
 /** My CAP plan step 1b (#113): add any choice code, not only the ones Find listed. */
 export function AddOptionsPage() {
+  usePageMeta({ title: "Add options", noindex: true });
   const { profile } = useProfile();
   const list = useList();
   const merit = profile.meritNumber;

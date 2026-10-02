@@ -8,12 +8,14 @@ import { avatarTint, collegeInitials, formatNumber } from "../lib/format";
 import { logBounds, logScale, tickLabel, ticksIn } from "../lib/logScale";
 import { useProfile } from "../lib/ProfileContext";
 import { UNIVERSITIES } from "../lib/universities";
+import { usePageMeta } from "../lib/seo";
 import "./CollegesPage.css";
 
 type Status = "loading" | "done" | "error";
 type Sort = "az" | "reach" | "hard" | "easy";
 
 export function CollegesPage() {
+  usePageMeta({ title: "Maharashtra engineering colleges — CAP cutoffs", description: "Every engineering college in MHT-CET CAP with its branches' closing merit numbers, sortable by how hard each was to get. From the official CET Cell lists." });
   const [query, setQuery] = useState("");
   const [university, setUniversity] = useState("");
   const [district, setDistrict] = useState("");

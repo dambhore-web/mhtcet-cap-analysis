@@ -10,6 +10,7 @@ import { formatNumber, formatRound } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { CATEGORY_OPTIONS } from "../lib/categories";
 import { markSimulated } from "../lib/progress";
+import { usePageMeta } from "../lib/seo";
 import "./SimulatorPage.css";
 
 const ROUNDS = ["I", "II", "III", "IV"] as const;
@@ -31,6 +32,7 @@ function headline(r: SimulateResponse): string {
 
 /** My CAP plan step 2, journey J9: "Where would this list actually land me?" */
 export function SimulatorPage() {
+  usePageMeta({ title: "CAP round simulator", noindex: true });
   const { profile } = useProfile();
   const items = useList();
   const [result, setResult] = useState<SimulateResponse | null>(null);

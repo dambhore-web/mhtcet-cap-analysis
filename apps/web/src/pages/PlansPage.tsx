@@ -3,9 +3,11 @@ import { useAuth } from "../lib/AuthContext";
 import { PLANS, formatInr } from "../lib/plans";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
+import { usePageMeta } from "../lib/seo";
 import "./PlansPage.css";
 
 export function PlansPage() {
+  usePageMeta({ title: "Plans", noindex: true });
   const { user } = useAuth();
   const isPaid = user?.plan === "paid";
   const { free, seasonPass } = PLANS;

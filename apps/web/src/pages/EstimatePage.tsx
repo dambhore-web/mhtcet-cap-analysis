@@ -7,6 +7,7 @@ import { Icon } from "../components/Icon";
 import { formatNumber } from "../lib/format";
 import { logBounds, logScale, tickLabel, ticksIn } from "../lib/logScale";
 import { useWidth } from "../lib/useWidth";
+import { usePageMeta } from "../lib/seo";
 import "./EstimatePage.css";
 
 /**
@@ -56,6 +57,7 @@ interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disc
 
 /** Estimate a state merit number (from the MHT-CET percentile) or a JEE Main rank before the lists are out. */
 export function EstimatePage() {
+  usePageMeta({ title: "MHT-CET percentile to merit number estimate", description: "Estimate your state merit number range from your MHT-CET percentile, and see which branches that range reached in past CAP rounds." });
   const { profile } = useProfile();
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("cet");

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
 import { Icon, type IconName } from "../components/Icon";
 import { seatTypeLabel, seatTypeParts } from "../lib/seatType";
+import { usePageMeta } from "../lib/seo";
 import "./GuidePage.css";
 
 type Tab = "how" | "freeze" | "float" | "slide" | "codes" | "faq";
@@ -23,6 +24,7 @@ function parseTab(v: string | null): Tab {
 }
 
 export function GuidePage() {
+  usePageMeta({ title: "How MHT-CET CAP works — rounds, seat codes, freeze, float, slide", description: "A plain-language guide to the CAP option form, the rounds, auto-freeze, freeze, float and slide, and seat type codes such as GOPENS and TFWS." });
   const [params, setParams] = useSearchParams();
   const tab = parseTab(params.get("tab"));
   const setTab = (t: Tab) => setParams(t === "how" ? {} : { tab: t }, { replace: true });

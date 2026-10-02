@@ -473,3 +473,31 @@ describe("seat matrix in the API", () => {
     expect(body.options[0].seats).toEqual({ seatType: null, branch: null });
   });
 });
+
+// ─── Sitemap (SEO) ──────────────────────────────────────────────────────────
+
+describe("GET /api/sitemap", () => {
+  it("lists colleges with cutoffs and the choice codes of their branches with cutoffs", async () => {
+    const cache = seedCache();
+    const res = await createApp(cache, stubPool).request("http://localhost/api/sitemap");
+    expect(res.status).toBe(200);
+    const b = (await res.json()) as { year: number; colleges: { code: string; branches: string[] }[] };
+    expect(b.year).toBe(cache.year);
+    expect(b.colleges.length).toBeGreaterThan(0);
+    for (const col of b.colleges) {
+      expect(cache.colleges.has(col.code)).toBe(true);
+      for (const cc of col.branches) {
+        expect(cache.branches.get(cc)?.collegeCode).toBe(col.code);
+        expect(cache.cutoffsByChoiceCode.get(cc)?.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("leaves out branches without cutoffs", async () => {
+    const cache = seedCache();
+    const [cc] = [...cache.cutoffsByChoiceCode.keys()];
+    cache.cutoffsByChoiceCode.set(cc, []);
+    const b = (await (await createApp(cache, stubPool).request("http://localhost/api/sitemap")).json()) as { colleges: { branches: string[] }[] };
+    expect(b.colleges.flatMap((c) => c.branches)).not.toContain(cc);
+  });
+});

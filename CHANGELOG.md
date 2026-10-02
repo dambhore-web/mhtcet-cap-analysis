@@ -27,6 +27,12 @@
   rate-limit message no longer says "Upgrade", and the Terms say Compass is free (sections on paid
   plans, refunds and GST removed).
 ### Added
+- SEO, first step (`docs/09-devops/seo.md`): every page sets its own title, description, canonical
+  URL and share tags (college and branch pages from their data); personal pages and missing
+  colleges are `noindex`; the build writes `robots.txt` and, when `VITE_SITE_URL` is set (production
+  only), `sitemap.xml` with 2,728 college and branch pages from the new `GET /api/sitemap`. Without
+  it, `robots.txt` blocks crawlers so staging stays out of search. Default description and share
+  text no longer say "where you can get a seat".
 - My account (#139): `/profile` is now a dashboard with your numbers, the next step, the option
   form (count, top five, last edit, links) and a CAP timeline read from sourced CET Cell dates
   (`apps/web/src/data/capCalendar.ts`; hidden until a schedule is published). The details form

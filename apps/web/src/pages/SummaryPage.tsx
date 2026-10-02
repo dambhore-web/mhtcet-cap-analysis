@@ -12,6 +12,7 @@ import { CATEGORY_OPTIONS } from "../lib/categories";
 import { formatNumber, formatRound } from "../lib/format";
 import { formatInr } from "../lib/plans";
 import { seatTypeShortLabel } from "../lib/seatType";
+import { usePageMeta } from "../lib/seo";
 import "./SummaryPage.css";
 
 const PLAN_WORD: Record<Advice, string> = {
@@ -28,6 +29,7 @@ function categoryLabel(v: string) {
 
 /** My CAP plan step 5, journeys J10 and J11: one page a parent can read from a shared link. */
 export function SummaryPage() {
+  usePageMeta({ title: "Family summary", noindex: true });
   const [params] = useSearchParams();
   const shared = useMemo(() => decodeSummary(params.get("p")), [params]);
   const badLink = params.has("p") && !shared;

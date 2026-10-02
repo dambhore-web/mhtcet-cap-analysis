@@ -11,9 +11,11 @@ import type { Profile } from "../lib/profile";
 import { FLAG_OPTIONS } from "../lib/categories";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
+import { usePageMeta } from "../lib/seo";
 import "./ProfilePage.css";
 
 export function ProfilePage() {
+  usePageMeta({ title: "My details", noindex: true });
   const { profile, setProfile, resetProfile, hasProfile } = useProfile();
   const { user } = useAuth();
   const navigate = useNavigate();

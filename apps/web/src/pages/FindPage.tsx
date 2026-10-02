@@ -17,6 +17,7 @@ import { AnswerTiles } from "../components/AnswerTiles";
 import { ScanProgress } from "../components/ScanProgress";
 import { MeritRuler } from "../components/MeritRuler";
 import { NextStepCard } from "../components/NextStepCard";
+import { usePageMeta } from "../lib/seo";
 import "./FindPage.css";
 import { pastSummary } from "../lib/yearTrend";
 import { BAND_LABELS, bandOf, type Band } from "@mhtcet/core";
@@ -41,6 +42,7 @@ type Status = "idle" | "loading" | "done" | "error";
 const MERIT_DEBOUNCE_MS = 600;
 
 export function FindPage() {
+  usePageMeta({ title: "Your options", noindex: true });
   const { profile, setProfile } = useProfile();
   const [searchParams, setSearchParams] = useSearchParams();
 

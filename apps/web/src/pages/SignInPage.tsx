@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { RETURN_KEY, useAuth } from "../lib/AuthContext";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
+import { usePageMeta } from "../lib/seo";
 import "./SignInPage.css";
 
 /** Only paths inside the app, so a crafted link can't send the student elsewhere after sign-in. */
@@ -18,6 +19,7 @@ function returnPath(): string {
 }
 
 export function SignInPage() {
+  usePageMeta({ title: "Sign in", noindex: true });
   const { user, loading: authLoading, configured, signIn } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();

@@ -16,6 +16,7 @@ import { eligibleSeatTypes, type CandidateProfile } from "@mhtcet/core";
 import { AddToFormButton } from "../components/AddToFormButton";
 import { listItemFrom } from "../lib/list";
 import { minorityOf } from "../lib/categories";
+import { collegeMeta, usePageMeta } from "../lib/seo";
 import "./CollegePage.css";
 
 interface CutoffRow {
@@ -226,6 +227,8 @@ export function CollegePage() {
   }
 
   const crumbs = [{ label: "Colleges", to: "/colleges" }, { label: data?.college.name ?? "College" }];
+
+  usePageMeta(data ? collegeMeta(data.college, branches.length, data.year) : error ? { title: "College not found", noindex: true } : null);
 
   // #138: only sections this college actually has; Cutoffs first, since it is why people come here
   const navSections = useMemo(() => {

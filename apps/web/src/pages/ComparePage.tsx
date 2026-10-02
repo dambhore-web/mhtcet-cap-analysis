@@ -12,6 +12,7 @@ import { LadderAxis, ladderDomain } from "../components/MeritLadder";
 import { logBounds, logScale, ticksIn, tickLabel } from "../lib/logScale";
 import { useWidth } from "../lib/useWidth";
 import { describeMeritGap } from "../lib/meritGap";
+import { usePageMeta } from "../lib/seo";
 import "./ComparePage.css";
 
 /** One colour and one shape per column, so colour is never the only difference. */
@@ -127,6 +128,7 @@ function gopensForBranch(cutoffs: CutoffRow[], branch: string, round: string): n
 }
 
 export function ComparePage() {
+  usePageMeta({ title: "Compare colleges", noindex: true });
   const { pinned, unpin } = useCompare();
   const { profile } = useProfile();
   const merit = profile.meritNumber ?? 0;

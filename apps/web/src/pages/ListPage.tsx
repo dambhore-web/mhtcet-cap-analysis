@@ -22,6 +22,7 @@ import { formatNumber, formatRound } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { CATEGORY_OPTIONS } from "../lib/categories";
 import { coverageChecks, freezeRoundOf, listChecks, listCoverage, reachOf, type ListCoverage, type Reach } from "../lib/optionForm";
+import { usePageMeta } from "../lib/seo";
 import "./ListPage.css";
 
 const REACH_TEXT: Record<Reach, string> = {
@@ -123,6 +124,7 @@ function SortableRow({
 
 /** My CAP plan step 1, journey J8: order the choices that go into the CAP option form. */
 export function ListPage() {
+  usePageMeta({ title: "Your option form", noindex: true });
   const { profile } = useProfile();
   const items = useList();
   const merit = profile.meritNumber;
