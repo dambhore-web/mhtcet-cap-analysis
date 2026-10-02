@@ -5,6 +5,9 @@ import { defineConfig, devices } from "@playwright/test";
  * (`apps/api/src/demo`), so no database or secrets are needed, locally or in CI.
  */
 const WEB_PORT = 5173;
+/** A second web server with sign-in turned on, against the fake Supabase in e2e/fixtures/supabase.ts (#23). */
+const AUTH_PORT = 5174;
+const SUPABASE_E2E_URL = "https://compass-e2e.supabase.co";
 /** E2E_LIVE=1 runs the real API against DATABASE_URL_STAGING instead of the demo dataset. */
 const LIVE = !!process.env.E2E_LIVE;
 
@@ -23,8 +26,9 @@ export default defineConfig({
   projects: LIVE
     ? [{ name: "live", use: { ...devices["Desktop Chrome"] }, grep: /@live/ }]
     : [
-        { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } }, grepInvert: /@phone|@live/ },
-        { name: "phone", use: { ...devices["Pixel 7"] }, grep: /@phone/ },
+        { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } }, grepInvert: /@phone|@live/, testIgnore: /[\\/]auth[\\/]/ },
+        { name: "phone", use: { ...devices["Pixel 7"] }, grep: /@phone/, testIgnore: /[\\/]auth[\\/]/ },
+        { name: "auth", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 }, baseURL: `http://localhost:${AUTH_PORT}` }, testMatch: /[\\/]auth[\\/].*\.spec\.ts$/ },
       ],
   webServer: [
     {
@@ -43,5 +47,17 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },
+    ...(LIVE
+      ? []
+      : [
+          {
+            command: `npm run dev -w @mhtcet/web -- --port ${AUTH_PORT} --strictPort`,
+            url: `http://localhost:${AUTH_PORT}`,
+            // sign-in on, pointed at a Supabase URL the tests intercept: nothing reaches the network
+            env: { ...process.env, VITE_SUPABASE_URL: SUPABASE_E2E_URL, VITE_SUPABASE_ANON_KEY: "e2e-anon-key" } as Record<string, string>,
+            reuseExistingServer: !process.env.CI,
+            timeout: 60_000,
+          },
+        ]),
   ],
 });
