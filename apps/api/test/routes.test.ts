@@ -367,6 +367,26 @@ describe("GET /api/branches/:choiceCode/history", () => {
   });
 });
 
+// ─── Every branch's open closing rank (landing page ruler) ───────────────────
+
+describe("GET /api/cutoffs/open-latest", () => {
+  it("lists each branch's GOPENS Round I and latest-round closing rank from the state list", async () => {
+    const cache = seedCache();
+    const base = { authority: "MH-CET-CELL", exam: "MHT-CET", year: 2026, list: "MH", choiceCode: "1002119110", collegeCode: "1002", section: "State Level", seatType: "GOPENS", stage: "I", closingPercentile: null, sourceFile: "test", sourcePage: 1 } as const;
+    cache.cutoffsByChoiceCode.set("1002119110", [
+      ...(cache.cutoffsByChoiceCode.get("1002119110") ?? []),
+      { ...base, round: "III", closingMerit: 120 },
+      { ...base, round: "I", closingMerit: 99 },
+    ]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/cutoffs/open-latest");
+    expect(res.status).toBe(200);
+    const b = (await res.json()) as { year: number; seatType: string; rows: [string, string, string, number | null, number, string | null][] };
+    expect(b.seatType).toBe("GOPENS");
+    // home-university rows (GOPENH) in the fixture are left out; only the GOPENS branch appears
+    expect(b.rows).toEqual([["1002119110", "1002", "Computer Engineering", 99, 120, "Computer & IT"]]);
+  });
+});
+
 // ─── Rank finder: earlier years on each option ───────────────────────────────
 
 describe("POST /api/rank-finder pastYears", () => {

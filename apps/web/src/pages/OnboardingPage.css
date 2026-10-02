@@ -21,8 +21,9 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-head);
-  font-size: var(--text-lg);
+  font-family: var(--font-display);
+  font-stretch: 95%;
+  font-size: 21px;
   font-weight: 700;
   color: var(--navy);
   text-decoration: none;
@@ -33,7 +34,7 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   background: var(--violet);
   color: var(--white);
 }
