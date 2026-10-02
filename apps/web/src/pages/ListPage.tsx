@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   DndContext,
@@ -11,7 +11,8 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { AUTO_FREEZE_TOP_N } from "@mhtcet/core";
+import { AUTO_FREEZE_TOP_N, BAND_LABELS } from "@mhtcet/core";
+import { api } from "../lib/api";
 import { saveList, removeFromList, useList, OPTION_FORM_MAX, type ListItem } from "../lib/list";
 import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
@@ -20,7 +21,7 @@ import { Icon } from "../components/Icon";
 import { formatNumber, formatRound } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { CATEGORY_OPTIONS } from "../lib/categories";
-import { freezeRoundOf, listChecks, reachOf, type Reach } from "../lib/optionForm";
+import { coverageChecks, freezeRoundOf, listChecks, listCoverage, reachOf, type ListCoverage, type Reach } from "../lib/optionForm";
 import "./ListPage.css";
 
 const REACH_TEXT: Record<Reach, string> = {
@@ -126,7 +127,16 @@ export function ListPage() {
   const items = useList();
   const merit = profile.meritNumber;
   const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === (profile.category ?? ""))?.label ?? "Open";
-  const checks = listChecks(items, merit);
+  const [districts, setDistricts] = useState<Map<string, string> | null>(null);
+  useEffect(() => {
+    let live = true;
+    api.colleges("")
+      .then((r) => live && setDistricts(new Map(r.colleges.filter((c) => c.district).map((c) => [c.code, c.district!]))))
+      .catch(() => {}); // coverage works without districts
+    return () => { live = false; };
+  }, []);
+  const coverage = items.length > 0 ? listCoverage(items, merit, districts ? (code) => districts.get(code) ?? null : undefined) : null;
+  const checks = [...listChecks(items, merit), ...(coverage ? coverageChecks(coverage) : [])];
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -240,22 +250,65 @@ export function ListPage() {
               </ul>
               <p className="list-side-note">Rules as published for 2025-26. <Link to="/guide?tab=freeze">Read more</Link></p>
             </section>
-            {checks.length > 0 && (
+            {coverage && (
               <section className="card list-side-card" aria-labelledby="list-checks-title">
                 <h2 id="list-checks-title" className="label">Checks on your list</h2>
-                <ul className="list-checks">
+                <CoveragePanel c={coverage} />
+                {checks.length > 0 && <ul className="list-checks">
                   {checks.map((c) => (
                     <li key={c.text} className={`list-check list-check--${c.level}`}>
                       <Icon name={c.level === "warn" ? "alert" : "help"} size={16} />
                       {c.text}
                     </li>
                   ))}
-                </ul>
+                </ul>}
               </section>
             )}
           </aside>
         </div>
       )}
+    </div>
+  );
+}
+
+const BAND_ORDER = ["likely", "target", "reach", "out"] as const;
+const pct = (share: number) => `${Math.round(share * 100)}%`;
+
+/** How the list is spread (#137): bands as one bar, then branch groups, districts and size. */
+function CoveragePanel({ c }: { c: ListCoverage }) {
+  return (
+    <div className="list-coverage" aria-label="Coverage">
+      {c.bands && (
+        <div className="lc-bands">
+          <div className="lc-bar" aria-hidden="true">
+            {BAND_ORDER.map((b) => c.bands![b] > 0 && <span key={b} className={`lc-seg lc-seg--${b}`} style={{ flexGrow: c.bands![b] }} />)}
+          </div>
+          <ul className="lc-legend">
+            {BAND_ORDER.map((b) => (
+              <li key={b} className={`lc-key lc-key--${b}`}>
+                <span className="lc-dot" aria-hidden="true" />
+                <strong className="mono">{c.bands![b]}</strong> {BAND_LABELS[b]}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <dl className="lc-facts">
+        <div>
+          <dt>Branch groups</dt>
+          <dd><strong className="mono">{c.groups.distinct}</strong>{c.groups.distinct > 1 && <> · most are {c.groups.top.name} ({pct(c.groups.top.share)})</>}{c.groups.distinct === 1 && <> · all {c.groups.top.name}</>}</dd>
+        </div>
+        {c.districts && (
+          <div>
+            <dt>Districts</dt>
+            <dd><strong className="mono">{c.districts.distinct}</strong>{c.districts.distinct > 1 ? <> · most in {c.districts.top.name} ({pct(c.districts.top.share)})</> : <> · all in {c.districts.top.name}</>}</dd>
+          </div>
+        )}
+        <div>
+          <dt>Choices</dt>
+          <dd><strong className="mono">{c.size}</strong> of {c.max} allowed</dd>
+        </div>
+      </dl>
     </div>
   );
 }

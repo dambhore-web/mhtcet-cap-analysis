@@ -1,4 +1,4 @@
-import { eligibleSeatTypes, rankFind, type CandidateProfile, type CollegeEligibilityContext } from "@mhtcet/core";
+import { BRANCH_GROUP_PATTERNS, eligibleSeatTypes, rankFind, type CandidateProfile, type CollegeEligibilityContext } from "@mhtcet/core";
 import { type AppCache, branchIntake, minorityCommunity } from "../startup.ts";
 
 export interface FindOptionsRequest {
@@ -16,16 +16,9 @@ export interface FindOptionsRequest {
     branchGroups?: string[] };
 }
 
-export const BRANCH_GROUP_PATTERNS: Record<string, RegExp> = {
-  "Computer & IT":        /computer|information\s+tech|data\s+sc|artificial\s+int|machine\s+learn|cyber/i,
-  "Electronics & Telecom": /electronics|e\.?\s*t\.?\s*c|telecom/i,
-  "Mechanical":           /mechanical/i,
-  "Civil":                /civil/i,
-  "Electrical":           /electrical/i,
-  "Chemical":             /chemical|petroleum|plastic/i,
-  "Instrumentation":      /instrument/i,
-  "Aerospace":            /aeronautical|aerospace/i,
-};
+// moved to core (single source of truth, shared with the option form coverage check, #137)
+export { BRANCH_GROUP_PATTERNS };
+
 
 const STATUS_ORDER = { "round-I": 0, "later-round": 1, "out-of-range": 2 } as const;
 

@@ -159,6 +159,24 @@ test("J8 · In what order should I fill my option form?", async ({ page }) => {
   expect((await download).suggestedFilename()).toBe("compass-option-form.xlsx");
 });
 
+test("J8 · the checks show how the list is spread, and suggest widening a narrow one (#137)", async ({ page }) => {
+  const cs = [
+    listItem("16006", "COEP Technological University", 0, "Computer Engineering", 600, 1740),
+    listItem("06007", "Vishwakarma Institute of Technology", 0, "Computer Engineering", 10200, 11340),
+    listItem("06271", "Pune Institute of Computer Technology", 0, "Computer Engineering", 4000, 5400),
+    listItem("03012", "Veermata Jijabai Technological Institute", 0, "Computer Engineering", 900, 1500),
+    listItem("06271", "Pune Institute of Computer Technology", 1, "Information Technology", 5000, 6000),
+  ];
+  await seed(page, { list: cs });
+  await page.goto("/list");
+  const coverage = page.getByLabel("Coverage");
+  await expect(coverage).toContainText("1 Likely");
+  await expect(coverage).toContainText("2 Target");
+  await expect(coverage).toContainText("all Computer & IT");
+  await expect(coverage).toContainText("5 of 300 allowed");
+  await expect(page.getByText(/100% of your choices are Computer & IT branches\. If Electronics & Telecom branches are acceptable to you/)).toBeVisible();
+});
+
 test("J9 · Where would this list actually land me?", async ({ page }) => {
   await seed(page, { list: FORM });
   await page.goto("/list");
