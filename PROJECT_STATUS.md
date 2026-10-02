@@ -1,6 +1,6 @@
 # Project status
 
-_Last updated: 2026-09-27_
+_Last updated: 2026-10-02_
 
 ## Current phase
 **Phase 2 done / Phase 4–5 started** — the 2026 data layer is built by AG-002 on branch
@@ -28,6 +28,10 @@ _Last updated: 2026-09-27_
     merit_lookup 240,141; loads are idempotent (checksums identical on re-run)
   - multi-state readiness: `authority` + `exam` on all tables and core types (operator decision)
 - Tests: 33 vitest tests with synthetic fixtures, incl. a privacy regression test for masking
+
+- **#136** Find colleges: Likely / Target / Reach tiles (Reach = up to 10% worse than last
+  year's closing; `docs/03-domain/result-bands.md`). **#138** College page section links.
+  Branch `feat/find-bands-college-nav`.
 
 ## In progress
 - **App redesign (TASK-0004)** on branch `feat/app-redesign` (from `Dev`, not pushed): every page
@@ -85,7 +89,7 @@ Nothing is blocked. The paid launch is gated on the legal items in `docs/07-secu
 
 ## Product decisions (2026-09-27)
 Name **Compass** · Maharashtra first, other states later (ADR-007) · build locally, host web and API on
-Railway (Vercel retired, #118) · plain CSS, no Tailwind · Google sign-in only · English only · free vs paid parked. UI mockups:
+Railway (Vercel retired, #118) · plain CSS, no Tailwind · Google sign-in only · English only · free vs paid parked. Reach band = up to 10% worse than last year's closing (2026-10-02, #136). UI mockups:
 https://claude.ai/artifact/AMQz7i84DpLtphboyZUZuD (private, 30 screens + journey map; supersedes
 the earlier phone mockup). Navigation and the 14 user journeys: `docs/02-architecture/navigation.md`. All decisions: `docs/DECISIONS.md`.
 
@@ -106,7 +110,7 @@ ADR-001 to ADR-006 accepted. Schema: `packages/pipeline/migrations/001_initial_s
 AG-002 ran its first build (this change). AG-001 designed only. LLM provider: `DECISION REQUIRED`.
 
 ## Test status
-`npm run typecheck` clean; `npm test` 33/33 passing.
+`npm run typecheck` clean; `npm test` 359/359 passing; Playwright e2e 46/46 on the demo dataset (2026-10-02).
 
 ## Deployment status
 Nothing deployed. Data exists only in the Supabase **staging** project. The COEP dashboard is a

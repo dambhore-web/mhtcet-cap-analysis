@@ -7,3 +7,4 @@ export * from "./eligibility.ts";
 export * from "./rankFinder.ts";
 export * from "./capRules.ts";
 export * from "./simulate.ts";
+export * from "./bands.ts";

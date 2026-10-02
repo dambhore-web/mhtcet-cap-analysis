@@ -387,6 +387,13 @@ svg {
   color: var(--out-text);
 }
 
+/* Reach (#136): just outside last year's closing; dashed so it never reads as a sure thing */
+.badge-reach {
+  background: var(--white);
+  color: var(--violet-deep);
+  border: 1px dashed var(--violet-soft);
+}
+
 .badge-sample {
   background: var(--warn-bg);
   color: var(--warn-text);

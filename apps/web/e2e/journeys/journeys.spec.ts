@@ -34,6 +34,20 @@ test("J1 · Which colleges could I get with my merit number?", async ({ page }) 
   // merit compared only as better / worse than the closing rank (#140)
   await expect(page.getByText(/\(\d[\d,]* (better|worse)\)/).first()).toBeVisible();
   await expect(page.getByText(/to spare|ranks short/)).toHaveCount(0);
+  // Likely / Target / Reach tiles (#136): a tile filters the list to exactly its count
+  const bands = page.getByRole("group", { name: "Filter by band" });
+  await expect(bands.getByRole("button")).toHaveCount(3);
+  await expect(page.getByText(/\bsafe\b/i)).toHaveCount(0);
+  const target = bands.getByRole("button", { name: /Target/ });
+  const targetCount = Number((await target.locator("strong").textContent())!.replace(/,/g, ""));
+  await target.click();
+  await expect(target).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "All options" }).click();
+  if (targetCount <= 30) await expect(page.locator(".option-row .badge-later")).toHaveCount(targetCount);
+  await expect(page.locator(".option-row .badge-safe")).toHaveCount(0);
+  await target.click();
+  await expect(target).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("button", { name: "By college" }).click();
   // earlier years on each option: how this merit fared against the same seat in 2023–2025
   await expect(page.getByText(/2023–2025: within the cutoff in \d of 3 years/).first()).toBeVisible();
   // seats of that seat type in the branch, from the CAP seat matrix
