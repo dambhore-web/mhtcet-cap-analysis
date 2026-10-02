@@ -30,8 +30,10 @@ export function CollegesPage() {
   const merit = profile.meritNumber;
   // Opens with the hardest colleges first (owner decision 2026-10-02)
   const [sort, setSort] = useState<Sort>("hard");
-  // Each college's branches at their latest-round general open, state-level closing rank
+  // Each college's branches at their latest-round open closing rank (state level where it has it)
   const [byCollege, setByCollege] = useState<Map<string, number[]> | null>(null);
+  // ...and which open seat types those ranks are for (GOPENS, GOPENO, GOPENH, LOPEN*)
+  const [seatsOf, setSeatsOf] = useState<Map<string, Set<string>>>(new Map());
 
   useEffect(() => {
     let live = true;
@@ -40,7 +42,12 @@ export function CollegesPage() {
       .then((r) => {
         if (!live) return;
         const m = new Map<string, number[]>();
-        for (const row of r.rows) m.set(row[1], [...(m.get(row[1]) ?? []), row[4]]);
+        const seats = new Map<string, Set<string>>();
+        for (const row of r.rows) {
+          m.set(row[1], [...(m.get(row[1]) ?? []), row[4]]);
+          seats.set(row[1], (seats.get(row[1]) ?? new Set()).add(row[6] ?? "GOPENS"));
+        }
+        setSeatsOf(seats);
         setByCollege(m);
       })
       .catch(() => live && setByCollege(new Map()));
@@ -194,7 +201,10 @@ export function CollegesPage() {
           {sorted.map((c) => {
             const pinned = isPinned(c.code);
             const vals = byCollege?.get(c.code) ?? [];
-            const reach = merit ? vals.filter((v) => merit <= v).length : null;
+            const seats = seatsOf.get(c.code);
+            const ladiesOnly = !!seats && [...seats].every((t) => t.startsWith("L"));
+            // ladies-only seats count as within reach only for a female profile
+            const reach = merit && !(ladiesOnly && profile.gender !== "F") ? vals.filter((v) => merit <= v).length : null;
             return (
               <li key={c.code} className="college-item">
                 <span className="college-item-tile" style={{ background: avatarTint(c.code) }} aria-hidden="true">
@@ -207,17 +217,18 @@ export function CollegesPage() {
                     {c.district ? ` · ${c.district}` : ""}
                     {c.collegeType ? ` · ${c.collegeType}` : ""}
                     {c.homeUniversity ? ` · ${c.homeUniversity}` : c.collegeType ? "" : " · Autonomous"}
+                    {seats && seatNote(seats) ? ` · ${seatNote(seats)}` : ""}
                   </span>
                 </Link>
                 <span className="college-item-strip">
                   {vals.length ? (
-                    <CollegeStrip vals={vals} merit={merit} domain={domain} name={c.name} />
+                    <CollegeStrip vals={vals} merit={reach == null && ladiesOnly ? null : merit} domain={domain} name={c.name} />
                   ) : byCollege ? (
-                    <span className="college-item-none">No state-level open seats</span>
+                    <span className="college-item-none">No open-seat cutoffs this year</span>
                   ) : null}
                 </span>
                 <span className={`college-item-reach${reach === 0 ? " none" : ""}`}>
-                  {vals.length ? (reach != null ? <><b>{reach}</b> of {vals.length}</> : <><b>{vals.length}</b> branches</>) : null}
+                  {vals.length ? (reach != null ? <><b>{reach}</b> of {vals.length}</> : ladiesOnly && merit ? "Women only" : <><b>{vals.length}</b> branches</>) : null}
                 </span>
                 <button
                   type="button"
@@ -259,4 +270,19 @@ function CollegeStrip({ vals, merit, domain, name }: { vals: number[]; merit: nu
       {merit != null && <line x1={x(merit)} x2={x(merit)} y1={0} y2={24} className="strip-you" />}
     </svg>
   );
+}
+
+/**
+ * Which open seats the strip shows, when it isn't simply state level. Most university-affiliated
+ * colleges have no state-level open seats, only home-university and other-than-home-university ones.
+ */
+function seatNote(seats: Set<string>): string | null {
+  const t = [...seats];
+  if (t.every((x) => x.startsWith("L"))) return "Ladies seats only";
+  if (t.every((x) => x === "GOPENS")) return null;
+  const nonState = t.some((x) => x === "GOPENO" || x === "GOPENH");
+  if (!nonState) return null;
+  const onlyHome = t.every((x) => x === "GOPENH");
+  const label = onlyHome ? "home-university open seats" : "outside-home-university open seats";
+  return t.includes("GOPENS") ? `Some branches: ${label}` : label.charAt(0).toUpperCase() + label.slice(1);
 }

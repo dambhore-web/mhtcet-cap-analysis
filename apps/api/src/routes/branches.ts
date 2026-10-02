@@ -12,26 +12,42 @@ export function getBranches(c: Context, cache: AppCache) {
 }
 
 /**
- * GET /api/cutoffs/open-latest — every branch's general open, state-level closing rank (GOPENS,
- * MH list) for Round I and the latest round of the cache year. Drives the landing page's
- * "all of CAP on one ruler". Rows: [choiceCode, collegeCode, branch, roundI | null, latest, group | null],
- * where group is the rank finder's branch group (BRANCH_GROUP_PATTERNS), so the web app doesn't
- * keep its own copy of the patterns.
+ * GET /api/cutoffs/open-latest — every branch's general open closing rank (MH list) for Round I and
+ * the latest round of the cache year. Drives the landing page's "all of CAP on one ruler".
+ * Rows: [choiceCode, collegeCode, branch, roundI | null, latest, group | null, seatType], where group
+ * is the rank finder's branch group (BRANCH_GROUP_PATTERNS) and seatType the open seat used
+ * (OPEN_FALLBACK).
  */
+/**
+ * Most university-affiliated colleges have no state-level open seat (GOPENS): their open seats are
+ * split into other-than-home-university (GOPENO, open to every MH student from outside that
+ * university) and home-university (GOPENH). Women's colleges have only ladies open seats (LOPEN*),
+ * which come last. Taken in this order, so those colleges aren't dropped.
+ */
+export const OPEN_FALLBACK = ["GOPENS", "GOPENO", "GOPENH", "LOPENS", "LOPENO", "LOPENH"] as const;
+
 export function getOpenLatest(c: Context, cache: AppCache) {
   const groups = Object.entries(BRANCH_GROUP_PATTERNS);
-  const rows: [string, string, string, number | null, number, string | null][] = [];
+  const rows: [string, string, string, number | null, number, string | null, string][] = [];
   for (const [choiceCode, cutoffs] of cache.cutoffsByChoiceCode) {
-    const open = cutoffs.filter((r) => r.list === "MH" && r.seatType === "GOPENS");
+    let seatType = "";
+    let open: typeof cutoffs = [];
+    for (const st of OPEN_FALLBACK) {
+      open = cutoffs.filter((r) => r.list === "MH" && r.seatType === st);
+      if (open.length) {
+        seatType = st;
+        break;
+      }
+    }
     if (open.length === 0) continue;
     const sorted = [...open].sort((a, b) => roundNumber(a.round) - roundNumber(b.round));
     const branch = cache.branches.get(choiceCode);
     if (!branch) continue;
     const r1 = sorted.find((r) => r.round === "I")?.closingMerit ?? null;
     const group = groups.find(([, re]) => re.test(branch.name))?.[0] ?? null;
-    rows.push([choiceCode, branch.collegeCode, branch.name, r1, sorted[sorted.length - 1].closingMerit, group]);
+    rows.push([choiceCode, branch.collegeCode, branch.name, r1, sorted[sorted.length - 1].closingMerit, group, seatType]);
   }
-  return c.json({ year: cache.year, seatType: "GOPENS", rows });
+  return c.json({ year: cache.year, seatTypes: OPEN_FALLBACK, rows });
 }
 
 /**
