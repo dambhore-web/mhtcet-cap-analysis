@@ -1,11 +1,55 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api, type MeritEstimate } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
 import { formatNumber } from "../lib/format";
+import { logBounds, logScale, tickLabel, ticksIn } from "../lib/logScale";
+import { useWidth } from "../lib/useWidth";
 import "./EstimatePage.css";
+
+/**
+ * The estimated merit range as a band over every branch's latest-round open closing rank: dark
+ * blue lines are within reach at either end, light blue ones depend on where in the range you land.
+ */
+function RangeBand({ lo, hi }: { lo: number; hi: number }) {
+  const [vals, setVals] = useState<number[] | null>(null);
+  const [ref, width] = useWidth<HTMLDivElement>();
+  useEffect(() => {
+    let live = true;
+    api.openLatest().then((r) => live && setVals(r.rows.map((x) => x[4]))).catch(() => live && setVals([]));
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (vals && vals.length === 0) return null;
+  const sure = (vals ?? []).filter((v) => hi <= v).length;
+  const maybe = (vals ?? []).filter((v) => lo <= v && v < hi).length;
+  const W = width || 600, H = 70;
+  const dom = logBounds(vals ?? [lo, hi]);
+  const x = logScale(dom, 4, W - 8);
+  return (
+    <div className="estimate-band">
+      {vals && (
+        <p className="estimate-band-text">
+          <b>{formatNumber(sure)}</b> branches were within reach at either end of the range, and <b>{formatNumber(maybe)}</b> more depend on where you land
+          (open, state-level seats, latest round).
+        </p>
+      )}
+      <div ref={ref}>
+        {vals && width > 0 && (
+          <svg viewBox={`0 0 ${W} ${H}`} style={{ height: H, width: "100%", display: "block" }} role="img" aria-label={`Your likely merit range ${formatNumber(lo)} to ${formatNumber(hi)} against every branch's closing rank`}>
+            <rect x={4} y={10} width={W - 8} height={34} rx={4} className="eb-bg" />
+            {vals.map((v, i) => <line key={i} x1={x(v)} x2={x(v)} y1={10} y2={44} className={hi <= v ? "eb-line sure" : lo <= v ? "eb-line maybe" : "eb-line"} />)}
+            <rect x={x(lo)} y={4} width={Math.max(x(hi) - x(lo), 2)} height={46} rx={4} className="eb-range" />
+            {ticksIn(dom, W < 520).map((t) => <text key={t} x={x(t)} y={62} textAnchor="middle" className="eb-axis">{tickLabel(t)}</text>)}
+          </svg>
+        )}
+      </div>
+    </div>
+  );
+}
 
 type Mode = "cet" | "jee";
 interface JeeEstimate { estimatedRank: number; rankRange: [number, number]; disclaimer: string; kind?: "all-india-merit" | "jee-rank"; }
@@ -121,10 +165,14 @@ export function EstimatePage() {
               : "A statistical estimate: treat it as a rough guide."}{" "}
             {cet.disclaimer}
           </p>
+          <RangeBand lo={cet.estimatedMeritRange[0]} hi={cet.estimatedMeritRange[1]} />
           <div className="estimate-actions">
-            <button type="button" className="btn btn-primary" onClick={() => navigate(`/find?merit=${mid}&est=1`)}>
+            <button type="button" className="btn btn-primary" onClick={() => navigate(`/find?merit=${cet.estimatedMeritRange[1]}&est=1`)}>
               <Icon name="search" size={18} />
-              Find options for {formatNumber(mid)}
+              Plan with {formatNumber(cet.estimatedMeritRange[1])} (the cautious end)
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={() => navigate(`/find?merit=${mid}&est=1`)}>
+              Explore with {formatNumber(mid)}
             </button>
             <Link to="/profile" className="btn btn-ghost">Save it in My details</Link>
           </div>
