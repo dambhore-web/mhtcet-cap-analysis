@@ -34,12 +34,15 @@
 }
 
 .elig-title {
-  font-size: var(--text-base);
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-stretch: 88%;
+  font-size: 19px;
+  font-weight: 650;
+  color: var(--navy-deep);
 }
 
 .elig-title code {
-  font-family: var(--font-num);
+  font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--violet);
 }
@@ -86,3 +89,7 @@
   font-size: var(--text-xs);
   color: var(--muted);
 }
+
+/* what each seat type adds for this student, shown before it is ticked (TASK-0004) */
+.elig-gain { font-size: var(--text-xs); font-weight: 600; color: var(--violet-deep); }
+.elig-gain.none { font-weight: 400; color: var(--muted-2); }
