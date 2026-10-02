@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { eligibleSeatTypes, type CandidateProfile } from "@mhtcet/core";
+import { seatTypeLabel } from "../lib/seatType";
 import { useNavigate, Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
 import type { Category } from "../lib/api";
@@ -28,6 +30,28 @@ export function ProfilePage() {
   });
   const [minority, setMinority] = useState(profile.minorityCommunity ?? "");
   const [meritError, setMeritError] = useState("");
+
+  // Seat codes from packages/core for the answers on screen: at a college in the student's home
+  // university area, and at any other college (H and O seats differ).
+  const codeGroups = useMemo(() => {
+    const candidate: CandidateProfile = {
+      candidature: "MH",
+      homeUniversity: homeUniversity || null,
+      category: category === "" || category === "OPEN" ? null : category,
+      gender,
+      ...flags,
+      minorityCommunity: minority || null,
+      meritNumber: 1,
+      subjectGroup,
+    };
+    const at = (hu: string | null) => eligibleSeatTypes(candidate, { homeUniversity: hu, minorityCommunity: null });
+    return homeUniversity
+      ? [
+          { label: "At colleges in your home university area", codes: at(homeUniversity) },
+          { label: "At other colleges", codes: at("another university") },
+        ]
+      : [{ label: "At any college (state-level seats; add your home university for more)", codes: at(null) }];
+  }, [homeUniversity, category, gender, flags, minority, subjectGroup]);
   const [saved, setSaved] = useState(false);
 
   function toggleFlag(flag: keyof typeof flags) {
@@ -186,6 +210,20 @@ export function ProfilePage() {
           <button type="button" className="btn btn-ghost profile-reset" onClick={handleReset}>Clear saved details</button>
         </div>
       </div>
+
+      <section className="card profile-codes" aria-labelledby="profile-codes-title">
+        <h2 id="profile-codes-title">Seat codes you can take</h2>
+        <p className="profile-hint">Worked out from your answers above (the same rules Compass uses for your results). These are the codes you'll see in cutoff lists.</p>
+        {codeGroups.map((g) => (
+          <div key={g.label} className="profile-codes-group">
+            <span className="label">{g.label}</span>
+            <div className="profile-codes-list">
+              {g.codes.map((c) => <abbr key={c} title={seatTypeLabel(c)}>{c}</abbr>)}
+            </div>
+          </div>
+        ))}
+        <p className="profile-hint"><Link to="/guide?tab=codes">How to read a seat code</Link></p>
+      </section>
 
       <div className="profile-account-row">
         <Link to="/signin" className="btn btn-secondary btn-sm">

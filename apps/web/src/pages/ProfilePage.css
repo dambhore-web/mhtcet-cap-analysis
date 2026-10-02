@@ -219,3 +219,10 @@
 .profile-reset {
   color: var(--danger-text);
 }
+
+/* seat codes the answers unlock, from packages/core (TASK-0004) */
+.profile-codes { margin-top: 16px; padding: 20px 22px; }
+.profile-codes h2 { margin: 0; font-size: var(--text-xl); font-weight: 650; color: var(--navy-deep); }
+.profile-codes-group { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.profile-codes-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.profile-codes-list abbr { padding: 3px 8px; border-radius: 6px; background: var(--lavender); font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--violet-deep); text-decoration: none; cursor: help; }
