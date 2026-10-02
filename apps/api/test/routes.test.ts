@@ -370,20 +370,41 @@ describe("GET /api/branches/:choiceCode/history", () => {
 // ─── Every branch's open closing rank (landing page ruler) ───────────────────
 
 describe("GET /api/cutoffs/open-latest", () => {
-  it("lists each branch's GOPENS Round I and latest-round closing rank from the state list", async () => {
+  const base = { authority: "MH-CET-CELL", exam: "MHT-CET", year: 2026, list: "MH", collegeCode: "1002", section: "State Level", seatType: "GOPENS", stage: "I", closingPercentile: null, sourceFile: "test", sourcePage: 1 } as const;
+  type Row = [string, string, string, number | null, number, string | null, string];
+
+  it("uses each branch's GOPENS Round I and latest-round closing rank when the branch has state-level seats", async () => {
     const cache = seedCache();
-    const base = { authority: "MH-CET-CELL", exam: "MHT-CET", year: 2026, list: "MH", choiceCode: "1002119110", collegeCode: "1002", section: "State Level", seatType: "GOPENS", stage: "I", closingPercentile: null, sourceFile: "test", sourcePage: 1 } as const;
     cache.cutoffsByChoiceCode.set("1002119110", [
       ...(cache.cutoffsByChoiceCode.get("1002119110") ?? []),
-      { ...base, round: "III", closingMerit: 120 },
-      { ...base, round: "I", closingMerit: 99 },
+      { ...base, choiceCode: "1002119110", round: "III", closingMerit: 120 },
+      { ...base, choiceCode: "1002119110", round: "I", closingMerit: 99 },
     ]);
     const res = await createApp(cache, stubPool).request("http://localhost/api/cutoffs/open-latest");
     expect(res.status).toBe(200);
-    const b = (await res.json()) as { year: number; seatType: string; rows: [string, string, string, number | null, number, string | null][] };
-    expect(b.seatType).toBe("GOPENS");
-    // home-university rows (GOPENH) in the fixture are left out; only the GOPENS branch appears
-    expect(b.rows).toEqual([["1002119110", "1002", "Computer Engineering", 99, 120, "Computer & IT"]]);
+    const b = (await res.json()) as { year: number; seatTypes: string[]; rows: Row[] };
+    expect(b.seatTypes).toEqual(["GOPENS", "GOPENO", "GOPENH", "LOPENS", "LOPENO", "LOPENH"]);
+    // the branch also has home-university rows, but its state-level seat wins
+    expect(b.rows.find((r) => r[0] === "1002119110")).toEqual(["1002119110", "1002", "Computer Engineering", 99, 120, "Computer & IT", "GOPENS"]);
+  });
+
+  it("falls back to GOPENO, then GOPENH, for colleges without state-level open seats", async () => {
+    const cache = seedCache();
+    const b = (await (await createApp(cache, stubPool).request("http://localhost/api/cutoffs/open-latest")).json()) as { rows: Row[] };
+    // the fixture has only home-university open seats: the college is no longer dropped
+    expect(b.rows.length).toBeGreaterThan(0);
+    expect(b.rows.every((r) => r[6] === "GOPENO" || r[6] === "GOPENH")).toBe(true);
+    const hOnly = b.rows.find((r) => r[6] === "GOPENH");
+    expect(hOnly).toBeDefined();
+    const code = hOnly![0];
+    cache.cutoffsByChoiceCode.set(code, [
+      ...(cache.cutoffsByChoiceCode.get(code) ?? []),
+      { ...base, choiceCode: code, section: "Other Than Home University", seatType: "GOPENO", round: "I", closingMerit: 77 },
+    ]);
+    const again = (await (await createApp(cache, stubPool).request("http://localhost/api/cutoffs/open-latest")).json()) as { rows: Row[] };
+    const row = again.rows.find((r) => r[0] === code)!;
+    expect(row[6]).toBe("GOPENO");
+    expect(row[4]).toBe(77);
   });
 });
 

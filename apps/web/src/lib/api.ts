@@ -15,6 +15,11 @@ export interface ResultFilters {
 /** MH: state merit number, state-quota seats. AI: All India merit number, All India seats (JEE Main). */
 export type Candidature = "MH" | "AI";
 
+export type OpenLatestRow = [string, string, string, number | null, number, string | null, string];
+
+/** Rows any student can compete for: leaves out ladies-only seats, for counts across all of CAP. */
+export const generalOpen = (rows: OpenLatestRow[]) => rows.filter((r) => !r[6]?.startsWith("L"));
+
 export const BRANCH_GROUPS = [
   "Computer & IT",
   "Electronics & Telecom",
@@ -261,9 +266,13 @@ export const api = {
       `/api/branches/${encodeURIComponent(choiceCode)}/history`,
     ),
   meta: () => get<DataMeta>("/api/meta"),
-  /** Every branch's general open, state-level closing rank: [choiceCode, collegeCode, branch, roundI, latest, group]. */
+  /**
+   * Every branch's open closing rank: [choiceCode, collegeCode, branch, roundI, latest, group, seatType].
+   * State level (GOPENS) where the branch has it, else other-than-home-university (GOPENO), home
+   * university (GOPENH), then ladies-only open seats at women's colleges (LOPEN*).
+   */
   openLatest: () =>
-    get<{ year: number; seatType: string; rows: [string, string, string, number | null, number, string | null][] }>("/api/cutoffs/open-latest"),
+    get<{ year: number; seatTypes: string[]; rows: OpenLatestRow[] }>("/api/cutoffs/open-latest"),
   collegeCutoffs: (code: string) =>
     get<{
       college: { code: string; name: string; status?: string | null; homeUniversity?: string | null; district?: string | null; collegeType?: string | null; totalIntake?: number | null };

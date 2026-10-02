@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+### Fixed
+- Colleges, landing, by-branch and estimate: 254 of 387 colleges were missing ("No state-level
+  open seats") because only GOPENS was used, and most university-affiliated colleges have only
+  home / other-than-home-university open seats. `open-latest` now falls back to GOPENO, GOPENH, then
+  ladies open seats, and says which per row; the colleges list labels non-state-level strips.
 ### Added
 - Option form checks: a Coverage block (#137) with the list's Likely / Target / Reach bar,
   branch groups, districts and size, and two suggestions: more than 80% in one branch group, or

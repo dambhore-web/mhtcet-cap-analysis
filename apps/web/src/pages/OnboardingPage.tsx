@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { api, BRANCH_GROUPS } from "../lib/api";
+import { api, generalOpen, BRANCH_GROUPS } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { CATEGORY_OPTIONS, FLAG_OPTIONS, MINORITY_OPTIONS } from "../lib/categories";
 import { UNIVERSITIES } from "../lib/universities";
@@ -21,14 +21,14 @@ import { MeritRuler } from "../components/MeritRuler";
 import "./OnboardingPage.css";
 
 /**
- * A first answer at the merit step: every branch's open, state-level closing rank as a barcode,
+ * A first answer at the merit step: every branch's general open closing rank as a barcode,
  * with the typed merit as the pin. Category and seat details come later, so this says so.
  */
 function MeritPreview({ text, onChange }: { text: string; onChange: (merit: number) => void }) {
   const [vals, setVals] = useState<number[] | null>(null);
   useEffect(() => {
     let live = true;
-    api.openLatest().then((r) => live && setVals(r.rows.map((x) => x[4]))).catch(() => live && setVals([]));
+    api.openLatest().then((r) => live && setVals(generalOpen(r.rows).map((x) => x[4]))).catch(() => live && setVals([]));
     return () => {
       live = false;
     };

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { api, BRANCH_GROUPS, type DataMeta } from "../lib/api";
+import { api, generalOpen, BRANCH_GROUPS, type DataMeta, type OpenLatestRow } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { formatNumber } from "../lib/format";
 import { logBounds, logScale } from "../lib/logScale";
@@ -26,14 +26,13 @@ const MORE = [
 /** Example merit for first-time visitors, so the ruler shows a mixed answer before anything is typed. */
 const EXAMPLE_MERIT = 12000;
 
-type OpenRow = [string, string, string, number | null, number, string | null];
 
 /** "/" for every visitor (#142, #144): all of CAP on one merit ruler, then how it works. */
 export function LandingPage() {
   const { hasProfile, profile } = useProfile();
   const resultsPath = hasProfile ? profileResultsPath(profile) : null;
   const [meta, setMeta] = useState<DataMeta | null>(null);
-  const [rows, setRows] = useState<OpenRow[] | null>(null);
+  const [rows, setRows] = useState<OpenLatestRow[] | null>(null);
   const [merit, setMerit] = useState<number>(profile.meritNumber ?? EXAMPLE_MERIT);
   const [meritText, setMeritText] = useState(formatNumber(profile.meritNumber ?? EXAMPLE_MERIT));
 
@@ -51,7 +50,7 @@ export function LandingPage() {
   useEffect(() => {
     let live = true;
     setRows(null);
-    api.openLatest().then((r) => live && setRows(r.rows)).catch(() => live && setRows([]));
+    api.openLatest().then((r) => live && setRows(generalOpen(r.rows))).catch(() => live && setRows([]));
     return () => {
       live = false;
     };
@@ -150,7 +149,7 @@ export function LandingPage() {
                   merit or worse.
                 </p>
                 <p className="landing-verdict-sub">
-                  Open, state-level seats in the latest CAP {meta?.year ?? ""} round. Your category, gender and home university open more seats than this; the
+                  General open seats in the latest CAP {meta?.year ?? ""} round (state level, or outside-home-university where a college has no state-level seats). Your category, gender and home university open more seats than this; the
                   next step counts those.
                 </p>
                 <MeritRuler

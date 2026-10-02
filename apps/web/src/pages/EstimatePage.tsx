@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { api, type MeritEstimate } from "../lib/api";
+import { api, generalOpen, type MeritEstimate } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
@@ -18,7 +18,7 @@ function RangeBand({ lo, hi }: { lo: number; hi: number }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   useEffect(() => {
     let live = true;
-    api.openLatest().then((r) => live && setVals(r.rows.map((x) => x[4]))).catch(() => live && setVals([]));
+    api.openLatest().then((r) => live && setVals(generalOpen(r.rows).map((x) => x[4]))).catch(() => live && setVals([]));
     return () => {
       live = false;
     };
@@ -34,7 +34,7 @@ function RangeBand({ lo, hi }: { lo: number; hi: number }) {
       {vals && (
         <p className="estimate-band-text">
           <b>{formatNumber(sure)}</b> branches were within reach at either end of the range, and <b>{formatNumber(maybe)}</b> more depend on where you land
-          (open, state-level seats, latest round).
+          (general open seats, latest round).
         </p>
       )}
       <div ref={ref}>

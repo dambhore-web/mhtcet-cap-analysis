@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api, BRANCH_GROUPS, type FindOption, type Category } from "../lib/api";
+import { api, generalOpen, BRANCH_GROUPS, type FindOption, type Category } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
@@ -129,7 +129,7 @@ export function BranchesPage() {
   const [retry, setRetry] = useState(0);
   const merit = profile.meritNumber;
 
-  // Every branch's open, state-level latest-round closing rank, by branch group, for the group cards
+  // Every branch's general open latest-round closing rank, by branch group, for the group cards
   const [groupVals, setGroupVals] = useState<Map<string, number[]> | null>(null);
   useEffect(() => {
     let live = true;
@@ -138,7 +138,7 @@ export function BranchesPage() {
       .then((r) => {
         if (!live) return;
         const m = new Map<string, number[]>();
-        for (const row of r.rows) if (row[5]) m.set(row[5], [...(m.get(row[5]) ?? []), row[4]]);
+        for (const row of generalOpen(r.rows)) if (row[5]) m.set(row[5], [...(m.get(row[5]) ?? []), row[4]]);
         setGroupVals(m);
       })
       .catch(() => undefined);
