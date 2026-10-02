@@ -2,6 +2,13 @@
 
 ## Unreleased
 ### Added
+- Find colleges: Likely / Target / Reach tiles above the results (#136). Likely = within last
+  year's Round I closing, Target = within a later round, Reach = at most 10% worse than the
+  closing (`bandOf` in core, `docs/03-domain/result-bands.md`). A tile filters the list; option
+  badges lead with the band. Never "safe".
+- College page: a sticky row of section links, Cutoffs · Branches · Fees · Placement, only for
+  the sections the college has (#138). Each section has its own URL (`/colleges/16006#placement`)
+  and the active link follows the scroll.
 - App redesign from the October 2026 mockups (TASK-0004, `docs/mockups/`), on branch
   `feat/app-redesign`.
   - Type: Anek Latin for headings and big figures, Geist Mono for small figures, Poppins for text;
