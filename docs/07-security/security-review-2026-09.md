@@ -82,3 +82,34 @@ alter role compass_api set default_transaction_read_only = on;
 | HTTPS only; HSTS | ✅ HSTS on web and API; CSP `upgrade-insecure-requests` |
 | CSP blocks inline scripts | ✅ `script-src 'self'` |
 | Rate limits on public routes; per-user on the assistant | ✅ Per-IP on all routes (S1, S2); ⏳ per-user after sign-in |
+
+## Follow-up: sign-in and #131 (2026-10-02)
+Reviewed the Google sign-in added in #15 and the code side of #131.
+
+**Fixed**
+- **Web CSP blocked Supabase.** `connect-src` allowed only the app and the API, so every built
+  deployment would have failed to finish sign-in or sync. `write-serve-headers.mjs` now adds the
+  `VITE_SUPABASE_URL` origin. Verified on a production build served with `serve` and the generated
+  headers: sync calls go through, no CSP violations.
+- **API crashed on a dropped idle DB connection** (unhandled pool `error`, seen locally as
+  `ECONNABORTED`). Now logged as `db_idle_error`; the pool replaces the connection.
+- **O3, code side:** the API and the pipeline verify the database certificate when
+  `DATABASE_CA_CERT` is set (PEM text or file path). Unset keeps today's behaviour.
+- **Startup warnings:** in production the API logs `security_warning` when `CORS_ORIGINS` or
+  `DATABASE_CA_CERT` is missing, or when `DATABASE_URL` uses the `postgres` owner role.
+
+**Checked and clean**
+- `user_store`: row-level security on; `anon` has no table rights; signed-out read, insert and
+  `put_user_item` calls are refused (staging, `npm run check:supabase -w @mhtcet/web`).
+- `put_user_item` runs as the caller (`security invoker`), so the policies apply; it never lets an
+  older copy overwrite a newer one; values are capped at 256 kB and keys to five names.
+- Sign-in return path only accepts paths inside the app (no open redirect).
+- The anon key is the only Supabase key in the web app; no `service_role` key anywhere in the repo.
+- The API stays read-only and has no access to user data.
+
+**Open: owner action**
+- **Turn off Email sign-up** in Supabase (Authentication → Sign In / Providers → Email) on staging
+  now and on production at rollout. It is on by default and lets anyone create email/password
+  accounts through the public API, outside the app. Google is the only planned sign-in.
+- O1, O2 and O3 as above; they are production settings and wait for the rollout
+  (`docs/09-devops/production-rollout.md`).
