@@ -252,9 +252,10 @@
 
 .landing-strip { display: block; width: 100%; height: 26px; }
 .landing-strip-bg { fill: var(--page); }
-.landing-strip line { stroke: #cbd5e1; stroke-width: 1; opacity: 0.9; }
-.landing-strip line.reach { stroke: var(--violet); opacity: 0.6; }
-.landing-strip line.landing-strip-you { stroke: var(--navy-deep); stroke-width: 2; opacity: 1; }
+/* non-scaling: the strip stretches to its card, the lines keep a readable width */
+.landing-strip line { stroke: #cbd5e1; stroke-width: 1.5; opacity: 0.9; vector-effect: non-scaling-stroke; }
+.landing-strip line.reach { stroke: var(--violet); opacity: 0.75; }
+.landing-strip line.landing-strip-you { stroke: var(--navy-deep); stroke-width: 2.5; opacity: 1; }
 
 .landing-more {
   display: grid;
@@ -312,3 +313,5 @@
   .landing-section { padding-top: 34px; }
   .landing-section h2 { font-size: 24px; }
 }
+
+.landing-load-error { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 10px 0 0; padding: 10px 14px; border-radius: var(--radius-md); background: var(--warn-bg); font-size: 13px; color: var(--warn-text); }
