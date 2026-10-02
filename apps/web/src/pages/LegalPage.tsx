@@ -160,7 +160,7 @@ function TermsTab() {
   return (
     <div className="legal-content">
       <h2>Terms of Service</h2>
-      <p className="legal-updated">Last updated: September 2026 · Effective: September 2026</p>
+      <p className="legal-updated">Last updated: October 2026 · Effective: October 2026</p>
 
       <p>
         These Terms of Service ("Terms") govern your use of the Compass web application. By accessing or using Compass, you agree to these Terms.
@@ -168,7 +168,7 @@ function TermsTab() {
 
       <h3>1. Service description</h3>
       <p>
-        Compass is an information tool that helps MHT-CET candidates explore engineering college admission cutoffs based on official 2026 data. The free tier is available to all users. A paid plan (Compass Pro) provides additional features including the AI admission assistant, CAP round simulator, and priority support.
+        Compass is an information tool that helps MHT-CET candidates explore engineering college admission cutoffs based on official CET Cell data.
       </p>
 
       <h3>2. Acceptable use</h3>
@@ -179,40 +179,32 @@ function TermsTab() {
         <li>You may not impersonate DTE, CET Cell, or any institution on this platform.</li>
       </ul>
 
-      <h3>3. Paid plans and refund policy</h3>
+      <h3>3. Price</h3>
       <p>
-        Paid subscriptions are billed monthly or annually. Payments are processed via Razorpay. All amounts are in INR and inclusive of applicable GST.
-      </p>
-      <p>
-        <strong>Refund policy:</strong> You may request a full refund within <strong>7 days</strong> of purchase if you have not used the paid features. After 7 days, or after using the AI assistant or simulator, refunds are at our discretion. To request a refund, email <a href="mailto:support@compass.app" className="legal-link">support@compass.app</a> with your order reference.
+        Compass is free to use, and we do not take payments. Some features, such as the AI assistant, have usage limits to keep the service available for everyone. If paid features are introduced later, these Terms will be updated before any payment is taken.
       </p>
 
-      <h3>4. GST and invoicing</h3>
-      <p>
-        Compass is operated by [Business Entity Name], GSTIN: [GSTIN]. A GST-compliant invoice is issued automatically for every paid transaction.
-      </p>
-
-      <h3>5. Intellectual property</h3>
+      <h3>4. Intellectual property</h3>
       <p>
         The Compass interface, brand, and code are proprietary. Cutoff data is sourced from official DTE Maharashtra publications and is reproduced here under fair use for educational purposes.
       </p>
 
-      <h3>6. Limitation of liability</h3>
+      <h3>5. Limitation of liability</h3>
       <p>
         Compass is provided "as is" without warranty of any kind. To the fullest extent permitted by law, we are not liable for decisions made based on information shown on this platform, including but not limited to college choices, admission outcomes, or financial decisions.
       </p>
 
-      <h3>7. Changes to terms</h3>
+      <h3>6. Changes to terms</h3>
       <p>
         We may update these Terms. Material changes will be notified in-app at least 7 days before taking effect. Continued use after the effective date constitutes acceptance.
       </p>
 
-      <h3>8. Governing law</h3>
+      <h3>7. Governing law</h3>
       <p>
         These Terms are governed by the laws of India. Disputes shall be subject to the exclusive jurisdiction of courts in Pune, Maharashtra.
       </p>
 
-      <h3>9. Contact</h3>
+      <h3>8. Contact</h3>
       <p>
         <a href="mailto:support@compass.app" className="legal-link">support@compass.app</a>
       </p>

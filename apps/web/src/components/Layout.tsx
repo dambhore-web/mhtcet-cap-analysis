@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { PAYMENTS_ENABLED } from "../lib/plans";
 import { TopNav } from "./TopNav";
 import { CompareBar, showsCompareBar } from "./CompareBar";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -25,7 +26,7 @@ export function Layout() {
           <nav aria-label="Footer" className="site-footer-links">
             <Link to="/guide">CAP guide</Link>
             <Link to="/data">Where our numbers come from</Link>
-            <Link to="/plans">Plans</Link>
+            {PAYMENTS_ENABLED && <Link to="/plans">Plans</Link>}
             <Link to="/legal">Disclaimer</Link>
             <Link to="/legal?tab=privacy">Privacy</Link>
             <Link to="/legal?tab=terms">Terms</Link>

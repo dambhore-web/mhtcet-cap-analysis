@@ -2,6 +2,12 @@
  * Single source for plan names, prices and limits shown anywhere in the app.
  * Pricing is still an open decision (docs/DECISIONS.md) — change it here only.
  */
+/**
+ * Payments are deferred until the app sees real traffic (owner decision 2026-10-02, docs/DECISIONS.md).
+ * While false, nothing in the app shows plans, prices or upgrade prompts, and /plans goes home.
+ */
+export const PAYMENTS_ENABLED = false;
+
 export const PLANS = {
   free: {
     name: "Free",

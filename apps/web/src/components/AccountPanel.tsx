@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { Icon } from "./Icon";
+import { PAYMENTS_ENABLED } from "../lib/plans";
 import "./AccountPanel.css";
 
 const SYNC_TEXT = { syncing: "Saving to your account…", synced: "Saved to your account", error: "Couldn't reach your account. Changes are kept here and saved when you're back online." } as const;
@@ -21,10 +22,12 @@ export function AccountPanel() {
           <Icon name="user" size={16} />
           {configured ? "Sign in to use on other devices" : "Sign in (coming soon)"}
         </Link>
-        <Link to="/plans" className="btn btn-ghost btn-sm">
-          See plans
-          <Icon name="arrowRight" size={16} />
-        </Link>
+        {PAYMENTS_ENABLED && (
+          <Link to="/plans" className="btn btn-ghost btn-sm">
+            See plans
+            <Icon name="arrowRight" size={16} />
+          </Link>
+        )}
       </div>
     );
   }

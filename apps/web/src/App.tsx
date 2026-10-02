@@ -16,6 +16,7 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { AccountPage } from "./pages/AccountPage";
 import { SignInPage } from "./pages/SignInPage";
 import { PlansPage } from "./pages/PlansPage";
+import { PAYMENTS_ENABLED } from "./lib/plans";
 import { GuidePage } from "./pages/GuidePage";
 import { SimulatorPage } from "./pages/SimulatorPage";
 import { EstimatePage } from "./pages/EstimatePage";
@@ -67,7 +68,7 @@ function AppRoutes() {
         <Route path="profile" element={<AccountPage />} />
         <Route path="profile/details" element={<ProfilePage />} />
         <Route path="signin" element={<SignInPage />} />
-        <Route path="plans" element={<PlansPage />} />
+        <Route path="plans" element={PAYMENTS_ENABLED ? <PlansPage /> : <Navigate to="/" replace />} />
         <Route path="guide" element={<GuidePage />} />
         <Route path="simulator" element={<SimulatorPage />} />
         <Route path="estimate" element={<EstimatePage />} />

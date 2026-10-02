@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
 import { api } from "../lib/api";
-import { PLANS } from "../lib/plans";
+import { PAYMENTS_ENABLED, PLANS } from "../lib/plans";
 import { formatNumber } from "../lib/format";
 import { CATEGORY_OPTIONS } from "../lib/categories";
 import { PageHeader } from "../components/PageHeader";
@@ -247,16 +247,30 @@ export function AskPage() {
         {limitReached ? (
           <div className="ask-limit-banner">
             <div className="ask-limit-text">
-              <strong>You've used all {FREE_LIMIT} free questions</strong>
-              <span>The {PLANS.seasonPass.name} includes unlimited questions.</span>
+              {PAYMENTS_ENABLED ? (
+                <>
+                  <strong>You've used all {FREE_LIMIT} free questions</strong>
+                  <span>The {PLANS.seasonPass.name} includes unlimited questions.</span>
+                </>
+              ) : serverLimited ? (
+                <>
+                  <strong>You've reached the question limit for this hour</strong>
+                  <span>Try again later. Find colleges and the CAP guide work as usual.</span>
+                </>
+              ) : (
+                <>
+                  <strong>That's {FREE_LIMIT} questions for this conversation</strong>
+                  <span>Reload the page to start a new one.</span>
+                </>
+              )}
             </div>
-            <Link to="/plans" className="btn btn-accent btn-sm">See plans</Link>
+            {PAYMENTS_ENABLED && <Link to="/plans" className="btn btn-accent btn-sm">See plans</Link>}
           </div>
         ) : (
           <>
             <div className="ask-usage-bar">
-              <span>{FREE_LIMIT - questionCount} of {FREE_LIMIT} free questions left</span>
-              <Link to="/plans" className="ask-upgrade-link">Unlimited with {PLANS.seasonPass.name}</Link>
+              <span>{FREE_LIMIT - questionCount} of {FREE_LIMIT} {PAYMENTS_ENABLED ? "free " : ""}questions left</span>
+              {PAYMENTS_ENABLED && <Link to="/plans" className="ask-upgrade-link">Unlimited with {PLANS.seasonPass.name}</Link>}
             </div>
             <div className="ask-input-row">
               <label htmlFor="ask-input" className="sr-only">Your question</label>
