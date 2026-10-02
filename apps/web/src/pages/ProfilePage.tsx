@@ -3,7 +3,6 @@ import { eligibleSeatTypes, type CandidateProfile } from "@mhtcet/core";
 import { seatTypeLabel } from "../lib/seatType";
 import { useNavigate, Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
-import { AccountPanel } from "../components/AccountPanel";
 import { useAuth } from "../lib/AuthContext";
 import type { Category } from "../lib/api";
 import { CATEGORY_OPTIONS, MINORITY_OPTIONS } from "../lib/categories";
@@ -88,6 +87,7 @@ export function ProfilePage() {
   return (
     <div className="page page--narrow profile-page">
       <PageHeader
+        breadcrumb={[{ label: "My account", to: "/profile" }, { label: "My details" }]}
         title="My details"
         subtitle={`Used to match you to the seat types you are eligible for. ${user ? "Saved to your account when you click Save details." : "Saved only in this browser."}`}
       />
@@ -228,7 +228,6 @@ export function ProfilePage() {
         <p className="profile-hint"><Link to="/guide?tab=codes">How to read a seat code</Link></p>
       </section>
 
-      <AccountPanel />
     </div>
   );
 }

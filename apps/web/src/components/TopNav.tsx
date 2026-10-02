@@ -105,7 +105,7 @@ export function TopNav() {
           ) : (
             <>
               <Link to="/profile" className={`top-nav-link top-nav-profile${pathname.startsWith("/profile") ? " active" : ""}`} aria-current={pathname.startsWith("/profile") ? "page" : undefined}>
-                My details
+                My account
               </Link>
               <Link to="/signin" state={{ from: pathname }} className="btn btn-primary btn-sm top-nav-signin">Sign in</Link>
             </>
@@ -113,7 +113,8 @@ export function TopNav() {
           {user && accountOpen && (
             <div className="top-nav-menu" role="menu">
               <span className="top-nav-menu-email">{user.email}</span>
-              <Link role="menuitem" to="/profile">My details</Link>
+              <Link role="menuitem" to="/profile">My account</Link>
+              <Link role="menuitem" to="/profile/details">My details</Link>
               <Link role="menuitem" to="/plans">Plans</Link>
               <button role="menuitem" type="button" onClick={signOut}>Sign out</button>
             </div>
@@ -143,7 +144,7 @@ export function TopNav() {
           <div className="top-nav-sheet-divider" />
           <Link to="/profile" className={`top-nav-sheet-link${pathname.startsWith("/profile") ? " active" : ""}`}>
             <Icon name="user" />
-            My details
+            My account
           </Link>
           <Link to="/plans" className={`top-nav-sheet-link${pathname.startsWith("/plans") ? " active" : ""}`}>
             <Icon name="tag" />

@@ -187,7 +187,7 @@ export function AskPage() {
       <div className="ask-context" aria-label="Answering for">
         <span className="label">Answering for</span>
         {chips.map((c) => <span key={c} className="ask-chip">{c}</span>)}
-        <Link to="/profile" className="ask-context-edit">{profile.meritNumber ? "Edit" : "Add your merit number"}</Link>
+        <Link to="/profile/details" className="ask-context-edit">{profile.meritNumber ? "Edit" : "Add your merit number"}</Link>
       </div>
 
       <div className="ask-layout">

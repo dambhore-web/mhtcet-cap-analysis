@@ -13,6 +13,7 @@ import { OnboardingWizard } from "./pages/OnboardingPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LegalPage } from "./pages/LegalPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { AccountPage } from "./pages/AccountPage";
 import { SignInPage } from "./pages/SignInPage";
 import { PlansPage } from "./pages/PlansPage";
 import { GuidePage } from "./pages/GuidePage";
@@ -63,7 +64,8 @@ function AppRoutes() {
         <Route path="list/add" element={<AddOptionsPage />} />
         <Route path="ask" element={<AskPage />} />
         <Route path="legal" element={<LegalPage />} />
-        <Route path="profile" element={<ProfilePage />} />
+        <Route path="profile" element={<AccountPage />} />
+        <Route path="profile/details" element={<ProfilePage />} />
         <Route path="signin" element={<SignInPage />} />
         <Route path="plans" element={<PlansPage />} />
         <Route path="guide" element={<GuidePage />} />

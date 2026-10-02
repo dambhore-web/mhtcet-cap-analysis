@@ -83,7 +83,7 @@ export function SimulatorPage() {
       <div className="sim-layout">
         <aside className="sim-setup card" aria-label="Simulation inputs">
           <dl className="sim-profile">
-            <div><dt>Merit number</dt><dd>{merit ? formatNumber(merit) : <Link to="/profile">Add merit number</Link>}</dd></div>
+            <div><dt>Merit number</dt><dd>{merit ? formatNumber(merit) : <Link to="/profile/details">Add merit number</Link>}</dd></div>
             <div><dt>Category</dt><dd>{categoryLabel}</dd></div>
             <div><dt>Choices in option form</dt><dd>{noPrefs ? <Link to="/list">Add options</Link> : formatNumber(items.length)}</dd></div>
           </dl>
@@ -102,7 +102,7 @@ export function SimulatorPage() {
               <ol className="sim-prereq-list">
                 <li className={noMerit ? "" : "done"}>
                   <Icon name={noMerit ? "minus" : "check"} size={16} />
-                  {noMerit ? <span><Link to="/profile">Add your merit number</Link> in My details</span> : "Merit number added"}
+                  {noMerit ? <span><Link to="/profile/details">Add your merit number</Link> in My details</span> : "Merit number added"}
                 </li>
                 <li className={noPrefs ? "" : "done"}>
                   <Icon name={noPrefs ? "minus" : "check"} size={16} />

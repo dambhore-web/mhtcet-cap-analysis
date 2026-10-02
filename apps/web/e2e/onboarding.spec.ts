@@ -158,7 +158,7 @@ test.describe("Answer tiles on Find colleges (#142)", () => {
     await expect(page).toHaveURL(/bg=Mechanical/);
 
     // the changed answers are saved to My details
-    await page.goto("/profile");
+    await page.goto("/profile/details");
     await expect(page.getByLabel("State merit number")).toHaveValue(/6,?000/);
   });
 

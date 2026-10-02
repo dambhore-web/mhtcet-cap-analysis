@@ -132,7 +132,7 @@ export function AllotmentPage() {
                       </li>
                     ))}
                   </ol>
-                  {!merit && <p className="allot-hint"><Link to="/profile">Add your merit number</Link> to see which of these opened up for you.</p>}
+                  {!merit && <p className="allot-hint"><Link to="/profile/details">Add your merit number</Link> to see which of these opened up for you.</p>}
                 </section>
               )}
             </>

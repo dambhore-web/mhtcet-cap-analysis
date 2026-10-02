@@ -286,7 +286,7 @@ export function BranchesPage() {
         }
         actions={
           !merit && (
-            <Link to="/profile" className="btn btn-secondary btn-sm">
+            <Link to="/profile/details" className="btn btn-secondary btn-sm">
               <Icon name="user" size={16} />
               Add your merit number
             </Link>
