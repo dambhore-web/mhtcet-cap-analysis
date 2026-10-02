@@ -593,3 +593,25 @@
     margin-left: 0;
   }
 }
+
+/* Likely / Target / Reach tiles (#136): a full-width row under the ruler; each is a filter */
+.results-overview { grid-template-columns: minmax(0, 1fr); }
+.results-bands { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.results-band { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 14px; border: 2px solid transparent; border-radius: var(--radius-md); text-align: left; cursor: pointer; }
+.results-band.likely { background: var(--safe-bg); }
+.results-band.target { background: var(--later-bg); }
+.results-band.reach { background: var(--white); border: 2px dashed var(--violet-soft); }
+.results-band[aria-pressed="true"] { border-style: solid; border-color: var(--navy-deep); }
+.results-band strong { font-family: var(--font-display); font-stretch: 82%; font-size: 30px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.results-band.likely strong { color: var(--safe-text); }
+.results-band.target strong { color: var(--later-text); }
+.results-band.reach strong { color: var(--violet-deep); }
+.results-band-name { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: var(--navy-deep); }
+.results-band-meaning { font-size: 11px; color: var(--muted); }
+.results-band-note { grid-column: 1 / -1; margin: 0; font-size: 11px; color: var(--muted-2); }
+@media (max-width: 479px) {
+  .results-bands { gap: 6px; }
+  .results-band { padding: 10px; }
+  .results-band strong { font-size: 24px; }
+  .results-band-meaning { display: none; }
+}

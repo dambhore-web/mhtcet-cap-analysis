@@ -18,6 +18,8 @@ import { ScanProgress } from "../components/ScanProgress";
 import { MeritRuler } from "../components/MeritRuler";
 import "./FindPage.css";
 import { pastSummary } from "../lib/yearTrend";
+import { BAND_LABELS, bandOf, type Band } from "@mhtcet/core";
+import type { IconName } from "../components/Icon";
 import { describeMeritGap } from "../lib/meritGap";
 
 /** What the last search was run with, so results can say "All India" or "estimated". */
@@ -78,6 +80,7 @@ export function FindPage() {
   const [showAll, setShowAll] = useState(false);
   const [view, setView] = useState<"college" | "all">("college");
   const [whatIf, setWhatIf] = useState<number | null>(null);
+  const [bandFilter, setBandFilter] = useState<Band | null>(null);
   const [whatIfOptions, setWhatIfOptions] = useState<FindOption[] | null>(null);
   const [whatIfLoading, setWhatIfLoading] = useState(false);
   const whatIfTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -274,11 +277,17 @@ export function FindPage() {
   }, [options, whatIf, whatIfOptions]);
   const roundI = shown.filter((o) => o.status === "round-I");
   const later = shown.filter((o) => o.status === "later-round");
-  // When the slider is active, hide options that fell out-of-range at the what-if merit.
-  const displayed = useMemo(
-    () => (whatIf == null ? shown : shown.filter((o) => o.status !== "out-of-range")),
-    [shown, whatIf],
-  );
+  // Likely / Target / Reach (#136), from the one core function the badges use too
+  const bandCounts = useMemo(() => {
+    const c: Record<Band, number> = { likely: 0, target: 0, reach: 0, out: 0 };
+    for (const o of shown) c[bandOf(o.status, effMerit, o.closingMerit)]++;
+    return c;
+  }, [shown, effMerit]);
+  // When the what-if pin is moved, hide options far out of reach at that merit; a band tile filters.
+  const displayed = useMemo(() => {
+    const visible = whatIf == null ? shown : shown.filter((o) => bandOf(o.status, effMerit, o.closingMerit) !== "out");
+    return bandFilter ? visible.filter((o) => bandOf(o.status, effMerit, o.closingMerit) === bandFilter) : visible;
+  }, [shown, whatIf, effMerit, bandFilter]);
   const groups = useMemo(() => groupByCollege(displayed), [displayed]);
   const PAGE = view === "college" ? 12 : 30;
   const total = view === "college" ? groups.length : displayed.length;
@@ -456,15 +465,21 @@ export function FindPage() {
                   </p>
                 )}
               </div>
-              <div className="results-counts">
-                <div className="results-count safe">
-                  <strong>{formatNumber(roundI.length)}</strong>
-                  <span><Icon name="check" size={14} /> Likely in {formatRound(1)}</span>
-                </div>
-                <div className="results-count later">
-                  <strong>{formatNumber(later.length)}</strong>
-                  <span><Icon name="clock" size={14} /> Likely in a later round</span>
-                </div>
+              <div className="results-bands" role="group" aria-label="Filter by band">
+                {BAND_TILES.map((t) => (
+                  <button
+                    key={t.band}
+                    type="button"
+                    className={`results-band ${t.band}`}
+                    aria-pressed={bandFilter === t.band}
+                    onClick={() => { setBandFilter((b) => (b === t.band ? null : t.band)); setShowAll(false); }}
+                  >
+                    <strong>{formatNumber(bandCounts[t.band])}</strong>
+                    <span className="results-band-name"><Icon name={t.icon} size={14} /> {BAND_LABELS[t.band]}</span>
+                    <span className="results-band-meaning">{t.meaning}</span>
+                  </button>
+                ))}
+                <p className="results-band-note">Based on last year's closing ranks, not a guarantee. Tap a tile to show only those options.</p>
               </div>
             </section>
 
@@ -591,6 +606,13 @@ export function FindPage() {
   );
 }
 
+/** The three tiles above the results (#136); the rule is in docs/03-domain/result-bands.md. */
+const BAND_TILES: { band: Exclude<Band, "out">; icon: IconName; meaning: string }[] = [
+  { band: "likely", icon: "check", meaning: "Within the Round I closing last year" },
+  { band: "target", icon: "clock", meaning: "Within the closing by a later round" },
+  { band: "reach", icon: "arrowUp", meaning: "Up to 10% worse than the closing" },
+];
+
 const FLAG_LABELS = { ews: "EWS", tfws: "TFWS", defence: "Defence", pwd: "PWD", orphan: "Orphan" } as const;
 
 interface Group {
@@ -640,7 +662,7 @@ function CollegeGroup({ group, merit, domain }: { group: Group; merit: number; d
             {group.options.length} {group.options.length === 1 ? "option" : "options"} · code {group.code}
           </span>
         </div>
-        <StatusBadge status={group.best.status} round={group.best.round} />
+        <StatusBadge status={group.best.status} round={group.best.round} band={bandOf(group.best.status, merit, group.best.closingMerit)} />
       </header>
       <ul className="results-list results-list--nested">
         {shown.map((opt) => (
@@ -720,7 +742,7 @@ function OptionRow({ opt, merit, domain, showCollege = false }: { opt: FindOptio
       <span className="option-ladder">
         <MeritLadder first={opt.firstRoundClosing ?? null} last={opt.lastRoundClosing ?? opt.closingMerit} you={merit} domain={domain} label={`${opt.collegeName}, ${opt.branch}`} />
       </span>
-      <StatusBadge status={opt.status} round={opt.round} />
+      <StatusBadge status={opt.status} round={opt.round} band={bandOf(opt.status, merit, opt.closingMerit)} />
       <AddToFormButton item={listItemFrom(opt)} />
     </li>
   );
