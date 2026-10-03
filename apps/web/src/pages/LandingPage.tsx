@@ -215,20 +215,22 @@ export function LandingPage() {
             {rows && rows.length > 0 ? (
               <>
                 <p className="landing-verdict" id="landing-verdict" aria-live="polite">
-                  At{" "}
+                  <b>{formatNumber(reach)} of {formatNumber(values.length)}</b> branches were within reach at{" "}
                   {byPct && pctValue != null ? (
-                    <>
-                      <span className="tnum">{formatPercentile(pctValue)}</span> percentile (≈ merit <span className="tnum">{formatNumber(merit)}</span>)
-                    </>
+                    <><span className="tnum">{formatPercentile(pctValue)}</span> percentile</>
                   ) : (
-                    <span className="tnum">{formatNumber(merit)}</span>
+                    <>merit number <span className="tnum">{formatNumber(merit)}</span></>
                   )}
-                  , <b>{formatNumber(reach)} of {formatNumber(values.length)}</b> branches took someone with your
-                  merit or worse.
+                  {meta ? ` in CAP ${meta.year}` : ""}.
                 </p>
+                {byPct && pctValue != null && (
+                  <p className="landing-verdict-sub">
+                    {formatPercentile(pctValue)} percentile is about merit number <span className="tnum">{formatNumber(merit)}</span> on this year's lists.
+                  </p>
+                )}
                 <p className="landing-verdict-sub">
-                  General open seats in the latest CAP {meta?.year ?? ""} round (state level, or outside-home-university where a college has no state-level seats). Your category, gender and home university open more seats than this; the
-                  next step counts those.{byPct ? " A percentile is placed on the ruler through this year's printed merit–percentile pairs (≈)." : ""}
+                  Within reach: the branch's last admitted student had your merit number or a worse one. Counts general open seats in the latest round; your
+                  category, gender and home university open more, and the next step counts those.
                 </p>
                 <MeritRuler
                   marks={values.map((value) => ({ value }))}
