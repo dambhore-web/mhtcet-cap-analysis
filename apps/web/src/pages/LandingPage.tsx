@@ -7,6 +7,7 @@ import { logBounds, logScale } from "../lib/logScale";
 import { profileResultsPath } from "../lib/onboarding";
 import { Icon } from "../components/Icon";
 import { MeritRuler } from "../components/MeritRuler";
+import { formatPercentile, meritToPercentile, parsePercentileText, percentileToMerit, type ScalePoint, type ScoreKind } from "../lib/percentile";
 import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
 import "./OnboardingPage.css";
 import "./LandingPage.css";
@@ -37,6 +38,11 @@ export function LandingPage() {
   const [rows, setRows] = useState<OpenLatestRow[] | null>(null);
   const [merit, setMerit] = useState<number>(profile.meritNumber ?? EXAMPLE_MERIT);
   const [meritText, setMeritText] = useState(formatNumber(profile.meritNumber ?? EXAMPLE_MERIT));
+  // Students know their percentile weeks before the merit list: it is placed on the merit ruler
+  // through the merit ↔ percentile pairs printed on this year's lists (GET /api/percentile-scale)
+  const [kind, setKind] = useState<ScoreKind>("merit");
+  const [scale, setScale] = useState<ScalePoint[] | null>(null);
+  const [pctText, setPctText] = useState("");
 
   // Bumped by "Try again" when the cutoff lists couldn't be loaded
   const [retry, setRetry] = useState(0);
@@ -78,7 +84,38 @@ export function LandingPage() {
   const moveMerit = (v: number) => {
     setMerit(v);
     setMeritText(formatNumber(v));
+    const p = scale ? meritToPercentile(scale, v) : null;
+    if (p != null) setPctText(formatPercentile(p));
   };
+
+  useEffect(() => {
+    if (kind !== "percentile" || scale) return;
+    let live = true;
+    api.percentileScale("MH").then((r) => live && setScale(r.points)).catch(() => live && setScale([]));
+    return () => {
+      live = false;
+    };
+  }, [kind, scale]);
+
+  // The percentile box starts at the current merit number's percentile once the pairs arrive
+  useEffect(() => {
+    if (kind !== "percentile" || !scale?.length || pctText) return;
+    const p = meritToPercentile(scale, merit);
+    if (p != null) setPctText(formatPercentile(p));
+  }, [kind, scale, merit, pctText]);
+
+  const setFromPct = (text: string) => {
+    setPctText(text);
+    const p = parsePercentileText(text);
+    const m = p != null && scale?.length ? percentileToMerit(scale, p) : null;
+    if (m) {
+      setMerit(m);
+      setMeritText(formatNumber(m));
+    }
+  };
+  const byPct = kind === "percentile";
+  const pctValue = parsePercentileText(pctText);
+  const scaleMissing = byPct && scale !== null && scale.length === 0;
 
   return (
     <div className="onboarding-page landing">
@@ -103,10 +140,10 @@ export function LandingPage() {
             <span>MHT-CET CAP planner</span>
             {yearSpan && <span>Official CET Cell lists, CAP <span className="mono">{yearSpan}</span></span>}
           </p>
-          <h1>Find the colleges and branches your <em>merit number</em> can get</h1>
+          <h1>Find the colleges and branches your <em>merit number</em> or <em>percentile</em> can get</h1>
           <p className="landing-lede">
             Every line on the ruler below is one engineering branch, placed at the last merit number it admitted in CAP {meta?.year ?? ""}. Put in your
-            merit number and see how many took someone like you.
+            merit number, or your percentile if the merit list isn't out yet, and see how many took someone like you.
           </p>
           {resultsPath && (
             <Link to={resultsPath} className="landing-continue">
@@ -120,20 +157,51 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="card landing-try" aria-label="Try your merit number">
+        <section className="card landing-try" aria-label="Try your merit number or percentile">
           <div className="landing-try-left">
-            <label className="landing-field">
-              <span className="label">{profile.meritNumber ? "Your state merit number" : "Try a state merit number"}</span>
-              <input
-                className="landing-merit"
-                inputMode="numeric"
-                autoComplete="off"
-                value={meritText}
-                onChange={(e) => setFromText(e.target.value)}
-                onBlur={() => setMeritText(formatNumber(merit))}
-                aria-describedby="landing-verdict"
-              />
-            </label>
+            <div className="landing-kind" role="group" aria-label="Search with">
+              <button type="button" className={!byPct ? "active" : ""} aria-pressed={!byPct} onClick={() => setKind("merit")}>
+                Merit number
+              </button>
+              <button type="button" className={byPct ? "active" : ""} aria-pressed={byPct} onClick={() => setKind("percentile")}>
+                Percentile
+              </button>
+            </div>
+            {byPct ? (
+              <label className="landing-field">
+                <span className="label">Try an MHT-CET percentile</span>
+                <input
+                  className="landing-merit"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  placeholder={scale === null ? "Loading…" : "e.g. 96.82"}
+                  disabled={!scale?.length}
+                  value={pctText}
+                  onChange={(e) => setFromPct(e.target.value)}
+                  onBlur={() => pctValue != null && setPctText(formatPercentile(pctValue))}
+                  aria-describedby="landing-verdict"
+                  aria-invalid={pctText !== "" && pctValue == null}
+                />
+                {scaleMissing ? (
+                  <span className="landing-small" role="alert">Percentiles couldn't be loaded just now. Use a merit number instead.</span>
+                ) : pctText !== "" && pctValue == null ? (
+                  <span className="landing-small">Enter a percentile between 0 and 100, for example 96.82.</span>
+                ) : null}
+              </label>
+            ) : (
+              <label className="landing-field">
+                <span className="label">{profile.meritNumber ? "Your state merit number" : "Try a state merit number"}</span>
+                <input
+                  className="landing-merit"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={meritText}
+                  onChange={(e) => setFromText(e.target.value)}
+                  onBlur={() => setMeritText(formatNumber(merit))}
+                  aria-describedby="landing-verdict"
+                />
+              </label>
+            )}
             <div className="landing-ctas">
               <Link to="/welcome/start" className="btn btn-primary landing-cta">
                 {hasProfile ? "Start over" : "Find my colleges"}
@@ -147,12 +215,20 @@ export function LandingPage() {
             {rows && rows.length > 0 ? (
               <>
                 <p className="landing-verdict" id="landing-verdict" aria-live="polite">
-                  At <span className="tnum">{formatNumber(merit)}</span>, <b>{formatNumber(reach)} of {formatNumber(values.length)}</b> branches took someone with your
+                  At{" "}
+                  {byPct && pctValue != null ? (
+                    <>
+                      <span className="tnum">{formatPercentile(pctValue)}</span> percentile (≈ merit <span className="tnum">{formatNumber(merit)}</span>)
+                    </>
+                  ) : (
+                    <span className="tnum">{formatNumber(merit)}</span>
+                  )}
+                  , <b>{formatNumber(reach)} of {formatNumber(values.length)}</b> branches took someone with your
                   merit or worse.
                 </p>
                 <p className="landing-verdict-sub">
                   General open seats in the latest CAP {meta?.year ?? ""} round (state level, or outside-home-university where a college has no state-level seats). Your category, gender and home university open more seats than this; the
-                  next step counts those.
+                  next step counts those.{byPct ? " A percentile is placed on the ruler through this year's printed merit–percentile pairs (≈)." : ""}
                 </p>
                 <MeritRuler
                   marks={values.map((value) => ({ value }))}
@@ -178,7 +254,7 @@ export function LandingPage() {
           <section className="landing-stats" aria-label="The data GetMeCollege checks">
             <div><strong>{formatNumber(meta.colleges)}</strong><span>colleges in CAP {meta.year}</span></div>
             <div><strong>{formatNumber(meta.branches)}</strong><span>branches</span></div>
-            <div><strong>{formatNumber(meta.cutoffRows)}</strong><span>closing merit numbers</span></div>
+            <div><strong>{formatNumber(meta.cutoffRows)}</strong><span>closing merit numbers and percentiles</span></div>
             <div>
               <strong>{yearSpan}</strong>
               <span>CAP years, from the <Link to="/data">official CET Cell lists</Link></span>

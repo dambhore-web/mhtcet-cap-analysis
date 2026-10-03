@@ -12,6 +12,9 @@
   (closings, gaps, past years, the ruler and ladders); the figure the student didn't type is read
   off this year's printed merit–percentile pairs (`GET /api/percentile-scale`) and marked "≈".
   Shared links use `pct=`; old `merit=…&est=1` links still work.
+- Landing page: a "Merit number | Percentile" switch on the try box. A percentile is placed on the
+  merit ruler through the same printed merit–percentile pairs and the verdict shows the merit it
+  stands for, marked "≈".
 - SEO, prerendered pages (`docs/09-devops/seo.md`): in production builds (`VITE_SITE_URL` set) every
   public URL gets a ready-made HTML file with its own title, description, canonical URL, share tags,
   structured data (`CollegeOrUniversity`, `BreadcrumbList`, `WebSite`) and a plain-HTML version of
