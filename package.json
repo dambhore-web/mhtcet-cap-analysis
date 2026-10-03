@@ -12,6 +12,7 @@
     "apps/*"
   ],
   "scripts": {
+    "build": "sh -c \"${SERVICE_BUILD:-echo 'no build step'}\"",
     "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/pipeline && tsc --noEmit -p apps/api && npm run typecheck -w @mhtcet/web",
     "dev:api": "npm run dev -w @mhtcet/api",
     "dev:web": "npm run dev -w @mhtcet/web",
