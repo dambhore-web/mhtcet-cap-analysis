@@ -28,6 +28,13 @@ interface Props {
   ariaLabel?: string;
   /** Middle hint under the ruler; null hides the hint row. */
   hint?: string | null;
+  /**
+   * Labels a merit number in the figure shown, e.g. as a percentile (the Find page's percentile
+   * view). The ruler itself stays on merit numbers; only the text changes.
+   */
+  format?: (merit: number) => string;
+  /** What the pin stands for, for screen readers. */
+  pinLabel?: string;
 }
 
 const PAD = 14;
@@ -43,7 +50,12 @@ function trunc(s: string, max: number) {
  * the pin took someone with that merit or worse, so it turns blue. Drag the pin, click the
  * ruler, or focus the pin and use the arrow keys (Shift for bigger steps).
  */
-export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = false, domain, ariaLabel, hint = "Drag the pin, or type your merit number" }: Props) {
+export function MeritRuler({
+  marks, branches, merit, onMeritChange, barcode = false, domain, ariaLabel, hint = "Drag the pin, or type your merit number",
+  format, pinLabel = "Your merit number",
+}: Props) {
+  const fmt = format ?? formatNumber;
+  const tickText = format ?? tickLabel;
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [width, setWidth] = useState(0);
@@ -84,7 +96,7 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
     const placed = labelled.map((m, i) => {
       const name = trunc(m.label!, maxLabel);
       const tx = x(m.value);
-      const w = `${name} ${formatNumber(m.value)}`.length * charW;
+      const w = `${name} ${fmt(m.value)}`.length * charW;
       let side: "up" | "dn" = i % 2 ? "dn" : "up";
       let lane = ends[side].findIndex((e) => e < tx - w / 2 - 6);
       if (lane < 0) {
@@ -102,7 +114,7 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
       return { m, name, tx, side, ly, anchor, lx, full: m.label!, hidden };
     });
     return { W, H, x, dom, top, base, band, chipY, narrow, placed, ticks: ticksIn(dom, narrow) };
-  }, [width, allMarks, merit, domain, barcode]);
+  }, [width, allMarks, merit, domain, barcode, fmt]);
 
   const toMerit = useCallback(
     (clientX: number) => {
@@ -138,7 +150,7 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
   };
 
   const pinX = g && merit != null ? g.x(merit) : null;
-  const chipText = merit != null ? `You ${formatNumber(merit)}` : "";
+  const chipText = merit != null ? `You ${fmt(merit)}` : "";
   const chipW = 16 + chipText.length * 6.7;
 
   return (
@@ -180,7 +192,7 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
                 y2={p.hidden ? g.base - 2 : p.side === "up" ? g.base : p.ly - 11}
                 className={reach ? "mr-tick reach" : "mr-tick"}
               >
-                <title>{`${p.full}: ${formatNumber(p.m.value)}`}</title>
+                <title>{`${p.full}: ${fmt(p.m.value)}`}</title>
               </line>
             );
           })}
@@ -189,7 +201,7 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
             <g key={t}>
               <line x1={g.x(t)} x2={g.x(t)} y1={g.base} y2={g.base + 5} className="mr-axis" />
               {g.placed.length === 0 && (
-                <text x={g.x(t)} y={g.base + 17} textAnchor="middle" className="mr-axis-label">{tickLabel(t)}</text>
+                <text x={g.x(t)} y={g.base + 17} textAnchor="middle" className="mr-axis-label">{tickText(t)}</text>
               )}
             </g>
           ))}
@@ -199,11 +211,11 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
               className="mr-handle"
               tabIndex={0}
               role="slider"
-              aria-label="Your merit number"
+              aria-label={pinLabel}
               aria-valuemin={g.dom[0]}
               aria-valuemax={g.dom[1]}
               aria-valuenow={merit}
-              aria-valuetext={formatNumber(merit)}
+              aria-valuetext={fmt(merit)}
               onKeyDown={onKeyDown}
             >
               <rect x={pinX - 16} y={0} width={32} height={g.H} fill="transparent" />
@@ -221,9 +233,9 @@ export function MeritRuler({ marks, branches, merit, onMeritChange, barcode = fa
               const reach = merit != null && merit <= p.m.value;
               return (
                 <text key={i} x={p.lx} y={p.ly} textAnchor={p.anchor} className={reach ? "mr-label reach" : "mr-label"}>
-                  <title>{`${p.full}: ${formatNumber(p.m.value)}`}</title>
+                  <title>{`${p.full}: ${fmt(p.m.value)}`}</title>
                   {p.name}
-                  <tspan dx={3} className="mr-label-num">{formatNumber(p.m.value)}</tspan>
+                  <tspan dx={3} className="mr-label-num">{fmt(p.m.value)}</tspan>
                 </text>
               );
             })}

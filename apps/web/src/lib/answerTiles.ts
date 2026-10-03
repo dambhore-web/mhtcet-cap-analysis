@@ -1,6 +1,7 @@
 import type { Candidature, Category } from "./api";
 import { CATEGORY_OPTIONS, FLAG_OPTIONS, MINORITY_OPTIONS } from "./categories";
 import { formatNumber } from "./format";
+import { formatPercentile } from "./percentile";
 
 /** The step-by-step answers, as the answer tiles on Find colleges show and change them. */
 export interface TileAnswers {
@@ -44,8 +45,14 @@ export function minorityLabel(minority: string): string {
 }
 
 /** One line for the folded tiles on a phone: "12,450 · OBC · Female · SPPU area · TFWS". */
-export function answersSummary(a: TileAnswers, merit: number | null, groups: readonly string[]): string {
-  const parts: string[] = [merit ? `${a.exam === "AI" ? "All India " : ""}${formatNumber(merit)}` : "No merit number yet"];
+export function answersSummary(a: TileAnswers, merit: number | null, groups: readonly string[], percentile: number | null = null): string {
+  const parts: string[] = [
+    percentile
+      ? `${formatPercentile(percentile)} percentile`
+      : merit
+        ? `${a.exam === "AI" ? "All India " : ""}${formatNumber(merit)}`
+        : "No merit number yet",
+  ];
   if (a.exam === "AI") {
     parts.push("JEE Main");
   } else {

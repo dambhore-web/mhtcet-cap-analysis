@@ -1,6 +1,6 @@
 # Project status
 
-_Last updated: 2026-10-02_
+_Last updated: 2026-10-03_
 
 ## Current phase
 **Phase 2 done / Phase 4–5 started** — the 2026 data layer is built by AG-002 on branch
@@ -28,6 +28,13 @@ _Last updated: 2026-10-02_
     merit_lookup 240,141; loads are idempotent (checksums identical on re-run)
   - multi-state readiness: `authority` + `exam` on all tables and core types (operator decision)
 - Tests: 33 vitest tests with synthetic fixtures, incl. a privacy regression test for masking
+
+- **Percentile search (2026-10-03, merged to `Dev`):** Find, the questions and the landing page take a
+  percentile or a merit number; a percentile is matched against each row's printed closing
+  percentile; results switch between percentile and merit views (`GET /api/percentile-scale`).
+  All India: a JEE percentile is within every AI row past the JEE block (fixed 2026-10-03).
+- **SEO (2026-10-03, on `main`):** prerendered HTML for every public page; district and
+  branch-group landing pages.
 
 - **#136** Find colleges: Likely / Target / Reach tiles (Reach = up to 10% worse than last
   year's closing; `docs/03-domain/result-bands.md`). **#138** College page section links. **#137** Option form coverage. **#135** Next-step card. **#15** Google sign-in (staging). **#139** My account dashboard. Fix: colleges without

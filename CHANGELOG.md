@@ -1,7 +1,28 @@
 # Changelog
 
 ## Unreleased
+### Fixed
+- All India searches by **JEE percentile** no longer compare it with MHT-CET percentiles. The All
+  India merit list ranks every JEE candidate first (rule 10(2)), so a row whose last admitted student
+  came from MHT-CET (1,002 of 6,561 AI rows in 2026) is within reach for every JEE student, and its
+  percentile is not shown against theirs. On the 2026 AI lists a JEE percentile now gives the same
+  status as the student's All India merit number in 199,932 of 200,018 checks; the 86 others are
+  exact percentile ties, which a percentile alone can't split.
+
 ### Added
+- Find colleges by **percentile**, and results in **two views** (percentile or merit number).
+  Students know their MHT-CET / JEE percentile weeks before the merit list, so the score tile and
+  the questions take either. A percentile is matched against the closing percentile each CAP list
+  prints for the last student admitted (`POST /api/rank-finder` takes `percentile`; every option
+  now carries closing percentiles per round and per earlier year). Nothing is estimated: on the
+  2026 data a percentile search gives the same status as the matching merit number for all 2,259
+  options checked but one tie. A "Percentile | Merit number" switch shows every figure either way
+  (closings, gaps, past years, the ruler and ladders); the figure the student didn't type is read
+  off this year's printed merit–percentile pairs (`GET /api/percentile-scale`) and marked "≈".
+  Shared links use `pct=`; old `merit=…&est=1` links still work.
+- Landing page: a "Merit number | Percentile" switch on the try box. A percentile is placed on the
+  merit ruler through the same printed merit–percentile pairs and the verdict shows the merit it
+  stands for, marked "≈".
 - SEO, prerendered pages (`docs/09-devops/seo.md`): in production builds (`VITE_SITE_URL` set) every
   public URL gets a ready-made HTML file with its own title, description, canonical URL, share tags,
   structured data (`CollegeOrUniversity`, `BreadcrumbList`, `WebSite`) and a plain-HTML version of
@@ -24,6 +45,9 @@
   `compass_*`, so saved details and option forms carry over. Also: "Ask which is safest" →
   "which options suit you"; the install description no longer says "colleges you can get".
 ### Fixed
+- API: the cache year's closing percentiles were loaded as text (Postgres `numeric`); now numbers.
+- Parent summary PDF: "Your position" was red for every option ("better" never started with "+").
+- Scan screen: "for every branch you could get" → "for each of your options" (copy rules).
 - Four colleges were in the wrong district: VJTI and ICT (Matunga) showed under Mumbai Suburban
   instead of Mumbai City, New Satara College (Pandharpur) under Satara instead of Solapur, Ideal
   Institute (Wada) under Thane instead of Palghar. Their districts had been guessed from the name;

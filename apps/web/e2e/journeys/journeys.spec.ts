@@ -63,16 +63,23 @@ test("J1 · Which colleges could I get with my merit number?", async ({ page }) 
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Pune Institute of Computer Technology");
 });
 
-test("J2 · I only have my percentile", async ({ page }) => {
+test("J2 · I only have my percentile, and see results both ways", async ({ page }) => {
   await seed(page, { profile: { ...PROFILE, meritNumber: null } });
   await page.goto("/find");
-  await page.getByRole("link", { name: /estimate it from your percentile/i }).click();
-  await expect(page).toHaveURL(/\/estimate/);
+  // on a phone the answer tiles fold into one line
+  const tiles = page.getByRole("button", { name: /your answers/i });
+  if (await tiles.isVisible()) await tiles.click();
+  await page.getByRole("button", { name: "Use percentile instead" }).click();
   await page.getByLabel("MHT-CET percentile").fill("96.5");
-  await page.getByRole("button", { name: "Estimate" }).click();
-  await expect(page.getByRole("heading", { name: /likely state merit number/i })).toBeVisible();
-  await page.getByRole("button", { name: /plan with .* \(the cautious end\)/i }).click();
-  await expect(page.getByRole("note")).toContainText(/estimated from your percentile/i);
+  await page.getByLabel("MHT-CET percentile").press("Enter");
+  await expect(page).toHaveURL(/[?&]pct=96\.5(&|$)/);
+  await expect(page.getByRole("heading", { name: /options for percentile 96\.50/i })).toBeVisible();
+  await expect(page.getByText(/closed \d+\.\d+/).first()).toBeVisible();
+
+  // the other view: the same results in merit numbers, the student's marked as read off the lists
+  await page.getByRole("group", { name: "Show closings as" }).getByRole("button", { name: "Merit number" }).click();
+  await expect(page.getByRole("heading", { name: /options for merit ≈ [\d,]+/i })).toBeVisible();
+  await expect(page.getByText(/closed [\d,]+ → [\d,]+/).first()).toBeVisible();
 });
 
 test("J3 · Where can I study Computer Engineering?", async ({ page }) => {

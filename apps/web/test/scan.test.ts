@@ -24,6 +24,9 @@ describe("scanStages", () => {
     expect(s).toHaveLength(4);
     expect(s[2].title).toBe("Compared estimated merit number 12,450");
   });
+  it("names the percentile when the student searched by percentile", () => {
+    expect(scanStages(null, { ...req, merit: 0, percentile: 96.4185 })[2].title).toBe("Compared percentile 96.41");
+  });
 });
 
 describe("seatTypesLine", () => {

@@ -28,13 +28,15 @@ interface Props {
   domain: [number, number];
   /** Short text for screen readers, e.g. the branch name. */
   label: string;
+  /** Labels a merit number in the figure shown (the percentile view); merit number by default. */
+  format?: (merit: number) => string;
 }
 
 /**
  * One row of the merit ladder: Round I closing (hollow blue) to last-round closing (amber),
  * with the student's merit as a vertical line. Lower numbers are on the left.
  */
-export function MeritLadder({ first, last, you, domain, label }: Props) {
+export function MeritLadder({ first, last, you, domain, label, format = formatNumber }: Props) {
   const a = first ?? last;
   const b = last ?? first;
   if (a == null || b == null) return <span className="ladder ladder--empty">No closing rank</span>;
@@ -46,7 +48,7 @@ export function MeritLadder({ first, last, you, domain, label }: Props) {
     <span
       className="ladder"
       role="img"
-      aria-label={`${label}: Round I closed at ${formatNumber(a)}, last round at ${formatNumber(b)}${you ? `; your merit ${formatNumber(you)}${reach}` : ""}`}
+      aria-label={`${label}: Round I closed at ${format(a)}, last round at ${format(b)}${you ? `; you ${format(you)}${reach}` : ""}`}
     >
       <span className="ladder-track" />
       {b !== a && <span className="ladder-span" style={{ left: `${Math.min(x1, x2)}%`, width: `${Math.abs(x2 - x1)}%` }} />}
@@ -57,24 +59,26 @@ export function MeritLadder({ first, last, you, domain, label }: Props) {
   );
 }
 
-/** Axis labels under a column of ladders. */
-export function LadderAxis({ domain }: { domain: [number, number] }) {
+const meritTick = (t: number) => (t >= 1000 ? `${t / 1000}k` : String(t));
+
+/** Axis labels under a column of ladders; `format` labels the ticks in another figure (percentile view). */
+export function LadderAxis({ domain, format = meritTick }: { domain: [number, number]; format?: (merit: number) => string }) {
   return (
     <span className="ladder-axis" aria-hidden="true">
       {ladderTicks(domain).map((t) => (
-        <span key={t} style={{ left: `${pct(t, domain)}%` }}>{t >= 1000 ? `${t / 1000}k` : t}</span>
+        <span key={t} style={{ left: `${pct(t, domain)}%` }}>{format(t)}</span>
       ))}
     </span>
   );
 }
 
-export function LadderLegend({ showYou }: { showYou: boolean }) {
+export function LadderLegend({ showYou, percentile = false }: { showYou: boolean; percentile?: boolean }) {
   return (
     <span className="ladder-legend">
       <span><span className="ladder-key ladder-key--first" />Round I closing</span>
       <span><span className="ladder-key ladder-key--last" />Last round closing</span>
-      {showYou && <span><span className="ladder-key ladder-key--you" />Your merit</span>}
-      <span className="ladder-legend-note">Lower number = harder to get</span>
+      {showYou && <span><span className="ladder-key ladder-key--you" />{percentile ? "Your percentile" : "Your merit"}</span>}
+      <span className="ladder-legend-note">{percentile ? "Higher percentile = harder to get" : "Lower number = harder to get"}</span>
     </span>
   );
 }

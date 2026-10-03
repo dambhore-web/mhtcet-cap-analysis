@@ -16,6 +16,12 @@ export interface CandidateProfile {
   minorityCommunity: string | null;
   /** Lower number = better rank. MH candidates: MHT-CET state merit; AI candidates: JEE rank. */
   meritNumber: number;
+  /**
+   * The candidate's exam percentile (MHT-CET for MH, JEE Main for AI). When set, the rank finder
+   * matches it against each row's closing percentile instead of the merit number: students know
+   * their percentile weeks before the merit list is out. Higher = better.
+   */
+  percentile?: number | null;
   subjectGroup: "PCM" | "PCB";
 }
 

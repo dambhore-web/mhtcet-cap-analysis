@@ -4,14 +4,18 @@ import { CATEGORY_OPTIONS, FLAG_OPTIONS, MINORITY_OPTIONS } from "../lib/categor
 import { UNIVERSITIES } from "../lib/universities";
 import { answersSummary, branchesLabel, specialSeatsLabel, type SeatFlag, type TileAnswers } from "../lib/answerTiles";
 import { parseMerit } from "../lib/onboarding";
+import { parsePercentileText, type ScoreKind } from "../lib/percentile";
 import { Icon } from "./Icon";
 import "./AnswerTiles.css";
 
 interface Props {
   answers: TileAnswers;
-  /** The merit number as typed. */
+  /** The merit number or percentile as typed. */
   merit: string;
   meritError: string;
+  /** Whether the score tile takes a merit number or a percentile (before the merit list is out). */
+  scoreKind: ScoreKind;
+  onScoreKind: (kind: ScoreKind) => void;
   branchGroups: string[];
   onChange: (patch: Partial<TileAnswers>) => void;
   onMeritInput: (text: string) => void;
@@ -25,17 +29,19 @@ interface Props {
  * Each tile changes one answer with a dropdown; Find colleges searches again straight away.
  * On a phone the tiles fold into one "Your answers" line.
  */
-export function AnswerTiles({ answers, merit, meritError, branchGroups, onChange, onMeritInput, onMeritCommit, onBranchGroups }: Props) {
+export function AnswerTiles({ answers, merit, meritError, scoreKind, onScoreKind, branchGroups, onChange, onMeritInput, onMeritCommit, onBranchGroups }: Props) {
   const [open, setOpen] = useState(false);
   const id = useId();
   const state = answers.exam === "MH";
+  const pct = scoreKind === "percentile";
+  const scoreLabel = pct ? (state ? "MHT-CET percentile" : "JEE Main percentile") : state ? "Merit number" : "All India merit number";
 
   return (
     <section className={`answer-tiles${open ? " open" : ""}`} aria-label="Your answers">
       <button type="button" className="at-summary" aria-expanded={open} aria-controls={`${id}-grid`} onClick={() => setOpen((v) => !v)}>
         <span className="at-summary-text">
           <strong>Your answers</strong>
-          <span>{answersSummary(answers, parseMerit(merit), branchGroups)}</span>
+          <span>{answersSummary(answers, pct ? null : parseMerit(merit), branchGroups, pct ? parsePercentileText(merit) : null)}</span>
         </span>
         <span className="at-summary-action">{open ? "Done" : "Change"}</span>
         <Icon name={open ? "minus" : "plus"} size={16} />
@@ -49,13 +55,13 @@ export function AnswerTiles({ answers, merit, meritError, branchGroups, onChange
           </select>
         </Tile>
 
-        <Tile label={state ? "Merit number" : "All India merit number"} htmlFor={`${id}-merit`} invalid={!!meritError}>
+        <Tile label={scoreLabel} htmlFor={`${id}-merit`} invalid={!!meritError}>
           <input
             id={`${id}-merit`}
             type="text"
-            inputMode="numeric"
+            inputMode={pct ? "decimal" : "numeric"}
             autoComplete="off"
-            placeholder="e.g. 12450"
+            placeholder={pct ? "e.g. 96.42" : "e.g. 12450"}
             value={merit}
             onChange={(e) => onMeritInput(e.target.value)}
             onBlur={onMeritCommit}
@@ -64,6 +70,9 @@ export function AnswerTiles({ answers, merit, meritError, branchGroups, onChange
             aria-describedby={meritError ? `${id}-merit-error` : undefined}
           />
           {meritError && <span id={`${id}-merit-error`} className="at-error" role="alert">{meritError}</span>}
+          <button type="button" className="at-switch" onClick={() => onScoreKind(pct ? "merit" : "percentile")}>
+            {pct ? "Use merit number instead" : "Use percentile instead"}
+          </button>
         </Tile>
 
         {state && (

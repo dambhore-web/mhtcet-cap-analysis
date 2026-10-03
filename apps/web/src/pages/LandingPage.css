@@ -106,6 +106,35 @@
 
 .landing-field { display: flex; flex-direction: column; gap: 4px; }
 
+/* Merit number | Percentile, as the Find page's view toggle */
+.landing-kind {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 12px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.landing-kind button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.landing-kind button.active {
+  background: var(--violet);
+  color: var(--white);
+}
+
 .landing-merit {
   width: 100%;
   padding: 4px 0 6px;

@@ -299,29 +299,6 @@
 .ob-toggle-opt:last-of-type { border-radius: 0 var(--radius-md) var(--radius-md) 0; margin-left: -1.5px; }
 .ob-toggle-opt.on { background: var(--violet); border-color: var(--violet); color: var(--white); }
 
-.ob-estimate {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: var(--text-sm);
-  color: var(--info-text);
-}
-
-.ob-estimate:has(strong) {
-  padding: 16px 18px;
-  border-radius: var(--radius-md);
-  background: var(--info-bg);
-}
-
-.ob-estimate-label {
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: var(--label-tracking);
-  text-transform: uppercase;
-}
-
-.ob-estimate strong { font-size: var(--text-xl); color: var(--navy); }
-
 .ob-chips { display: flex; flex-wrap: wrap; gap: 10px; }
 
 .ob-chip {
