@@ -6,7 +6,7 @@ test.describe("Sign-in without account settings", () => {
 
   test("the sign-in page says accounts are coming soon and lets the student carry on", async ({ page }) => {
     await page.goto("/signin");
-    await expect(page.getByRole("heading", { level: 1, name: "Sign in to Compass" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Sign in to GetMeCollege" })).toBeVisible();
     await expect(page.getByText("Coming soon")).toBeVisible();
     await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
     await page.getByRole("link", { name: "Continue without signing in" }).click();

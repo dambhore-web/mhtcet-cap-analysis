@@ -31,7 +31,7 @@ export function PlansPage() {
             {free.features.map((f) => (
               <li key={f}><Icon name="check" size={16} />{f}</li>
             ))}
-            <li><Icon name="check" size={16} />Ask Compass: {free.askQuestions} questions</li>
+            <li><Icon name="check" size={16} />Ask GetMeCollege: {free.askQuestions} questions</li>
           </ul>
           <Link to="/find" className="btn btn-secondary btn-block">Find my options</Link>
         </section>

@@ -14,7 +14,7 @@ test.describe("Page titles and search tags", () => {
 
   test("a college page is titled and described from its data, with a clean canonical URL", async ({ page }) => {
     await page.goto("/colleges/16006?from=search");
-    await expect(page).toHaveTitle("COEP Technological University — CAP 2026 cutoffs by branch | Compass");
+    await expect(page).toHaveTitle("COEP Technological University — CAP 2026 cutoffs by branch | GetMeCollege");
     const h = await head(page);
     expect(h.description).toMatch(/^Closing merit numbers for \d+ branch(es)? at COEP Technological University/);
     expect(h.canonical).toMatch(/\/colleges\/16006$/);
@@ -37,7 +37,7 @@ test.describe("Page titles and search tags", () => {
     await page.goto("/profile");
     await expect.poll(async () => (await head(page)).robots).toBe("noindex");
     await topNav(page).getByRole("link", { name: "Colleges", exact: true }).click();
-    await expect(page).toHaveTitle("Maharashtra engineering colleges — CAP cutoffs | Compass");
+    await expect(page).toHaveTitle("Maharashtra engineering colleges — CAP cutoffs | GetMeCollege");
     expect((await head(page)).robots).toBeNull();
   });
 });

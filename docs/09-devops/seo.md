@@ -23,5 +23,5 @@
 - Lighthouse SEO and speed checks in CI.
 
 **At the production rollout** (also in `production-rollout.md`): choose the domain, set
-`VITE_SITE_URL` on the production web service, check `https://<domain>/robots.txt` and
+`VITE_SITE_URL` on the production web service, check `https://getmecollege.com/robots.txt` and
 `/sitemap.xml`, and submit the sitemap in Google Search Console.

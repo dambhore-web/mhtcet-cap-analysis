@@ -3,8 +3,8 @@ import { branchMeta, clip, collegeMeta, fullTitle } from "../src/lib/seo";
 
 describe("page meta (SEO)", () => {
   it("adds the site name once", () => {
-    expect(fullTitle("Your options")).toBe("Your options | Compass");
-    expect(fullTitle("Compass — MHT-CET CAP cutoffs")).toBe("Compass — MHT-CET CAP cutoffs");
+    expect(fullTitle("Your options")).toBe("Your options | GetMeCollege");
+    expect(fullTitle("GetMeCollege — MHT-CET CAP cutoffs")).toBe("GetMeCollege — MHT-CET CAP cutoffs");
   });
 
   it("clips descriptions at a word, near what search results show", () => {

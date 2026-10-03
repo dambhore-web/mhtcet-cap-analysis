@@ -63,6 +63,6 @@ export async function getJeeEstimate(c: Context, pool: pg.Pool) {
     method: "statistical" as const,
     disclaimer:
       "The All India merit list isn't loaded, so this is only a rough JEE Main rank from a typical candidate count. " +
-      "It is not your All India merit number, so Compass won't search seats with it.",
+      "It is not your All India merit number, so GetMeCollege won't search seats with it.",
   });
 }

@@ -21,7 +21,7 @@ const HOW = [
 const MORE = [
   { title: "Freeze, float or slide?", text: "See which higher choices opened up in later rounds last year before you decide.", to: "/allotment", go: "Check my allotment" },
   { title: "A page for your family", text: "One shareable summary: current seat, top options, fees and dates.", to: "/summary", go: "Make the summary" },
-  { title: "Ask Compass", text: "Plain answers about CAP, with the source for every figure.", to: "/ask", go: "Ask a question" },
+  { title: "Ask GetMeCollege", text: "Plain answers about CAP, with the source for every figure.", to: "/ask", go: "Ask a question" },
 ];
 
 /** Example merit for first-time visitors, so the ruler shows a mixed answer before anything is typed. */
@@ -30,7 +30,7 @@ const EXAMPLE_MERIT = 12000;
 
 /** "/" for every visitor (#142, #144): all of CAP on one merit ruler, then how it works. */
 export function LandingPage() {
-  usePageMeta({ title: "Compass — MHT-CET CAP cutoffs for every college and branch" });
+  usePageMeta({ title: "GetMeCollege — MHT-CET CAP cutoffs for every college and branch" });
   const { hasProfile, profile } = useProfile();
   const resultsPath = hasProfile ? profileResultsPath(profile) : null;
   const [meta, setMeta] = useState<DataMeta | null>(null);
@@ -83,9 +83,9 @@ export function LandingPage() {
   return (
     <div className="onboarding-page landing">
       <header className="ob-header">
-        <Link to="/" className="ob-logo" aria-label="Compass home">
+        <Link to="/" className="ob-logo" aria-label="GetMeCollege home">
           <span className="ob-logo-mark" aria-hidden="true"><Icon name="compass" size={18} /></span>
-          Compass
+          GetMeCollege
         </Link>
         <span className="landing-sub">MHT-CET CAP cutoffs</span>
         <nav className="landing-nav" aria-label="Main">
@@ -175,7 +175,7 @@ export function LandingPage() {
         </section>
 
         {meta && (
-          <section className="landing-stats" aria-label="The data Compass checks">
+          <section className="landing-stats" aria-label="The data GetMeCollege checks">
             <div><strong>{formatNumber(meta.colleges)}</strong><span>colleges in CAP {meta.year}</span></div>
             <div><strong>{formatNumber(meta.branches)}</strong><span>branches</span></div>
             <div><strong>{formatNumber(meta.cutoffRows)}</strong><span>closing merit numbers</span></div>

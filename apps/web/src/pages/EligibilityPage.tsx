@@ -49,8 +49,8 @@ const SEATS: { key: Flag; title: string; codes: string; who: string; proof: stri
 ];
 
 const ALWAYS = [
-  { title: "Home university (H) and other than home university (O)", body: "Some seats are kept for students who passed Class 12 from a college in the same university area. You don't tick this: add your home university in My details and Compass uses it." },
-  { title: "Ladies seats (L…)", body: "Reserved for female candidates. Compass includes them automatically when your details say Female." },
+  { title: "Home university (H) and other than home university (O)", body: "Some seats are kept for students who passed Class 12 from a college in the same university area. You don't tick this: add your home university in My details and GetMeCollege uses it." },
+  { title: "Ladies seats (L…)", body: "Reserved for female candidates. GetMeCollege includes them automatically when your details say Female." },
   { title: "Category seats (OBC, SEBC, SC, ST, VJ/DT, NT-B, NT-C, NT-D)", body: "Used when your category is set in My details. You need a valid caste certificate and, where required, a validity certificate." },
 ];
 
@@ -127,7 +127,7 @@ export function EligibilityPage() {
       <PageHeader
         breadcrumb={[{ label: "Find colleges", to: "/find" }, { label: "Which seats can I apply for?" }]}
         title="Which seats can you apply for?"
-        subtitle="Besides general seats, CAP keeps seats for specific groups. Tick the ones that apply to you and Compass adds them to your results."
+        subtitle="Besides general seats, CAP keeps seats for specific groups. Tick the ones that apply to you and GetMeCollege adds them to your results."
       />
 
       <fieldset className="elig-list">
@@ -182,8 +182,8 @@ export function EligibilityPage() {
       </section>
 
       <p className="elig-note">
-        Rules and certificate formats are set in the official CAP information brochure; the CET Cell's document check decides. Compass explains them.{" "}
-        <Link to="/guide?tab=codes">Read the seat-code guide</Link> · <Link to="/ask">Ask Compass</Link>
+        Rules and certificate formats are set in the official CAP information brochure; the CET Cell's document check decides. GetMeCollege explains them.{" "}
+        <Link to="/guide?tab=codes">Read the seat-code guide</Link> · <Link to="/ask">Ask GetMeCollege</Link>
       </p>
     </div>
   );

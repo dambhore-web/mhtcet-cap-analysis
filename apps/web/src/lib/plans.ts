@@ -30,7 +30,7 @@ export const PLANS = {
     askQuestions: "unlimited" as const,
     features: [
       "Everything in Free",
-      "Ask Compass: unlimited questions",
+      "Ask GetMeCollege: unlimited questions",
       "CAP round simulator (Rounds I–III)",
       "Freeze / Float / Slide advisor",
     ],

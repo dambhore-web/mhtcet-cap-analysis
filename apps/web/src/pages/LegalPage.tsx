@@ -12,7 +12,7 @@ const TABS: [Tab, string][] = [
 ];
 
 export function LegalPage() {
-  usePageMeta({ title: "Disclaimer, privacy and terms", description: "Compass is an unofficial guide to MHT-CET CAP. What the data means, how your details are kept, and the terms of use." });
+  usePageMeta({ title: "Disclaimer, privacy and terms", description: "GetMeCollege is an unofficial guide to MHT-CET CAP. What the data means, how your details are kept, and the terms of use." });
   const [params, setParams] = useSearchParams();
   const raw = params.get("tab");
   const tab: Tab = raw === "privacy" || raw === "terms" ? raw : "disclaimer";
@@ -56,7 +56,7 @@ function DisclaimerTab() {
       <div className="legal-tldr">
         <strong>In short</strong>
         <ul>
-          <li>Compass is unofficial and not linked to the CET Cell or DTE.</li>
+          <li>GetMeCollege is unofficial and not linked to the CET Cell or DTE.</li>
           <li>Cutoffs are from past rounds. They guide you; they don't guarantee a seat.</li>
           <li>Your details and option form are saved in your browser.</li>
         </ul>
@@ -64,22 +64,22 @@ function DisclaimerTab() {
 
       <h3>Unofficial product</h3>
       <p>
-        Compass is an independent information tool. It is <strong>not affiliated with, endorsed by, or operated by</strong> the Maharashtra State Common Entrance Test Cell (CET Cell), the Directorate of Technical Education (DTE), the Government of Maharashtra, or any university listed on this platform.
+        GetMeCollege is an independent information tool. It is <strong>not affiliated with, endorsed by, or operated by</strong> the Maharashtra State Common Entrance Test Cell (CET Cell), the Directorate of Technical Education (DTE), the Government of Maharashtra, or any university listed on this platform.
       </p>
 
       <h3>Past data — not a guarantee</h3>
       <p>
-        All cutoff data shown on Compass is sourced from official DTE Maharashtra / CET Cell publications for the 2026 academic year. This data reflects <strong>past admission rounds only</strong> and does not predict, guarantee, or imply any future outcome. Actual cutoffs in upcoming CAP rounds may differ significantly due to changes in the merit list, seat availability, policy changes, or other factors.
+        All cutoff data shown on GetMeCollege is sourced from official DTE Maharashtra / CET Cell publications for the 2026 academic year. This data reflects <strong>past admission rounds only</strong> and does not predict, guarantee, or imply any future outcome. Actual cutoffs in upcoming CAP rounds may differ significantly due to changes in the merit list, seat availability, policy changes, or other factors.
       </p>
 
       <h3>Use at your own discretion</h3>
       <p>
-        Compass is intended to help students and families <strong>understand their options and plan their strategy</strong>. It is not a substitute for official DTE communications, allotment letters, or counselling from a qualified educational advisor. Always verify admission details at <a href="https://cetcell.mahacet.org" className="legal-link" target="_blank" rel="noopener noreferrer">cetcell.mahacet.org</a> before taking any action.
+        GetMeCollege is intended to help students and families <strong>understand their options and plan their strategy</strong>. It is not a substitute for official DTE communications, allotment letters, or counselling from a qualified educational advisor. Always verify admission details at <a href="https://cetcell.mahacet.org" className="legal-link" target="_blank" rel="noopener noreferrer">cetcell.mahacet.org</a> before taking any action.
       </p>
 
       <h3>Accuracy and completeness</h3>
       <p>
-        While we strive to publish accurate, complete data, Compass cannot guarantee that the information is free from errors, omissions, or delays. If you find a discrepancy, please report it to us.
+        While we strive to publish accurate, complete data, GetMeCollege cannot guarantee that the information is free from errors, omissions, or delays. If you find a discrepancy, please report it to us.
       </p>
 
       <h3>Fee data</h3>
@@ -104,7 +104,7 @@ function PrivacyTab() {
       <p className="legal-updated">Last updated: October 2026 · Effective: October 2026</p>
 
       <p>
-        This Privacy Policy describes how Compass ("we", "our", "the app") collects, uses, and protects information when you use the Compass web application. By using Compass, you agree to the practices described here.
+        This Privacy Policy describes how GetMeCollege ("we", "our", "the app") collects, uses, and protects information when you use the GetMeCollege web application. By using GetMeCollege, you agree to the practices described here.
       </p>
 
       <h3>1. Information we collect</h3>
@@ -141,18 +141,18 @@ function PrivacyTab() {
 
       <h3>5. Cookies</h3>
       <p>
-        Compass does not use tracking cookies. We use browser localStorage for application state, and, if you sign in, to keep you signed in.
+        GetMeCollege does not use tracking cookies. We use browser localStorage for application state, and, if you sign in, to keep you signed in.
       </p>
 
       <h3>6. Children's privacy</h3>
       <p>
-        Compass is intended for students who are 17 years of age or older (as MHT-CET candidates). If you believe a minor under 13 has submitted data, contact us for removal.
+        GetMeCollege is intended for students who are 17 years of age or older (as MHT-CET candidates). If you believe a minor under 13 has submitted data, contact us for removal.
       </p>
 
       <h3>7. Contact</h3>
       <p>
         For privacy-related queries or to exercise your DPDP rights, contact:{" "}
-        <a href="mailto:support@compass.app" className="legal-link">support@compass.app</a>
+        <a href="mailto:support@getmecollege.com" className="legal-link">support@getmecollege.com</a>
       </p>
     </div>
   );
@@ -165,35 +165,35 @@ function TermsTab() {
       <p className="legal-updated">Last updated: October 2026 · Effective: October 2026</p>
 
       <p>
-        These Terms of Service ("Terms") govern your use of the Compass web application. By accessing or using Compass, you agree to these Terms.
+        These Terms of Service ("Terms") govern your use of the GetMeCollege web application. By accessing or using GetMeCollege, you agree to these Terms.
       </p>
 
       <h3>1. Service description</h3>
       <p>
-        Compass is an information tool that helps MHT-CET candidates explore engineering college admission cutoffs based on official CET Cell data.
+        GetMeCollege is an information tool that helps MHT-CET candidates explore engineering college admission cutoffs based on official CET Cell data.
       </p>
 
       <h3>2. Acceptable use</h3>
       <ul>
-        <li>You must be 13 years of age or older to use Compass.</li>
-        <li>You may not use Compass to scrape, bulk-download, or re-distribute cutoff data commercially.</li>
+        <li>You must be 13 years of age or older to use GetMeCollege.</li>
+        <li>You may not use GetMeCollege to scrape, bulk-download, or re-distribute cutoff data commercially.</li>
         <li>You may not attempt to access, modify, or disrupt the API, database, or infrastructure.</li>
         <li>You may not impersonate DTE, CET Cell, or any institution on this platform.</li>
       </ul>
 
       <h3>3. Price</h3>
       <p>
-        Compass is free to use, and we do not take payments. Some features, such as the AI assistant, have usage limits to keep the service available for everyone. If paid features are introduced later, these Terms will be updated before any payment is taken.
+        GetMeCollege is free to use, and we do not take payments. Some features, such as the AI assistant, have usage limits to keep the service available for everyone. If paid features are introduced later, these Terms will be updated before any payment is taken.
       </p>
 
       <h3>4. Intellectual property</h3>
       <p>
-        The Compass interface, brand, and code are proprietary. Cutoff data is sourced from official DTE Maharashtra publications and is reproduced here under fair use for educational purposes.
+        The GetMeCollege interface, brand, and code are proprietary. Cutoff data is sourced from official DTE Maharashtra publications and is reproduced here under fair use for educational purposes.
       </p>
 
       <h3>5. Limitation of liability</h3>
       <p>
-        Compass is provided "as is" without warranty of any kind. To the fullest extent permitted by law, we are not liable for decisions made based on information shown on this platform, including but not limited to college choices, admission outcomes, or financial decisions.
+        GetMeCollege is provided "as is" without warranty of any kind. To the fullest extent permitted by law, we are not liable for decisions made based on information shown on this platform, including but not limited to college choices, admission outcomes, or financial decisions.
       </p>
 
       <h3>6. Changes to terms</h3>
@@ -208,7 +208,7 @@ function TermsTab() {
 
       <h3>8. Contact</h3>
       <p>
-        <a href="mailto:support@compass.app" className="legal-link">support@compass.app</a>
+        <a href="mailto:support@getmecollege.com" className="legal-link">support@getmecollege.com</a>
       </p>
     </div>
   );

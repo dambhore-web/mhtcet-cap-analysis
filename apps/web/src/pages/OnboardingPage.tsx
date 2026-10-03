@@ -175,11 +175,11 @@ export function OnboardingWizard() {
   return (
     <div className="onboarding-page">
       <header className="ob-header">
-        <Link to="/" className="ob-logo" aria-label="Compass home">
+        <Link to="/" className="ob-logo" aria-label="GetMeCollege home">
           <span className="ob-logo-mark" aria-hidden="true"><Icon name="compass" size={18} /></span>
-          Compass
+          GetMeCollege
         </Link>
-        <Link to="/colleges" className="btn btn-secondary btn-sm">Browse colleges instead</Link>
+        <Link to="/colleges" className="btn btn-secondary btn-sm">Browse colleges<span className="ob-browse-more"> instead</span></Link>
       </header>
 
       <main className="ob-shell">

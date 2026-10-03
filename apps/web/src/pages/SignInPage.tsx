@@ -51,7 +51,7 @@ export function SignInPage() {
     <div className="page page--narrow signin-page">
       <PageHeader
         breadcrumb={[{ label: "Account", to: "/profile" }, { label: "Sign in" }]}
-        title="Sign in to Compass"
+        title="Sign in to GetMeCollege"
         subtitle="Keep your details and option form in sync across devices."
       />
 

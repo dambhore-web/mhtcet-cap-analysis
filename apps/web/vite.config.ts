@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
       manifest: {
-        name: "Compass — MHT-CET CAP Cutoffs",
-        short_name: "Compass",
-        description: "Find which engineering colleges and branches you can get in the 2026 MHT-CET CAP",
+        name: "GetMeCollege — MHT-CET CAP Cutoffs",
+        short_name: "GetMeCollege",
+        description: "Past MHT-CET CAP closing ranks for every Maharashtra engineering college and branch, from the official CET Cell lists",
         start_url: "/",
         display: "standalone",
         background_color: "#f8fafc",

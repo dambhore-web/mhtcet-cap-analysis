@@ -47,7 +47,7 @@ export function AllotmentPage() {
       <PageHeader
         breadcrumb={[{ label: "My CAP plan", to: "/list" }, { label: "After allotment" }]}
         title="After your allotment"
-        subtitle="Tell Compass which seat you were allotted. It shows which of your higher choices opened up last year, and what each of your three choices means."
+        subtitle="Tell GetMeCollege which seat you were allotted. It shows which of your higher choices opened up last year, and what each of your three choices means."
       />
       <PlanSubnav />
 
@@ -55,7 +55,7 @@ export function AllotmentPage() {
         <div className="empty-state">
           <Icon name="list" size={28} className="empty-state-icon" />
           <h2>Add your option form first</h2>
-          <p>Compass compares your allotted seat with the choices above it on your option form.</p>
+          <p>GetMeCollege compares your allotted seat with the choices above it on your option form.</p>
           <Link to="/list" className="btn btn-primary">Go to option form</Link>
         </div>
       ) : (
@@ -180,7 +180,7 @@ export function AllotmentPage() {
               <li>Keep your documents ready for reporting (the list is on the CET Cell portal).</li>
               <li>Share the plan with your family: <Link to="/summary">family summary</Link>.</li>
             </ul>
-            <p className="allot-hint"><Link to="/guide?tab=freeze">How freeze, float and slide work</Link> · <Link to="/ask">Ask Compass about your allotment</Link></p>
+            <p className="allot-hint"><Link to="/guide?tab=freeze">How freeze, float and slide work</Link> · <Link to="/ask">Ask GetMeCollege about your allotment</Link></p>
           </section>
           <PlanNextStep current="/allotment" />
         </div>

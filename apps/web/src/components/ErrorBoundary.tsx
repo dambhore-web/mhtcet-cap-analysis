@@ -22,7 +22,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("Compass UI error", error, info.componentStack);
+    console.error("GetMeCollege UI error", error, info.componentStack);
   }
 
   componentDidUpdate(prev: Props) {

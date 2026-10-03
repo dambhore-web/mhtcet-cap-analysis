@@ -45,7 +45,7 @@ function download(blob: Blob, fileName: string) {
 
 export function downloadCSV(items: ListItem[], merit: number | null) {
   // BOM so Excel opens UTF-8 correctly
-  download(new Blob(["﻿" + toCSV(items, merit)], { type: "text/csv;charset=utf-8" }), "compass-option-form.csv");
+  download(new Blob(["﻿" + toCSV(items, merit)], { type: "text/csv;charset=utf-8" }), "getmecollege-option-form.csv");
 }
 
 export async function downloadXLSX(items: ListItem[], merit: number | null) {
@@ -59,7 +59,7 @@ export async function downloadXLSX(items: ListItem[], merit: number | null) {
     sheet: "Option form",
     stickyRowsCount: 1,
   });
-  download(blob, "compass-option-form.xlsx");
+  download(blob, "getmecollege-option-form.xlsx");
 }
 
 export async function downloadPDF(items: ListItem[], merit: number | null, categoryLabel: string) {
@@ -104,5 +104,5 @@ export async function downloadPDF(items: ListItem[], merit: number | null, categ
     },
     alternateRowStyles: { fillColor: [246, 247, 255] },
   });
-  doc.save("compass-option-form.pdf");
+  doc.save("getmecollege-option-form.pdf");
 }

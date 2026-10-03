@@ -7,7 +7,7 @@ test.describe("First visit: landing, questions one at a time, scan, results (#14
     await page.goto("/");
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Find the colleges and branches");
-    await expect(page.getByRole("region", { name: /the data compass checks/i })).toContainText("colleges in CAP");
+    await expect(page.getByRole("region", { name: /the data getmecollege checks/i })).toContainText("colleges in CAP");
     await expect(page.getByRole("link", { name: "Computer & IT" })).toHaveAttribute("href", /\/branches\?group=Computer/);
   });
 

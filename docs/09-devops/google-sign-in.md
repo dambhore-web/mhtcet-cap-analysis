@@ -30,7 +30,7 @@ Do this for **staging** first; repeat for production when approved.
      (shown in Supabase under Authentication → Providers → Google).
 2. **Supabase** → Authentication → Providers → Google: enable, paste the client ID and secret.
    Authentication → URL Configuration: Site URL = the web app's URL; Redirect URLs =
-   `http://localhost:3000/signin` and `https://<web app>/signin`.
+   `http://localhost:3000/signin` and `https://getmecollege.com/signin`.
 3. **Database:** run `007_user_store.sql` in the Supabase SQL editor (or the pipeline's migration
    runner) on staging. It only adds `user_store` and `put_user_item`.
 4. **Web app settings** (Supabase → Project Settings → API):

@@ -14,7 +14,7 @@
 | 2026-09-27 | AG-002 writes code, runs, validates, commits on its branch and loads staging automatically when all checks pass; production load, push and merge need approval | Keeps prod changes human-approved | user | AG-002 spec |
 | 2026-09-27 | Database: Supabase (Postgres), separate staging and production projects | Known from GUPO | user | `09-devops/environments.md` |
 | 2026-09-27 | Official cutoff lists as the primary cutoff source; allotment lists secondary | Covers all colleges in ~9 files; 995/995 Round I values match computed ones | Claude; confirmed by the first AG-002 run | ADR-006 |
-| 2026-09-27 | Product name: **Compass** (domain decided later) | Owner's choice; works for all-India | user | — |
+| 2026-09-27 | Product name: **Compass** (domain decided later). **Superseded** on 2026-10-03 by GetMeCollege, below | Owner's choice; works for all-India | user | — |
 | 2026-09-27 | All-India later; `authority` + `exam` on every record now | Other states planned | user | ADR-007 |
 | 2026-09-27 | Commercial reuse of CET Cell data is permitted | Owner confirmed | user | `07-security/legal-open-items.md` |
 | 2026-09-27 | Build locally first; host on Railway | Known from GUPO | user | `09-devops/environments.md` |
@@ -29,6 +29,8 @@
 | 2026-10-02 | Signed-in sync covers details, option form, compare list, allotment and next-step progress; per piece, the newest copy wins | The dashboard (#139) needs the saved list; no merge prompts | user (#15) | `apps/web/src/lib/sync.ts` |
 | 2026-10-02 | Sign-out removes the synced pieces from that browser (they stay in the account) | Shared family computers | Claude (#15) | `09-devops/google-sign-in.md` |
 | 2026-10-02 | Payments deferred: no Razorpay, paid plans or usage metering until there is real traffic. #21, #34 and #22 stay open but are out of scope until then, and do not block the first production rollout | Validate demand first | user | #21 |
+| 2026-10-03 | Domain **getmecollege.com**; the bare domain is canonical and www.getmecollege.com redirects to it | Owner bought the domain | user | `09-devops/production-rollout.md` |
+| 2026-10-03 | Product renamed **GetMeCollege** everywhere students see it (logo, titles, share text, install name, legal pages, assistant). Internal names (`compass_*` storage keys and events) stay, so saved details and option forms survive | Match the domain | user | — |
 
 ## Open decisions
 | Decision | Needed by |
@@ -38,5 +40,4 @@
 | Plans, prices, free vs paid split (parked) | after real traffic (deferred 2026-10-02) |
 | LLM provider and model (chosen on eval results) | Phase 7 |
 | Store assistant conversations? Retention? | Phase 7 |
-| Domain | before launch |
 | Disclaimer, privacy policy, terms (L4–L6) | before Phase 9 |

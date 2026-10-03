@@ -16,7 +16,7 @@ export function collegeTfws(cache: AppCache, code: string): { seats: number; bra
 }
 
 /**
- * Why a college has no fees on Compass (#42). The FRA (Fee Regulating Authority) approves the fees
+ * Why a college has no fees on GetMeCollege (#42). The FRA (Fee Regulating Authority) approves the fees
  * of unaided private institutes only; government, government-aided, university and deemed
  * institutes have fees set by the state or the university, so they are never on its report.
  */
