@@ -204,7 +204,7 @@ export function EstimatePage() {
         <p>
           Your <strong>percentile</strong> compares you with everyone who took the exam in your session. Your{" "}
           <strong>state merit number</strong> is your rank in the CAP merit list, which CET Cell publishes after registration.
-          CAP allots seats by merit number, so Compass uses it for every result.
+          CAP allots seats by merit number, so GetMeCollege uses it for every result.
         </p>
       </section>
     </div>

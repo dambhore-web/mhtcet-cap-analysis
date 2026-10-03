@@ -6,7 +6,7 @@ const PLACES = [
   { label: "By branch", path: "/branches" },
   { label: "Colleges", path: "/colleges" },
   { label: "My CAP plan", path: "/list" },
-  { label: "Ask Compass", path: "/ask" },
+  { label: "Ask GetMeCollege", path: "/ask" },
   { label: "CAP guide", path: "/guide" },
 ];
 
@@ -46,7 +46,7 @@ test.describe("Top navigation", () => {
 
   test("logo goes home", async ({ page }) => {
     await page.goto("/colleges");
-    await page.getByRole("link", { name: /compass home/i }).click();
+    await page.getByRole("link", { name: /getmecollege home/i }).click();
     await expect(page).toHaveURL(/\/$/);
   });
 

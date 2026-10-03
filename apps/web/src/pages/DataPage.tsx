@@ -11,15 +11,15 @@ const STEPS: { icon: IconName; title: string; body: string }[] = [
   { icon: "book", title: "Official PDFs", body: "Cutoff lists for every round, merit lists, the seat matrix and allotment lists, from the State CET Cell." },
   { icon: "steps", title: "Read by code", body: "Parsers read each page and pull out college, branch, seat type, round and closing merit. Nobody types numbers in by hand." },
   { icon: "check", title: "Checked", body: "Seat counts must match each branch's printed “CAP Seats”, and Round I cutoffs must match the allotment lists." },
-  { icon: "clipboard", title: "Stored with source", body: "Each value keeps the PDF name and page number, so any number can be traced back. You'll see it under “Show as a table” and in Ask Compass answers." },
-  { icon: "lock", title: "No personal data", body: "Compass never stores candidate names or application IDs from the lists." },
+  { icon: "clipboard", title: "Stored with source", body: "Each value keeps the PDF name and page number, so any number can be traced back. You'll see it under “Show as a table” and in Ask GetMeCollege answers." },
+  { icon: "lock", title: "No personal data", body: "GetMeCollege never stores candidate names or application IDs from the lists." },
 ];
 
 type Status = "loading" | "done" | "error";
 
 /** Journey J13, "Can I trust these numbers?" (#114). */
 export function DataPage() {
-  usePageMeta({ title: "Where our numbers come from", description: "The official CET Cell lists behind every closing merit number on Compass, how they are read and checked, and what past cutoffs can't tell you." });
+  usePageMeta({ title: "Where our numbers come from", description: "The official CET Cell lists behind every closing merit number on GetMeCollege, how they are read and checked, and what past cutoffs can't tell you." });
   const [meta, setMeta] = useState<DataMeta | null>(null);
   const [status, setStatus] = useState<Status>("loading");
 
@@ -31,7 +31,7 @@ export function DataPage() {
     <div className="page page--narrow data-page">
       <PageHeader
         title="Where our numbers come from"
-        subtitle="Every cutoff in Compass is read by software from the PDFs the State CET Cell publishes, checked, and stored with the file and page it came from."
+        subtitle="Every cutoff in GetMeCollege is read by software from the PDFs the State CET Cell publishes, checked, and stored with the file and page it came from."
       />
 
       <ol className="data-steps">
@@ -124,7 +124,7 @@ export function DataPage() {
       </section>
 
       <p className="data-foot">
-        Compass is an unofficial guide. Past cutoffs describe what happened, not what will happen. Read the <Link to="/legal">disclaimer</Link>.
+        GetMeCollege is an unofficial guide. Past cutoffs describe what happened, not what will happen. Read the <Link to="/legal">disclaimer</Link>.
       </p>
     </div>
   );

@@ -393,3 +393,10 @@
 .ob-preview-verdict b { color: var(--violet); font-weight: 700; }
 .ob-card h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; font-stretch: 82%; letter-spacing: -0.01em; line-height: 1.05; color: var(--navy-deep); }
 .ob-input { font-family: var(--font-display); font-stretch: 85%; font-size: 40px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* the longer GetMeCollege wordmark: keep the header on one line on small phones */
+@media (max-width: 400px) {
+  .ob-browse-more {
+    display: none;
+  }
+}

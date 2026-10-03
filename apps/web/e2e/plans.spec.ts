@@ -14,7 +14,7 @@ test.describe("No paid plans", () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
-  test("the Terms say Compass is free", async ({ page }) => {
+  test("the Terms say GetMeCollege is free", async ({ page }) => {
     await page.goto("/legal?tab=terms");
     await expect(page.getByRole("heading", { name: "3. Price" })).toBeVisible();
     await expect(page.getByText(/free to use, and we do not take payments/)).toBeVisible();

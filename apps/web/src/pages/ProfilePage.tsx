@@ -218,7 +218,7 @@ export function ProfilePage() {
 
       <section className="card profile-codes" aria-labelledby="profile-codes-title">
         <h2 id="profile-codes-title">Seat codes you can take</h2>
-        <p className="profile-hint">Worked out from your answers above (the same rules Compass uses for your results). These are the codes you'll see in cutoff lists.</p>
+        <p className="profile-hint">Worked out from your answers above (the same rules GetMeCollege uses for your results). These are the codes you'll see in cutoff lists.</p>
         {codeGroups.map((g) => (
           <div key={g.label} className="profile-codes-group">
             <span className="label">{g.label}</span>

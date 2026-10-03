@@ -1,6 +1,13 @@
 # Changelog
 
 ## Unreleased
+### Changed
+- Renamed to **GetMeCollege** (domain getmecollege.com, owner decision 2026-10-03): logo, page
+  titles, share text, install name, legal pages, sign-in, the assistant ("Ask GetMeCollege"),
+  download file names (`getmecollege-option-form.xlsx`, ...) and the support address
+  (support@getmecollege.com, was compass.app, a domain we don't own). Internal storage keys stay
+  `compass_*`, so saved details and option forms carry over. Also: "Ask which is safest" →
+  "which options suit you"; the install description no longer says "colleges you can get".
 ### Fixed
 - Web: the Content Security Policy now allows the Supabase origin; built deployments would
   otherwise have blocked sign-in and sync (#131).

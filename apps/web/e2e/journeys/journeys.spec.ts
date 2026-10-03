@@ -156,7 +156,7 @@ test("J8 · In what order should I fill my option form?", async ({ page }) => {
   await expect(page.getByRole("list", { name: /choice codes in order/i }).getByRole("listitem")).toHaveCount(2);
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download Excel" }).click();
-  expect((await download).suggestedFilename()).toBe("compass-option-form.xlsx");
+  expect((await download).suggestedFilename()).toBe("getmecollege-option-form.xlsx");
 });
 
 test("J8 · the checks show how the list is spread, and suggest widening a narrow one (#137)", async ({ page }) => {
@@ -215,7 +215,7 @@ test("J12 · How does CAP work? What is GOPENS?", async ({ page }) => {
   await topNav(page).getByRole("link", { name: "CAP guide" }).click();
   await page.getByRole("tab", { name: /seat codes/i }).click();
   await expect(page.getByRole("cell", { name: "General open, state level" })).toBeVisible();
-  await topNav(page).getByRole("link", { name: "Ask Compass" }).click();
+  await topNav(page).getByRole("link", { name: "Ask GetMeCollege" }).click();
   await page.getByLabel("Your question").fill("What were the cutoffs at COEP?");
   await page.getByRole("button", { name: /send question/i }).click();
   await expect(page.getByText(/1 source|\d+ sources/).first()).toBeVisible({ timeout: 10_000 });

@@ -126,7 +126,7 @@ export function SummaryPage() {
       ) : !badLink ? (
         <article className="card summary-sheet">
           <header className="summary-head">
-            <span className="summary-brand"><Icon name="compass" size={18} /> Compass · Family summary</span>
+            <span className="summary-brand"><Icon name="compass" size={18} /> GetMeCollege · Family summary</span>
             <span className="summary-facts">
               {s.merit ? `Merit ${formatNumber(s.merit)}` : "Merit not entered"} · {categoryLabel(s.category)} · {s.gender === "F" ? "Female" : "Male"}
             </span>
@@ -186,7 +186,7 @@ export function SummaryPage() {
                   {fees.tfwsAvailable ? " TFWS seats pay no tuition." : ""}
                 </li>
               ) : allotted ? (
-                <li>Annual fee at {allotted.collegeName}: not published in Compass yet. Check the college's FRA fee order.</li>
+                <li>Annual fee at {allotted.collegeName}: not published in GetMeCollege yet. Check the college's FRA fee order.</li>
               ) : null}
             </ul>
           </section>
@@ -197,14 +197,14 @@ export function SummaryPage() {
           </section>
 
           <footer className="summary-foot">
-            Figures come from the official CAP cutoff lists published by the State CET Cell. Compass is an unofficial guide.
+            Figures come from the official CAP cutoff lists published by the State CET Cell. GetMeCollege is an unofficial guide.
           </footer>
         </article>
       ) : null}
 
       {shared && (
         <p className="summary-own">
-          <Link to="/">Make your own plan with Compass</Link>
+          <Link to="/">Make your own plan with GetMeCollege</Link>
         </p>
       )}
     </div>

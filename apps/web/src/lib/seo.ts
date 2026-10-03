@@ -6,10 +6,10 @@ import { useLocation } from "react-router-dom";
  * browser, so each page sets these once its data is in. Wording follows the copy rules: closing
  * ranks are past data, never a promise of a seat.
  */
-export const SITE_NAME = "Compass";
+export const SITE_NAME = "GetMeCollege";
 
 export interface PageMeta {
-  /** Without the site name; " | Compass" is added. */
+  /** Without the site name; " | GetMeCollege" is added. */
   title: string;
   description?: string;
   /** Keep personal or state-dependent pages (option form, My account, results) out of search. */

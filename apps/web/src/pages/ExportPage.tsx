@@ -51,7 +51,7 @@ export function ExportPage() {
       <PageHeader
         breadcrumb={[{ label: "My CAP plan", to: "/list" }, { label: "Export" }]}
         title="Export for the CAP portal"
-        subtitle="Enter these choice codes in the same order on the official CET Cell portal. Compass does not submit your form."
+        subtitle="Enter these choice codes in the same order on the official CET Cell portal. GetMeCollege does not submit your form."
       />
       <PlanSubnav />
 

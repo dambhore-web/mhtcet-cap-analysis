@@ -13,7 +13,7 @@ const LINKS: { id: SectionId; to: string; label: string; icon: IconName }[] = [
   { id: "branches", to: "/branches", label: "By branch", icon: "steps" },
   { id: "colleges", to: "/colleges", label: "Colleges", icon: "building" },
   { id: "plan", to: "/list", label: "My CAP plan", icon: "list" },
-  { id: "ask", to: "/ask", label: "Ask Compass", icon: "chat" },
+  { id: "ask", to: "/ask", label: "Ask GetMeCollege", icon: "chat" },
   { id: "guide", to: "/guide", label: "CAP guide", icon: "book" },
 ];
 
@@ -62,9 +62,9 @@ export function TopNav() {
   return (
     <header className="top-nav">
       <div className="top-nav-inner">
-        <Link to="/" className="top-nav-logo" aria-label="Compass home">
+        <Link to="/" className="top-nav-logo" aria-label="GetMeCollege home">
           <span className="top-nav-logo-mark" aria-hidden="true"><Icon name="compass" size={18} /></span>
-          Compass
+          GetMeCollege
         </Link>
 
         <nav className="top-nav-links" aria-label="Main navigation">

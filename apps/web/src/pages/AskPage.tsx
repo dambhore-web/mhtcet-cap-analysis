@@ -47,7 +47,7 @@ const FOLLOW_UPS = [
 
 
 export function AskPage() {
-  usePageMeta({ title: "Ask Compass", noindex: true });
+  usePageMeta({ title: "Ask GetMeCollege", noindex: true });
   const { profile } = useProfile();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -174,7 +174,7 @@ export function AskPage() {
   return (
     <div className="page ask-page">
       <PageHeader
-        title="Ask Compass"
+        title="Ask GetMeCollege"
         subtitle="Answers come from the official cutoff lists, and every number is cited. Past cutoffs are not a guarantee of admission."
         actions={
           messages.length > 0 && (
@@ -236,7 +236,7 @@ export function AskPage() {
         {isTyping && (
           <div className="ask-bubble-wrap assistant">
             <span className="ask-ai-dot" aria-hidden="true"><Icon name="sparkle" size={14} /></span>
-            <div className="ask-bubble assistant ask-typing" role="status" aria-label="Compass is typing">
+            <div className="ask-bubble assistant ask-typing" role="status" aria-label="GetMeCollege is typing">
               <span /><span /><span />
             </div>
           </div>
@@ -308,7 +308,7 @@ export function AskPage() {
           {latestSources.length ? <SourceList sources={latestSources} /> : <p>Sources appear here after an answer.</p>}
         </section>
         <section className="card ask-side-card">
-          <h2 className="label">How Ask Compass works</h2>
+          <h2 className="label">How Ask GetMeCollege works</h2>
           <p>It looks up the official cutoff lists for you, then explains the result. If a number isn't in the data, it says so instead of guessing.</p>
           <p>It can't tell you this year's cutoffs: nobody knows them yet.</p>
         </section>

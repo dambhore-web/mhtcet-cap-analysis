@@ -20,7 +20,7 @@ step held back, so the rollout is one pass. Add to it whenever a change needs a 
       production Supabase callback URL to its redirect URIs (or a separate production client).
 - [ ] Google Cloud: publish the consent screen (out of Testing) so any student can sign in.
 - [ ] Supabase: enable Google with the client ID and secret; set Site URL and add
-      `https://<web>/signin` to Redirect URLs.
+      `https://getmecollege.com/signin` to Redirect URLs (Site URL: `https://getmecollege.com`).
 - [ ] Supabase: turn **off** Email (and Phone) sign-up (#131).
 - [ ] Run `npm run check:supabase -w @mhtcet/web` with the production URL and anon key: all PASS.
 
@@ -32,11 +32,20 @@ step held back, so the rollout is one pass. Add to it whenever a change needs a 
       sync work on the production URL.
 
 ## SEO (`docs/09-devops/seo.md`)
-- [ ] Choose the public domain (open decision in `docs/DECISIONS.md`).
-- [ ] Production web service: `VITE_SITE_URL=https://<domain>` (build time). Never on staging.
+- [x] Domain chosen: **getmecollege.com**, bare domain canonical (2026-10-03).
+- [ ] DNS: point getmecollege.com and www.getmecollege.com at the Railway web service (custom domains);
+      www redirects to the bare domain. Point the API at e.g. api.getmecollege.com.
+- [ ] Production web service: `VITE_SITE_URL=https://getmecollege.com` (build time). Never on staging.
 - [ ] After deploy: `/robots.txt` allows crawling and lists the sitemap; `/sitemap.xml` has every
       college and branch page.
-- [ ] Google Search Console: verify the domain and submit `https://<domain>/sitemap.xml`.
+- [ ] Google Search Console: verify the domain and submit `https://getmecollege.com/sitemap.xml`.
+
+## Brand and contact (GetMeCollege)
+- [ ] Create the mailbox **support@getmecollege.com**: the privacy policy and terms list it as the contact.
+- [ ] Google OAuth consent screen: app name "GetMeCollege", home page `https://getmecollege.com`,
+      privacy policy `https://getmecollege.com/legal?tab=privacy`, terms `https://getmecollege.com/legal?tab=terms`;
+      JavaScript origin `https://getmecollege.com`.
+- [ ] API service: `CORS_ORIGINS=https://getmecollege.com`.
 
 ## Staging, before the rollout
 - [x] Turn off Email sign-up on staging; `npm run check:supabase -w @mhtcet/web` all PASS (2026-10-02).
