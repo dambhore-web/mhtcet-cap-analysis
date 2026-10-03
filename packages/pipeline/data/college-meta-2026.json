@@ -308,7 +308,7 @@
     "collegeType": "Unaided"
   },
   "03012": {
-    "district": "Mumbai-Suburban",
+    "district": "Mumbai-City",
     "collegeType": "Government-Aided"
   },
   "03014": {
@@ -328,7 +328,7 @@
     "collegeType": "Government"
   },
   "03036": {
-    "district": "Mumbai-Suburban",
+    "district": "Mumbai-City",
     "collegeType": "Deemed University"
   },
   "03042": {
@@ -564,7 +564,7 @@
     "collegeType": "Unaided"
   },
   "03465": {
-    "district": "Thane",
+    "district": "Palghar",
     "collegeType": "Unaided"
   },
   "03467": {
@@ -1404,7 +1404,7 @@
     "collegeType": "Unaided"
   },
   "06725": {
-    "district": "Satara",
+    "district": "Solapur",
     "collegeType": "Unaided"
   },
   "06732": {

@@ -24,6 +24,11 @@
   `compass_*`, so saved details and option forms carry over. Also: "Ask which is safest" →
   "which options suit you"; the install description no longer says "colleges you can get".
 ### Fixed
+- Four colleges were in the wrong district: VJTI and ICT (Matunga) showed under Mumbai Suburban
+  instead of Mumbai City, New Satara College (Pandharpur) under Satara instead of Solapur, Ideal
+  Institute (Wada) under Thane instead of Palghar. Their districts had been guessed from the name;
+  fixed in `college-meta-2026.json`, the generator script (its Mumbai City / Suburban areas were
+  swapped) and migration `009_fix_college_districts.sql`.
 - College page descriptions dropped the district for many colleges (e.g. in Nashik): the check for
   "name already says where it is" split the district on the letter "s" instead of whitespace.
 - Web: the Content Security Policy now allows the Supabase origin; built deployments would
