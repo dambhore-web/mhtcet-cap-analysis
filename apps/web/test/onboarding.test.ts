@@ -6,7 +6,7 @@ import {
   parseMerit,
   parsePercentile,
   profileResultsPath,
-  searchMerit,
+  searchScore,
   toFindParams,
   toProfile,
   visibleSteps,
@@ -37,9 +37,10 @@ describe("parsing", () => {
     expect(parsePercentile("0")).toBeNull();
     expect(parsePercentile("101")).toBeNull();
   });
-  it("searches with the middle of an estimated range", () => {
-    expect(searchMerit(a({ have: "percentile", estimate: [11900, 13100] }))).toBe(12500);
-    expect(searchMerit(a({ have: "percentile", estimate: null }))).toBeNull();
+  it("searches with the merit number or the percentile as typed, nothing estimated", () => {
+    expect(searchScore(a({ merit: "12,450" }))).toEqual({ merit: 12450 });
+    expect(searchScore(a({ have: "percentile", percentile: "96.82" }))).toEqual({ percentile: 96.82 });
+    expect(searchScore(a({ have: "percentile", percentile: "" }))).toBeNull();
   });
 });
 
@@ -55,10 +56,11 @@ describe("toFindParams", () => {
       bg: "Computer & IT,Electronics & Telecom", scan: "1",
     });
   });
-  it("marks a percentile search as estimated", () => {
-    const p = toFindParams(a({ have: "percentile", estimate: [11900, 13100], subjectGroup: "PCB" }))!;
-    expect(p.get("merit")).toBe("12500");
-    expect(p.get("est")).toBe("1");
+  it("sends a percentile as a percentile search", () => {
+    const p = toFindParams(a({ have: "percentile", percentile: "96.82", subjectGroup: "PCB" }))!;
+    expect(p.get("pct")).toBe("96.82");
+    expect(p.get("merit")).toBeNull();
+    expect(p.get("est")).toBeNull();
     expect(p.get("subj")).toBe("PCB");
   });
   it("sends JEE students to All India seats without state-quota details", () => {
@@ -81,8 +83,8 @@ describe("toProfile", () => {
       flags: { ews: true, tfws: true, defence: false, pwd: false, orphan: false } }));
     expect(p).toMatchObject({ meritNumber: 12450, category: "OBC", gender: "F", minorityCommunity: "Muslim", ews: false, tfws: true });
   });
-  it("doesn't save an estimate or an All India merit number as the state merit number", () => {
-    expect(toProfile(a({ have: "percentile", estimate: [100, 200] })).meritNumber).toBeNull();
+  it("doesn't save a percentile or an All India merit number as the state merit number", () => {
+    expect(toProfile(a({ have: "percentile", percentile: "96.82" })).meritNumber).toBeNull();
     expect(toProfile(a({ exam: "AI", merit: "900" })).meritNumber).toBeNull();
   });
 });

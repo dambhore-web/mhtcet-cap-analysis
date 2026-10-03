@@ -76,14 +76,13 @@ test.describe("First visit: landing, questions one at a time, scan, results (#14
     await expect(page).not.toHaveURL(/bg=/);
   });
 
-  test("a percentile gives an estimated range and estimated results", async ({ page }) => {
+  test("a percentile is searched as a percentile, against the closing percentiles", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/welcome/start");
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByText("Only my MHT-CET percentile").click();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByLabel("Percentile").fill("95");
-    await expect(page.getByText(/estimated\s+merit number/i)).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByText("Step 4 of 9")).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click(); // category: Open
@@ -93,8 +92,10 @@ test.describe("First visit: landing, questions one at a time, scan, results (#14
     await page.getByRole("button", { name: "None of these" }).click();
     await page.getByRole("button", { name: "Skip" }).click();
     await page.getByRole("button", { name: "No preference" }).click();
-    await expect(page.getByRole("heading", { name: /options for merit ≈/i })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText("Estimated", { exact: true })).toBeVisible();
+    await expect(page).toHaveURL(/[?&]pct=95(&|$)/);
+    await expect(page.getByRole("heading", { name: /options for percentile 95\.00/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("note").first()).toContainText(/percentile of the last student admitted/i);
+    await expect(page.getByText("Estimated", { exact: true })).toHaveCount(0);
   });
 
   test("JEE skips the state-quota questions @phone", async ({ page }) => {
@@ -183,7 +184,7 @@ test.describe("Answer tiles on Find colleges (#142)", () => {
   test("with no merit number yet, asks for one", async ({ page }) => {
     await seed(page, { profile: { ...PROFILE, meritNumber: null } });
     await page.goto("/find");
-    await expect(page.getByRole("heading", { name: /enter your merit number/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /enter your percentile or merit number/i })).toBeVisible();
     await page.getByLabel("Merit number").fill("5200");
     await expect(page.getByRole("heading", { level: 2, name: /options for merit 5,200/i })).toBeVisible();
   });

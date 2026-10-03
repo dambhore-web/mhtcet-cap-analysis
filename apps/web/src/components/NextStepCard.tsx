@@ -22,7 +22,7 @@ function readDismissed(): string | null {
  * "What should I do next?" (#135): one primary action for where the student is in CAP, from what
  * this browser already knows. Dismissing hides it for the session, until the step changes.
  */
-export function NextStepCard() {
+export function NextStepCard({ hasScore = false }: { hasScore?: boolean } = {}) {
   const { profile } = useProfile();
   const items = useList();
   const allotment = useAllotment();
@@ -31,7 +31,7 @@ export function NextStepCard() {
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(readDismissed);
 
-  const step = nextStep({ merit: profile.meritNumber, listSize: items.length, allotment, progress });
+  const step = nextStep({ merit: profile.meritNumber, hasScore, listSize: items.length, allotment, progress });
   if (dismissed === step.id) return null;
 
   const [path, hash] = step.to.split("#");

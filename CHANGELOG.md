@@ -2,6 +2,16 @@
 
 ## Unreleased
 ### Added
+- Find colleges by **percentile**, and results in **two views** (percentile or merit number).
+  Students know their MHT-CET / JEE percentile weeks before the merit list, so the score tile and
+  the questions take either. A percentile is matched against the closing percentile each CAP list
+  prints for the last student admitted (`POST /api/rank-finder` takes `percentile`; every option
+  now carries closing percentiles per round and per earlier year). Nothing is estimated: on the
+  2026 data a percentile search gives the same status as the matching merit number for all 2,259
+  options checked but one tie. A "Percentile | Merit number" switch shows every figure either way
+  (closings, gaps, past years, the ruler and ladders); the figure the student didn't type is read
+  off this year's printed merit–percentile pairs (`GET /api/percentile-scale`) and marked "≈".
+  Shared links use `pct=`; old `merit=…&est=1` links still work.
 - SEO, prerendered pages (`docs/09-devops/seo.md`): in production builds (`VITE_SITE_URL` set) every
   public URL gets a ready-made HTML file with its own title, description, canonical URL, share tags,
   structured data (`CollegeOrUniversity`, `BreadcrumbList`, `WebSite`) and a plain-HTML version of
@@ -24,6 +34,9 @@
   `compass_*`, so saved details and option forms carry over. Also: "Ask which is safest" →
   "which options suit you"; the install description no longer says "colleges you can get".
 ### Fixed
+- API: the cache year's closing percentiles were loaded as text (Postgres `numeric`); now numbers.
+- Parent summary PDF: "Your position" was red for every option ("better" never started with "+").
+- Scan screen: "for every branch you could get" → "for each of your options" (copy rules).
 - Four colleges were in the wrong district: VJTI and ICT (Matunga) showed under Mumbai Suburban
   instead of Mumbai City, New Satara College (Pandharpur) under Satara instead of Solapur, Ideal
   Institute (Wada) under Thane instead of Palghar. Their districts had been guessed from the name;

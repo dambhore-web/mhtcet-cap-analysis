@@ -23,7 +23,9 @@ const ResultFiltersSchema = z.object({
 
 const RequestSchema = z.object({
   year: z.number().int().min(2023).max(2030).default(2026),
-  merit: z.number().int().min(1),
+  /** Merit number, or percentile (before the merit list is out): one of the two is required. */
+  merit: z.number().int().min(1).nullish(),
+  percentile: z.number().gt(0).max(100).nullish(),
   /** MH = state merit number against state-quota seats; AI = All India merit number against AI seats (JEE Main). */
   candidature: z.enum(["MH", "AI"]).default("MH"),
   homeUniversity: z.string().nullable().default(null),
@@ -33,7 +35,7 @@ const RequestSchema = z.object({
   flags: FlagsSchema,
   subjectGroup: z.enum(["PCM", "PCB"]).default("PCM"),
   filters: ResultFiltersSchema,
-});
+}).refine((r) => r.merit != null || r.percentile != null, { message: "merit or percentile is required", path: ["merit"] });
 
 /** POST /api/rank-finder */
 export async function postRankFinder(c: Context, cache: AppCache) {
@@ -55,6 +57,6 @@ export async function postRankFinder(c: Context, cache: AppCache) {
     return c.json({ error: "year_not_loaded", message: `Only year ${cache.year} is available` }, 404);
   }
 
-  const options = findOptions(cache, req);
+  const options = findOptions(cache, { ...req, merit: req.merit ?? null, percentile: req.percentile ?? null });
   return c.json({ options, count: options.length });
 }

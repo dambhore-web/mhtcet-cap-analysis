@@ -11,6 +11,10 @@ describe("nextStep (#135): one primary action per CAP stage", () => {
     expect([s.id, s.to]).toEqual(["estimate", "/estimate"]);
   });
 
+  it("after a search by percentile, goes on to adding choices instead of estimating", () => {
+    expect(nextStep({ ...base, merit: null, hasScore: true }).id).toBe("add-choices");
+  });
+
   it("with a merit number and an empty option form, adds choices from the results", () => {
     const s = nextStep(base);
     expect([s.id, s.title]).toEqual(["add-choices", "Add choices to your option form"]);

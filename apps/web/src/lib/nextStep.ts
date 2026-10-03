@@ -20,13 +20,15 @@ export interface NextStep {
 }
 
 export interface StepState {
+  /** The student has searched with a percentile on this page, so no estimate is needed. */
+  hasScore?: boolean;
   merit: number | null;
   listSize: number;
   allotment: Allotment | null;
   progress: Progress;
 }
 
-export function nextStep({ merit, listSize, allotment, progress }: StepState): NextStep {
+export function nextStep({ merit, hasScore = false, listSize, allotment, progress }: StepState): NextStep {
   if (allotment) {
     if (decidedOn(progress, allotment))
       return {
@@ -47,7 +49,7 @@ export function nextStep({ merit, listSize, allotment, progress }: StepState): N
       to: "/allotment",
     };
   }
-  if (!merit)
+  if (!merit && !hasScore)
     return {
       id: "estimate",
       stage: "Before the merit list",

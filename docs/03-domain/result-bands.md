@@ -14,6 +14,12 @@ displays it.
 "10% worse" means `merit <= closing × 1.10`. With a closing of 10,000, merit 11,000 is Reach and
 11,001 is out. The 10% margin was chosen by the owner on 2026-10-02 (`REACH_MARGIN`).
 
+**Searching by percentile.** Likely and Target come straight from the percentiles: the student's
+percentile against the closing percentile printed on each row (at or above = within). Reach stays
+a merit-number rule: the percentile is placed at the merit number it matches on this year's lists
+(`GET /api/percentile-scale`, the printed merit–percentile pairs), and the 10% applies to that.
+The results can show every figure as a percentile or a merit number; the bands are the same in both.
+
 ## Wording
 
 - Never "safe" or "guaranteed": every band describes last year's closing, not this year's outcome.

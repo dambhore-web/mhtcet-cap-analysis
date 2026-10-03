@@ -1,5 +1,6 @@
 import type { HistoryRow } from "./yearTrend";
 import type { DistrictDetail, DistrictSummary } from "./districts";
+import type { ScalePoint } from "./percentile";
 export type Category = "OPEN" | "OBC" | "SEBC" | "SC" | "ST" | "VJ" | "NT1" | "NT2" | "NT3";
 export type RankStatus = "round-I" | "later-round" | "out-of-range";
 
@@ -34,7 +35,9 @@ export const BRANCH_GROUPS = [
 
 export interface FindRequest {
   year?: number;
-  merit: number;
+  /** One of merit and percentile; a percentile is matched against each row's closing percentile. */
+  merit: number | null;
+  percentile?: number | null;
   candidature?: Candidature;
   homeUniversity: string | null;
   category: Category | null;
@@ -62,11 +65,15 @@ export interface FindOption {
   status: RankStatus;
   round: number | string | null;
   closingMerit: number;
+  /** The same last-admitted candidate's percentile, as printed (null when not printed). */
+  closingPercentile?: number | null;
   /** Round I closing for this seat type (null if it had no Round I value). */
   firstRoundClosing?: number | null;
   /** Closing in the last published round. */
   lastRoundClosing?: number | null;
-  rounds?: { round: string; closingMerit: number }[];
+  firstRoundPercentile?: number | null;
+  lastRoundPercentile?: number | null;
+  rounds?: { round: string; closingMerit: number; closingPercentile?: number | null }[];
   /** Official list and page behind closingMerit (NFR-001). */
   source?: SourceRef | null;
   year: number;
@@ -80,6 +87,8 @@ export interface PastYear {
   year: number;
   /** Closing rank in that year's last round. */
   lastRoundClosing: number;
+  /** The same row's closing percentile (null when that year's list didn't print it). */
+  lastRoundPercentile?: number | null;
 }
 
 export interface FindResponse {
@@ -297,6 +306,9 @@ export const api = {
     ),
   collegeFees: (code: string) =>
     get<CollegeFees | CollegeFeesUnavailable>(`/api/colleges/${code}/fees`),
+  /** Merit number ↔ percentile pairs from the cutoff lists (the Find page's two views). */
+  percentileScale: (list: Candidature) =>
+    get<{ year: number; list: Candidature; points: ScalePoint[] }>(`/api/percentile-scale?list=${list}`),
   /** District landing pages (SEO): every district, then one district's colleges and branches. */
   districts: () => get<{ year: number; districts: DistrictSummary[] }>("/api/districts"),
   district: (slug: string) => get<DistrictDetail>(`/api/districts/${encodeURIComponent(slug)}`),

@@ -23,6 +23,9 @@ import { pastSummary } from "../lib/yearTrend";
 import { BAND_LABELS, bandOf, type Band } from "@mhtcet/core";
 import type { IconName } from "../components/Icon";
 import { describeMeritGap } from "../lib/meritGap";
+import {
+  describePercentileGap, formatPercentile, meritToPercentile, parsePercentileText, percentileToMerit, type ScalePoint, type ScoreKind,
+} from "../lib/percentile";
 
 /** What the last search was run with, so results can say "All India" or "estimated". */
 interface SearchKind {
@@ -31,9 +34,19 @@ interface SearchKind {
 }
 
 interface FormState extends TileAnswers {
-  /** The merit number as typed in its tile. */
+  /** The merit number or percentile as typed in its tile. */
   score: string;
+  /** Which of the two the tile takes (students know their percentile before the merit list). */
+  scoreKind: ScoreKind;
   subjectGroup: "PCM" | "PCB";
+}
+
+/** What a search runs with: a merit number, or a percentile matched against closing percentiles. */
+type Score = { kind: ScoreKind; value: number };
+
+function parseScore(f: Pick<FormState, "score" | "scoreKind">): Score | null {
+  const value = f.scoreKind === "percentile" ? parsePercentileText(f.score) : parseMerit(f.score);
+  return value == null ? null : { kind: f.scoreKind, value };
 }
 
 type Status = "idle" | "loading" | "done" | "error";
@@ -46,9 +59,11 @@ export function FindPage() {
   const { profile, setProfile } = useProfile();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const pctParam = searchParams.get("pct");
   const initialForm: FormState = {
     exam: searchParams.get("list") === "AI" ? "AI" : "MH",
-    score: searchParams.get("merit") ?? (profile.meritNumber ? String(profile.meritNumber) : ""),
+    scoreKind: pctParam ? "percentile" : "merit",
+    score: pctParam ?? searchParams.get("merit") ?? (profile.meritNumber ? String(profile.meritNumber) : ""),
     category: (searchParams.get("cat") as Category | "") || profile.category || "",
     gender: (searchParams.get("gen") as "M" | "F") || profile.gender,
     subjectGroup: (searchParams.get("subj") as "PCM" | "PCB") || profile.subjectGroup,
@@ -64,11 +79,30 @@ export function FindPage() {
   // Branch groups chosen during onboarding (#142) open the results filtered to them
   const initialGroups = parseBranchGroups(searchParams.get("bg"), BRANCH_GROUPS);
   // The first search after onboarding shows the "checking the CAP lists" screen
-  const [scanning, setScanning] = useState(() => searchParams.get("scan") === "1" && !!searchParams.get("merit"));
+  const [scanning, setScanning] = useState(() => searchParams.get("scan") === "1" && !!(searchParams.get("merit") || pctParam));
   const scanRef = useRef(scanning);
   const [status, setStatus] = useState<Status>("idle");
   const [options, setOptions] = useState<FindOption[]>([]);
+  // The ladders, bands and "what if" pin work in merit numbers; a percentile search is placed on them
+  // through the merit ↔ percentile pairs printed on the lists (lib/percentile.ts)
   const [searchedMerit, setSearchedMerit] = useState<number>(0);
+  /** The percentile searched with, when the student searched by percentile. */
+  const [searchedPct, setSearchedPct] = useState<number | null>(null);
+  /** Which figure the results show: the two views, merit number or percentile. */
+  const [figures, setFigures] = useState<ScoreKind>(initialForm.scoreKind);
+  const [scale, setScale] = useState<ScalePoint[]>([]);
+  const scales = useRef(new Map<Candidature, Promise<ScalePoint[]>>());
+  const loadScale = useCallback((list: Candidature) => {
+    let p = scales.current.get(list);
+    if (!p) {
+      p = api.percentileScale(list).then((r) => r.points).catch(() => {
+        scales.current.delete(list); // try again on the next search
+        return [] as ScalePoint[];
+      });
+      scales.current.set(list, p);
+    }
+    return p;
+  }, []);
   const [searchKind, setSearchKind] = useState<SearchKind>({ candidature: "MH", estimated: false });
   const [resultFilters, setResultFilters] = useState<ResultFilters>({});
   const [filterLoading, setFilterLoading] = useState(false);
@@ -81,7 +115,7 @@ export function FindPage() {
   // A merit number estimated from a percentile stays "estimated" until the student types their own
   const estimatedRef = useRef(searchParams.get("est") === "1");
   const [showAll, setShowAll] = useState(false);
-  const [view, setView] = useState<"college" | "all">("college");
+  const [grouping, setGrouping] = useState<"college" | "all">("college");
   const [whatIf, setWhatIf] = useState<number | null>(null);
   const [bandFilter, setBandFilter] = useState<Band | null>(null);
   const [whatIfOptions, setWhatIfOptions] = useState<FindOption[] | null>(null);
@@ -96,18 +130,19 @@ export function FindPage() {
 
   useEffect(() => () => { if (meritTimer.current) clearTimeout(meritTimer.current); }, []);
 
-  const doSearch = useCallback(async (merit: number, f: FormState, kind: SearchKind = { candidature: "MH", estimated: false }, filters: ResultFilters = {}) => {
+  const doSearch = useCallback(async (score: Score, f: FormState, kind: SearchKind = { candidature: "MH", estimated: false }, filters: ResultFilters = {}) => {
     const seq = ++searchSeq.current;
     setStatus("loading");
     setShowAll(false);
     setResultFilters(filters);
     setWhatIf(null);
     setWhatIfOptions(null);
+    const byPct = score.kind === "percentile";
 
     // Push shareable URL
-    const p: Record<string, string> = { merit: String(merit) };
+    const p: Record<string, string> = byPct ? { pct: String(score.value) } : { merit: String(score.value) };
     if (kind.candidature === "AI") p.list = "AI";
-    if (kind.estimated) p.est = "1";
+    if (kind.estimated && !byPct) p.est = "1";
     if (f.category) p.cat = f.category;
     if (f.gender !== "M") p.gen = f.gender;
     if (f.subjectGroup !== "PCM") p.subj = f.subjectGroup;
@@ -123,7 +158,8 @@ export function FindPage() {
     setSearchParams(p, { replace: true });
 
     const req = {
-      merit,
+      merit: byPct ? null : score.value,
+      percentile: byPct ? score.value : null,
       candidature: kind.candidature,
       homeUniversity: f.homeUniversity || null,
       category: f.category || null,
@@ -136,10 +172,13 @@ export function FindPage() {
     lastRequest.current = req;
 
     try {
-      const res = await api.find({ ...req, filters });
+      const [res, points] = await Promise.all([api.find({ ...req, filters }), loadScale(kind.candidature)]);
       if (seq !== searchSeq.current) return;
       setOptions(res.options);
-      setSearchedMerit(merit);
+      setScale(points);
+      // a percentile is placed on the merit ladders at the merit number it matched on the lists
+      setSearchedMerit(byPct ? percentileToMerit(points, score.value) ?? 1 : score.value);
+      setSearchedPct(byPct ? score.value : null);
       setWhatIf(null);
       setSearchKind(kind);
       setStatus("done");
@@ -150,7 +189,7 @@ export function FindPage() {
     } finally {
       if (seq === searchSeq.current) setFilterLoading(false);
     }
-  }, [setSearchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [setSearchParams, loadScale]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // When the slider moves below the searched merit, fetch the broader result set.
   useEffect(() => {
@@ -160,7 +199,8 @@ export function FindPage() {
     whatIfTimer.current = setTimeout(async () => {
       setWhatIfLoading(true);
       try {
-        const res = await api.find({ ...lastRequest.current!, merit: whatIf });
+        // the pin moves along merit numbers, whichever figure the search used
+        const res = await api.find({ ...lastRequest.current!, merit: whatIf, percentile: null });
         setWhatIfOptions(res.options);
       } catch { /* keep client-side remark on failure */ } finally {
         setWhatIfLoading(false);
@@ -172,10 +212,10 @@ export function FindPage() {
   // Search straight away: from the URL (a shared link or the step-by-step questions), else from My details
   useEffect(() => {
     if (autoSubmittedRef.current) return;
-    const merit = parseMerit(initialForm.score);
-    if (!merit) return;
+    const score = parseScore(initialForm);
+    if (!score) return;
     autoSubmittedRef.current = true;
-    doSearch(merit, initialForm, {
+    doSearch(score, initialForm, {
       candidature: initialForm.exam,
       estimated: estimatedRef.current,
     }, initialGroups.length ? { branchGroups: initialGroups } : {});
@@ -199,14 +239,15 @@ export function FindPage() {
 
   /** Search again with changed answers, and remember them in My details (state-merit answers only). */
   function searchWith(next: FormState, filters: ResultFilters) {
-    const merit = parseMerit(next.score);
-    if (!merit) return;
-    const kind: SearchKind = { candidature: next.exam, estimated: estimatedRef.current };
-    doSearch(merit, next, kind, filters);
+    const score = parseScore(next);
+    if (!score) return;
+    const kind: SearchKind = { candidature: next.exam, estimated: estimatedRef.current && score.kind === "merit" };
+    doSearch(score, next, kind, filters);
     if (next.exam === "MH") {
       setProfile({
         ...profile,
-        meritNumber: kind.estimated ? profile.meritNumber : merit,
+        // only a real merit number is saved: a percentile or an estimate would be read as one elsewhere
+        meritNumber: kind.estimated || score.kind === "percentile" ? profile.meritNumber : score.value,
         category: next.category || null,
         gender: next.gender,
         homeUniversity: next.homeUniversity,
@@ -230,22 +271,35 @@ export function FindPage() {
     setForm((f) => ({ ...f, score: text }));
     setMeritError("");
     if (meritTimer.current) clearTimeout(meritTimer.current);
-    if (parseMerit(text)) meritTimer.current = setTimeout(() => commitMerit(text), MERIT_DEBOUNCE_MS);
+    if (parseScore({ score: text, scoreKind: latest.current.form.scoreKind })) {
+      meritTimer.current = setTimeout(() => commitMerit(text), MERIT_DEBOUNCE_MS);
+    }
   }
 
   function commitMerit(text: string) {
     if (meritTimer.current) clearTimeout(meritTimer.current);
     if (!text.trim()) return;
-    const merit = parseMerit(text);
-    if (!merit) {
-      setMeritError("Enter a merit number, like 12450.");
+    const { form: f, resultFilters: filters } = latest.current;
+    const score = parseScore({ score: text, scoreKind: f.scoreKind });
+    if (!score) {
+      setMeritError(f.scoreKind === "percentile" ? "Enter a percentile between 0 and 100, like 96.42." : "Enter a merit number, like 12450.");
       return;
     }
-    const { form: f, resultFilters: filters } = latest.current;
     // Leaving the field after the typing pause already searched: nothing new to fetch
-    if (lastRequest.current?.merit === merit && lastRequest.current.candidature === f.exam) return;
+    const last = lastRequest.current;
+    const same = score.kind === "percentile" ? last?.percentile === score.value : last?.merit === score.value;
+    if (same && last?.candidature === f.exam) return;
     estimatedRef.current = false;
     searchWith({ ...f, score: text }, filters);
+  }
+
+  /** The score tile's switch: type a merit number or a percentile. The results switch view with it. */
+  function changeScoreKind(kind: ScoreKind) {
+    if (kind === form.scoreKind) return;
+    if (meritTimer.current) clearTimeout(meritTimer.current);
+    setMeritError("");
+    setForm((f) => ({ ...f, scoreKind: kind, score: "" }));
+    setFigures(kind);
   }
 
   async function applyFilter(newFilters: ResultFilters) {
@@ -273,6 +327,27 @@ export function FindPage() {
 
   // "What if my merit were…": prefer fresh API results; fall back to client-side re-mark while loading.
   const effMerit = whatIf ?? searchedMerit;
+  // The two views: every figure in merit numbers or in percentiles. The student's own percentile is
+  // what they typed; after a merit search (or with the pin moved) it is read off the printed pairs.
+  const view = useMemo<FigureView>(() => {
+    const pctOf = (m: number) => meritToPercentile(scale, m);
+    const youPct = whatIf == null && searchedPct != null ? searchedPct : pctOf(effMerit);
+    const percentile = figures === "percentile" && youPct != null;
+    return {
+      percentile,
+      youPct,
+      pctOf,
+      fmt: (m: number) => {
+        // the student's own position shows the percentile they typed, not one read back off the pairs
+        const p = !percentile ? null : m === effMerit ? youPct : pctOf(m);
+        return p == null ? formatNumber(m) : formatPercentile(p);
+      },
+      // the figure the student didn't type is read off the lists, so it is marked "≈"
+      you: percentile
+        ? `${searchedPct != null && whatIf == null ? "" : "≈ "}${formatPercentile(youPct!)}`
+        : `${searchedPct != null && whatIf == null ? "≈ " : ""}${formatNumber(effMerit)}`,
+    };
+  }, [scale, figures, searchedPct, whatIf, effMerit]);
   const shown = useMemo(() => {
     if (whatIf == null) return options;
     if (whatIfOptions) return whatIfOptions;
@@ -292,8 +367,8 @@ export function FindPage() {
     return bandFilter ? visible.filter((o) => bandOf(o.status, effMerit, o.closingMerit) === bandFilter) : visible;
   }, [shown, whatIf, effMerit, bandFilter]);
   const groups = useMemo(() => groupByCollege(displayed), [displayed]);
-  const PAGE = view === "college" ? 12 : 30;
-  const total = view === "college" ? groups.length : displayed.length;
+  const PAGE = grouping === "college" ? 12 : 30;
+  const total = grouping === "college" ? groups.length : displayed.length;
   const domain = useMemo(
     () => ladderDomain(options.flatMap((o) => [o.firstRoundClosing ?? o.closingMerit, o.lastRoundClosing ?? o.closingMerit]).concat(effMerit ? [effMerit] : [])),
     [options, effMerit],
@@ -307,8 +382,11 @@ export function FindPage() {
 
   if (scanning) {
     const merit = parseInt(searchParams.get("merit") ?? "0", 10);
+    const scanPct = pctParam ? parsePercentileText(pctParam) : null;
     const pills = [
-      `${searchParams.get("list") === "AI" ? "All India merit" : "Merit"} ${searchParams.get("est") === "1" ? "≈ " : ""}${formatNumber(merit)}`,
+      scanPct
+        ? `Percentile ${formatPercentile(scanPct)}`
+        : `${searchParams.get("list") === "AI" ? "All India merit" : "Merit"} ${searchParams.get("est") === "1" ? "≈ " : ""}${formatNumber(merit)}`,
       ...(searchParams.get("list") === "AI"
         ? []
         : [
@@ -325,6 +403,7 @@ export function FindPage() {
         <ScanProgress
           request={{
             merit,
+            percentile: scanPct,
             candidature: searchParams.get("list") === "AI" ? "AI" : "MH",
             estimated: searchParams.get("est") === "1",
             category: form.category,
@@ -355,12 +434,14 @@ export function FindPage() {
           </Link>
         </div>
 
-        <NextStepCard />
+        <NextStepCard hasScore={searchedPct != null} />
 
         <AnswerTiles
           answers={form}
           merit={form.score}
           meritError={meritError}
+          scoreKind={form.scoreKind}
+          onScoreKind={changeScoreKind}
           branchGroups={resultFilters.branchGroups ?? []}
           onChange={changeAnswers}
           onMeritInput={inputMerit}
@@ -381,10 +462,10 @@ export function FindPage() {
 
         {searchedMerit === 0 && status === "idle" && (
           <div className="find-empty card">
-            <h2>Enter your merit number to see your options</h2>
+            <h2>Enter your percentile or merit number to see your options</h2>
             <p>
-              Type it in the merit number tile above. Not published yet?{" "}
-              <Link to="/estimate">Estimate it from your percentile</Link>
+              Type it in the first tile above. Merit list not out yet? Switch the tile to Percentile and
+              use your MHT-CET percentile: it is compared with the closing percentiles on the CAP lists.
             </p>
           </div>
         )}
@@ -398,12 +479,21 @@ export function FindPage() {
                 <h2 id="results-title">
                   {options.length === 0
                     ? "No options found"
-                    : `${formatNumber(roundI.length + later.length)} options for ${searchKind.candidature === "AI" ? "All India merit" : "merit"} ${searchKind.estimated ? "≈ " : ""}${formatNumber(effMerit)}`}
+                    : view.percentile
+                      ? `${formatNumber(roundI.length + later.length)} options for ${searchKind.candidature === "AI" ? "JEE " : ""}percentile ${view.you}`
+                      : `${formatNumber(roundI.length + later.length)} options for ${searchKind.candidature === "AI" ? "All India merit" : "merit"} ${searchKind.estimated && whatIf == null ? "≈ " : ""}${view.you}`}
                 </h2>
                 <p>
                   {searchKind.candidature === "AI" ? "All India seats, from last year's All India cutoff lists. " : "Based on last year's official closing ranks. "}
                   A guide, not a guarantee.
                 </p>
+                {searchedPct != null && whatIf == null && (
+                  <p className="results-estimated" role="note">
+                    Your percentile is compared with the percentile of the last student admitted, as printed on each CAP list.
+                    Students with the same percentile are separated by the CET Cell's tie-break rules, so options right at the closing can go either way.
+                    {!view.percentile && ` In the merit number view your percentile is shown at the merit number it matched on this year's lists (${view.you}).`}
+                  </p>
+                )}
                 {searchKind.estimated && (
                   <p className="results-estimated" role="note">
                     <span className="badge badge-sample">Estimated</span>
@@ -421,7 +511,7 @@ export function FindPage() {
                   disabled={pdfLoading || options.length === 0}
                   onClick={async () => {
                     setPdfLoading(true);
-                    try { await generateParentPDF(options, searchedMerit, profile); }
+                    try { await generateParentPDF(options, searchedMerit, profile, searchedPct); }
                     finally { setPdfLoading(false); }
                   }}
                 >
@@ -452,7 +542,7 @@ export function FindPage() {
             <section className="card results-overview" aria-label="Summary">
               <div className="results-overview-main">
                 <p className="results-verdict" aria-live="polite">
-                  At <span className="tnum">{formatNumber(effMerit)}</span>, <b>{formatNumber(roundI.length + later.length)} options</b> in{" "}
+                  At {view.percentile ? "percentile " : ""}<span className="tnum">{view.you}</span>, <b>{formatNumber(roundI.length + later.length)} options</b> in{" "}
                   {formatNumber(new Set([...roundI, ...later].map((o) => o.collegeCode)).size)} colleges were within reach.
                 </p>
                 <MeritRuler
@@ -460,13 +550,17 @@ export function FindPage() {
                   merit={effMerit}
                   onMeritChange={(v) => setWhatIf(v === searchedMerit ? null : v)}
                   barcode
-                  ariaLabel="Closing ranks of your options, with your merit number"
-                  hint="Drag the pin to ask “what if my merit were…”"
+                  format={view.percentile ? view.fmt : undefined}
+                  pinLabel={view.percentile ? "Your percentile" : "Your merit number"}
+                  ariaLabel={view.percentile ? "Closing percentiles of your options, with yours" : "Closing ranks of your options, with your merit number"}
+                  hint={view.percentile ? "Drag the pin to ask “what if my percentile were…”" : "Drag the pin to ask “what if my merit were…”"}
                 />
                 {whatIf != null && (
                   <p className="results-whatif-note">
-                    {whatIfLoading ? "Fetching results…" : `Showing results for ${formatNumber(whatIf)}.`}{" "}
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setWhatIf(null)}>Back to {formatNumber(searchedMerit)}</button>
+                    {whatIfLoading ? "Fetching results…" : `Showing results for ${view.fmt(whatIf)}.`}{" "}
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setWhatIf(null)}>
+                      Back to {searchedPct != null && view.percentile ? formatPercentile(searchedPct) : view.fmt(searchedMerit)}
+                    </button>
                   </p>
                 )}
               </div>
@@ -489,11 +583,21 @@ export function FindPage() {
             </section>
 
             <div className="results-toolbar">
+              {scale.length > 0 && (
+                <div className="view-toggle figures-toggle" role="group" aria-label="Show closings as">
+                  <button type="button" className={view.percentile ? "active" : ""} aria-pressed={view.percentile} onClick={() => setFigures("percentile")}>
+                    Percentile
+                  </button>
+                  <button type="button" className={!view.percentile ? "active" : ""} aria-pressed={!view.percentile} onClick={() => setFigures("merit")}>
+                    Merit number
+                  </button>
+                </div>
+              )}
               <div className="view-toggle" role="group" aria-label="Group results">
-                <button type="button" className={view === "college" ? "active" : ""} aria-pressed={view === "college"} onClick={() => { setView("college"); setShowAll(false); }}>
+                <button type="button" className={grouping === "college" ? "active" : ""} aria-pressed={grouping === "college"} onClick={() => { setGrouping("college"); setShowAll(false); }}>
                   By college
                 </button>
-                <button type="button" className={view === "all" ? "active" : ""} aria-pressed={view === "all"} onClick={() => { setView("all"); setShowAll(false); }}>
+                <button type="button" className={grouping === "all" ? "active" : ""} aria-pressed={grouping === "all"} onClick={() => { setGrouping("all"); setShowAll(false); }}>
                   All options
                 </button>
               </div>
@@ -553,7 +657,7 @@ export function FindPage() {
 
             {shown.length > 0 && (
               <div className="results-legend">
-                <LadderLegend showYou />
+                <LadderLegend showYou percentile={view.percentile} />
               </div>
             )}
 
@@ -564,25 +668,25 @@ export function FindPage() {
               </div>
             ) : (
               <>
-                {view === "college" ? (
+                {grouping === "college" ? (
                   <div className="college-groups">
                     {(showAll ? groups : groups.slice(0, PAGE)).map((g) => (
-                      <CollegeGroup key={g.code} group={g} merit={effMerit} domain={domain} />
+                      <CollegeGroup key={g.code} group={g} merit={effMerit} domain={domain} view={view} />
                     ))}
                   </div>
                 ) : (
                   <ul className="results-list">
                     {(showAll ? displayed : displayed.slice(0, PAGE)).map((opt) => (
-                      <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={effMerit} domain={domain} showCollege />
+                      <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={effMerit} domain={domain} view={view} showCollege />
                     ))}
                   </ul>
                 )}
                 {!showAll && total > PAGE && (
                   <button type="button" className="btn btn-secondary btn-block show-more" onClick={() => setShowAll(true)}>
-                    Show all {formatNumber(total)} {view === "college" ? "colleges" : "options"}
+                    Show all {formatNumber(total)} {grouping === "college" ? "colleges" : "options"}
                   </button>
                 )}
-                <div className="results-axis"><LadderAxis domain={domain} /></div>
+                <div className="results-axis"><LadderAxis domain={domain} format={view.percentile ? view.fmt : undefined} /></div>
               </>
             )}
             </div>
@@ -620,6 +724,19 @@ const BAND_TILES: { band: Exclude<Band, "out">; icon: IconName; meaning: string 
 
 const FLAG_LABELS = { ews: "EWS", tfws: "TFWS", defence: "Defence", pwd: "PWD", orphan: "Orphan" } as const;
 
+/** How the results show their figures: the merit number view or the percentile view. */
+interface FigureView {
+  percentile: boolean;
+  /** The student's percentile (typed, or read off the printed pairs); null when the lists print none. */
+  youPct: number | null;
+  /** A merit number's percentile, from the printed pairs. */
+  pctOf: (merit: number) => number | null;
+  /** A merit number in the figure shown. */
+  fmt: (merit: number) => string;
+  /** The student's own figure, as shown. */
+  you: string;
+}
+
 interface Group {
   code: string;
   name: string;
@@ -652,7 +769,7 @@ function CollegeAvatar({ code, name }: { code: string; name: string }) {
   );
 }
 
-function CollegeGroup({ group, merit, domain }: { group: Group; merit: number; domain: [number, number] }) {
+function CollegeGroup({ group, merit, domain, view }: { group: Group; merit: number; domain: [number, number]; view: FigureView }) {
   const [open, setOpen] = useState(false);
   const shown = open ? group.options : group.options.slice(0, 3);
   return (
@@ -671,7 +788,7 @@ function CollegeGroup({ group, merit, domain }: { group: Group; merit: number; d
       </header>
       <ul className="results-list results-list--nested">
         {shown.map((opt) => (
-          <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={merit} domain={domain} />
+          <OptionRow key={opt.choiceCode + opt.seatType} opt={opt} merit={merit} domain={domain} view={view} />
         ))}
       </ul>
       {group.options.length > 3 && (
@@ -701,24 +818,63 @@ function SeatCount({ opt }: { opt: FindOption }) {
   );
 }
 
-/** "2023–2025: within the cutoff in 2 of 3 years (last round 5,600–6,400)". */
-function PastYearsLine({ opt, merit }: { opt: FindOption; merit: number }) {
+/**
+ * "2023–2025: within the cutoff in 2 of 3 years (last round 5,600–6,400)". In the percentile view,
+ * the same using each year's printed closing percentile (when every year printed one).
+ */
+function PastYearsLine({ opt, merit, view }: { opt: FindOption; merit: number; view: FigureView }) {
   const past = opt.pastYears ?? [];
-  const sum = pastSummary(past, merit);
+  const byPct = view.percentile && view.youPct != null && past.length > 0 && past.every((p) => p.lastRoundPercentile != null);
+  const sum = byPct ? pastPercentileSummary(past, view.youPct!) : pastSummary(past, merit);
   if (!sum) return null;
+  const f = byPct ? formatPercentile : formatNumber;
   const span = sum.first === sum.last ? String(sum.first) : `${sum.first}–${sum.last}`;
-  const range = sum.lo === sum.hi ? formatNumber(sum.lo) : `${formatNumber(sum.lo)}–${formatNumber(sum.hi)}`;
+  const range = sum.lo === sum.hi ? f(sum.lo) : `${f(sum.lo)}–${f(sum.hi)}`;
   const tone = sum.within === sum.years ? "pos" : sum.within === 0 ? "neg" : "mixed";
-  const detail = past.map((p) => `${p.year}: ${formatNumber(p.lastRoundClosing)}`).join(", ");
+  const detail = past.map((p) => `${p.year}: ${byPct ? formatPercentile(p.lastRoundPercentile!) : formatNumber(p.lastRoundClosing)}`).join(", ");
   return (
-    <span className={`past-years ${tone}`} title={`Last-round closing rank, same seat type — ${detail}`}>
+    <span className={`past-years ${tone}`} title={`Last-round closing ${byPct ? "percentile" : "rank"}, same seat type — ${detail}`}>
       {span}: {sum.years === 1 ? (sum.within ? "within the cutoff" : "outside the cutoff") : `within the cutoff in ${sum.within} of ${sum.years} years`}{" "}
       <span className="past-range">(last round {range})</span>
     </span>
   );
 }
 
-function OptionRow({ opt, merit, domain, showCollege = false }: { opt: FindOption; merit: number; domain: [number, number]; showCollege?: boolean }) {
+/** The same summary by percentile: within when the percentile is at or above that year's closing. */
+function pastPercentileSummary(past: NonNullable<FindOption["pastYears"]>, pct: number) {
+  if (!past.length) return null;
+  const closings = past.map((p) => p.lastRoundPercentile!);
+  return {
+    years: past.length,
+    within: closings.filter((c) => pct >= c).length,
+    lo: Math.min(...closings),
+    hi: Math.max(...closings),
+    first: past[0].year,
+    last: past[past.length - 1].year,
+  };
+}
+
+/** "closed 99.12 → 98.87 (0.30 better)": the printed closing percentiles, else read off the pairs. */
+function PercentileClosing({ opt, view }: { opt: FindOption; view: FigureView }) {
+  const pctOr = (printed: number | null | undefined, merit: number | null | undefined) =>
+    printed ?? (merit != null ? view.pctOf(merit) : null);
+  const first = pctOr(opt.firstRoundPercentile, opt.firstRoundClosing);
+  const last = pctOr(opt.lastRoundPercentile, opt.lastRoundClosing ?? opt.closingMerit);
+  if (last == null || view.youPct == null) return null;
+  const gap = describePercentileGap(view.youPct, last);
+  return (
+    <>
+      {first != null && opt.lastRoundClosing != null && opt.firstRoundClosing != null
+        ? `closed ${formatPercentile(first)} → ${formatPercentile(last)}`
+        : `closed at ${formatPercentile(last)}`}
+      {gap.kind !== "equal" && (
+        <span className={`surplus${gap.kind === "better" ? " pos" : " neg"}`} title={gap.long}>({gap.short})</span>
+      )}
+    </>
+  );
+}
+
+function OptionRow({ opt, merit, domain, view, showCollege = false }: { opt: FindOption; merit: number; domain: [number, number]; view: FigureView; showCollege?: boolean }) {
   const margin = (opt.lastRoundClosing ?? opt.closingMerit) - merit;
 
   return (
@@ -732,20 +888,33 @@ function OptionRow({ opt, merit, domain, showCollege = false }: { opt: FindOptio
         <span className="seat-meta">
           <abbr title={seatTypeLabel(opt.seatType)}>{seatTypeShortLabel(opt.seatType)}</abbr>
           <span aria-hidden="true">·</span>
-          {opt.firstRoundClosing != null && opt.lastRoundClosing != null
-            ? `closed ${formatNumber(opt.firstRoundClosing)} → ${formatNumber(opt.lastRoundClosing)}`
-            : `closed at ${formatNumber(opt.closingMerit)}`}
-          {margin !== 0 && (
-            <span className={`surplus${margin > 0 ? " pos" : " neg"}`} title={describeMeritGap(merit, opt.lastRoundClosing ?? opt.closingMerit).long}>
-              ({describeMeritGap(merit, opt.lastRoundClosing ?? opt.closingMerit).short})
-            </span>
+          {view.percentile ? (
+            <PercentileClosing opt={opt} view={view} />
+          ) : (
+            <>
+              {opt.firstRoundClosing != null && opt.lastRoundClosing != null
+                ? `closed ${formatNumber(opt.firstRoundClosing)} → ${formatNumber(opt.lastRoundClosing)}`
+                : `closed at ${formatNumber(opt.closingMerit)}`}
+              {margin !== 0 && (
+                <span className={`surplus${margin > 0 ? " pos" : " neg"}`} title={describeMeritGap(merit, opt.lastRoundClosing ?? opt.closingMerit).long}>
+                  ({describeMeritGap(merit, opt.lastRoundClosing ?? opt.closingMerit).short})
+                </span>
+              )}
+            </>
           )}
           <SeatCount opt={opt} />
         </span>
-        <PastYearsLine opt={opt} merit={merit} />
+        <PastYearsLine opt={opt} merit={merit} view={view} />
       </div>
       <span className="option-ladder">
-        <MeritLadder first={opt.firstRoundClosing ?? null} last={opt.lastRoundClosing ?? opt.closingMerit} you={merit} domain={domain} label={`${opt.collegeName}, ${opt.branch}`} />
+        <MeritLadder
+          first={opt.firstRoundClosing ?? null}
+          last={opt.lastRoundClosing ?? opt.closingMerit}
+          you={merit}
+          domain={domain}
+          label={`${opt.collegeName}, ${opt.branch}`}
+          format={view.percentile ? view.fmt : undefined}
+        />
       </span>
       <StatusBadge status={opt.status} round={opt.round} band={bandOf(opt.status, merit, opt.closingMerit)} />
       <AddToFormButton item={listItemFrom(opt)} />
@@ -764,7 +933,7 @@ function withStatusFor(o: FindOption, merit: number): FindOption {
   return { ...o, status: "out-of-range" };
 }
 
-async function generateParentPDF(options: FindOption[], merit: number, profile: Profile) {
+async function generateParentPDF(options: FindOption[], merit: number, profile: Profile, percentile: number | null = null) {
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
 
@@ -796,7 +965,7 @@ async function generateParentPDF(options: FindOption[], merit: number, profile: 
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(20, 20, 40);
-  const meritText = merit > 0 ? merit.toLocaleString("en-IN") : "—";
+  const meritText = percentile != null ? formatPercentile(percentile) : merit > 0 ? merit.toLocaleString("en-IN") : "—";
   doc.text(meritText, 12, 39);
 
   doc.setFontSize(9);
@@ -820,7 +989,7 @@ async function generateParentPDF(options: FindOption[], merit: number, profile: 
 
   doc.setFontSize(8);
   doc.setTextColor(100, 100, 120);
-  doc.text("State merit number", 12, 43);
+  doc.text(percentile != null ? "MHT-CET percentile" : "State merit number", 12, 43);
 
   // ── Top 5 options table ──────────────────────────────────────────────────
   const top5 = [
@@ -836,15 +1005,16 @@ async function generateParentPDF(options: FindOption[], merit: number, profile: 
   autoTable(doc, {
     startY: 53,
     margin: { left: 12, right: 12 },
-    head: [["#", "College", "Branch", "Seat Type", "Closing Merit", "Your Position"]],
+    head: [["#", "College", "Branch", "Seat Type", percentile != null ? "Closing Percentile" : "Closing Merit", "Your Position"]],
     body: top5.map((o, i) => {
-      const pos = describeMeritGap(merit, o.closingMerit).short;
+      const byPct = percentile != null && o.closingPercentile != null;
+      const pos = byPct ? describePercentileGap(percentile!, o.closingPercentile!).short : describeMeritGap(merit, o.closingMerit).short;
       return [
         String(i + 1),
         o.collegeName,
         o.branch,
         o.seatType,
-        o.closingMerit.toLocaleString("en-IN"),
+        byPct ? formatPercentile(o.closingPercentile!) : o.closingMerit.toLocaleString("en-IN"),
         pos,
       ];
     }),
@@ -862,7 +1032,8 @@ async function generateParentPDF(options: FindOption[], merit: number, profile: 
     didParseCell(data) {
       if (data.column.index === 5 && data.section === "body") {
         const txt = String(data.cell.raw ?? "");
-        data.cell.styles.textColor = txt.startsWith("+") ? [21, 128, 61] : [185, 28, 28];
+        // "1,550 better" in green, "3,950 worse" in red, "same as closing" neutral
+        data.cell.styles.textColor = txt.endsWith("better") ? [21, 128, 61] : txt.endsWith("worse") ? [185, 28, 28] : [40, 40, 60];
         data.cell.styles.fontStyle = "bold";
       }
     },
@@ -914,5 +1085,5 @@ async function generateParentPDF(options: FindOption[], merit: number, profile: 
   doc.setTextColor(130, 130, 150);
   doc.text(`Prepared: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}`, W - 12, 207, { align: "right" });
 
-  doc.save(`getmecollege-parent-summary-${merit}.pdf`);
+  doc.save(`getmecollege-parent-summary-${percentile != null ? `${formatPercentile(percentile)}-percentile` : merit}.pdf`);
 }

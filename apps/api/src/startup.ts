@@ -131,7 +131,8 @@ export async function loadCache(pool: pg.Pool, year: number): Promise<AppCache> 
       seatType: r.seat_type,
       stage: r.stage ?? "",
       closingMerit: r.closing_merit,
-      closingPercentile: r.closing_percentile ?? null,
+      // numeric columns arrive as strings from pg
+      closingPercentile: r.closing_percentile == null ? null : Number(r.closing_percentile),
       sourceFile: r.source,
       sourcePage: r.source_page ?? null,
     };

@@ -1,11 +1,14 @@
 import { eligibleSeatTypes } from "@mhtcet/core";
 import type { Category, DataMeta } from "./api";
 import { formatNumber } from "./format";
+import { formatPercentile } from "./percentile";
 
 /** What the "checking the CAP lists" screen (#142) says. Each stage names work the search really does. */
 
 export interface ScanRequest {
   merit: number;
+  /** Set when the student searched by percentile (merit is then 0). */
+  percentile?: number | null;
   candidature: "MH" | "AI";
   estimated: boolean;
   category: Category | "";
@@ -47,7 +50,9 @@ export function seatTypesLine(r: ScanRequest, show = 5): string {
 
 export function scanStages(meta: DataMeta | null, r: ScanRequest): ScanStage[] {
   const year = meta?.year ?? new Date().getFullYear();
-  const merit = `${r.estimated ? "estimated " : ""}${r.candidature === "AI" ? "All India " : ""}merit number ${formatNumber(r.merit)}`;
+  const merit = r.percentile
+    ? `percentile ${formatPercentile(r.percentile)}`
+    : `${r.estimated ? "estimated " : ""}${r.candidature === "AI" ? "All India " : ""}merit number ${formatNumber(r.merit)}`;
   const stages: ScanStage[] = [
     meta
       ? {
@@ -61,7 +66,7 @@ export function scanStages(meta: DataMeta | null, r: ScanRequest): ScanStage[] {
   const earlier = meta?.earlierYears ?? [];
   if (earlier.length) {
     const sorted = [...earlier].sort();
-    stages.push({ title: `Checked ${sorted[0]}–${sorted[sorted.length - 1]} trends`, detail: "for every branch you could get" });
+    stages.push({ title: `Checked ${sorted[0]}–${sorted[sorted.length - 1]} trends`, detail: "for each of your options" });
   }
   stages.push({ title: "Sorted by your chances", detail: "Round I first" });
   return stages;

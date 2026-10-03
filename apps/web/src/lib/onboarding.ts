@@ -18,8 +18,6 @@ export interface Answers {
   merit: string;
   percentile: string;
   subjectGroup: "PCM" | "PCB";
-  /** Merit number estimated from the percentile, as a range; the search uses its middle. */
-  estimate: [number, number] | null;
   category: Category | "";
   gender: "M" | "F";
   homeUniversity: string;
@@ -35,7 +33,6 @@ export const EMPTY_ANSWERS: Answers = {
   merit: "",
   percentile: "",
   subjectGroup: "PCM",
-  estimate: null,
   category: "",
   gender: "M",
   homeUniversity: "",
@@ -66,10 +63,17 @@ export function parsePercentile(raw: string): number | null {
   return Number.isFinite(n) && n > 0 && n <= 100 ? n : null;
 }
 
-/** The merit number to search with: the one typed, or the middle of the estimated range. */
-export function searchMerit(a: Answers): number | null {
-  if (a.have === "merit") return parseMerit(a.merit);
-  return a.estimate ? Math.round((a.estimate[0] + a.estimate[1]) / 2) : null;
+/**
+ * What to search with: the merit number typed, or the percentile (Find compares it with the closing
+ * percentiles printed on the CAP lists, so nothing is estimated).
+ */
+export function searchScore(a: Answers): { merit: number } | { percentile: number } | null {
+  if (a.have === "merit") {
+    const merit = parseMerit(a.merit);
+    return merit == null ? null : { merit };
+  }
+  const percentile = parsePercentile(a.percentile);
+  return percentile == null ? null : { percentile };
 }
 
 /** EWS is only for Open-category candidates. */
@@ -100,11 +104,10 @@ export function toProfile(a: Answers): Profile {
 
 /** The Find colleges URL parameters (the same names Find already reads), plus `bg` and `scan`. */
 export function toFindParams(a: Answers): URLSearchParams | null {
-  const merit = searchMerit(a);
-  if (merit == null) return null;
-  const p = new URLSearchParams({ merit: String(merit) });
+  const score = searchScore(a);
+  if (score == null) return null;
+  const p = new URLSearchParams("merit" in score ? { merit: String(score.merit) } : { pct: String(score.percentile) });
   if (a.exam === "AI") p.set("list", "AI");
-  if (a.have === "percentile") p.set("est", "1");
   if (a.subjectGroup !== "PCM") p.set("subj", a.subjectGroup);
   if (a.exam === "MH") {
     if (a.category) p.set("cat", a.category);

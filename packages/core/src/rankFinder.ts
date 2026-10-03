@@ -38,6 +38,8 @@ export type RankStatus = "round-I" | "later-round" | "out-of-range";
 export interface RoundClosing {
   round: Round;
   closingMerit: number;
+  /** The same last-admitted candidate's percentile, as printed on the list (null when not printed). */
+  closingPercentile: number | null;
   sourceFile: string | null;
   sourcePage: number | null;
 }
@@ -48,6 +50,7 @@ export interface RankOption {
   /** The round whose closing merit decided this status. */
   round: Round;
   closingMerit: number;
+  closingPercentile: number | null;
   /** Closing merit in every published round for this seat type, Round I first. */
   rounds: RoundClosing[];
 }
@@ -74,8 +77,8 @@ function parsedSeatType(code: string) {
 
 /** Everything rankFind needs about one seat type's rows, worked out once per set of rows. */
 interface SeatSummary {
-  /** Tightest Round I closing, or null when the seat type has no Round I row. */
-  roundI: number | null;
+  /** Tightest Round I row (lowest closing merit), or null when the seat type has no Round I row. */
+  roundI: CutoffRow | null;
   /** Loosest Rounds II–IV row (first one wins a tie). */
   laterBest: CutoffRow | null;
   /** Loosest row across Round I and Rounds II–IV, Round I first on a tie: the out-of-range value. */
@@ -89,12 +92,12 @@ type CutoffIndex = Map<string, SeatSummary>;
 const key = (list: string, seatType: string, section: string, stage: string) => `${list}|${seatType}|${section}|${stage}`;
 
 function summarise(rows: readonly CutoffRow[]): SeatSummary {
-  let roundI: number | null = null;
+  let roundI: CutoffRow | null = null;
   let roundILoosest: CutoffRow | null = null;
   let laterBest: CutoffRow | null = null;
   for (const r of rows) {
     if (r.round === "I") {
-      if (roundI === null || r.closingMerit < roundI) roundI = r.closingMerit;
+      if (!roundI || r.closingMerit < roundI.closingMerit) roundI = r;
       if (!roundILoosest || r.closingMerit > roundILoosest.closingMerit) roundILoosest = r;
       continue;
     }
@@ -186,7 +189,8 @@ export function rankFind(
   const eligible = eligibleTypes ?? eligibleSeatTypes(candidate, college);
   const list = candidate.candidature === "AI" ? "AI" : "MH";
   const index = indexFor(cutoffRows);
-  const merit = candidate.meritNumber;
+  const by: Score =
+    candidate.percentile != null ? { kind: "percentile", value: candidate.percentile } : { kind: "merit", value: candidate.meritNumber };
 
   const options: RankOption[] = [];
   const keys = lookupKeys(eligible, list, candidate.gender);
@@ -196,7 +200,7 @@ export function rankFind(
     const seat = k === null ? undefined : index.get(k);
     if (!seat) continue;
 
-    const option = deriveStatus(merit, seat);
+    const option = deriveStatus(by, seat);
     if (option) options.push({ seatType: eligible[i], ...option, rounds: seat.rounds });
   }
 
@@ -208,23 +212,41 @@ export function rankFind(
   return { best, options };
 }
 
+/** What the candidate is matched by: merit number (lower is better) or percentile (higher is better). */
+type Score = { kind: "merit"; value: number } | { kind: "percentile"; value: number };
+
+/**
+ * Whether the candidate is at or better than the last candidate admitted on this row. Each row
+ * prints that candidate's merit number and percentile, so either can be compared; a row without a
+ * printed percentile can't be matched by percentile.
+ */
+function within(by: Score, row: CutoffRow): boolean {
+  if (by.kind === "merit") return by.value <= row.closingMerit;
+  return row.closingPercentile != null && by.value >= row.closingPercentile;
+}
+
+const closing = (status: RankStatus, row: CutoffRow) => ({
+  status,
+  round: row.round,
+  closingMerit: row.closingMerit,
+  closingPercentile: row.closingPercentile ?? null,
+});
+
 /**
  * Applies the three-tier round logic for a single seat type:
- *   merit ≤ Round I closing          → "round-I"
- *   merit ≤ max closing of Rounds II–IV → "later-round" (names that round)
- *   otherwise                        → "out-of-range" (shows loosest closing)
+ *   at or better than Round I closing        → "round-I"
+ *   at or better than the loosest of Rounds II–IV → "later-round" (names that round)
+ *   otherwise                                → "out-of-range" (shows loosest closing)
  *
  * Values are never carried across rounds — only rounds where the seat type
  * actually appears in the list are considered.
  */
-function deriveStatus(meritNumber: number, seat: SeatSummary): Omit<RankOption, "seatType" | "rounds"> | null {
-  if (seat.roundI !== null && meritNumber <= seat.roundI) return { status: "round-I", round: "I", closingMerit: seat.roundI };
-  if (seat.laterBest && meritNumber <= seat.laterBest.closingMerit) {
-    return { status: "later-round", round: seat.laterBest.round, closingMerit: seat.laterBest.closingMerit };
-  }
+function deriveStatus(by: Score, seat: SeatSummary): Omit<RankOption, "seatType" | "rounds"> | null {
+  if (seat.roundI && within(by, seat.roundI)) return closing("round-I", seat.roundI);
+  if (seat.laterBest && within(by, seat.laterBest)) return closing("later-round", seat.laterBest);
   // Out of range — show loosest closing across all rounds
   if (!seat.loosest) return null;
-  return { status: "out-of-range", round: seat.loosest.round, closingMerit: seat.loosest.closingMerit };
+  return closing("out-of-range", seat.loosest);
 }
 
 /**
@@ -242,7 +264,15 @@ export function roundClosings(rows: readonly CutoffRow[]): RoundClosing[] {
   }
   const out: RoundClosing[] = [];
   for (const r of byRound) {
-    if (r) out.push({ round: r.round, closingMerit: r.closingMerit, sourceFile: r.sourceFile ?? null, sourcePage: r.sourcePage ?? null });
+    if (r) {
+      out.push({
+        round: r.round,
+        closingMerit: r.closingMerit,
+        closingPercentile: r.closingPercentile ?? null,
+        sourceFile: r.sourceFile ?? null,
+        sourcePage: r.sourcePage ?? null,
+      });
+    }
   }
   return out;
 }

@@ -3,7 +3,9 @@ import { type AppCache, branchIntake, minorityCommunity } from "../startup.ts";
 
 export interface FindOptionsRequest {
   year: number;
-  merit: number;
+  /** Matched by percentile when given (students know it before the merit list); else by merit number. */
+  merit: number | null;
+  percentile?: number | null;
   candidature: "MH" | "AI";
   homeUniversity: string | null;
   category: CandidateProfile["category"];
@@ -34,9 +36,13 @@ export interface FoundOption {
   status: keyof typeof STATUS_ORDER;
   round: string;
   closingMerit: number;
+  /** The same last-admitted candidate's percentile, from the same row (null when not printed). */
+  closingPercentile: number | null;
   firstRoundClosing: number | null;
   lastRoundClosing: number | null;
-  rounds: { round: string; closingMerit: number }[];
+  firstRoundPercentile: number | null;
+  lastRoundPercentile: number | null;
+  rounds: { round: string; closingMerit: number; closingPercentile: number | null }[];
   source: { file: string | null; page: number | null } | null;
   year: number;
   /**
@@ -55,6 +61,8 @@ export interface FoundOption {
 export interface PastYear {
   year: number;
   lastRoundClosing: number;
+  /** The same row's closing percentile (null when that year's list didn't print it). */
+  lastRoundPercentile: number | null;
 }
 
 const ROMAN: Record<string, number> = { I: 1, II: 2, III: 3, IV: 4, V: 5 };
@@ -72,18 +80,20 @@ export function pastYears(cache: AppCache, choiceCode: string, seatType: string)
   const hit = memo.get(key);
   if (hit) return hit;
 
-  const byYear = new Map<number, Map<string, number>>();
+  const byYear = new Map<number, Map<string, { merit: number; percentile: number | null }>>();
   for (const r of cache.history.get(choiceCode) ?? []) {
     if (r.seatType !== seatType) continue;
-    const rounds = byYear.get(r.year) ?? new Map<string, number>();
-    if (!rounds.has(r.round)) rounds.set(r.round, r.closingMerit); // first printed stage, as elsewhere
+    const rounds = byYear.get(r.year) ?? new Map<string, { merit: number; percentile: number | null }>();
+    // first printed stage, as elsewhere
+    if (!rounds.has(r.round)) rounds.set(r.round, { merit: r.closingMerit, percentile: r.closingPercentile ?? null });
     byYear.set(r.year, rounds);
   }
   const out = [...byYear]
     .sort(([a], [b]) => a - b)
     .map(([year, rounds]) => {
       const ordered = [...rounds].sort(([a], [b]) => (ROMAN[a] ?? 9) - (ROMAN[b] ?? 9));
-      return { year, lastRoundClosing: ordered[ordered.length - 1][1] };
+      const last = ordered[ordered.length - 1][1];
+      return { year, lastRoundClosing: last.merit, lastRoundPercentile: last.percentile };
     });
   memo.set(key, out);
   return out;
@@ -111,7 +121,8 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
     pwd: req.flags.pwd,
     orphan: req.flags.orphan,
     minorityCommunity: req.minorityCommunity,
-    meritNumber: req.merit,
+    meritNumber: req.merit ?? 0,
+    percentile: req.percentile ?? null,
     subjectGroup: req.subjectGroup,
   };
 
@@ -166,9 +177,12 @@ export function findOptions(cache: AppCache, req: FindOptionsRequest): FoundOpti
       status: best.status,
       round: best.round,
       closingMerit: best.closingMerit,
+      closingPercentile: best.closingPercentile,
       firstRoundClosing: best.rounds[0]?.round === "I" ? best.rounds[0].closingMerit : null,
       lastRoundClosing: best.rounds.at(-1)?.closingMerit ?? null,
-      rounds: best.rounds.map((r) => ({ round: r.round, closingMerit: r.closingMerit })),
+      firstRoundPercentile: best.rounds[0]?.round === "I" ? best.rounds[0].closingPercentile : null,
+      lastRoundPercentile: best.rounds.at(-1)?.closingPercentile ?? null,
+      rounds: best.rounds.map((r) => ({ round: r.round, closingMerit: r.closingMerit, closingPercentile: r.closingPercentile })),
       source: deciding ? { file: deciding.sourceFile, page: deciding.sourcePage } : null,
       year: req.year,
       pastYears: req.candidature === "MH" ? pastYears(cache, choiceCode, best.seatType) : [],

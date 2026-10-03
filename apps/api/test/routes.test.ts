@@ -428,9 +428,49 @@ describe("POST /api/rank-finder pastYears", () => {
     const vjti = body.options.find((o) => o.choiceCode === "1002119110")!;
     expect(vjti.seatType).toBe("GOPENH");
     expect(vjti.pastYears).toEqual([
-      { year: 2024, lastRoundClosing: 190 },
-      { year: 2025, lastRoundClosing: 145 },
+      { year: 2024, lastRoundClosing: 190, lastRoundPercentile: null },
+      { year: 2025, lastRoundClosing: 145, lastRoundPercentile: null },
     ]);
+  });
+});
+
+// ─── Searching by percentile (before the merit list is out) ─────────────────
+
+describe("POST /api/rank-finder by percentile", () => {
+  const withPercentiles = () => {
+    const cache = seedCache();
+    const pct: Record<number, number> = { 150: 99.95, 175: 99.93, 8500: 96.2, 9200: 95.9 };
+    for (const rows of cache.cutoffsByChoiceCode.values()) for (const r of rows) r.closingPercentile = pct[r.closingMerit];
+    return cache;
+  };
+  const ask = (cache: ReturnType<typeof seedCache>, body: object) =>
+    createApp(cache, stubPool).request("http://localhost/api/rank-finder", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ homeUniversity: "University of Mumbai", gender: "M", subjectGroup: "PCM", ...body }),
+    });
+  type Opt = { collegeCode: string; status: string; round: string; closingMerit: number; closingPercentile: number | null;
+    firstRoundPercentile: number | null; lastRoundPercentile: number | null; rounds: { closingPercentile: number | null }[] };
+
+  it("matches a percentile against each row's closing percentile", async () => {
+    const res = await ask(withPercentiles(), { percentile: 96 });
+    expect(res.status).toBe(200);
+    const { options } = (await res.json()) as { options: Opt[] };
+    const pune = options.find((o) => o.collegeCode === "5002")!;
+    expect(pune).toMatchObject({ status: "later-round", round: "II", closingMerit: 9200, closingPercentile: 95.9 });
+    expect(pune).toMatchObject({ firstRoundPercentile: 96.2, lastRoundPercentile: 95.9 });
+    expect(options.find((o) => o.collegeCode === "1002")!.status).toBe("out-of-range");
+  });
+
+  it("gives both figures on every option when searching by merit number too", async () => {
+    const { options } = (await (await ask(withPercentiles(), { merit: 100 })).json()) as { options: Opt[] };
+    const vjti = options.find((o) => o.collegeCode === "1002")!;
+    expect(vjti).toMatchObject({ status: "round-I", closingMerit: 150, closingPercentile: 99.95 });
+    expect(vjti.rounds.map((r) => r.closingPercentile)).toEqual([99.95, 99.93]);
+  });
+
+  it("needs a merit number or a percentile", async () => {
+    expect((await ask(seedCache(), {})).status).toBe(400);
+    expect((await ask(seedCache(), { percentile: 101 })).status).toBe(400);
   });
 });
 
@@ -615,5 +655,25 @@ describe("GET /api/districts and /api/districts/:slug", () => {
   it("adds districts and their group pages to the sitemap data", async () => {
     const b = (await (await createApp(withDistricts(), stubPool).request("http://localhost/api/sitemap")).json()) as { districts: { slug: string; groups: string[] }[] };
     expect(b.districts).toEqual([{ slug: "mumbai-city", groups: [] }, { slug: "pune", groups: [] }]);
+  });
+});
+
+// ─── Merit number ↔ percentile scale (the Find page's two views) ─────────────
+
+describe("GET /api/percentile-scale", () => {
+  it("pairs merit numbers with percentiles from the lists, sorted, percentile never rising", async () => {
+    const cache = seedCache();
+    const pct: Record<number, number> = { 150: 99.95, 175: 99.93, 8500: 96.2, 9200: 95.9 };
+    for (const rows of cache.cutoffsByChoiceCode.values()) for (const r of rows) r.closingPercentile = pct[r.closingMerit];
+    // a printing glitch: a worse merit number with a higher percentile is left out
+    cache.cutoffsByChoiceCode.get("5002119110")!.push({ ...cache.cutoffsByChoiceCode.get("5002119110")![0], closingMerit: 9300, closingPercentile: 97 });
+    const b = (await (await createApp(cache, stubPool).request("http://localhost/api/percentile-scale?list=MH")).json()) as { list: string; points: [number, number][] };
+    expect(b.list).toBe("MH");
+    expect(b.points).toEqual([[150, 99.95], [175, 99.93], [8500, 96.2], [9200, 95.9]]);
+  });
+
+  it("is empty when the lists print no percentiles", async () => {
+    const b = (await (await createApp(seedCache(), stubPool).request("http://localhost/api/percentile-scale")).json()) as { points: unknown[] };
+    expect(b.points).toEqual([]);
   });
 });

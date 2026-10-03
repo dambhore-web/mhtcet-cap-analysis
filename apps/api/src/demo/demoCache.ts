@@ -66,6 +66,14 @@ function closingMerit(ci: number, bi: number, si: number, ri: number): number {
 }
 
 /**
+ * The percentile printed next to a closing merit number: a smooth made-up curve over the demo's
+ * candidates (state list ~150,000, All India ~100,000), falling as the merit number rises.
+ */
+function demoPercentile(merit: number, candidates: number): number {
+  return Math.max(0.01, Number((100 * (1 - merit / candidates)).toFixed(7)));
+}
+
+/**
  * Invented earlier years for the demo: three rounds in 2023–2024, four in 2025, with closing ranks
  * that drift by college and branch so some branches get harder and some easier over the years.
  */
@@ -78,7 +86,8 @@ function demoHistory(ci: number, bi: number, seatTypes: string[]): HistoryRow[] 
       rounds.forEach((round, ri) => {
         out.push({
           year, round, seatType, section: "State Level", stage: "I",
-          closingMerit: Math.round(closingMerit(ci, bi, si, ri) * drift), closingPercentile: null,
+          closingMerit: Math.round(closingMerit(ci, bi, si, ri) * drift),
+          closingPercentile: demoPercentile(Math.round(closingMerit(ci, bi, si, ri) * drift), 140000 + yi * 5000),
         });
       });
     });
@@ -119,7 +128,7 @@ export function demoCache(): AppCache {
           rows.push({
             authority: "MH-CET-CELL", exam: "MHT-CET", year: DEMO_YEAR, list: "MH", round,
             choiceCode, collegeCode: c.code, section, seatType, stage: "I",
-            closingMerit: closingMerit(ci, bi, si, ri), closingPercentile: null,
+            closingMerit: closingMerit(ci, bi, si, ri), closingPercentile: demoPercentile(closingMerit(ci, bi, si, ri), 150000),
             sourceFile: `demo-cutoff-list-round-${round}-MH.pdf`, sourcePage: 10 + ci * 4 + bi,
           });
         });
@@ -128,7 +137,7 @@ export function demoCache(): AppCache {
         rows.push({
           authority: "MH-CET-CELL", exam: "JEE(Main)-2026", year: DEMO_YEAR, list: "AI", round,
           choiceCode, collegeCode: c.code, section: "AI to AI", seatType: "AI", stage: "",
-          closingMerit: closingMerit(ci, bi, 0, ri) * 3, closingPercentile: null,
+          closingMerit: closingMerit(ci, bi, 0, ri) * 3, closingPercentile: demoPercentile(closingMerit(ci, bi, 0, ri) * 3, 100000),
           sourceFile: `demo-cutoff-list-round-${round}-AI.pdf`, sourcePage: 4 + ci,
         });
       });

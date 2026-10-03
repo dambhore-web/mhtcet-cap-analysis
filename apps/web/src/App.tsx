@@ -30,17 +30,23 @@ import { ExportPage } from "./pages/ExportPage";
 import { BranchesPage } from "./pages/BranchesPage";
 import { DistrictPage } from "./pages/DistrictPage";
 
-/** Find needs saved details or a merit number in the URL (a shared result link); otherwise start at the landing page. */
+/** A shared result link: a merit number or a percentile in the URL. */
+const hasScore = (search: string) => {
+  const p = new URLSearchParams(search);
+  return p.has("merit") || p.has("pct");
+};
+
+/** Find needs saved details or a score in the URL (a shared result link); otherwise start at the landing page. */
 function RequireProfile({ children }: { children: React.ReactNode }) {
   const { hasProfile } = useProfile();
   const { search } = useLocation();
-  return hasProfile || new URLSearchParams(search).has("merit") ? <>{children}</> : <Navigate to="/" replace />;
+  return hasProfile || hasScore(search) ? <>{children}</> : <Navigate to="/" replace />;
 }
 
 /** `/` is the landing page for everyone (#142); older result links (`/?merit=…`) move to `/find`. */
 function Home() {
   const { search } = useLocation();
-  return new URLSearchParams(search).has("merit") ? <Navigate to={`/find${search}`} replace /> : <LandingPage />;
+  return hasScore(search) ? <Navigate to={`/find${search}`} replace /> : <LandingPage />;
 }
 
 function AppRoutes() {

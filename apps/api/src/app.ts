@@ -17,6 +17,7 @@ import { getMeta } from "./routes/meta.ts";
 import { getBranches, getBranchHistory, getOpenLatest } from "./routes/branches.ts";
 import { getSitemap } from "./routes/sitemap.ts";
 import { getSeoPages } from "./routes/seoPages.ts";
+import { getPercentileScale } from "./routes/percentileScale.ts";
 import { getDistrict, getDistricts } from "./routes/districts.ts";
 import type { AppCache } from "./startup.ts";
 import { buildFeeIndex } from "./feeIndex.ts";
@@ -87,6 +88,7 @@ export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = 
   app.get("/api/branches", (c) => getBranches(c, cache));
   app.get("/api/branches/:choiceCode/history", (c) => getBranchHistory(c, cache));
   app.get("/api/cutoffs/open-latest", (c) => getOpenLatest(c, cache));
+  app.get("/api/percentile-scale", (c) => getPercentileScale(c, cache));
   app.get("/api/sitemap", (c) => getSitemap(c, cache, fees));
   app.get("/api/seo-pages", (c) => getSeoPages(c, cache));
   app.get("/api/districts", (c) => getDistricts(c, cache, fees));

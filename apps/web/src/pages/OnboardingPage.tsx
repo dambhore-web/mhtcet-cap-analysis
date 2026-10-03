@@ -68,7 +68,6 @@ export function OnboardingWizard() {
   const [a, setA] = useState<Answers>(EMPTY_ANSWERS);
   const [stepId, setStepId] = useState<StepId>("exam");
   const [error, setError] = useState("");
-  const [estimating, setEstimating] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   const steps = visibleSteps(a);
@@ -85,46 +84,13 @@ export function OnboardingWizard() {
     headingRef.current?.focus();
   }, [stepId]);
 
-  // Percentile → estimated merit range (state list for MHT-CET, All India list for JEE)
+  // A percentile is searched as it is: Find compares it with the closing percentiles on the lists
   const pct = a.have === "percentile" ? parsePercentile(a.percentile) : null;
-  useEffect(() => {
-    if (pct == null) {
-      setA((prev) => (prev.estimate ? { ...prev, estimate: null } : prev));
-      return;
-    }
-    let live = true;
-    setEstimating(true);
-    const t = setTimeout(async () => {
-      try {
-        let range: [number, number] | null = null;
-        if (a.exam === "MH") {
-          range = (await api.meritEstimate(pct, a.subjectGroup)).estimatedMeritRange;
-        } else {
-          const j = (await api.jeeEstimate(pct)) as { rankRange: [number, number]; kind?: string };
-          range = j.kind === "all-india-merit" ? j.rankRange : null;
-          if (!range && live) setError("The All India merit list isn't loaded yet, so a JEE percentile can't be matched to All India seats. Enter your All India merit number instead.");
-        }
-        if (live) setA((prev) => ({ ...prev, estimate: range }));
-      } catch {
-        if (live) {
-          setA((prev) => ({ ...prev, estimate: null }));
-          setError("Couldn't estimate your merit number right now. Check your connection and try again.");
-        }
-      } finally {
-        if (live) setEstimating(false);
-      }
-    }, 350);
-    return () => {
-      live = false;
-      clearTimeout(t);
-    };
-  }, [pct, a.exam, a.subjectGroup]);
 
   function validate(): string {
     if (stepId !== "score") return "";
     if (a.have === "merit") return parseMerit(a.merit) ? "" : `Enter your ${a.exam === "AI" ? "All India" : "state"} merit number, for example 12450.`;
     if (pct == null) return "Enter a percentile between 0 and 100, for example 96.82.";
-    if (!a.estimate) return estimating ? "Estimating your merit number… one moment." : error || "Couldn't estimate a merit number from this percentile.";
     return "";
   }
 
@@ -213,7 +179,7 @@ export function OnboardingWizard() {
             <>
               <h1 ref={headingRef} tabIndex={-1}>What do you have right now?</h1>
               <p className="ob-lead">
-                Your merit number is the most accurate. If the merit list isn't out yet, we can estimate a range from your percentile.
+                Either works. Every CAP cutoff list prints both the merit number and the percentile of the last student admitted.
               </p>
               <fieldset className="ob-choices">
                 <legend className="sr-only">What do you have right now?</legend>
@@ -271,16 +237,10 @@ export function OnboardingWizard() {
                   aria-invalid={!!error} aria-describedby={error ? "ob-error" : undefined} />
                 <span className="ob-input-suffix">percentile</span>
               </div>
-              <div className="ob-estimate" aria-live="polite">
-                {estimating && pct != null && <span>Estimating…</span>}
-                {!estimating && a.estimate && (
-                  <>
-                    <span className="ob-estimate-label">Estimated {a.exam === "AI" ? "All India" : ""} merit number</span>
-                    <strong>{formatNumber(a.estimate[0])} – {formatNumber(a.estimate[1])}</strong>
-                    <span>From last year's percentile-to-merit list. We'll search with the middle of this range and mark every result "estimated".</span>
-                  </>
-                )}
-              </div>
+              <p className="ob-hint">
+                Every CAP cutoff list prints the percentile of the last student admitted. We compare yours with those,
+                so you can see your options before the merit list is out.
+              </p>
             </>
           )}
 
@@ -446,7 +406,7 @@ function Choice({ name, checked, onChange, title, desc }: { name: string; checke
 function Summary({ a }: { a: Answers }) {
   const parts: string[] = [a.exam === "AI" ? "JEE Main (All India)" : "MHT-CET"];
   if (a.have === "merit" && parseMerit(a.merit)) parts.push(`Merit number ${formatNumber(parseMerit(a.merit)!)}`);
-  if (a.have === "percentile" && a.estimate) parts.push(`Estimated merit ${formatNumber(a.estimate[0])}–${formatNumber(a.estimate[1])}`);
+  if (a.have === "percentile" && parsePercentile(a.percentile)) parts.push(`Percentile ${a.percentile.trim()}`);
   if (a.exam === "MH") {
     parts.push(CATEGORY_OPTIONS.find((c) => c.value === a.category)?.label ?? "Open");
     parts.push(a.gender === "F" ? "Female" : "Male");
