@@ -1,0 +1,134 @@
+.data-steps {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.data-steps li {
+  display: flex;
+  gap: 14px;
+  padding: 14px 16px;
+}
+
+.data-steps svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--violet);
+}
+
+.data-steps h2 {
+  margin: 0 0 4px;
+  font-size: var(--text-base);
+}
+
+.data-steps p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.data-h2 {
+  margin: 0 0 12px;
+  font-size: var(--text-xl);
+}
+
+.data-muted {
+  color: var(--muted);
+}
+
+.data-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
+.data-stats div {
+  padding: 12px 14px;
+}
+
+.data-stats dt {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.data-stats dd {
+  margin: 4px 0 0;
+  font-family: var(--font-num);
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.data-table {
+  padding: 8px 12px;
+}
+
+.data-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.data-table th,
+.data-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+
+.data-table th {
+  font-size: var(--text-xs);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.data-table .num {
+  text-align: right;
+  font-family: var(--font-num);
+}
+
+.data-files {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  word-break: break-word;
+}
+
+.data-coverage {
+  margin: 16px 0;
+  padding-left: 20px;
+  font-size: var(--text-sm);
+}
+
+.data-loads {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  font-size: var(--text-sm);
+}
+
+.data-foot {
+  margin-top: 24px;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+@media (max-width: 639px) {
+  .data-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* list sizes as bars: later rounds have fewer seats left to allot (TASK-0004) */
+.data-values { white-space: nowrap; }
+.data-bar { display: inline-block; width: 140px; height: 10px; margin-right: 10px; border-radius: 5px; background: var(--line-soft); vertical-align: 0; overflow: hidden; }
+.data-bar i { display: block; height: 100%; border-radius: 5px; }
+.data-bar i.mh { background: var(--violet); }
+.data-bar i.ai { background: var(--violet-soft); }
+.data-bar i.other { background: var(--orange); }
+.data-table td.num, .data-files { font-family: var(--font-mono); font-size: 12px; }
+@media (max-width: 639px) { .data-bar { width: 60px; } }
+.data-steps h2 { margin: 0 0 4px; font-family: var(--font-display); font-stretch: 88%; font-size: 18px; font-weight: 650; color: var(--navy-deep); }
+.data-steps li > svg { flex: none; color: var(--violet); }

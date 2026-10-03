@@ -4,11 +4,15 @@
   "private": true,
   "description": "Closing-rank analysis of Maharashtra first-year engineering admissions (MHT-CET CAP rounds), built from the State CET Cell's published cutoff, allotment and merit lists.",
   "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
+    "build": "sh -c \"${SERVICE_BUILD:-echo 'no build step'}\"",
     "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/pipeline && tsc --noEmit -p apps/api && npm run typecheck -w @mhtcet/web",
     "dev:api": "npm run dev -w @mhtcet/api",
     "dev:web": "npm run dev -w @mhtcet/web",
@@ -18,14 +22,14 @@
     "parse:cutoffs": "npm run parse:cutoffs -w @mhtcet/pipeline --",
     "parse:allotment": "npm run parse:allotment -w @mhtcet/pipeline --",
     "parse:merit": "npm run parse:merit -w @mhtcet/pipeline --",
+    "parse:merit:mh": "npm run parse:merit:mh -w @mhtcet/pipeline --",
     "parse:institutes": "npm run parse:institutes -w @mhtcet/pipeline --",
     "validate": "npm run validate -w @mhtcet/pipeline --",
     "migrate": "npm run migrate -w @mhtcet/pipeline --",
     "load": "npm run load -w @mhtcet/pipeline --",
     "db:checksum": "npm run db:checksum -w @mhtcet/pipeline --",
-    "eval": "node --env-file=.env --import tsx/esm packages/pipeline/eval/runner.ts",
-    "perf": "node --env-file=.env --import tsx/esm packages/pipeline/perf/runner.ts",
-    "build:dashboard": "node --env-file=.env --import tsx/esm packages/pipeline/src/buildDashboard.ts",
+    "eval": "node --env-file-if-exists=.env --import tsx/esm apps/api/evals/run.ts",
+    "perf": "node --import tsx/esm apps/api/perf/load.ts",
     "e2e": "npm run e2e -w @mhtcet/web"
   },
   "repository": {

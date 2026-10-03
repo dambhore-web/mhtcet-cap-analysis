@@ -1,0 +1,61 @@
+.merit-ruler {
+  touch-action: none;
+  user-select: none;
+  min-width: 0;
+}
+
+.merit-ruler svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  cursor: crosshair;
+}
+
+.mr-out { fill: var(--line-soft); }
+.mr-in { fill: var(--lavender); }
+
+.mr-bar { stroke: #cbd5e1; stroke-width: 1; opacity: 0.8; }
+.mr-bar.reach { stroke: var(--violet); opacity: 0.55; }
+
+.mr-tick { stroke: #cbd5e1; stroke-width: 1.5; }
+.mr-tick.reach { stroke: var(--violet); stroke-width: 2; }
+
+.mr-axis { stroke: #94a3b8; }
+.mr-axis-label { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted-2); }
+
+.mr-label {
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  fill: var(--muted-2);
+  stroke: var(--white);
+  stroke-width: 4px;
+  paint-order: stroke;
+  stroke-linejoin: round;
+}
+
+.mr-label.reach { fill: var(--violet-deep); font-weight: 600; }
+.mr-label-num { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+.mr-handle { cursor: grab; outline: none; }
+.mr-handle:active { cursor: grabbing; }
+.mr-pin { stroke: var(--navy-deep); stroke-width: 2.5; }
+.mr-pin-thin { stroke: var(--navy-deep); stroke-width: 1; stroke-dasharray: 2 3; }
+.mr-chip { fill: var(--navy-deep); }
+.mr-chip-text { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--white); }
+.mr-head { fill: var(--white); stroke: var(--navy-deep); stroke-width: 2; }
+.mr-handle:focus-visible .mr-head { stroke: var(--violet); stroke-width: 3; }
+.mr-handle:focus-visible .mr-chip { fill: var(--violet); }
+
+.mr-hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted-2);
+}
+
+@media (max-width: 639px) {
+  .mr-label { font-size: 10.5px; }
+  .mr-hint-mid { display: none; }
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AI_LAYOUT, DIPLOMA_LAYOUT, RowListParser } from "../src/parse/cutoffRows.ts";
+import { AI_LAYOUT, AI_LAYOUT_2023, DIPLOMA_LAYOUT, DIPLOMA_LAYOUT_2023, RowListParser } from "../src/parse/cutoffRows.ts";
 import { line } from "./words.ts";
 
 describe("RowListParser (All India list)", () => {
@@ -26,10 +26,36 @@ describe("RowListParser (All India list)", () => {
   });
 });
 
-describe("RowListParser (Diploma list)", () => {
+describe("RowListParser (Diploma list 2026)", () => {
   it("reads rows without type or seat-type columns", () => {
     const p = new RowListParser(DIPLOMA_LAYOUT);
     p.addPage([...line(128, [58, "1"]), ...line(130, [98, "239636"], [123, "(65.89)"], [174, "9900129310"], [691, "Diploma/"], [730, "D.voc"])]);
-    expect(p.rows[0]).toMatchObject({ srNo: 1, closingMerit: 239636, closingPercentile: 65.89, exam: "Diploma/ D.voc", type: null, seatType: null });
+    expect(p.rows[0]).toMatchObject({ srNo: 1, collegeCode: "99001", closingMerit: 239636, closingPercentile: 65.89, exam: "Diploma/ D.voc", type: null, seatType: null });
+  });
+});
+
+describe("RowListParser (Diploma list 2023 — narrow layout, 9-digit choice codes)", () => {
+  it("anchors on choice code at x≈119 and extracts 4-digit college code", () => {
+    const p = new RowListParser(DIPLOMA_LAYOUT_2023);
+    // Mirrors the actual 2023 Diploma PDF column positions
+    p.addPage([
+      ...line(185, [22, "Sr.No"], [55, "CutOff"], [84, "Merit"], [117, "Choice"], [148, "Code"], [675, "Qualfing"], [716, "Exam"]),
+      ...line(210, [30, "1"], [51, "143265"], [80, "(84.42)"], [119, "428519110"], [675, "Diploma/D.Voc."]),
+    ]);
+    expect(p.rows).toHaveLength(1);
+    expect(p.rows[0]).toMatchObject({ srNo: 1, collegeCode: "04285", choiceCode: "0428519110", closingMerit: 143265, closingPercentile: 84.42, exam: "Diploma/D.Voc.", type: null, seatType: null });
+  });
+});
+
+describe("RowListParser (AI list 2023 — seatType at x=758, type starts at x=690)", () => {
+  it("captures seatType and full type string with the shifted 2023 windows", () => {
+    const p = new RowListParser(AI_LAYOUT_2023);
+    p.addPage([
+      // Mirrors Round I layout: seatType "AI" at x=758, type "AI to AI" at x=690,699,709
+      ...line(128, [96, "98"], [107, "(99.7006242)"], [758, "AI"]),
+      ...line(129, [176, "600624510"], [630, "JEE(Main)"], [690, "AI"], [699, "to"], [709, "AI"]),
+    ]);
+    expect(p.rows).toHaveLength(1);
+    expect(p.rows[0]).toMatchObject({ collegeCode: "16006", choiceCode: "1600624510", closingMerit: 98, seatType: "AI", exam: "JEE(Main)", type: "AI to AI" });
   });
 });

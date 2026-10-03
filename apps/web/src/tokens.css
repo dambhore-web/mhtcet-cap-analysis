@@ -1,46 +1,92 @@
 :root {
-  --page: #f7f8fa;
-  --lavender: #eef0f4;
-  --violet: #0f1b33;
-  --violet-deep: #2b3f6b;
-  --violet-soft: #aab4cc;
-  --lime: #f5b301;
-  --orange: #ff775b;
-  --orange-shadow: #b74c39;
-  --navy: #0f1b33;
-  --muted: #55607a;
-  --line: #e3e6ec;
+  /* ── Colour ─────────────────────────────────────────────────────────── */
+  /* "Calm blue" palette (option A, 29 Sep 2026, #142): 60% light neutrals, 30% blue tints,
+     10% blue for actions, amber for highlights. No dark bands. The names are the older ones:
+     --violet is the blue brand colour, --lime and --orange the amber accent, --violet-soft the
+     light blue, --lavender the pale-blue tints, --navy the slate text colour. */
+  --page: #f8fafc;
+  --lavender: #eff6ff;
+  --lavender-2: #f5f8ff;
+  --violet: #2563eb;
+  --violet-deep: #1d4ed8;
+  --violet-soft: #93c5fd;
+  --lime: #f59e0b;
+  --lime-deep: #d97706;
+  --orange: #f59e0b;
+  --orange-shadow: #b45309;
+  --navy: #1e293b;
+  --navy-deep: #0f172a;
+  --muted: #475569;
+  --muted-2: #64748b;
+  --line: #e2e8f0;
+  --line-soft: #f1f5f9;
   --white: #ffffff;
 
-  /* status */
-  --safe-text: #166534;
-  --safe-bg: #e7f6ec;
-  --later-text: #92400e;
-  --later-bg: #fef3c7;
-  --out-text: #c62828;
-  --out-bg: #fce4ec;
+  /* status: always paired with an icon and a label */
+  --safe-text: #15803d;
+  --safe-bg: #f0fdf4;
+  --later-text: #b45309;
+  --later-bg: #fffbeb;
+  --out-text: #475569;
+  --out-bg: #f1f5f9;
+  --danger-text: #b91c1c;
+  --danger-bg: #fef2f2;
+  --danger-on-violet: #fecaca;
+  --info-text: #1d4ed8;
+  --info-bg: #eff6ff;
+  --warn-text: #b45309;
+  --warn-bg: #fffbeb;
+  --warn-line: #fcd34d;
 
-  /* typography */
-  --font-head: "Geist", system-ui, Arial, sans-serif;
-  --font-body: "Geist", system-ui, Arial, sans-serif;
-  --font-num: "Geist Mono", monospace;
+  /* ── Typography ─────────────────────────────────────────────────────── */
+  /* Redesign (Oct 2026, docs/mockups): Anek Latin (Ek Type, Mumbai) at a narrow width for
+     headings and big figures, Poppins for text, Geist Mono for small figures (axis labels,
+     choice codes, tables). */
+  --font-display: "Anek Latin", "Poppins", system-ui, sans-serif;
+  --font-head: var(--font-display);
+  --font-body: "Poppins", "Segoe UI", system-ui, sans-serif;
+  --font-num: var(--font-display);
+  --font-mono: "Geist Mono", ui-monospace, "Cascadia Mono", monospace;
+  --display-stretch: 85%; /* font-stretch for --font-display */
 
-  /* shadows */
-  --shadow-card: 0 8px 24px rgba(15, 27, 51, 0.06);
-  --shadow-btn: 0 3px 0 #c45845;
+  /* type scale: the only font sizes used in the app */
+  --text-xs: 12px;   /* captions, table heads, badges */
+  --text-sm: 14px;   /* secondary text, buttons */
+  --text-base: 16px; /* body */
+  --text-lg: 18px;   /* card titles */
+  --text-xl: 23px;   /* section titles */
+  --text-2xl: clamp(31px, 4.2vw, 46px); /* page titles */
+  --text-3xl: 36px;  /* large figures */
+  --text-hero: clamp(36px, 6vw, 64px); /* landing hero only */
 
-  /* status */
-  --safe-text-2: #166534;
-  --safe-bg-2: #e7f6ec;
-  --match-text: #92400e;
-  --match-bg: #fef3c7;
-  --reach-text: #ad5548;
-  --reach-bg: #ffe4de;
+  --label-tracking: 0.06em;
 
-  /* layout */
-  --top-nav-h: 68px;
+  /* ── Shape ──────────────────────────────────────────────────────────── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --card-line: #e8edf5;
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 24px rgba(15, 23, 42, 0.05);
+  --shadow-raised: 0 8px 24px rgba(15, 23, 42, 0.12);
+
+  /* ── Layout ─────────────────────────────────────────────────────────── */
+  --content-max: 1200px;
+  --content-narrow: 760px;
+  --gutter: 16px;
+  --top-nav-h: 60px;
+  --compare-bar-h: 0px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --page-max-w: 1200px;
+  /* breakpoints (for reference; CSS vars can't be used in @media):
+     phone < 640px · tablet 640–1023px · desktop ≥ 1024px */
+}
+
+@media (min-width: 640px) {
+  :root { --gutter: 24px; }
+}
+
+@media (min-width: 1024px) {
+  :root { --gutter: 32px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

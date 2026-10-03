@@ -1,8 +1,11 @@
 import { mkdir, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
-/** Hosts the pipeline may contact (AG-002 hard rule 4). */
-const ALLOWED_HOST = /^(fe\d{4}\.mahacet\.org|cappublicdocs\d{4}\.blob\.core\.windows\.net)$/;
+/**
+ * Hosts the pipeline may contact (AG-002 hard rule 4), plus the Fee Regulating Authority's
+ * yearly fee portals (`ay26-27.mahafraportal.org`), linked from the CET Cell home page (#42).
+ */
+const ALLOWED_HOST = /^(fe\d{4}\.mahacet\.org|cappublicdocs\d{4}\.blob\.core\.windows\.net|ay\d{2}-\d{2}\.mahafraportal\.org)$/;
 const MIN_GAP_MS = 1100;
 const USER_AGENT = "mhtcet-cap-analysis data pipeline (research; polite, cached)";
 

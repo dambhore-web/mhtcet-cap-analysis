@@ -6,6 +6,10 @@ export interface InstituteListRow {
   name: string;
   status: string;
   totalIntake: number | null;
+  /** District from college-meta.json (FR-008). */
+  district?: string | null;
+  /** Normalised college type from college-meta.json (FR-008). */
+  collegeType?: string | null;
 }
 
 const ROW_RE =

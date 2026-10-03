@@ -1,0 +1,103 @@
+.ladder {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 120px;
+  height: 20px;
+}
+
+.ladder--empty {
+  height: auto;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.ladder-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--line);
+  border-radius: var(--radius-pill);
+}
+
+/* same encoding as every rank chart: Round I hollow blue, last round amber, you dashed */
+.ladder-span {
+  position: absolute;
+  top: 50%;
+  height: 3px;
+  margin-top: -1.5px;
+  background: var(--orange);
+  opacity: 0.45;
+  border-radius: var(--radius-pill);
+}
+
+.ladder-first,
+.ladder-last {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+}
+
+.ladder-first {
+  background: var(--white);
+  border: 2px solid var(--violet);
+  z-index: 1;
+}
+
+.ladder-last {
+  background: var(--orange);
+}
+
+.ladder-you {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1.5px dashed var(--navy-deep);
+}
+
+.ladder-axis {
+  position: relative;
+  display: block;
+  height: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-2);
+}
+
+.ladder-axis span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.ladder-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.ladder-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ladder-key {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.ladder-key--first { border: 2px solid var(--violet); background: var(--white); }
+.ladder-key--last { background: var(--orange); }
+.ladder-key--you { width: 16px; height: 0; border-radius: 0; border-top: 2px dashed var(--navy-deep); }
+.ladder-legend-note { color: var(--muted-2); }

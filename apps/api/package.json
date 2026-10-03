@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx --env-file=../../.env src/index.ts",
-    "start": "npx tsx src/index.ts"
+    "start": "npx tsx src/index.ts",
+    "dev:demo": "tsx src/demo/server.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.0",

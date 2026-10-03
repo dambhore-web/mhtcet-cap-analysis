@@ -1,231 +1,153 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { loadList, type ListItem } from "../lib/list";
+import { useList } from "../lib/list";
 import { useProfile } from "../lib/ProfileContext";
+import { PageHeader } from "../components/PageHeader";
+import { PlanNextStep, PlanSubnav } from "../components/PlanSubnav";
+import { Icon } from "../components/Icon";
+import { CATEGORY_OPTIONS } from "../lib/categories";
+import { formatNumber } from "../lib/format";
+import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
+import { choiceCodesText, downloadCSV, downloadPDF, downloadXLSX } from "../lib/exportForm";
+import { markExported } from "../lib/progress";
+import { usePageMeta } from "../lib/seo";
 import "./ExportPage.css";
 
-function exportCSV(items: ListItem[], merit: number) {
-  const header = ["Rank", "Choice Code", "College", "Branch", "Seat Type", "Closing Merit 2026", "Your Surplus"];
-  const rows = items.map((item, i) => [
-    String(i + 1),
-    item.choiceCode,
-    item.collegeName,
-    item.branch,
-    item.seatType,
-    String(item.closingMerit),
-    String(item.closingMerit - merit),
-  ]);
-  const csv = [header, ...rows].map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
-  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "compass-preference-list.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
+type Busy = "pdf" | "xlsx" | null;
 
-async function exportPDF(items: ListItem[], merit: number, category: string) {
-  const { jsPDF } = await import("jspdf");
-  const autoTable = (await import("jspdf-autotable")).default;
-
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.text("MHT-CET 2026 Preference List", 14, 18);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(
-    `Merit: ${merit.toLocaleString("en-IN")}  ·  Category: ${category || "Open"}  ·  Generated: ${new Date().toLocaleDateString("en-IN")}`,
-    14,
-    26,
-  );
-  doc.setFontSize(8);
-  doc.setTextColor(120, 120, 120);
-  doc.text(
-    "Compass · compass.mhtcet.in · Based on official DTE Maharashtra 2026 CAP cutoffs. Not a guarantee.",
-    14,
-    32,
-  );
-  doc.setTextColor(0, 0, 0);
-
-  autoTable(doc, {
-    startY: 36,
-    head: [["#", "Choice Code", "College", "Branch", "Seat Type", "Closing Merit", "Surplus"]],
-    body: items.map((item, i) => {
-      const surplus = item.closingMerit - merit;
-      return [
-        String(i + 1),
-        item.choiceCode,
-        item.collegeName,
-        item.branch,
-        item.seatType,
-        item.closingMerit.toLocaleString("en-IN"),
-        surplus >= 0 ? `+${surplus.toLocaleString("en-IN")}` : surplus.toLocaleString("en-IN"),
-      ];
-    }),
-    styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [15, 27, 51] },
-    columnStyles: {
-      0: { cellWidth: 8 },
-      1: { cellWidth: 28, font: "courier" },
-      2: { cellWidth: 70 },
-      3: { cellWidth: 55 },
-      4: { cellWidth: 22 },
-      5: { cellWidth: 22, halign: "right" },
-      6: { cellWidth: 20, halign: "right" },
-    },
-    alternateRowStyles: { fillColor: [247, 248, 250] },
-  });
-
-  doc.save("compass-preference-list.pdf");
-}
-
+/** My CAP plan step 3, journey J8: the option form ready for the CET Cell portal. */
 export function ExportPage() {
+  usePageMeta({ title: "Export your option form", noindex: true });
   const { profile } = useProfile();
-  const [items] = useState<ListItem[]>(() => loadList());
+  const items = useList();
   const [copied, setCopied] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState(false);
+  const [busy, setBusy] = useState<Busy>(null);
+  const merit = profile.meritNumber;
+  const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === (profile.category ?? ""))?.label ?? "Open";
 
-  const merit = profile.meritNumber ?? 0;
-  const category = profile.category ?? "";
-
-  async function handleCopy() {
-    const codes = items.map((i) => i.choiceCode).join("\n");
-    await navigator.clipboard.writeText(codes);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  }
-
-  async function handlePDF() {
-    setPdfLoading(true);
+  async function run(kind: Exclude<Busy, null>, fn: () => Promise<void>) {
+    setBusy(kind);
     try {
-      await exportPDF(items, merit, category);
+      await fn();
+      markExported();
     } finally {
-      setPdfLoading(false);
+      setBusy(null);
     }
   }
 
-  if (items.length === 0) {
-    return (
-      <div className="export-page">
-        <div className="export-content">
-          <div className="export-empty">
-            <div className="export-empty-icon">↓</div>
-            <h2>Nothing to export yet</h2>
-            <p>Build your shortlist first, then come back here to download it.</p>
-            <Link to="/list" className="export-empty-cta">Go to shortlist →</Link>
-          </div>
-        </div>
-      </div>
-    );
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(choiceCodesText(items));
+      markExported();
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      /* clipboard blocked: the codes are visible in the table below */
+    }
   }
 
   return (
-    <div className="export-page">
-      <div className="export-content">
+    <div className="page export-page">
+      <PageHeader
+        breadcrumb={[{ label: "My CAP plan", to: "/list" }, { label: "Export" }]}
+        title="Export for the CAP portal"
+        subtitle="Enter these choice codes in the same order on the official CET Cell portal. GetMeCollege does not submit your form."
+      />
+      <PlanSubnav />
 
-        <header className="export-header">
-          <div>
-            <h1>Export option form</h1>
-            <p className="export-sub">
-              {items.length} option{items.length !== 1 ? "s" : ""}
-              {merit > 0 && <> · Merit <strong>{merit.toLocaleString("en-IN")}</strong></>}
-              {category && <> · <span className="export-cat">{category}</span></>}
-            </p>
-          </div>
-          <Link to="/list" className="export-edit-link">Edit list →</Link>
-        </header>
-
-        {/* Format cards */}
-        <div className="export-formats">
-
-          <div className="export-format-card">
-            <div className="export-format-icon export-format-icon-pdf">PDF</div>
-            <div className="export-format-body">
-              <h3>PDF — print or carry</h3>
-              <p>Landscape A4, one row per option with your surplus highlighted. Ready to print and bring to the CAP reporting centre.</p>
-            </div>
-            <button
-              className="export-format-btn export-format-btn-primary"
-              onClick={handlePDF}
-              disabled={pdfLoading}
-            >
-              {pdfLoading ? "Generating…" : "Download PDF"}
+      {items.length === 0 ? (
+        <div className="empty-state">
+          <Icon name="clipboard" size={28} className="empty-state-icon" />
+          <h2>Nothing to export yet</h2>
+          <p>Add choices to your option form first, then come back to download it.</p>
+          <Link to="/list" className="btn btn-primary">Go to option form</Link>
+        </div>
+      ) : (
+        <>
+          <div className="export-actions">
+            <button type="button" className="btn btn-primary" onClick={() => run("pdf", () => downloadPDF(items, merit, categoryLabel))} disabled={busy !== null}>
+              <Icon name="clipboard" size={18} />
+              {busy === "pdf" ? "Preparing PDF…" : "Download PDF"}
             </button>
-          </div>
-
-          <div className="export-format-card">
-            <div className="export-format-icon export-format-icon-csv">CSV</div>
-            <div className="export-format-body">
-              <h3>CSV — open in Excel / Sheets</h3>
-              <p>Comma-separated with BOM for Excel. All columns: rank, choice code, college, branch, seat type, closing merit, surplus.</p>
-            </div>
-            <button
-              className="export-format-btn"
-              onClick={() => exportCSV(items, merit)}
-            >
+            <button type="button" className="btn btn-secondary" onClick={() => run("xlsx", () => downloadXLSX(items, merit))} disabled={busy !== null}>
+              {busy === "xlsx" ? "Preparing Excel…" : "Download Excel"}
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={() => { downloadCSV(items, merit); markExported(); }}>
               Download CSV
             </button>
-          </div>
-
-          <div className="export-format-card">
-            <div className="export-format-icon export-format-icon-copy">#</div>
-            <div className="export-format-body">
-              <h3>Copy choice codes</h3>
-              <p>One code per line, in your preferred order. Paste directly into the CAP online form.</p>
-            </div>
-            <button
-              className={`export-format-btn${copied ? " export-format-btn-done" : ""}`}
-              onClick={handleCopy}
-            >
-              {copied ? "Copied ✓" : "Copy codes"}
+            <button type="button" className="btn btn-secondary" onClick={copy}>
+              <Icon name={copied ? "check" : "clipboard"} size={18} />
+              {copied ? "Choice codes copied" : "Copy choice codes in order"}
             </button>
+            <span role="status" className="sr-only">{copied ? "Choice codes copied" : ""}</span>
           </div>
 
-        </div>
+          <section className="card export-preview" aria-labelledby="export-preview-title">
+            <div className="export-preview-head">
+              <div>
+                <h2 id="export-preview-title">Your choice codes, in order</h2>
+                <p className="export-preview-desc">
+                  Type them into the portal in this order. The first five digits are the college code (grey); the rest pick the branch.
+                </p>
+              </div>
+              <span className="export-preview-meta">
+                {merit ? `Merit ${formatNumber(merit)} · ` : ""}
+                {categoryLabel} · {items.length} {items.length === 1 ? "choice" : "choices"}
+              </span>
+            </div>
+            <ol className="export-codes" aria-label="Choice codes in order">
+              {items.map((it, i) => (
+                <li key={it.id}>
+                  <span className="export-codes-n">{i + 1}</span>
+                  <span>
+                    <span className="export-codes-v" aria-label={it.choiceCode}>
+                      <span className="export-codes-college">{it.choiceCode.slice(0, 5)}</span>
+                      {it.choiceCode.slice(5)}
+                    </span>
+                    <span className="export-codes-t" title={`${it.collegeName}, ${it.branch}`}>{it.branch}, {it.collegeName}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <details className="export-full">
+              <summary>Show the full table</summary>
+            <div className="table-scroll">
+              <table className="export-table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Choice code</th>
+                    <th scope="col">College and branch</th>
+                    <th scope="col">Seat type</th>
+                    <th scope="col" className="num">Closing rank</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((it, i) => (
+                    <tr key={it.id}>
+                      <td className="num">{i + 1}</td>
+                      <td className="export-code">{it.choiceCode}</td>
+                      <td>
+                        <span className="export-college">{it.collegeName}</span>
+                        <span className="export-branch">{it.branch}</span>
+                      </td>
+                      <td><abbr title={seatTypeLabel(it.seatType)}>{seatTypeShortLabel(it.seatType)}</abbr></td>
+                      <td className="num">{formatNumber(it.closingMerit)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            </details>
+          </section>
 
-        {/* Preview table */}
-        <div className="export-preview">
-          <div className="export-preview-head">
-            <span className="exp-col-rank">#</span>
-            <span className="exp-col-code">Choice code</span>
-            <span className="exp-col-detail">College / Branch</span>
-            <span className="exp-col-seat">Seat</span>
-            <span className="exp-col-merit">Closing / Surplus</span>
-          </div>
-          <div className="export-preview-rows">
-            {items.map((item, i) => {
-              const surplus = merit > 0 ? item.closingMerit - merit : null;
-              return (
-                <div key={item.id} className="export-preview-row">
-                  <span className="exp-col-rank exp-rank-num">{i + 1}</span>
-                  <span className="exp-col-code exp-code-tag">{item.choiceCode}</span>
-                  <div className="exp-col-detail">
-                    <span className="exp-college">{item.collegeName}</span>
-                    <span className="exp-branch">{item.branch}</span>
-                  </div>
-                  <span className="exp-col-seat exp-seat-tag">{item.seatType}</span>
-                  <div className="exp-col-merit exp-merit-col">
-                    <span className="exp-closing">{item.closingMerit.toLocaleString("en-IN")}</span>
-                    {surplus !== null && (
-                      <span className={`exp-surplus${surplus >= 0 ? " pos" : " neg"}`}>
-                        {surplus >= 0 ? `+${surplus.toLocaleString("en-IN")}` : surplus.toLocaleString("en-IN")}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="export-preview-foot">
-            {items.length}/300 options · 2026 closing merits from official DTE Maharashtra lists
-          </div>
-        </div>
-
-      </div>
+          <p className="export-note">
+            Before you submit: <Link to="/simulator">test this order in the simulator</Link>, and share the plan with your family using the{" "}
+            <Link to="/summary">family summary</Link>.
+          </p>
+          <PlanNextStep current="/export" />
+        </>
+      )}
     </div>
   );
 }

@@ -4,7 +4,11 @@ on:
   push:
     branches: ["**"]
   pull_request:
-    branches: [main]
+    branches: [main, Dev]
+
+# Read-only GITHUB_TOKEN: no job pushes, comments or releases.
+permissions:
+  contents: read
 
 jobs:
   check:
@@ -31,82 +35,13 @@ jobs:
       - name: Audit dependencies
         run: npm audit --audit-level=high
 
-  eval:
-    name: AI eval (assistant route)
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'pull_request' &&
-      (contains(toJson(github.event.pull_request.changed_files), 'apps/api/src/routes/assistant') ||
-       contains(toJson(github.event.pull_request.changed_files), 'packages/pipeline/eval'))
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Start API server
-        run: npm run dev:api &
-        env:
-          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-
-      - name: Wait for API
-        run: npx wait-on http://localhost:3001/api/health --timeout 30000
-
-      - name: Run AI eval
-        run: npm run eval
-        env:
-          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-
-  perf:
-    name: Perf tests (NFR-002/003)
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'pull_request' &&
-      (contains(toJson(github.event.pull_request.changed_files), 'apps/api/src/routes/rankFinder') ||
-       contains(toJson(github.event.pull_request.changed_files), 'apps/api/src/routes/assistant') ||
-       contains(toJson(github.event.pull_request.changed_files), 'packages/pipeline/perf'))
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Start API server
-        run: npm run dev:api &
-        env:
-          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-
-      - name: Wait for API
-        run: npx wait-on http://localhost:3001/api/health --timeout 30000
-
-      - name: Run perf tests
-        run: npm run perf
-        env:
-          DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-
   e2e:
     name: Playwright e2e
     runs-on: ubuntu-latest
-    # Only run when web or API source changes
-    if: |
-      github.event_name == 'pull_request' &&
-      contains(toJson(github.event.pull_request.changed_files), 'apps/')
+    # Runs the real API over the demo dataset (apps/api/src/demo): no database or secrets needed.
+    # Also on every push to Dev, since work merges there directly (#23). Sign-in tests use a fake
+    # Supabase inside the browser (e2e/fixtures/supabase.ts): no accounts, no network.
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/Dev'
 
     steps:
       - uses: actions/checkout@v4
@@ -124,6 +59,181 @@ jobs:
 
       - name: Run Playwright tests
         run: npm run e2e -w @mhtcet/web
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7
+
+  e2e-live:
+    name: Playwright live smoke (staging data)
+    runs-on: ubuntu-latest
+    # Checks the app against the real staging Supabase data; skipped when the secret isn't set.
+    if: github.event_name == 'pull_request'
+    env:
+      DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
+
+    steps:
+      - uses: actions/checkout@v4
+        if: env.DATABASE_URL_STAGING != ''
+
+      - uses: actions/setup-node@v4
+        if: env.DATABASE_URL_STAGING != ''
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm ci
+
+      - name: Install Playwright browsers
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm run e2e:install -w @mhtcet/web
+
+      - name: Run live smoke tests
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm run e2e -w @mhtcet/web
+        env:
+          E2E_LIVE: "1"
+
+  data-audit:
+    name: Data audit (staging)
+    runs-on: ubuntu-latest
+    # Read-only counts of what staging holds and which expected datasets are missing; the report
+    # goes to the job summary. Skipped when the staging secret isn't set.
+    env:
+      DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
+
+    steps:
+      - uses: actions/checkout@v4
+        if: env.DATABASE_URL_STAGING != ''
+
+      - uses: actions/setup-node@v4
+        if: env.DATABASE_URL_STAGING != ''
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm ci
+
+      - name: Audit staging data
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm run data:audit -w @mhtcet/pipeline
+
+  perf-live:
+    name: Performance (staging data)
+    runs-on: ubuntu-latest
+    # NFR-002 / NFR-003 (#27): loads the real staging cutoffs into the API, then runs 50 concurrent
+    # rank-finder users and 10 assistant questions. Skipped when the staging secret isn't set;
+    # the assistant half is skipped when GROQ_API_KEY isn't set.
+    if: github.event_name == 'pull_request'
+    env:
+      DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
+
+    steps:
+      - uses: actions/checkout@v4
+        if: env.DATABASE_URL_STAGING != ''
+
+      - uses: actions/setup-node@v4
+        if: env.DATABASE_URL_STAGING != ''
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm ci
+
+      - name: Start API on staging data
+        if: env.DATABASE_URL_STAGING != ''
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: ${{ vars.GROQ_MODEL }}
+          # 50 simulated users share one IP here; per-IP budgets would throttle the load test itself
+          RATE_LIMITS: "off"
+        run: |
+          npm run start -w @mhtcet/api > api.log 2>&1 &
+          for i in $(seq 1 120); do curl -sf http://localhost:3001/api/health > /dev/null && exit 0; sleep 1; done
+          cat api.log; exit 1
+
+      - name: Run performance check
+        if: env.DATABASE_URL_STAGING != ''
+        run: npm run perf
+
+      - name: Upload results
+        if: always() && env.DATABASE_URL_STAGING != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-results
+          path: apps/api/perf/results
+          retention-days: 30
+
+  eval:
+    name: Assistant eval (${{ matrix.model }})
+    runs-on: ubuntu-latest
+    # Gates prompt, model and tool changes (#20). Runs only when the assistant's code or eval set
+    # changed and GROQ_API_KEY is set; uses the staging data when that secret is set too.
+    # The default model (apps/api/src/routes/assistant.ts) gates. Groq's free tier allows about
+    # one full run per model per day, so only the default runs; add entries with gate: false to
+    # compare other models (#19).
+    if: github.event_name == 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - model: openai/gpt-oss-120b
+            gate: true
+    continue-on-error: ${{ !matrix.gate }}
+    # Free-tier Groq rate limits make a full run take 10-20 minutes per model
+    timeout-minutes: 45
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+        if: env.GROQ_API_KEY != ''
+        with:
+          fetch-depth: 0
+
+      - name: Check for assistant changes
+        id: changes
+        if: env.GROQ_API_KEY != ''
+        run: |
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+            | grep -qE '^apps/api/(src/assistant/|src/routes/assistant\.ts|src/services/findOptions\.ts|evals/)|^packages/core/src/'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No assistant changes: eval not needed."
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.run == 'true'
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        if: steps.changes.outputs.run == 'true'
+        run: npm ci
+
+      - name: Run eval
+        if: steps.changes.outputs.run == 'true'
         env:
           DATABASE_URL_STAGING: ${{ secrets.DATABASE_URL_STAGING }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: ${{ matrix.model }}
+        run: npm run eval
+
+      - name: Upload results
+        if: always() && steps.changes.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ strategy.job-index }}
+          path: apps/api/evals/results
+          retention-days: 30

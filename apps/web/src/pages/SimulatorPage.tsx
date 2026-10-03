@@ -1,229 +1,231 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useProfile } from "../lib/ProfileContext";
-import { loadList } from "../lib/list";
-import { api, type SimulatedAllotment } from "../lib/api";
+import { useList } from "../lib/list";
+import { api, type SimulateResponse, type SimulatedRound } from "../lib/api";
+import { PageHeader } from "../components/PageHeader";
+import { PlanNextStep, PlanSubnav } from "../components/PlanSubnav";
+import { Icon } from "../components/Icon";
+import { formatNumber, formatRound } from "../lib/format";
+import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
+import { CATEGORY_OPTIONS } from "../lib/categories";
+import { markSimulated } from "../lib/progress";
+import { usePageMeta } from "../lib/seo";
 import "./SimulatorPage.css";
 
-const ROUNDS = ["I", "II", "III"] as const;
-type Round = typeof ROUNDS[number];
+const ROUNDS = ["I", "II", "III", "IV"] as const;
 
+function zoneText(round: SimulatedRound["round"], zones: SimulateResponse["freezeZones"]): string {
+  if (round === "IV") return "Final round: allotments are final";
+  const n = zones[round];
+  return n === 1 ? "Freeze zone: choice 1" : `Freeze zone: choices 1–${n}`;
+}
+
+function headline(r: SimulateResponse): string {
+  const first = r.rounds.find((x) => x.preference);
+  const last = r.rounds[r.rounds.length - 1];
+  if (!first || !last.preference) return "With this list you would not have got a seat last year.";
+  const start = `choice ${first.preference} (${first.choice?.branch ?? "?"}) in ${formatRound(first.round)}`;
+  if (last.preference === first.preference) return `With this list you would have got ${start} and stayed there.`;
+  return `With this list you would have started with ${start} and moved up to choice ${last.preference} (${last.choice?.branch ?? "?"}) by ${formatRound(last.round)}.`;
+}
+
+/** My CAP plan step 2, journey J9: "Where would this list actually land me?" */
 export function SimulatorPage() {
+  usePageMeta({ title: "CAP round simulator", noindex: true });
   const { profile } = useProfile();
-  const [result, setResult] = useState<SimulatedAllotment[] | null>(null);
+  const items = useList();
+  const [result, setResult] = useState<SimulateResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Bumped on every run so the rounds replay their reveal
+  const [runCount, setRunCount] = useState(0);
+  const merit = profile.meritNumber;
+  const noMerit = !merit;
+  const noPrefs = items.length === 0;
+  const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === (profile.category ?? ""))?.label ?? "Open";
 
-  const savedList = loadList();
-  const prefCodes = savedList.map((i) => i.choiceCode);
-  const noMerit = !profile.meritNumber;
-  const noPrefs = prefCodes.length === 0;
-
-  async function runSimulation() {
-    if (noMerit || noPrefs) return;
+  async function run() {
+    if (!merit || noPrefs) return;
     setLoading(true);
     setError("");
-    setResult(null);
     try {
-      const res = await api.simulate({
-        merit: profile.meritNumber!,
-        homeUniversity: profile.homeUniversity || null,
-        category: profile.category ?? null,
-        gender: profile.gender,
-        minorityCommunity: null,
-        flags: { ews: profile.ews, tfws: profile.tfws, defence: profile.defence, pwd: profile.pwd, orphan: profile.orphan },
-        subjectGroup: profile.subjectGroup,
-        preferences: prefCodes,
-      });
-      setResult(res.allotments);
+      setResult(
+        await api.simulate({
+          merit,
+          homeUniversity: profile.homeUniversity || null,
+          category: profile.category ?? null,
+          gender: profile.gender,
+          minorityCommunity: profile.minorityCommunity,
+          flags: { ews: profile.ews, tfws: profile.tfws, defence: profile.defence, pwd: profile.pwd, orphan: profile.orphan },
+          subjectGroup: profile.subjectGroup,
+          preferences: items.map((i) => i.choiceCode),
+        }),
+      );
+      setRunCount((n) => n + 1);
+      markSimulated();
     } catch {
-      setError("Could not run simulation. Check your connection and try again.");
+      setError("Couldn't run the simulation. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
   }
 
-  const r1 = result?.find((a) => a.round === "I") ?? null;
-  const rFinal = result ? ([...result].sort((a, b) =>
-    ROUNDS.indexOf(b.round as Round) - ROUNDS.indexOf(a.round as Round))[0] ?? null) : null;
-  const movedUp = r1 && rFinal && rFinal.round !== "I" && rFinal.rank < r1.rank
-    ? r1.rank - rFinal.rank
-    : 0;
-  const floatRecommended = movedUp > 0;
+  const afterRoundI = result?.rounds[0];
 
   return (
-    <div className="sim-page">
-      <div className="sim-content">
+    <div className="page sim-page">
+      <PageHeader
+        breadcrumb={[{ label: "My CAP plan", to: "/list" }, { label: "Simulator" }]}
+        title="Test your option form"
+        subtitle="Replays last year's four CAP rounds with your list and the auto-freeze rule, so you can see where you would have landed."
+      />
+      <PlanSubnav />
 
-        {/* Page header */}
-        <div className="sim-page-header">
-          <div>
-            {result && profile.meritNumber && (
-              <span className="sim-replay-badge">
-                Replaying CAP 2026 with {prefCodes.length} options · merit {profile.meritNumber.toLocaleString("en-IN")}
-              </span>
-            )}
-            <h1 className="sim-title">
-              {result && r1
-                ? <>With this list you would have started in <span className="sim-title-got">{r1.branch}</span>
-                  {rFinal && rFinal.round !== "I" && <> and {floatRecommended ? "moved up to" : "stayed at"} <span className={floatRecommended ? "sim-title-moved" : "sim-title-got"}>{rFinal.branch}</span> by Round {rFinal.round}</>}.</>
-                : "CAP Round Simulator"}
-            </h1>
-            {result && (
-              <p className="sim-subtitle">A replay of last year's cutoffs. This year's will be different — treat it as a rehearsal, not a prediction.</p>
-            )}
-          </div>
-          <Link to="/list" className="sim-edit-btn">Edit my list</Link>
-        </div>
+      <div className="sim-layout">
+        <aside className="sim-setup card" aria-label="Simulation inputs">
+          <dl className="sim-profile">
+            <div><dt>Merit number</dt><dd>{merit ? formatNumber(merit) : <Link to="/profile/details">Add merit number</Link>}</dd></div>
+            <div><dt>Category</dt><dd>{categoryLabel}</dd></div>
+            <div><dt>Choices in option form</dt><dd>{noPrefs ? <Link to="/list">Add options</Link> : formatNumber(items.length)}</dd></div>
+          </dl>
+          <button type="button" className="btn btn-primary btn-block" onClick={run} disabled={loading || noMerit || noPrefs}>
+            <Icon name="play" size={18} />
+            {loading ? "Replaying…" : result ? "Run again" : "Run simulation"}
+          </button>
+          <Link to="/list" className="btn btn-ghost btn-block btn-sm">Edit option form</Link>
+        </aside>
 
-        {/* Pre-run state */}
-        {!result && (
-          <div className="sim-pre">
-            <div className="sim-profile-card">
-              <div className="sim-profile-row">
-                <span className="sim-profile-label">Merit</span>
-                <span className="sim-profile-val">
-                  {profile.meritNumber
-                    ? profile.meritNumber.toLocaleString("en-IN")
-                    : <Link to="/profile" className="sim-setup-link">Set merit →</Link>}
-                </span>
-              </div>
-              <div className="sim-profile-row">
-                <span className="sim-profile-label">Category</span>
-                <span className="sim-profile-val">{profile.category ?? "Open"}</span>
-              </div>
-              <div className="sim-profile-row">
-                <span className="sim-profile-label">Preferences</span>
-                <span className="sim-profile-val">
-                  {prefCodes.length > 0
-                    ? `${prefCodes.length} saved`
-                    : <Link to="/" className="sim-setup-link">Build list →</Link>}
-                </span>
-              </div>
+        <div className="sim-main">
+          {(noMerit || noPrefs) && (
+            <div className="empty-state">
+              <Icon name="steps" size={28} className="empty-state-icon" />
+              <h2>Two things before you simulate</h2>
+              <ol className="sim-prereq-list">
+                <li className={noMerit ? "" : "done"}>
+                  <Icon name={noMerit ? "minus" : "check"} size={16} />
+                  {noMerit ? <span><Link to="/profile/details">Add your merit number</Link> in My details</span> : "Merit number added"}
+                </li>
+                <li className={noPrefs ? "" : "done"}>
+                  <Icon name={noPrefs ? "minus" : "check"} size={16} />
+                  {noPrefs ? <span><Link to="/find">Find your options</Link> and add a few to your option form</span> : "Option form has choices"}
+                </li>
+              </ol>
             </div>
+          )}
 
-            {(noMerit || noPrefs) && (
-              <div className="sim-prereq">
-                <strong>Before you simulate:</strong>
-                <ul>
-                  {noMerit && <li>Set your merit number in <Link to="/profile">Profile</Link></li>}
-                  {noPrefs && <li>Add options from the <Link to="/">Find</Link> tab</li>}
-                </ul>
-              </div>
-            )}
-
-            <button
-              className={`sim-run-btn${loading ? " loading" : ""}`}
-              onClick={runSimulation}
-              disabled={loading || noMerit || noPrefs}
-            >
-              {loading ? "Simulating…" : "Run simulation"}
-            </button>
-
-            {error && <div className="sim-error">{error}</div>}
-          </div>
-        )}
-
-        {/* Result */}
-        {result && (
-          <>
-            {/* 4 round cards */}
-            <div className="sim-round-cards">
-              {ROUNDS.map((round) => {
-                const a = result.find((x) => x.round === round);
-                const isFinal = round === ROUNDS[ROUNDS.length - 1];
-                return (
-                  <div key={round} className={`sim-rcard${a ? " sim-rcard-allotted" : " sim-rcard-empty"}${isFinal && a ? " sim-rcard-final" : ""}`}>
-                    <span className="sim-rcard-label">Round {round}</span>
-                    {a ? (
-                      <>
-                        <span className="sim-rcard-branch">{a.branch}</span>
-                        <span className="sim-rcard-meta">Option {a.rank} · closed at <span className="sim-rcard-merit">{a.closingMerit.toLocaleString("en-IN")}</span></span>
-                        {isFinal && movedUp > 0 && (
-                          <span className="sim-rcard-badge">↑ Moved up {movedUp} option{movedUp > 1 ? "s" : ""}</span>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <span className="sim-rcard-branch sim-rcard-empty-text">No allotment</span>
-                        <span className="sim-rcard-meta">No seat found in this round</span>
-                      </>
-                    )}
-                  </div>
-                );
-              })}
+          {error && (
+            <div className="sim-error" role="alert">
+              <Icon name="alert" size={16} />
+              {error}
             </div>
+          )}
 
-            {/* 2-column: round table + F/F/S sidebar */}
-            <div className="sim-body-grid">
-              {/* Round detail list */}
-              <section className="sim-rounds-section">
-                <div className="sim-rounds-head">
-                  <span className="sim-rounds-title">Your list, round by round</span>
-                  <span className="sim-rounds-hint">Based on 2026 closing merits</span>
-                </div>
-                {ROUNDS.map((round) => {
-                  const a = result.find((x) => x.round === round);
-                  return (
-                    <div key={round} className="sim-round-detail">
-                      <div className="sim-rd-label">Round {round}</div>
-                      {a ? (
-                        <div className="sim-rd-allotment">
-                          <div className="sim-rd-rank">Option {a.rank}</div>
-                          <Link to={`/colleges/${a.choiceCode.slice(0, 4)}`} className="sim-rd-college">
-                            {a.collegeName}
-                          </Link>
-                          <div className="sim-rd-branch">{a.branch} · {a.seatType}</div>
-                          <div className="sim-rd-merit">
-                            Closed at {a.closingMerit.toLocaleString("en-IN")} ·{" "}
-                            surplus {(a.closingMerit - profile.meritNumber!).toLocaleString("en-IN")}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="sim-rd-vacant">No seat in this round</div>
-                      )}
+          {!noMerit && !noPrefs && !result && !loading && !error && (
+            <div className="empty-state">
+              <h2>Ready to simulate</h2>
+              <p>Run the simulation, then reorder your option form and run it again to compare.</p>
+            </div>
+          )}
+
+          {result && (
+            <>
+              <p className="sim-headline" aria-live="polite">{headline(result)}</p>
+              <p className="sim-note">{result.assumptions}</p>
+
+              <ol className="sim-rounds" aria-label="Round by round">
+                {result.rounds.map((r, i) => (
+                  <li
+                    key={`${runCount}-${r.round}`}
+                    className={`card sim-round${r.preference ? " allotted" : ""}${r.movedUp ? " moved" : ""}`}
+                    style={{ animationDelay: `${i * 220}ms` }}
+                  >
+                    <div className="sim-round-head">
+                      <span className="sim-round-label">{formatRound(r.round)}</span>
+                      <span className="sim-round-zone">{zoneText(r.round, result.freezeZones)}</span>
                     </div>
-                  );
-                })}
-                <div className="sim-note">
-                  Simulation uses 2026 closing merits as eligibility proxy. Actual allotments depend on seat availability and candidate withdrawals.
+                    {r.preference && r.choice ? (
+                      <div className="sim-round-body">
+                        <span className="sim-choice">Choice {r.preference}</span>
+                        <span className="sim-tags">
+                          {r.movedUp && <span className="badge badge-later"><Icon name="arrowUp" size={12} />Moved up</span>}
+                          {r.frozen && !r.frozenEarlier && <span className="badge badge-out"><Icon name="lock" size={12} />Frozen</span>}
+                          {r.frozenEarlier && <span className="badge badge-out"><Icon name="lock" size={12} />Frozen earlier</span>}
+                        </span>
+                        {r.choice.collegeCode ? (
+                          <Link to={`/colleges/${r.choice.collegeCode}`} className="sim-college">{r.choice.collegeName}</Link>
+                        ) : (
+                          <span className="sim-college">{r.choice.choiceCode}</span>
+                        )}
+                        <span className="sim-branch">{r.choice.branch}</span>
+                        {r.seatType && r.closingMerit != null && (
+                          <span className="sim-meta">
+                            <abbr title={seatTypeLabel(r.seatType)}>{seatTypeShortLabel(r.seatType)}</abbr> · closed at {formatNumber(r.closingMerit)}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="sim-empty">No choice on your list had a seat for your merit.</p>
+                    )}
+                  </li>
+                ))}
+              </ol>
+
+              <section className="card sim-grid" aria-labelledby="sim-grid-title">
+                <h2 id="sim-grid-title">Your list, round by round</h2>
+                <p className="sim-note">Each cell: did this choice have a seat for merit {formatNumber(merit!)}, and at what closing rank?</p>
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Choice</th>
+                        {ROUNDS.map((r) => <th key={r} scope="col" className="num">{formatRound(r, "short")}</th>)}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.grid.map((g) => (
+                        <tr key={g.preference}>
+                          <td className="num">{g.preference}</td>
+                          <td>
+                            <span className="sim-grid-college">{g.collegeName ?? `Unknown code ${g.choiceCode}`}</span>
+                            <span className="sim-grid-branch">{g.branch ?? ""}</span>
+                          </td>
+                          {ROUNDS.map((r) => {
+                            const seat = g.byRound[r];
+                            const held = result.rounds.find((x) => x.round === r)?.preference === g.preference;
+                            return (
+                              <td key={r} className={`num sim-cell${held ? " held" : seat ? " open" : ""}`}>
+                                {held && <span className="sr-only">Your seat: </span>}
+                                <span className="sim-dot" aria-hidden="true" />
+                                <span className="sim-val">{seat ? formatNumber(seat.closingMerit) : <span aria-label="no seat">—</span>}</span>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
+                <p className="sim-legend">
+                  <span className="sim-key held" /> your seat that round <span className="sim-key open" /> a seat was available, lower on your list or already passed
+                </p>
               </section>
 
-              {/* Freeze / Float / Slide sidebar */}
-              <aside className="sim-ffs-sidebar">
-                {r1 && (
-                  <section className="sim-ffs-card">
-                    <h3 className="sim-ffs-title">After Round I, what to choose</h3>
-                    <div className="sim-ffs-option">
-                      <span className="sim-ffs-name">Freeze</span>
-                      <span className="sim-ffs-desc">Keep {r1.branch} and stop. You won't be considered for higher options again.</span>
-                    </div>
-                    <div className={`sim-ffs-option${floatRecommended ? " sim-ffs-recommended" : ""}`}>
-                      <div className="sim-ffs-name-row">
-                        <span className="sim-ffs-name">Float (betterment)</span>
-                        {floatRecommended && <span className="sim-ffs-hint">What last year suggests</span>}
-                      </div>
-                      <span className="sim-ffs-desc">
-                        Accept and stay in line for higher options.
-                        {floatRecommended && rFinal && ` Last year this would have moved you to ${rFinal.branch} by Round ${rFinal.round}.`}
-                      </span>
-                    </div>
-                    <div className="sim-ffs-option">
-                      <span className="sim-ffs-name">Slide</span>
-                      <span className="sim-ffs-desc">Stay at the same college and move only to a higher-ranked branch there.</span>
-                    </div>
-                    <p className="sim-ffs-fee-note">Seat acceptance fee rises each time: ₹1,000 → ₹2,000 → ₹3,000</p>
-                  </section>
-                )}
-                <Link to="/ask" className="sim-ask-cta">
-                  Not sure? Ask Compass about your allotment
-                  <span aria-hidden="true"> →</span>
-                </Link>
-              </aside>
-            </div>
-          </>
-        )}
+              {afterRoundI?.preference && !afterRoundI.frozen && (
+                <section className="card sim-next" aria-label="After Round I">
+                  <h2>After Round I, you could float</h2>
+                  <p>
+                    Choice {afterRoundI.preference} is outside the Round I freeze zone, so you could keep it and stay in line for{" "}
+                    {afterRoundI.preference === 2 ? "choice 1" : `choices 1–${afterRoundI.preference - 1}`}.
+                    See the <Link to="/allotment">After allotment</Link> step once your real allotment is out.
+                  </p>
+                </section>
+              )}
+              <PlanNextStep current="/simulator" />
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

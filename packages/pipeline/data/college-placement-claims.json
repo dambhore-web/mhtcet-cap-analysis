@@ -1,0 +1,1974 @@
+{
+ "_note": "Placement figures colleges publish on their own websites (college's claims, not verified): the latest year's highest, average and median package (rupees per year) and placement %, each with the page and sentence it came from. Built by `npm run placement:claims` from pages crawled by scripts/crawlPlacementPages.mjs.",
+ "colleges": {
+  "16006": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.coeptech.ac.in/",
+   "year": "2025-26",
+   "highest": 6030000,
+   "average": 1250000,
+   "median": 1035000,
+   "placedPct": 90.2,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 6030000,
+     "year": "2025-26",
+     "snippet": "B.Tech placement 2025-26: Highest salary 60.30 LPA (D E Shaw)",
+     "sourceUrl": "https://www.coeptech.ac.in/wp-content/uploads/2026/08/Placement-Data-Stats-2025-26-1.png"
+    },
+    {
+     "metric": "average",
+     "value": 1250000,
+     "year": "2025-26",
+     "snippet": "B.Tech placement statistics AY 2025-26 (14 Aug 2026): Total average salary 12.50",
+     "sourceUrl": "https://www.coeptech.ac.in/wp-content/uploads/2026/08/B.TECH-PLACEMENT-STATISTICS-for-AY-2025-26.jpg"
+    },
+    {
+     "metric": "median",
+     "value": 1035000,
+     "year": "2025-26",
+     "snippet": "B.Tech placement statistics AY 2025-26 (14 Aug 2026): Total median salary 10.35",
+     "sourceUrl": "https://www.coeptech.ac.in/wp-content/uploads/2026/08/B.TECH-PLACEMENT-STATISTICS-for-AY-2025-26.jpg"
+    },
+    {
+     "metric": "placedPct",
+     "value": 90.2,
+     "year": "2025-26",
+     "snippet": "B.Tech placement statistics AY 2025-26: 633 of 702 registered students placed (90.17%)",
+     "sourceUrl": "https://www.coeptech.ac.in/wp-content/uploads/2026/08/B.TECH-PLACEMENT-STATISTICS-for-AY-2025-26.jpg"
+    }
+   ]
+  },
+  "01105": {
+   "crawledAt": "2026-09-29",
+   "home": "https://mitra.ac.in/",
+   "year": "2024-25",
+   "highest": null,
+   "average": 480000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 480000,
+     "year": "2024-25",
+     "snippet": "4.8 LPA",
+     "sourceUrl": "https://mitra.ac.in/training&placement.html"
+    }
+   ]
+  },
+  "01120": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.jdiet.ac.in/",
+   "year": "2025-26",
+   "highest": 709000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 709000,
+     "year": "2025-26",
+     "snippet": "The highest package received for the session 2025–26 is Rs.7.09 Lakh per annum, offered by TATA Consultancy Services Limited (TCSL). Nagpur",
+     "sourceUrl": "https://www.jdiet.ac.in/Placement_Activities.php"
+    }
+   ]
+  },
+  "02020": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.sggs.ac.in/",
+   "year": "2025-26",
+   "highest": 6100000,
+   "average": 550000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 550000,
+     "year": "2025-26",
+     "snippet": "AVERAGE PACKAGE: 5.5 LPA (2025-26)",
+     "sourceUrl": "https://www.sggs.ac.in/placements"
+    },
+    {
+     "metric": "highest",
+     "value": 6100000,
+     "year": "2025-26",
+     "snippet": "HIGHEST PACKAGE: 61 LPA (2025-26)",
+     "sourceUrl": "https://www.sggs.ac.in/placements"
+    }
+   ]
+  },
+  "02112": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.sycet.org/",
+   "year": null,
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 93,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 93,
+     "year": null,
+     "snippet": "93%",
+     "sourceUrl": "https://www.sycet.org/training-placement-cell"
+    }
+   ]
+  },
+  "02129": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.msbecl.ac.in/",
+   "year": null,
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 89,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 89,
+     "year": null,
+     "snippet": "89%",
+     "sourceUrl": "https://www.msbecl.ac.in/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 89,
+     "year": null,
+     "snippet": "89%",
+     "sourceUrl": "https://msbecl.ac.in/"
+    }
+   ]
+  },
+  "02138": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.msscetjalna.org/",
+   "year": null,
+   "highest": 3200000,
+   "average": 820000,
+   "median": null,
+   "placedPct": 95,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 95,
+     "year": null,
+     "snippet": "95%",
+     "sourceUrl": "https://www.msscetjalna.org/"
+    },
+    {
+     "metric": "average",
+     "value": 820000,
+     "year": null,
+     "snippet": "₹8.2L",
+     "sourceUrl": "https://www.msscetjalna.org/"
+    },
+    {
+     "metric": "highest",
+     "value": 3200000,
+     "year": null,
+     "snippet": "₹32 LPA",
+     "sourceUrl": "https://www.msscetjalna.org/placements/tpo"
+    }
+   ]
+  },
+  "02522": {
+   "crawledAt": "2026-09-29",
+   "home": "https://sandipani.ac.in",
+   "year": "2024-25",
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 95,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 95,
+     "year": "2024-25",
+     "snippet": "95% Placement Ratio (AY 2024–25)",
+     "sourceUrl": "https://sandipani.ac.in/"
+    }
+   ]
+  },
+  "02641": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.drvpeducationalcampus.com",
+   "year": "2023-24",
+   "highest": 850000,
+   "average": 320000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 320000,
+     "year": "2023-24",
+     "snippet": "₹3.2L",
+     "sourceUrl": "https://www.drvpeducationalcampus.com/placements/"
+    },
+    {
+     "metric": "highest",
+     "value": 850000,
+     "year": "2023-24",
+     "snippet": "₹8.5L",
+     "sourceUrl": "https://www.drvpeducationalcampus.com/placements/"
+    }
+   ]
+  },
+  "02772": {
+   "crawledAt": "2026-09-29",
+   "home": "https://jspmcoe.in",
+   "year": null,
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 95,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 95,
+     "year": null,
+     "snippet": "95%",
+     "sourceUrl": "https://jspmcoe.in/our_recruiters"
+    }
+   ]
+  },
+  "03012": {
+   "crawledAt": "2026-09-29",
+   "home": "https://vjti.ac.in/",
+   "year": "2025-26",
+   "highest": 7230000,
+   "average": 1088000,
+   "median": null,
+   "placedPct": 87.2,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 7230000,
+     "year": "2025-26",
+     "snippet": "Placement Data Academic Year 2025-2026, top companies by offer: D. E. Shaw 72.3 LPA (1 student)",
+     "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2026/07/Placement-Data-B.Tech-2026-27-07-2026.pdf"
+    },
+    {
+     "metric": "average",
+     "value": 1088000,
+     "year": "2025-26",
+     "snippet": "No overall average published; 10.88 LPA is the branch averages weighted by students placed on campus (495)",
+     "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2026/07/Placement-Data-B.Tech-2026-27-07-2026.pdf"
+    },
+    {
+     "metric": "placedPct",
+     "value": 87.2,
+     "year": "2025-26",
+     "snippet": "B.Tech placement data till 1st July 2026: Total Average Placement (495 + 52) : 547/627 = 87.24% (on campus + higher education)",
+     "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2026/07/Placement-Data-B.Tech-2026-27-07-2026.pdf"
+    }
+   ]
+  },
+  "03139": {
+   "crawledAt": "2026-09-29",
+   "home": "https://vit.edu.in/",
+   "year": "2026",
+   "highest": 2700000,
+   "average": 500000,
+   "median": null,
+   "placedPct": 80,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 2700000,
+     "year": "2026",
+     "snippet": "27 L",
+     "sourceUrl": "https://vit.edu.in/"
+    },
+    {
+     "metric": "average",
+     "value": 500000,
+     "year": "2026",
+     "snippet": "5 L",
+     "sourceUrl": "https://vit.edu.in/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": "2026",
+     "snippet": "80%",
+     "sourceUrl": "https://vit.edu.in/"
+    }
+   ]
+  },
+  "03148": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.sakec.ac.in/",
+   "year": "2026",
+   "highest": 5200000,
+   "average": 422000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 5200000,
+     "year": "2026",
+     "snippet": "52 LPA",
+     "sourceUrl": "https://www.sakec.ac.in/placement/"
+    },
+    {
+     "metric": "average",
+     "value": 422000,
+     "year": "2026",
+     "snippet": "4.22 LPA",
+     "sourceUrl": "https://www.sakec.ac.in/placement/"
+    }
+   ]
+  },
+  "03185": {
+   "crawledAt": "2026-09-29",
+   "home": "https://vesit.ves.ac.in/",
+   "year": "2026",
+   "highest": 1500000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1500000,
+     "year": "2026",
+     "snippet": "15LPA *",
+     "sourceUrl": "https://vesit.ves.ac.in/placement/placement-statistics/"
+    }
+   ]
+  },
+  "03194": {
+   "crawledAt": "2026-09-29",
+   "home": "https://vcet.edu.in/",
+   "year": "2026-27",
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 95,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 95,
+     "year": "2026-27",
+     "snippet": "95%",
+     "sourceUrl": "https://vcet.edu.in/"
+    }
+   ]
+  },
+  "03196": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.ltce.in",
+   "year": null,
+   "highest": 3325000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 3325000,
+     "year": null,
+     "snippet": "Highest Package: 33.25 Lakhs",
+     "sourceUrl": "https://ltce.in/placement_details"
+    }
+   ]
+  },
+  "03197": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.fcrit.ac.in/",
+   "year": "2024-25",
+   "highest": 1300000,
+   "average": 400000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1300000,
+     "year": "2024-25",
+     "snippet": "13 LPA",
+     "sourceUrl": "https://www.fcrit.ac.in/"
+    },
+    {
+     "metric": "average",
+     "value": 400000,
+     "year": "2024-25",
+     "snippet": "4 LPA",
+     "sourceUrl": "https://www.fcrit.ac.in/"
+    }
+   ]
+  },
+  "03200": {
+   "crawledAt": "2026-09-29",
+   "home": "https://famt.ac.in/",
+   "year": "2025-26",
+   "highest": 1000000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1000000,
+     "year": "2025-26",
+     "snippet": "10",
+     "sourceUrl": "https://famt.ac.in/tnp/2025-26/"
+    }
+   ]
+  },
+  "03202": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.rmcet.com/",
+   "year": null,
+   "highest": 600000,
+   "average": null,
+   "median": null,
+   "placedPct": 60,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 60,
+     "year": null,
+     "snippet": "60% Placements",
+     "sourceUrl": "https://www.rmcet.com/"
+    },
+    {
+     "metric": "highest",
+     "value": 600000,
+     "year": null,
+     "snippet": "Highest Package 6 LPA",
+     "sourceUrl": "https://www.rmcet.com/"
+    }
+   ]
+  },
+  "03204": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.sfit.ac.in/",
+   "year": "2023",
+   "highest": 1300000,
+   "average": 500000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 500000,
+     "year": "2023",
+     "snippet": "Average Package for the 2023 batch : 5.0 LPA",
+     "sourceUrl": "https://www.sfit.ac.in/records.php"
+    },
+    {
+     "metric": "highest",
+     "value": 1300000,
+     "year": "2023",
+     "snippet": "No. of offers: 413 Average Salary : 5.0 LPA Highest Salary : 13 LPA",
+     "sourceUrl": "https://www.sfit.ac.in/pdf/Placement%20Summary%202023.pdf"
+    },
+    {
+     "metric": "average",
+     "value": 500000,
+     "year": "2023",
+     "snippet": "No. of offers: 413 Average Salary : 5.0 LPA Highest Salary : 13 LPA",
+     "sourceUrl": "https://www.sfit.ac.in/pdf/Placement%20Summary%202023.pdf"
+    }
+   ]
+  },
+  "03206": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.sspmcoe.ac.in",
+   "year": null,
+   "highest": 440000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 440000,
+     "year": null,
+     "snippet": "4.4",
+     "sourceUrl": "https://www.sspmcoe.ac.in/"
+    }
+   ]
+  },
+  "03208": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.dbit.in/",
+   "year": null,
+   "highest": 2500000,
+   "average": 500000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 2500000,
+     "year": null,
+     "snippet": "25 L",
+     "sourceUrl": "https://placement.dbit.in/"
+    },
+    {
+     "metric": "average",
+     "value": 500000,
+     "year": null,
+     "snippet": "5 L",
+     "sourceUrl": "https://placement.dbit.in/"
+    }
+   ]
+  },
+  "03215": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.spit.ac.in/",
+   "year": "2025-26",
+   "highest": 3650000,
+   "average": 1347000,
+   "median": 1250000,
+   "placedPct": 98.6,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 3650000,
+     "year": "2025-26",
+     "snippet": "Summary of Placement Statistics 2026: Highest CTC 2025-26 36.5 LPA (2024-25: 61.55 LPA)",
+     "sourceUrl": "https://placements.spit.ac.in/assets/2026_summary-08smxpS6.pdf"
+    },
+    {
+     "metric": "average",
+     "value": 1347000,
+     "year": "2025-26",
+     "snippet": "Placement Summary 2025-26: Total (B. Tech) average CTC 13.47",
+     "sourceUrl": "https://placements.spit.ac.in/assets/2026_summary-08smxpS6.pdf"
+    },
+    {
+     "metric": "median",
+     "value": 1250000,
+     "year": "2025-26",
+     "snippet": "Placement Summary 2025-26: Total (B. Tech) median CTC 12.5",
+     "sourceUrl": "https://placements.spit.ac.in/assets/2026_summary-08smxpS6.pdf"
+    },
+    {
+     "metric": "placedPct",
+     "value": 98.6,
+     "year": "2025-26",
+     "snippet": "Placement Summary 2025-26: Total (B. Tech) 340 students placed, 98.55% of students placed",
+     "sourceUrl": "https://placements.spit.ac.in/assets/2026_summary-08smxpS6.pdf"
+    }
+   ]
+  },
+  "03423": {
+   "crawledAt": "2026-09-29",
+   "home": "https://slrtce.in/",
+   "year": null,
+   "highest": 12000000,
+   "average": null,
+   "median": null,
+   "placedPct": 80,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": null,
+     "snippet": "80%",
+     "sourceUrl": "https://slrtce.in/"
+    },
+    {
+     "metric": "highest",
+     "value": 12000000,
+     "year": null,
+     "snippet": "1.2 Cr.",
+     "sourceUrl": "https://slrtce.in/"
+    }
+   ]
+  },
+  "03436": {
+   "crawledAt": "2026-09-29",
+   "home": "https://brharnetc.edu.in",
+   "year": "2025-26",
+   "highest": null,
+   "average": 300000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 300000,
+     "year": "2025-26",
+     "snippet": "Avg Package: 3.0 LPA (2025-26)",
+     "sourceUrl": "https://brharnetc.edu.in/placements/index.php"
+    }
+   ]
+  },
+  "03439": {
+   "crawledAt": "2026-09-29",
+   "home": "https://aiktc.ac.in/",
+   "year": "2024-25",
+   "highest": 550000,
+   "average": 350000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 550000,
+     "year": "2024-25",
+     "snippet": "₹ 5.5 Lakhs",
+     "sourceUrl": "https://aiktc.ac.in/training-and-placement-cell/placement-highlights/"
+    },
+    {
+     "metric": "average",
+     "value": 350000,
+     "year": "2024-25",
+     "snippet": "₹ 3.5 Lakhs",
+     "sourceUrl": "https://aiktc.ac.in/training-and-placement-cell/placement-highlights/"
+    }
+   ]
+  },
+  "03467": {
+   "crawledAt": "2026-09-29",
+   "home": "https://vimeet.vishwaniketan.edu.in",
+   "year": null,
+   "highest": 1800000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1800000,
+     "year": null,
+     "snippet": "18 Lakh +",
+     "sourceUrl": "https://vimeet.vishwaniketan.edu.in/"
+    },
+    {
+     "metric": "highest",
+     "value": 1800000,
+     "year": null,
+     "snippet": "18 Lakh +",
+     "sourceUrl": "https://placements.vishwaniketan.edu.in/"
+    }
+   ]
+  },
+  "03477": {
+   "crawledAt": "2026-09-29",
+   "home": "https://csmit.in",
+   "year": null,
+   "highest": 600000,
+   "average": null,
+   "median": null,
+   "placedPct": 85,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 600000,
+     "year": null,
+     "snippet": "₹6 L+",
+     "sourceUrl": "https://csmit.in/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 85,
+     "year": null,
+     "snippet": "85%+",
+     "sourceUrl": "https://csmit.in/"
+    }
+   ]
+  },
+  "03725": {
+   "crawledAt": "2026-09-29",
+   "home": "https://mitmumbai.edu.in",
+   "year": null,
+   "highest": 2800000,
+   "average": 750000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 2800000,
+     "year": null,
+     "snippet": "₹28 LPA Highest Package",
+     "sourceUrl": "https://mitmumbai.edu.in/"
+    },
+    {
+     "metric": "average",
+     "value": 750000,
+     "year": null,
+     "snippet": "₹7.5 LPA Avg. Package",
+     "sourceUrl": "https://mitmumbai.edu.in/"
+    }
+   ]
+  },
+  "04104": {
+   "crawledAt": "2026-09-29",
+   "home": "https://kits.edu/",
+   "year": "2024-25",
+   "highest": 800000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 800000,
+     "year": "2024-25",
+     "snippet": "The Placement opportunities have been provided during 2024-25 session in below listed companies with Maximum Package offered of 8.00 LPA and Average of 3.50 LPA",
+     "sourceUrl": "https://kits.edu/page/?id=1122"
+    }
+   ]
+  },
+  "04116": {
+   "crawledAt": "2026-09-29",
+   "home": "https://ghrce.raisoni.net/",
+   "year": "2026",
+   "highest": 1600000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1600000,
+     "year": "2026",
+     "snippet": "₹16 Lakh Per Annum Highest Package",
+     "sourceUrl": "https://ghrce.raisoni.net/"
+    }
+   ]
+  },
+  "04137": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.sbjit.edu.in/",
+   "year": null,
+   "highest": 1200000,
+   "average": 420000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1200000,
+     "year": null,
+     "snippet": "Highest Package – 12 LPA",
+     "sourceUrl": "https://www.sbjit.edu.in/placements/"
+    },
+    {
+     "metric": "average",
+     "value": 420000,
+     "year": null,
+     "snippet": "Average Package – 4.2 LPA",
+     "sourceUrl": "https://www.sbjit.edu.in/placements/"
+    },
+    {
+     "metric": "highest",
+     "value": 1200000,
+     "year": null,
+     "snippet": "Highest Package – 12 LPA",
+     "sourceUrl": "https://www.sbjit.edu.in/placements/"
+    },
+    {
+     "metric": "average",
+     "value": 420000,
+     "year": null,
+     "snippet": "Average Package – 4.2 LPA",
+     "sourceUrl": "https://www.sbjit.edu.in/placements/"
+    }
+   ]
+  },
+  "04142": {
+   "crawledAt": "2026-09-29",
+   "home": "https://ghrcemn.raisoni.net/",
+   "year": null,
+   "highest": 1000000,
+   "average": 450000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1000000,
+     "year": null,
+     "snippet": "10 LPA",
+     "sourceUrl": "https://ghrcemn.raisoni.net/placement"
+    },
+    {
+     "metric": "average",
+     "value": 450000,
+     "year": null,
+     "snippet": "4.5 LPA",
+     "sourceUrl": "https://ghrcemn.raisoni.net/placement"
+    }
+   ]
+  },
+  "04172": {
+   "crawledAt": "2026-09-29",
+   "home": "https://anjumanengg.edu.in/",
+   "year": "2026-27",
+   "highest": 750000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 750000,
+     "year": "2026-27",
+     "snippet": "Highest package offered to our students of Rs. 7.50 LPA by MyCaptain.",
+     "sourceUrl": "https://anjumanengg.edu.in/page/?id=1016"
+    }
+   ]
+  },
+  "04174": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.stvincentngp.edu.in/",
+   "year": "2025-26",
+   "highest": 800000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 800000,
+     "year": "2025-26",
+     "snippet": "2. Highest Package : 8 LPA",
+     "sourceUrl": "https://stvincentngp.edu.in/documents/ce/placements/Placement-CSE-2026-Batch.pdf"
+    },
+    {
+     "metric": "highest",
+     "value": 800000,
+     "year": "2025-26",
+     "snippet": "2. Highest Package : 8 LPA",
+     "sourceUrl": "https://stvincentngp.edu.in/documents/it/placements/Placement-IT-2026-Batch.pdf"
+    },
+    {
+     "metric": "highest",
+     "value": 800000,
+     "year": "2025-26",
+     "snippet": "2. Highest Package : 8 LPA",
+     "sourceUrl": "https://stvincentngp.edu.in/documents/etc/placements/Placement-ETC-2026-Batch.pdf"
+    },
+    {
+     "metric": "highest",
+     "value": 800000,
+     "year": "2025-26",
+     "snippet": "2. Highest Package : 8 LPA",
+     "sourceUrl": "https://stvincentngp.edu.in/documents/ee/placements/Placement-EE-2026-Batch.pdf"
+    }
+   ]
+  },
+  "04188": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.bitedu.co.in",
+   "year": null,
+   "highest": 1000000,
+   "average": 400000,
+   "median": null,
+   "placedPct": 75,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 75,
+     "year": null,
+     "snippet": "75%",
+     "sourceUrl": "https://www.bitedu.co.in/"
+    },
+    {
+     "metric": "average",
+     "value": 400000,
+     "year": null,
+     "snippet": "₹4 LPA",
+     "sourceUrl": "https://www.bitedu.co.in/"
+    },
+    {
+     "metric": "highest",
+     "value": 1000000,
+     "year": null,
+     "snippet": "₹10 LPA",
+     "sourceUrl": "https://www.bitedu.co.in/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 75,
+     "year": null,
+     "snippet": "75%",
+     "sourceUrl": "https://www.bitedu.co.in/placements"
+    },
+    {
+     "metric": "average",
+     "value": 400000,
+     "year": null,
+     "snippet": "₹4 LPA",
+     "sourceUrl": "https://www.bitedu.co.in/placements"
+    },
+    {
+     "metric": "highest",
+     "value": 1000000,
+     "year": null,
+     "snippet": "₹10 LPA",
+     "sourceUrl": "https://www.bitedu.co.in/placements"
+    }
+   ]
+  },
+  "04304": {
+   "crawledAt": "2026-09-29",
+   "home": "https://cumminscollege.edu.in/",
+   "year": null,
+   "highest": 1077000,
+   "average": 490000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 490000,
+     "year": null,
+     "snippet": "Avg Salary: 4.90 LpA",
+     "sourceUrl": "https://cumminscollege.edu.in/pages/223"
+    },
+    {
+     "metric": "highest",
+     "value": 1077000,
+     "year": null,
+     "snippet": "Maximum Package: 10.77 LpA",
+     "sourceUrl": "https://cumminscollege.edu.in/pages/223"
+    },
+    {
+     "metric": "average",
+     "value": 490000,
+     "year": null,
+     "snippet": "Avg Salary: 4.90 LpA",
+     "sourceUrl": "https://cumminscollege.edu.in/page/?id=%20223"
+    },
+    {
+     "metric": "highest",
+     "value": 1077000,
+     "year": null,
+     "snippet": "Maximum Package: 10.77 LpA",
+     "sourceUrl": "https://cumminscollege.edu.in/page/?id=%20223"
+    }
+   ]
+  },
+  "04613": {
+   "crawledAt": "2026-09-29",
+   "home": "https://scetngp.com/",
+   "year": "2026-27",
+   "highest": null,
+   "average": 290000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 290000,
+     "year": "2026-27",
+     "snippet": "₹2.9LPA",
+     "sourceUrl": "https://scetngp.com/"
+    }
+   ]
+  },
+  "04648": {
+   "crawledAt": "2026-09-29",
+   "home": "https://rvparankar.in",
+   "year": "2026-27",
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 100,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 100,
+     "year": "2026-27",
+     "snippet": "100%",
+     "sourceUrl": "https://rvparankar.in/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 100,
+     "year": "2026-27",
+     "snippet": "100% Placement",
+     "sourceUrl": "https://rvparankar.in/admission/placements/"
+    }
+   ]
+  },
+  "05130": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.brahmavalley.com/",
+   "year": "2026",
+   "highest": 6270000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 6270000,
+     "year": "2026",
+     "snippet": "62.7 LPA",
+     "sourceUrl": "https://brahmavalley.edu.in/"
+    }
+   ]
+  },
+  "05172": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.rcpit.ac.in/",
+   "year": "2026",
+   "highest": 3800000,
+   "average": 400000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 3800000,
+     "year": "2026",
+     "snippet": "HIGHEST PACKAGE SALARY IN RCPIT HISTORY (38 LPA)",
+     "sourceUrl": "https://www.rcpit.ac.in/"
+    },
+    {
+     "metric": "average",
+     "value": 400000,
+     "year": "2026",
+     "snippet": "Avg. package offered up to 4 LPA.",
+     "sourceUrl": "https://www.rcpit.ac.in/about-placement-cell"
+    }
+   ]
+  },
+  "05182": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.sapkalknowledgehub.org/",
+   "year": "2026-27",
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 100,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 100,
+     "year": "2026-27",
+     "snippet": "100%",
+     "sourceUrl": "https://www.sapkalknowledgehub.org/"
+    }
+   ]
+  },
+  "05330": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.pvgcoenashik.org",
+   "year": "2026",
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 100,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 100,
+     "year": "2026",
+     "snippet": "→ 100% Placement.",
+     "sourceUrl": "https://www.pvgcoenashik.org/"
+    }
+   ]
+  },
+  "05331": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.sandipfoundation.org/",
+   "year": null,
+   "highest": 1200000,
+   "average": 500000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1200000,
+     "year": null,
+     "snippet": "12 Lakhs",
+     "sourceUrl": "https://www.sandipfoundation.org/"
+    },
+    {
+     "metric": "average",
+     "value": 500000,
+     "year": null,
+     "snippet": "5 Lakhs",
+     "sourceUrl": "https://www.sandipfoundation.org/"
+    }
+   ]
+  },
+  "05382": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.scoea.org/",
+   "year": "2025-26",
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 89,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 89,
+     "year": "2025-26",
+     "snippet": "89%",
+     "sourceUrl": "https://www.scoea.org/"
+    }
+   ]
+  },
+  "05433": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.rcpcoep.ac.in/",
+   "year": null,
+   "highest": 440000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 440000,
+     "year": null,
+     "snippet": "4.4",
+     "sourceUrl": "https://www.rcpcoep.ac.in/"
+    }
+   ]
+  },
+  "06005": {
+   "crawledAt": "2026-09-29",
+   "home": "https://gcekarad.ac.in/",
+   "year": "2025",
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 100,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 100,
+     "year": "2025",
+     "snippet": "100%",
+     "sourceUrl": "https://gcekarad.ac.in/uploads/placement/statistics/Update_Final_website_data_2025.pdf"
+    }
+   ]
+  },
+  "06141": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.jspmrscoe.edu.in/",
+   "year": "2025-26",
+   "highest": 3380000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 3380000,
+     "year": "2025-26",
+     "snippet": "Maximum Salary: 33.8 LPA (2025-26)",
+     "sourceUrl": "https://www.jspmrscoe.edu.in/placements/placementprocessstatics"
+    }
+   ]
+  },
+  "06146": {
+   "crawledAt": "2026-09-29",
+   "home": "https://mitaoe.ac.in/",
+   "year": null,
+   "highest": 2700000,
+   "average": 675000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 2700000,
+     "year": null,
+     "snippet": "27 LPA",
+     "sourceUrl": "https://mitaoe.ac.in/placement.php"
+    },
+    {
+     "metric": "average",
+     "value": 675000,
+     "year": null,
+     "snippet": "6.75 LPA",
+     "sourceUrl": "https://mitaoe.ac.in/placement.php"
+    }
+   ]
+  },
+  "06155": {
+   "crawledAt": "2026-09-29",
+   "home": "https://ghrcemp.raisoni.net/",
+   "year": "2026",
+   "highest": 1100000,
+   "average": null,
+   "median": null,
+   "placedPct": 70,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 70,
+     "year": "2026",
+     "snippet": "70%",
+     "sourceUrl": "https://ghrcemp.raisoni.net/career-and-placements"
+    },
+    {
+     "metric": "highest",
+     "value": 1100000,
+     "year": "2026",
+     "snippet": "11.00 Lakh",
+     "sourceUrl": "https://ghrcemp.raisoni.net/career-and-placements"
+    }
+   ]
+  },
+  "06203": {
+   "crawledAt": "2026-09-29",
+   "home": "https://mmit.edu.in/",
+   "year": null,
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 84,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 84,
+     "year": null,
+     "snippet": "Overall Placement 84%",
+     "sourceUrl": "https://mmit.edu.in/placement/placement-records/"
+    }
+   ]
+  },
+  "06206": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.pdeacoem.org",
+   "year": null,
+   "highest": null,
+   "average": 440000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 440000,
+     "year": null,
+     "snippet": "AVG. SALARY: 4.4Lpa",
+     "sourceUrl": "https://www.pdeacoem.org/placement/campus-report"
+    }
+   ]
+  },
+  "06250": {
+   "crawledAt": "2026-09-29",
+   "home": "https://coek.dypgroup.edu.in/",
+   "year": null,
+   "highest": 6400000,
+   "average": 650000,
+   "median": null,
+   "placedPct": 92,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 6400000,
+     "year": null,
+     "snippet": "64 LPA",
+     "sourceUrl": "https://coek.dypgroup.edu.in/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 92,
+     "year": null,
+     "snippet": "92%",
+     "sourceUrl": "https://coek.dypgroup.edu.in/"
+    },
+    {
+     "metric": "highest",
+     "value": 6400000,
+     "year": null,
+     "snippet": "With a consistent placement record of over 90% for eligible students, we take pride in our alumni who are now working in leading organizations worldwide. Our highest package of ₹64 LPA and average pac",
+     "sourceUrl": "https://coek.dypgroup.edu.in/placements"
+    },
+    {
+     "metric": "average",
+     "value": 650000,
+     "year": null,
+     "snippet": "With a consistent placement record of over 90% for eligible students, we take pride in our alumni who are now working in leading organizations worldwide. Our highest package of ₹64 LPA and average pac",
+     "sourceUrl": "https://coek.dypgroup.edu.in/placements"
+    },
+    {
+     "metric": "highest",
+     "value": 6400000,
+     "year": null,
+     "snippet": "Highest package of 64 LPA achieved with 1778 total students placed",
+     "sourceUrl": "https://coek.dypgroup.edu.in/placements/statistics"
+    }
+   ]
+  },
+  "06268": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.tkietwarana.ac.in/",
+   "year": "2024-25",
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 100,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 100,
+     "year": "2024-25",
+     "snippet": "Percentage of Placement : 100 %",
+     "sourceUrl": "https://www.tkietwarana.ac.in/dptelect/placement"
+    }
+   ]
+  },
+  "06269": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.pvpitsangli.edu.in/",
+   "year": "2025-26",
+   "highest": 2200000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 2200000,
+     "year": "2025-26",
+     "snippet": "Congratulations to Alfiya Magdum for getting placed with 22 LPA highest package",
+     "sourceUrl": "https://www.pvpitsangli.edu.in/"
+    }
+   ]
+  },
+  "06270": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.kbpcoes.edu.in/",
+   "year": "2024-25",
+   "highest": 1125000,
+   "average": 400000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1125000,
+     "year": "2024-25",
+     "snippet": "Highest CTC 11.25 LPA",
+     "sourceUrl": "https://www.kbpcoes.edu.in/admin/assets/images/Training_Placement/placement_brochure/Placement_Brochure_2023_24.pdf"
+    },
+    {
+     "metric": "average",
+     "value": 400000,
+     "year": "2024-25",
+     "snippet": "Average CTC 4 LPA",
+     "sourceUrl": "https://www.kbpcoes.edu.in/admin/assets/images/Training_Placement/placement_brochure/Placement_Brochure_2023_24.pdf"
+    }
+   ]
+  },
+  "06273": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.vit.edu/",
+   "year": "2025-26",
+   "highest": 5000000,
+   "average": null,
+   "median": 760000,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 5000000,
+     "year": "2025-26",
+     "snippet": "50 LPA",
+     "sourceUrl": "https://www.vit.edu/placement/"
+    },
+    {
+     "metric": "median",
+     "value": 760000,
+     "year": "2025-26",
+     "snippet": "7.6 LPA",
+     "sourceUrl": "https://www.vit.edu/placement/"
+    }
+   ]
+  },
+  "06275": {
+   "crawledAt": "2026-09-29",
+   "home": "https://engg.svpm.org.in",
+   "year": null,
+   "highest": 400000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 400000,
+     "year": null,
+     "snippet": "4.0",
+     "sourceUrl": "https://engg.svpm.org.in/"
+    }
+   ]
+  },
+  "06277": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.jjmcoe.ac.in/",
+   "year": "2025-26",
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 80,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": "2025-26",
+     "snippet": "Secured 80% Placement for the A.Y. 2025-26",
+     "sourceUrl": "https://www.jjmcoe.ac.in/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": "2025-26",
+     "snippet": "Secured 80% Placement for the A.Y. 2025-26",
+     "sourceUrl": "https://www.jjmcoe.ac.in/training-and-placement/tpo/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": "2025-26",
+     "snippet": "Secured 80% Placement for the A.Y. 2025-26",
+     "sourceUrl": "https://www.jjmcoe.ac.in/training-and-placement/our-placement/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": "2025-26",
+     "snippet": "Secured 80% Placement for the A.Y. 2025-26",
+     "sourceUrl": "https://www.jjmcoe.ac.in/training-and-placement/recruiters/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": "2025-26",
+     "snippet": "Secured 80% Placement for the A.Y. 2025-26",
+     "sourceUrl": "https://www.jjmcoe.ac.in/training-and-placement/placement-gallery/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": "2025-26",
+     "snippet": "Secured 80% Placement for the A.Y. 2025-26",
+     "sourceUrl": "https://www.jjmcoe.ac.in/training-and-placement/testimonials/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": "2025-26",
+     "snippet": "Secured 80% Placement for the A.Y. 2025-26",
+     "sourceUrl": "https://www.jjmcoe.ac.in/recruitment/"
+    },
+    {
+     "metric": "placedPct",
+     "value": 80,
+     "year": "2025-26",
+     "snippet": "Secured 80% Placement for the A.Y. 2025-26",
+     "sourceUrl": "https://www.jjmcoe.ac.in/placement-gallery/2025-26-4/"
+    }
+   ]
+  },
+  "06293": {
+   "crawledAt": "2026-09-29",
+   "home": "https://bmitsolapur.org",
+   "year": "2021-22",
+   "highest": 1000000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1000000,
+     "year": "2021-22",
+     "snippet": "10 LPA CTC is the Highest Salary in the Year 2021-22",
+     "sourceUrl": "https://bmitsolapur.org/"
+    }
+   ]
+  },
+  "06298": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.zcoer.in",
+   "year": "2025-26",
+   "highest": null,
+   "average": 450000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 450000,
+     "year": "2025-26",
+     "snippet": "4.5 LPA",
+     "sourceUrl": "https://zcoer.in/placement-statistics/"
+    }
+   ]
+  },
+  "06305": {
+   "crawledAt": "2026-09-29",
+   "home": "https://engg.sdncedu.com",
+   "year": "2023",
+   "highest": null,
+   "average": 400000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 400000,
+     "year": "2023",
+     "snippet": "4.0 LPA",
+     "sourceUrl": "https://engg.sdncedu.com/"
+    }
+   ]
+  },
+  "06319": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.sbpcoe.edu.in",
+   "year": "2025-26",
+   "highest": 4400000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 4400000,
+     "year": "2025-26",
+     "snippet": "44LPA",
+     "sourceUrl": "https://www.sbpcoe.edu.in/"
+    },
+    {
+     "metric": "highest",
+     "value": 4400000,
+     "year": "2025-26",
+     "snippet": "44LPA",
+     "sourceUrl": "https://www.sbpcoe.edu.in/placement-activities.php"
+    }
+   ]
+  },
+  "06322": {
+   "crawledAt": "2026-09-29",
+   "home": "https://spcoe.in",
+   "year": null,
+   "highest": null,
+   "average": null,
+   "median": null,
+   "placedPct": 84,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 84,
+     "year": null,
+     "snippet": "84%",
+     "sourceUrl": "https://spcoe.in/"
+    }
+   ]
+  },
+  "06326": {
+   "crawledAt": "2026-09-29",
+   "home": "https://karmayogicollege.ac.in/",
+   "year": "2026-27",
+   "highest": 8700000,
+   "average": null,
+   "median": null,
+   "placedPct": 85,
+   "claims": [
+    {
+     "metric": "placedPct",
+     "value": 85,
+     "year": "2026-27",
+     "snippet": "85%",
+     "sourceUrl": "https://karmayogicollege.ac.in/"
+    },
+    {
+     "metric": "highest",
+     "value": 8700000,
+     "year": "2026-27",
+     "snippet": "₹87 LPA",
+     "sourceUrl": "https://karmayogicollege.ac.in/"
+    }
+   ]
+  },
+  "06628": {
+   "crawledAt": "2026-09-29",
+   "home": "https://dgoi.dattakala.com",
+   "year": null,
+   "highest": 1500000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 1500000,
+     "year": null,
+     "snippet": "15 LPA",
+     "sourceUrl": "https://dgoi.dattakala.com/"
+    }
+   ]
+  },
+  "06649": {
+   "crawledAt": "2026-09-29",
+   "home": "https://tssm.edu.in",
+   "year": "2024-25",
+   "highest": null,
+   "average": 450000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "average",
+     "value": 450000,
+     "year": "2024-25",
+     "snippet": "With a strong network of 120+ regular recruiters, we consistently create excellent career opportunities for our students. We have successfully secured over 200 placement offers, with an average packag",
+     "sourceUrl": "https://tssm.edu.in/PlacementAbout/32"
+    }
+   ]
+  },
+  "06767": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.srttc.ac.in",
+   "year": "2025-26",
+   "highest": 920000,
+   "average": 360000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 920000,
+     "year": "2025-26",
+     "snippet": "Highest Package: 9.2 lpa (2025-26)",
+     "sourceUrl": "https://www.srttc.ac.in/placements.php"
+    },
+    {
+     "metric": "average",
+     "value": 360000,
+     "year": "2025-26",
+     "snippet": "Average Package: 3.6 lpa (2025-26)",
+     "sourceUrl": "https://www.srttc.ac.in/placements.php"
+    }
+   ]
+  },
+  "06782": {
+   "crawledAt": "2026-09-29",
+   "home": "https://www.smsmpitr.edu.in/",
+   "year": null,
+   "highest": 4400000,
+   "average": null,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 4400000,
+     "year": null,
+     "snippet": "44LPA",
+     "sourceUrl": "https://www.smsmpitr.edu.in/"
+    }
+   ]
+  },
+  "06901": {
+   "crawledAt": "2026-09-29",
+   "home": "https://mitcorer.edu.in",
+   "year": "2026-27",
+   "highest": 2100000,
+   "average": 440000,
+   "median": null,
+   "placedPct": null,
+   "claims": [
+    {
+     "metric": "highest",
+     "value": 2100000,
+     "year": "2026-27",
+     "snippet": "21LPA",
+     "sourceUrl": "https://mitcorer.edu.in/"
+    },
+    {
+     "metric": "average",
+     "value": 440000,
+     "year": "2026-27",
+     "snippet": "4.4LPA",
+     "sourceUrl": "https://mitcorer.edu.in/"
+    }
+   ]
+  }
+ },
+ "skipped": {
+  "14005": "no placement figures published",
+  "16357": "no placement figures published",
+  "01005": "no placement figures published",
+  "01012": "no placement figures published",
+  "01107": "no placement figures published",
+  "01114": "home page did not load",
+  "01116": "no placement figures published",
+  "01117": "no placement figures published",
+  "01119": "no placement figures published",
+  "01121": "no placement figures published",
+  "01123": "no placement figures published",
+  "01125": "no placement figures published",
+  "01126": "no placement figures published",
+  "01127": "no placement figures published",
+  "01128": "site does not name the college",
+  "01130": "no placement figures published",
+  "01180": "no placement figures published",
+  "01182": "no placement figures published",
+  "01265": "no placement figures published",
+  "01268": "no placement figures published",
+  "01276": "home page did not load",
+  "01347": "no placement figures published",
+  "02008": "no placement figures published",
+  "02015": "home page did not load",
+  "02021": "home page did not load",
+  "02111": "no placement figures published",
+  "02113": "no placement figures published",
+  "02114": "no placement figures published",
+  "02116": "home page did not load",
+  "02127": "no placement figures published",
+  "02130": "no placement figures published",
+  "02131": "site does not name the college",
+  "02133": "no placement figures published",
+  "02134": "site does not name the college",
+  "02135": "no placement figures published",
+  "02136": "home page did not load",
+  "02137": "no placement figures published",
+  "02146": "no placement figures published",
+  "02189": "no placement figures published",
+  "02252": "no placement figures published",
+  "02254": "no placement figures published",
+  "02282": "home page did not load",
+  "02508": "home page did not load",
+  "02516": "home page did not load",
+  "02533": "home page did not load",
+  "02637": "no placement figures published",
+  "02666": "no placement figures published",
+  "02758": "home page did not load",
+  "02770": "no placement figures published",
+  "02771": "no placement figures published",
+  "02777": "no placement figures published",
+  "02779": "no placement figures published",
+  "03014": "no placement figures published",
+  "03025": "no placement figures published",
+  "03033": "no placement figures published",
+  "03035": "no placement figures published",
+  "03042": "no placement figures published",
+  "03135": "no placement figures published",
+  "03143": "no placement figures published",
+  "03146": "no placement figures published",
+  "03147": "no placement figures published",
+  "03154": "no placement figures published",
+  "03175": "site does not name the college",
+  "03176": "no placement figures published",
+  "03182": "no placement figures published",
+  "03183": "no placement figures published",
+  "03184": "no placement figures published",
+  "03187": "no placement figures published",
+  "03188": "site does not name the college",
+  "03189": "home page did not load",
+  "03190": "home page did not load",
+  "03192": "no placement figures published",
+  "03198": "no placement figures published",
+  "03199": "home page did not load",
+  "03201": "no placement figures published",
+  "03203": "no placement figures published",
+  "03209": "no placement figures published",
+  "03210": "no placement figures published",
+  "03211": "no placement figures published",
+  "03212": "no placement figures published",
+  "03214": "no placement figures published",
+  "03216": "no placement figures published",
+  "03217": "home page did not load",
+  "03218": "no placement figures published",
+  "03219": "no placement figures published",
+  "03220": "no placement figures published",
+  "03221": "no placement figures published",
+  "03222": "no placement figures published",
+  "03223": "no placement figures published",
+  "03224": "home page did not load",
+  "03257": "no placement figures published",
+  "03277": "no placement figures published",
+  "03353": "no placement figures published",
+  "03440": "no placement figures published",
+  "03445": "no placement figures published",
+  "03447": "home page did not load",
+  "03462": "home page did not load",
+  "03465": "home page did not load",
+  "03470": "site does not name the college",
+  "03471": "no placement figures published",
+  "03475": "no placement figures published",
+  "03503": "no placement figures published",
+  "03546": "home page did not load",
+  "03723": "no placement figures published",
+  "03724": "no placement figures published",
+  "04004": "home page did not load",
+  "04025": "no placement figures published",
+  "04118": "no placement figures published",
+  "04123": "no placement figures published",
+  "04133": "no placement figures published",
+  "04135": "no placement figures published",
+  "04138": "no placement figures published",
+  "04139": "no placement figures published",
+  "04141": "no placement figures published",
+  "04143": "no placement figures published",
+  "04144": "home page did not load",
+  "04145": "no placement figures published",
+  "04147": "no placement figures published",
+  "04151": "home page did not load",
+  "04163": "no placement figures published",
+  "04167": "no placement figures published",
+  "04175": "no placement figures published",
+  "04177": "no placement figures published",
+  "04181": "no placement figures published",
+  "04190": "home page did not load",
+  "04192": "no placement figures published",
+  "04197": "no placement figures published",
+  "04302": "site does not name the college",
+  "04649": "no placement figures published",
+  "04703": "no placement figures published",
+  "04762": "no placement figures published",
+  "05003": "no placement figures published",
+  "05004": "no placement figures published",
+  "05103": "no placement figures published",
+  "05104": "no placement figures published",
+  "05106": "no placement figures published",
+  "05108": "no placement figures published",
+  "05109": "no placement figures published",
+  "05124": "site does not name the college",
+  "05125": "no placement figures published",
+  "05151": "no placement figures published",
+  "05152": "no placement figures published",
+  "05160": "no placement figures published",
+  "05161": "no placement figures published",
+  "05162": "no placement figures published",
+  "05164": "no placement figures published",
+  "05168": "no placement figures published",
+  "05169": "no placement figures published",
+  "05170": "no placement figures published",
+  "05171": "no placement figures published",
+  "05173": "home page did not load",
+  "05179": "no placement figures published",
+  "05181": "no placement figures published",
+  "05184": "no placement figures published",
+  "05223": "no placement figures published",
+  "05239": "no placement figures published",
+  "05249": "no placement figures published",
+  "05303": "no placement figures published",
+  "05365": "no placement figures published",
+  "05370": "home page did not load",
+  "05380": "no placement figures published",
+  "05381": "no placement figures published",
+  "05395": "home page did not load",
+  "05396": "no placement figures published",
+  "05399": "no placement figures published",
+  "05401": "no placement figures published",
+  "05408": "no placement figures published",
+  "05411": "no placement figures published",
+  "05414": "no placement figures published",
+  "05418": "home page did not load",
+  "05497": "no placement figures published",
+  "05509": "no placement figures published",
+  "05513": "no placement figures published",
+  "05545": "no placement figures published",
+  "05597": "home page did not load",
+  "05683": "home page did not load",
+  "05688": "home page did not load",
+  "06004": "no placement figures published",
+  "06028": "no placement figures published",
+  "06036": "no placement figures published",
+  "06041": "no placement figures published",
+  "06138": "home page did not load",
+  "06139": "no placement figures published",
+  "06144": "no placement figures published",
+  "06145": "no placement figures published",
+  "06156": "no placement figures published",
+  "06175": "home page did not load",
+  "06177": "no placement figures published",
+  "06178": "no placement figures published",
+  "06179": "no placement figures published",
+  "06182": "no placement figures published",
+  "06183": "site does not name the college",
+  "06184": "home page did not load",
+  "06185": "no placement figures published",
+  "06187": "no placement figures published",
+  "06207": "no placement figures published",
+  "06214": "no placement figures published",
+  "06217": "no placement figures published",
+  "06219": "site does not name the college",
+  "06220": "no placement figures published",
+  "06223": "no placement figures published",
+  "06265": "no placement figures published",
+  "06267": "no placement figures published",
+  "06272": "no placement figures published",
+  "06274": "no placement figures published",
+  "06276": "home page did not load",
+  "06278": "no placement figures published",
+  "06281": "no placement figures published",
+  "06282": "no placement figures published",
+  "06283": "no placement figures published",
+  "06284": "no placement figures published",
+  "06285": "no placement figures published",
+  "06288": "no placement figures published",
+  "06303": "no placement figures published",
+  "06304": "no placement figures published",
+  "06307": "no placement figures published",
+  "06308": "home page did not load",
+  "06310": "no placement figures published",
+  "06311": "home page did not load",
+  "06313": "no placement figures published",
+  "06315": "home page did not load",
+  "06317": "site does not name the college",
+  "06320": "site does not name the college",
+  "06321": "no placement figures published",
+  "06324": "no placement figures published",
+  "06466": "no placement figures published",
+  "06468": "no placement figures published",
+  "06545": "no placement figures published",
+  "06609": "no placement figures published",
+  "06622": "home page did not load",
+  "06632": "home page did not load",
+  "06634": "home page did not load",
+  "06635": "no placement figures published",
+  "06640": "no placement figures published",
+  "06643": "no placement figures published",
+  "06714": "home page did not load",
+  "06715": "no placement figures published",
+  "06725": "home page did not load",
+  "06732": "no placement figures published",
+  "06754": "no placement figures published",
+  "06756": "no placement figures published",
+  "06757": "no placement figures published",
+  "06758": "site does not name the college",
+  "06759": "no placement figures published",
+  "06762": "no placement figures published",
+  "06766": "no placement figures published",
+  "06768": "no placement figures published",
+  "06769": "no placement figures published",
+  "06770": "no placement figures published",
+  "06771": "no placement figures published",
+  "06772": "no placement figures published",
+  "06780": "no placement figures published",
+  "06781": "no placement figures published",
+  "06794": "no placement figures published",
+  "06795": "no placement figures published",
+  "06796": "no placement figures published",
+  "06797": "no placement figures published",
+  "06803": "home page did not load",
+  "06808": "home page did not load",
+  "06815": "home page did not load",
+  "06822": "home page did not load",
+  "06834": "no placement figures published",
+  "06839": "no placement figures published",
+  "06878": "home page did not load",
+  "06938": "no placement figures published",
+  "06991": "no placement figures published"
+ }
+}

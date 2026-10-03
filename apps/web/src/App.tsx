@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ProfileProvider, useProfile } from "./lib/ProfileContext";
 import { CompareProvider } from "./lib/CompareContext";
 import { AuthProvider } from "./lib/AuthContext";
@@ -9,29 +9,48 @@ import { CollegePage } from "./pages/CollegePage";
 import { ListPage } from "./pages/ListPage";
 import { AskPage } from "./pages/AskPage";
 import { ComparePage } from "./pages/ComparePage";
-import { OnboardingPage } from "./pages/OnboardingPage";
+import { OnboardingWizard } from "./pages/OnboardingPage";
+import { LandingPage } from "./pages/LandingPage";
 import { LegalPage } from "./pages/LegalPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { AccountPage } from "./pages/AccountPage";
 import { SignInPage } from "./pages/SignInPage";
 import { PlansPage } from "./pages/PlansPage";
+import { PAYMENTS_ENABLED } from "./lib/plans";
 import { GuidePage } from "./pages/GuidePage";
 import { SimulatorPage } from "./pages/SimulatorPage";
-import { BranchesPage } from "./pages/BranchesPage";
-import { ExportPage } from "./pages/ExportPage";
+import { EstimatePage } from "./pages/EstimatePage";
+import { AddOptionsPage } from "./pages/AddOptionsPage";
+import { SummaryPage } from "./pages/SummaryPage";
+import { DataPage } from "./pages/DataPage";
+import { EligibilityPage } from "./pages/EligibilityPage";
+import { BranchTrendsPage } from "./pages/BranchTrendsPage";
 import { AllotmentPage } from "./pages/AllotmentPage";
+import { ExportPage } from "./pages/ExportPage";
+import { BranchesPage } from "./pages/BranchesPage";
 
+/** Find needs saved details or a merit number in the URL (a shared result link); otherwise start at the landing page. */
 function RequireProfile({ children }: { children: React.ReactNode }) {
   const { hasProfile } = useProfile();
-  return hasProfile ? <>{children}</> : <Navigate to="/welcome" replace />;
+  const { search } = useLocation();
+  return hasProfile || new URLSearchParams(search).has("merit") ? <>{children}</> : <Navigate to="/" replace />;
+}
+
+/** `/` is the landing page for everyone (#142); older result links (`/?merit=…`) move to `/find`. */
+function Home() {
+  const { search } = useLocation();
+  return new URLSearchParams(search).has("merit") ? <Navigate to={`/find${search}`} replace /> : <LandingPage />;
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="welcome" element={<OnboardingPage />} />
+      <Route index element={<Home />} />
+      <Route path="welcome" element={<Navigate to="/" replace />} />
+      <Route path="welcome/start" element={<OnboardingWizard />} />
       <Route element={<Layout />}>
         <Route
-          index
+          path="find"
           element={
             <RequireProfile>
               <FindPage />
@@ -40,18 +59,26 @@ function AppRoutes() {
         />
         <Route path="colleges" element={<CollegesPage />} />
         <Route path="colleges/:code" element={<CollegePage />} />
+        <Route path="colleges/:code/:choiceCode" element={<BranchTrendsPage />} />
         <Route path="compare" element={<ComparePage />} />
         <Route path="list" element={<ListPage />} />
+        <Route path="list/add" element={<AddOptionsPage />} />
         <Route path="ask" element={<AskPage />} />
         <Route path="legal" element={<LegalPage />} />
-        <Route path="profile" element={<ProfilePage />} />
+        <Route path="profile" element={<AccountPage />} />
+        <Route path="profile/details" element={<ProfilePage />} />
         <Route path="signin" element={<SignInPage />} />
-        <Route path="plans" element={<PlansPage />} />
+        <Route path="plans" element={PAYMENTS_ENABLED ? <PlansPage /> : <Navigate to="/" replace />} />
         <Route path="guide" element={<GuidePage />} />
         <Route path="simulator" element={<SimulatorPage />} />
-        <Route path="branches" element={<BranchesPage />} />
-        <Route path="export" element={<ExportPage />} />
+        <Route path="estimate" element={<EstimatePage />} />
         <Route path="allotment" element={<AllotmentPage />} />
+        <Route path="export" element={<ExportPage />} />
+        <Route path="branches" element={<BranchesPage />} />
+        <Route path="summary" element={<SummaryPage />} />
+        <Route path="data" element={<DataPage />} />
+        <Route path="eligibility" element={<EligibilityPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   );

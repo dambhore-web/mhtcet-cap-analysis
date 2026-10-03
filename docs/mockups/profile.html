@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass My Details</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<style>
+.form { display:flex; flex-direction:column; gap:22px; }
+.cats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:6px; }
+body.phone .cats { grid-template-columns:1fr 1fr; }
+.cat { font:inherit; text-align:left; border:2px solid var(--card-line); background:#fff; border-radius:var(--r-md); padding:10px 12px; cursor:pointer; }
+.cat b { display:block; color:var(--ink); }
+.cat span { font-size:11px; color:var(--muted-2); }
+.cat[aria-checked="true"] { border-color:var(--blue); background:var(--tint-2); }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+body.phone .row2 { grid-template-columns:1fr; }
+.flags { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+.flag { display:flex; gap:8px; align-items:center; border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 12px; font-size:13px; cursor:pointer; background:#fff; }
+.flag input { accent-color:var(--blue); }
+.codes { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.codes span { font:500 12px var(--mono); background:var(--tint); color:var(--blue-deep); border-radius:6px; padding:3px 8px; }
+.save { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+</style>
+</head>
+<body data-page="" data-mock="My details · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <h1 class="h1">My details</h1>
+    <p class="lede">Used to match you to the seat types you can take. Saved only in this browser.</p>
+    <div class="split" style="margin-top:22px">
+      <form class="card form" onsubmit="event.preventDefault()">
+        <label class="field" style="max-width:280px"><span>State merit number</span><input class="big-input" value="12,000" inputmode="numeric"></label>
+        <div class="field"><span>Category</span><div class="cats" role="radiogroup" id="cats"></div></div>
+        <div class="row2">
+          <div class="field"><span>Gender</span><div class="seg-light" role="group" id="gender"><button type="button" aria-pressed="true" data-v="M">Male</button><button type="button" aria-pressed="false" data-v="F">Female</button></div></div>
+          <div class="field"><span>Subject group</span><div class="seg-light" role="group"><button type="button" aria-pressed="true">PCM</button><button type="button" aria-pressed="false">PCB</button></div></div>
+        </div>
+        <div class="row2">
+          <label class="field"><span>Home university</span><select id="uni"><option value="">Not sure / state level only</option><option>University of Mumbai</option><option selected>Savitribai Phule Pune University</option><option>Dr. Babasaheb Ambedkar Marathwada University</option><option>Rashtrasant Tukadoji Maharaj Nagpur University</option></select></label>
+          <label class="field"><span>Minority community</span><select><option>Not from a minority community</option><option>Muslim</option><option>Gujarati (linguistic)</option><option>Jain</option><option>Christian</option></select></label>
+        </div>
+        <div class="field"><span>Special seats</span><div class="flags" id="flags">
+          <label class="flag"><input type="checkbox" data-f="TFWS"> TFWS</label><label class="flag"><input type="checkbox" data-f="DEF"> Defence</label><label class="flag"><input type="checkbox" data-f="PWD"> PWD</label><label class="flag"><input type="checkbox" data-f="ORPHAN"> Orphan</label>
+        </div><span class="small" id="ews-note"></span></div>
+        <div class="save"><button class="btn btn-primary btn-lg" type="submit">Save details</button><button class="btn btn-ghost" type="button">Clear saved details</button></div>
+      </form>
+      <aside class="col side">
+        <section class="card">
+          <h2 class="h2">Seat codes you can take</h2>
+          <p class="small" style="margin-top:4px">Worked out from your answers. These are the codes Compass looks for in the cutoff lists.</p>
+          <div class="codes" id="codes"></div>
+        </section>
+        <section class="card">
+          <h2 class="h2">Use on other devices</h2>
+          <p class="small" style="margin-top:4px">Sign-in is coming soon. Until then, everything stays in this browser.</p>
+          <div class="actions" style="margin-top:10px"><a class="btn btn-sm" href="signin.html">Sign in</a><a class="btn btn-sm btn-ghost" href="plans.html">See plans</a></div>
+        </section>
+      </aside>
+    </div>
+    <p class="info">Categories are cards with their full names (no more guessing what NT-B means), and the sidebar shows the seat codes the answers unlock, the same codes the student will see in cutoff lists. EWS is explained rather than silently hidden.</p>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+<script>
+const CATS = [["OPEN", "Open", "General"], ["OBC", "OBC", "Other Backward Class"], ["SEBC", "SEBC", "Socially and Educationally Backward Class"], ["SC", "SC", "Scheduled Caste"], ["ST", "ST", "Scheduled Tribe"], ["VJ", "VJ/DT", "Vimukta Jati / Denotified Tribe (NT-A)"], ["NT1", "NT-B", "Nomadic Tribe B"], ["NT2", "NT-C", "Nomadic Tribe C"], ["NT3", "NT-D", "Nomadic Tribe D"]];
+let cat = "OBC", gender = "M";
+function render() {
+  document.getElementById("cats").innerHTML = CATS.map(([k, s, l]) => `<button type="button" class="cat" role="radio" aria-checked="${k === cat}" data-k="${k}"><b>${s}</b><span>${l}</span></button>`).join("");
+  const uni = document.getElementById("uni").value;
+  const lv = uni ? ["S", "H", "O"] : ["S"];
+  const cats = cat === "OPEN" ? ["OPEN"] : ["OPEN", cat];
+  const q = gender === "F" ? ["G", "L"] : ["G"];
+  const codes = q.flatMap((qq) => cats.flatMap((c) => lv.map((l) => qq + c + l)));
+  document.querySelectorAll("#flags input:checked").forEach((i) => codes.push(i.dataset.f === "TFWS" || i.dataset.f === "ORPHAN" ? i.dataset.f : i.dataset.f + cat + "S"));
+  if (cat === "OPEN") codes.push("EWS");
+  document.getElementById("codes").innerHTML = codes.map((c) => `<span>${c}</span>`).join("");
+  document.getElementById("ews-note").textContent = cat === "OPEN" ? "EWS is available to you as an Open category candidate." : "EWS is only for the Open category, so it isn't shown.";
+}
+document.getElementById("cats").onclick = (e) => { const b = e.target.closest("[data-k]"); if (b) { cat = b.dataset.k; render(); } };
+document.getElementById("gender").onclick = (e) => { const b = e.target.closest("[data-v]"); if (!b) return; gender = b.dataset.v; document.querySelectorAll("#gender button").forEach((x) => x.setAttribute("aria-pressed", x === b)); render(); };
+document.getElementById("uni").onchange = render;
+document.getElementById("flags").onchange = render;
+render();
+</script>
+</body>
+</html>

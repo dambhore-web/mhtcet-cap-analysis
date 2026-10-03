@@ -1,0 +1,140 @@
+.estimate-card,
+.estimate-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.estimate-result {
+  margin-top: 16px;
+  gap: 8px;
+}
+
+.estimate-result h2 {
+  margin: 0;
+}
+
+.estimate-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  background: var(--lavender-2);
+  border-radius: var(--radius-sm);
+}
+
+.estimate-toggle button {
+  flex: 1 1 auto;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.estimate-toggle button.active {
+  background: var(--violet);
+  color: var(--white);
+}
+
+.estimate-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.estimate-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.estimate-input {
+  min-height: 48px;
+  padding: 0 14px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-num);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.estimate-input:focus {
+  border-color: var(--violet);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--lavender);
+}
+
+.estimate-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--danger-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.estimate-range {
+  margin: 0;
+  font-family: var(--font-num);
+  font-size: 46px;
+  font-stretch: 80%;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--navy-deep);
+  line-height: 1.1;
+}
+
+.estimate-note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.estimate-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.estimate-explain h2 {
+  margin: 0 0 8px;
+  font-size: var(--text-lg);
+}
+
+.estimate-explain p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 639px) {
+  .estimate-card,
+  .estimate-result {
+    padding: 16px;
+  }
+
+  .estimate-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* range band over every branch's closing rank (TASK-0004) */
+.estimate-band { margin: 14px 0 6px; }
+.estimate-band-text { margin: 0 0 8px; font-family: var(--font-display); font-stretch: 88%; font-size: 19px; font-weight: 600; line-height: 1.2; color: var(--navy-deep); }
+.estimate-band-text b { color: var(--violet); font-weight: 700; }
+.eb-bg { fill: var(--page); }
+.eb-line { stroke: #cbd5e1; stroke-width: 1; opacity: 0.8; }
+.eb-line.maybe { stroke: #60a5fa; }
+.eb-line.sure { stroke: var(--violet); opacity: 0.5; }
+.eb-range { fill: rgba(15, 23, 42, 0.08); stroke: var(--navy-deep); stroke-width: 1.5; }
+.eb-axis { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted-2); }

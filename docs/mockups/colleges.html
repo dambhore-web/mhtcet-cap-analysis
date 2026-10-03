@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass Colleges</title>
+<link rel="stylesheet" href="compass.css">
+<script src="compass.js"></script>
+<script src="data/colleges.js"></script>
+<style>
+.filters { margin-top:18px; display:grid; grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr)) 150px; gap:12px; align-items:end; padding:16px 20px; }
+body.phone .filters { grid-template-columns:1fr 1fr; padding:14px; }
+body.phone .filters .field:first-child { grid-column:1/-1; }
+.listhead { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:22px 0 10px; }
+.listhead .sort { display:flex; gap:10px; align-items:center; font-size:12px; color:var(--muted-2); }
+.listhead select { width:auto; }
+.rows { padding:0; overflow:hidden; }
+.axisrow, .crow { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(220px,1fr) 104px 104px; gap:16px; align-items:center; padding:0 20px; }
+.axisrow { padding-top:10px; padding-bottom:6px; border-bottom:1px solid var(--line); font-size:11px; color:var(--muted-2); background:#fbfcfe; }
+.axisrow .ticks { position:relative; height:14px; font-family:var(--mono); }
+.axisrow .ticks span { position:absolute; transform:translateX(-50%); }
+.crow { padding-top:12px; padding-bottom:12px; border-bottom:1px solid var(--line-soft); }
+.crow:last-child { border-bottom:0; }
+.crow:hover { background:#fbfcfe; }
+.crow .who { display:flex; gap:12px; align-items:center; min-width:0; }
+.crow .name { font:600 14px/1.3 var(--body); color:var(--ink); text-decoration:none; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.crow .name:hover { color:var(--blue); }
+.crow .meta { font-size:12px; color:var(--muted-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.strip svg { display:block; width:100%; height:24px; }
+.reach { font-size:12px; color:var(--muted); }
+.reach b { font:700 18px/1 var(--display); font-stretch:85%; color:var(--blue-deep); }
+.reach.none b { color:var(--muted-2); }
+.pin { justify-self:end; }
+.pin[aria-pressed="true"] { background:var(--ink); border-color:var(--ink); color:#fff; }
+body.phone .axisrow { display:none; }
+body.phone .crow { grid-template-columns:minmax(0,1fr) auto; padding:12px 14px; gap:8px 12px; }
+body.phone .crow .strip { grid-column:1/-1; grid-row:2; }
+body.phone .crow .reach { grid-row:3; }
+body.phone .crow .pin { grid-row:3; }
+.merit-mini { display:flex; align-items:center; gap:8px; }
+.merit-mini input { width:96px; font:600 15px var(--display); font-variant-numeric:tabular-nums; }
+.comparebar { position:sticky; bottom:0; z-index:4; margin-top:16px; background:var(--ink); color:#fff; border-radius:var(--r-lg); padding:12px 16px; display:flex; gap:10px 16px; align-items:center; flex-wrap:wrap; box-shadow:0 10px 30px rgba(15,23,42,.25); }
+.comparebar[hidden] { display:none; }
+.comparebar .slot { background:#1e293b; border-radius:var(--r-sm); padding:6px 10px; font-size:12px; max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.comparebar .btn { margin-left:auto; }
+</style>
+</head>
+<body data-page="colleges" data-mock="Colleges list · mockup">
+<div class="stage"><div class="device">
+  <header data-nav></header>
+  <main class="page">
+    <div class="head-row">
+      <div>
+        <div class="eyebrow"><span>CAP <span class="mono">2026</span></span><span>Open, state-level seats</span></div>
+        <h1 class="h1" style="margin-top:6px">Colleges</h1>
+        <p class="lede">All <span id="n-all"></span> engineering colleges in CAP. Each strip shows a college's branches by closing rank, so you can see at a glance how hard it is to get into.</p>
+      </div>
+    </div>
+
+    <form class="card filters" onsubmit="event.preventDefault()" role="search">
+      <label class="field"><span>Search</span><input class="input" id="q" placeholder="College name, code or district" autocomplete="off"></label>
+      <label class="field"><span>University</span><select id="f-uni"></select></label>
+      <label class="field"><span>District</span><select id="f-dist"></select></label>
+      <label class="field"><span>Type</span><select id="f-type"></select></label>
+      <label class="field"><span>Your merit</span><input class="input tnum" id="merit" inputmode="numeric" autocomplete="off"></label>
+    </form>
+
+    <div class="listhead">
+      <span class="small" id="count" aria-live="polite"></span>
+      <span class="sort"><label for="sort">Sort</label>
+        <select id="sort"><option value="reach">Most branches within reach</option><option value="hard">Hardest to get first</option><option value="easy">Easiest to get first</option><option value="az">Name, A to Z</option></select>
+      </span>
+    </div>
+
+    <section class="card rows" aria-label="Colleges">
+      <div class="axisrow" aria-hidden="true"><span>College</span><span class="ticks" id="axis"></span><span>Within reach</span><span></span></div>
+      <div id="rows"></div>
+    </section>
+    <button class="btn" type="button" id="more" style="width:100%;margin-top:14px"></button>
+    <p class="info">The plain alphabetical list becomes a ranked comparison. Every row carries a strip: each line is one branch at its latest-round open closing rank, on the same log axis for all colleges, with your merit as the dark line. Sorting by “most within reach” turns browsing into shortlisting. Add up to 3 colleges to compare; the bar sticks to the bottom.</p>
+
+    <div class="comparebar" id="cbar" hidden>
+      <strong style="font-size:13px">Compare</strong>
+      <span id="cslots" style="display:flex;gap:8px;flex-wrap:wrap"></span>
+      <a class="btn btn-primary btn-sm" href="compare.html">Compare side by side →</a>
+    </div>
+  </main>
+  <footer data-foot></footer>
+</div></div>
+
+<script>
+const C = Compass;
+const ROWS = COLLEGES.map((c) => {
+  const s = c.b.filter((b) => b[3] === "S");
+  return { ...c, state: s, hardest: s.length ? Math.min(...s.map((b) => b[2])) : null, easiest: s.length ? Math.max(...s.map((b) => b[2])) : null };
+});
+const DOMAIN = [20, 200000];
+let merit = 12000, shown = 30;
+const pinned = [];
+const $ = (id) => document.getElementById(id);
+const opts = (k, all) => `<option value="">${all}</option>` + [...new Set(ROWS.map((r) => r[k]).filter(Boolean))].sort().map((v) => `<option>${C.esc(v)}</option>`).join("");
+$("f-uni").innerHTML = opts("uni", "All universities");
+$("f-dist").innerHTML = opts("district", "All districts");
+$("f-type").innerHTML = opts("type", "All types");
+$("n-all").textContent = ROWS.length;
+
+function strip(r) {
+  const W = 300, x = C.scale(DOMAIN, 3, W - 6), you = x(merit);
+  const lines = r.state.map((b) => {
+    const reach = merit <= b[2];
+    return `<line x1="${x(b[2]).toFixed(1)}" x2="${x(b[2]).toFixed(1)}" y1="4" y2="20" stroke="${reach ? "#2563eb" : "#94a3b8"}" stroke-width="2"><title>${C.esc(b[0])}: ${C.fmt(b[2])}</title></line>`;
+  }).join("");
+  return `<svg viewBox="0 0 ${W} 24" preserveAspectRatio="none" role="img" aria-label="${r.state.length} branches, closing ranks ${r.hardest ? C.fmt(r.hardest) + " to " + C.fmt(r.easiest) : "not available"}">
+    <rect x="0" y="4" width="${W}" height="16" rx="3" fill="#f8fafc"/>
+    <rect x="${you}" y="4" width="${Math.max(W - you, 0)}" height="16" rx="0" fill="#eff6ff"/>${lines}
+    <line x1="${you}" x2="${you}" y1="0" y2="24" stroke="#0f172a" stroke-width="2"/></svg>`;
+}
+
+function render() {
+  const q = $("q").value.trim().toLowerCase(), uni = $("f-uni").value, dist = $("f-dist").value, type = $("f-type").value;
+  let list = ROWS.filter((r) => (!q || r.name.toLowerCase().includes(q) || r.code.includes(q) || (r.district ?? "").toLowerCase().includes(q)) && (!uni || r.uni === uni) && (!dist || r.district === dist) && (!type || r.type === type));
+  const reachOf = (r) => r.state.filter((b) => merit <= b[2]).length;
+  const sort = $("sort").value;
+  list = list.slice().sort(
+    sort === "reach" ? (a, b) => reachOf(b) - reachOf(a) || (a.hardest ?? 1e9) - (b.hardest ?? 1e9)
+    : sort === "hard" ? (a, b) => (a.hardest ?? 1e9) - (b.hardest ?? 1e9)
+    : sort === "easy" ? (a, b) => (b.easiest ?? -1) - (a.easiest ?? -1)
+    : (a, b) => a.name.localeCompare(b.name));
+  const withReach = list.filter((r) => reachOf(r) > 0).length;
+  $("count").textContent = `${C.fmt(list.length)} colleges · ${C.fmt(withReach)} with at least one branch within reach at ${C.fmt(merit)}`;
+  const W = $("axis").clientWidth || 300, x = C.scale(DOMAIN, 3, W - 6);
+  $("axis").innerHTML = [100, 1000, 10000, 100000].map((t) => `<span style="left:${x(t)}px">${C.tick(t)}</span>`).join("");
+  $("rows").innerHTML = list.slice(0, shown).map((r) => {
+    const n = reachOf(r), isPinned = pinned.includes(r);
+    const href = r.code === "03012" ? "college-page-reorder.html" : "#";
+    return `<div class="crow">
+      <div class="who"><span class="tile-av" style="background:${C.tint(r.code)}">${C.initials(r.name)}</span>
+        <div style="min-width:0"><a class="name" href="${href}">${C.esc(r.name)}</a>
+        <div class="meta"><span class="mono">${r.code}</span> · ${C.esc(r.district ?? "")} · ${C.esc(r.type ?? "")}${r.uni ? " · " + C.esc(r.uni) : ""}</div></div></div>
+      <span class="strip">${r.state.length ? strip(r) : '<span class="small">No state-level open seats</span>'}</span>
+      <span class="reach${n ? "" : " none"}"><b>${n}</b> of ${r.state.length}</span>
+      <button type="button" class="btn btn-sm pin" aria-pressed="${isPinned}" data-pin="${r.code}" ${!isPinned && pinned.length >= 3 ? "disabled title='You can compare up to 3 colleges'" : ""}>${isPinned ? "✓ Comparing" : "+ Compare"}</button>
+    </div>`;
+  }).join("") || `<p style="padding:24px 20px" class="small">No colleges match. Clear a filter or search for a district.</p>`;
+  $("more").hidden = list.length <= shown;
+  $("more").textContent = `Show more colleges (${C.fmt(list.length - shown)} left)`;
+  $("cbar").hidden = pinned.length === 0;
+  $("cslots").innerHTML = pinned.map((r) => `<span class="slot">${C.esc(r.name)}</span>`).join("");
+  $("merit").value = C.fmt(merit);
+}
+["q", "f-uni", "f-dist", "f-type", "sort"].forEach((id) => ($(id).oninput = () => { shown = 30; render(); }));
+$("merit").onchange = () => { const v = parseInt($("merit").value.replace(/\D/g, ""), 10); if (v > 0) merit = v; render(); };
+$("more").onclick = () => { shown += 30; render(); };
+$("rows").onclick = (e) => {
+  const b = e.target.closest("[data-pin]"); if (!b) return;
+  const r = ROWS.find((x) => x.code === b.dataset.pin), i = pinned.indexOf(r);
+  i >= 0 ? pinned.splice(i, 1) : pinned.length < 3 && pinned.push(r);
+  render();
+};
+C.onRender(render);
+</script>
+</body>
+</html>

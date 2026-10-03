@@ -98,6 +98,11 @@ describe("eligibleSeatTypes", () => {
     expect(eligibleSeatTypes({ ...base, minorityCommunity: "Muslim" }, sameHUCollege)).not.toContain("MI");
   });
 
+  it("EWS applies only to Open-category candidates", () => {
+    expect(eligibleSeatTypes({ ...base, ews: true, category: null }, sameHUCollege)).toContain("EWS");
+    expect(eligibleSeatTypes({ ...base, ews: true, category: "OBC" }, sameHUCollege)).not.toContain("EWS");
+  });
+
   it("returns no duplicate codes", () => {
     const codes = eligibleSeatTypes({ ...base, pwd: true, category: "OBC", ews: true }, sameHUCollege);
     expect(codes.length).toBe(new Set(codes).size);

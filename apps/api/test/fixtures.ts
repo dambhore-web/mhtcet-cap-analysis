@@ -91,7 +91,7 @@ export function seedCache(): AppCache {
   ];
   cutoffsByChoiceCode.set("5002119110", puneCutoffs);
 
-  return { year: 2026, colleges, branches, cutoffsByChoiceCode };
+  return { year: 2026, colleges, branches, cutoffsByChoiceCode, history: new Map(), seats: new Map() };
 }
 
 /** A pool stub that always throws — forces merit-estimate to the statistical fallback. */

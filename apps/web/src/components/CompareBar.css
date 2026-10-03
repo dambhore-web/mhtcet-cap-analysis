@@ -4,18 +4,33 @@
   left: 0;
   right: 0;
   z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  background: var(--navy);
-  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.2);
+  background: var(--navy-deep);
+  box-shadow: 0 -2px 16px rgba(15, 23, 42, 0.2);
+  padding-bottom: var(--safe-bottom);
   animation: slide-up 0.2s ease;
 }
 
 @keyframes slide-up {
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
+}
+
+.compare-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--compare-bar-h, 64px);
+  max-width: calc(var(--content-max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.compare-bar-count {
+  flex: none;
+  font-family: var(--font-num);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--white);
 }
 
 .compare-bar-colleges {
@@ -34,53 +49,58 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 9px;
+  max-width: 240px;
+  padding: 4px 4px 4px 10px;
   background: rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.compare-tile.empty {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 11px;
-  border-style: dashed;
+  border-radius: var(--radius-sm);
 }
 
 .compare-tile-name {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--white);
   white-space: nowrap;
-  max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .compare-tile-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 0 2px;
-  line-height: 1;
-  transition: color 0.12s;
+  border-radius: var(--radius-sm);
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.compare-tile-remove:hover { color: var(--orange); }
+.compare-tile-remove:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.12);
+}
 
 .compare-bar-btn {
   flex-shrink: 0;
-  padding: 8px 16px;
-  background: var(--lime);
-  border-radius: 8px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--navy);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.13s;
 }
 
-.compare-bar-btn:hover { opacity: 0.88; }
+/* Phone: show only the count and the button; names are on the compare page */
+@media (max-width: 639px) {
+  .compare-bar-colleges {
+    display: none;
+  }
+
+  .compare-bar-inner {
+    justify-content: space-between;
+  }
+
+  .compare-bar-count::after {
+    content: " colleges pinned";
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: var(--white);
+  }
+}

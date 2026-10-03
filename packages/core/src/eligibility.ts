@@ -88,7 +88,8 @@ export function eligibleSeatTypes(
   }
 
   // Standalone quota codes (no level suffix)
-  if (candidate.ews) codes.push("EWS");
+  // EWS is only for Open-category candidates; a reserved-category candidate can't claim it.
+  if (candidate.ews && candidate.category === null) codes.push("EWS");
   if (candidate.tfws) codes.push("TFWS");
   if (candidate.orphan) {
     codes.push("ORPHANI");

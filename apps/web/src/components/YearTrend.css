@@ -1,0 +1,106 @@
+.yt-chart-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.yt-chart-wrap svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.yt-grid { stroke: var(--line); }
+.yt-axis { font-family: var(--font-mono); font-size: 11px; fill: var(--muted-2); }
+.yt-year { font-family: var(--font-mono); font-size: 12px; fill: var(--muted); }
+.yt-none { font-size: 11px; fill: var(--muted-2); }
+
+.yt-you { stroke: var(--navy-deep); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.yt-you-label { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--navy-deep); }
+
+/* per-year dumbbell: Round I hollow blue, final round amber */
+.yt-bar { stroke: var(--orange); stroke-width: 4; stroke-linecap: round; opacity: 0.45; }
+.yt-first { fill: var(--white); stroke: var(--violet); stroke-width: 2.5; }
+.yt-last { fill: var(--orange); }
+
+.yt-val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  stroke: var(--white);
+  stroke-width: 4px;
+  paint-order: stroke;
+}
+
+.yt-val-first { fill: var(--violet-deep); }
+.yt-val-last { fill: var(--orange-shadow); }
+
+/* every seat type chart */
+.yt-years {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.yt-years span { display: inline-flex; align-items: center; gap: 5px; }
+.yt-years i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.yt-years i.yt-dash { width: 16px; height: 0; border-radius: 0; border-top: 2px dashed var(--navy-deep); }
+
+.yt-row { fill: transparent; }
+.yt-row-alt { fill: #fafbfd; }
+.yt-row-on { fill: var(--lavender); }
+.yt-trow { cursor: pointer; outline: none; }
+.yt-trow:hover rect:first-child,
+.yt-trow:focus-visible rect:first-child { fill: rgba(219, 234, 254, 0.55); }
+.yt-trail { fill: none; stroke: #cbd5e1; stroke-width: 1.5; }
+.yt-tlabel { font-family: var(--font-body); font-size: 12px; fill: var(--muted); }
+.yt-tlabel.on { fill: var(--violet-deep); font-weight: 600; }
+.yt-verdict-tag { font-family: var(--font-body); font-size: 11px; font-weight: 600; }
+.yt-verdict-tag.harder { fill: var(--danger-text); }
+.yt-verdict-tag.easier { fill: var(--safe-text); }
+.yt-verdict-tag.steady { fill: var(--muted-2); }
+
+/* folded table */
+.yt-table-toggle summary {
+  margin-top: 8px;
+  color: var(--violet);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.yt-table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.yt-table th,
+.yt-table td {
+  padding: 7px 6px;
+  border-bottom: 1px solid var(--line-soft);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.yt-table thead th {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-2);
+  border-bottom-color: var(--line);
+}
+
+.yt-table tbody th { font-weight: 500; }
+.yt-table .num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.yt-harder { color: var(--danger-text); font-weight: 600; }
+.yt-easier { color: var(--safe-text); font-weight: 600; }
+.yt-steady { color: var(--muted-2); }
+
+.yt-note {
+  margin: 8px 0 0;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}

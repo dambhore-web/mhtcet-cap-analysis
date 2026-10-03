@@ -1,0 +1,6315 @@
+{
+ "_note": "Placement of UG 4-year (B.E./B.Tech) graduates per college, from the data each institution submitted to NIRF and published on its website. Self-reported by the institution. Built by `npm run placement` from data/placement-sources.json.",
+ "colleges": {
+  "01105": {
+   "nirfName": "Prof. Ram Meghe Institute of Technology & Research",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 843,
+     "placed": 536,
+     "medianSalary": 362000,
+     "higherStudies": 25,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43072",
+     "sourceUrl": "https://mitra.ac.in/pdf/NIRF-24.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 816,
+     "placed": 726,
+     "medianSalary": 385000,
+     "higherStudies": 46,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43072",
+     "sourceUrl": "https://mitra.ac.in/pdf/NIRF-25.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 730,
+     "placed": 613,
+     "medianSalary": 380000,
+     "higherStudies": 42,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43072",
+     "sourceUrl": "https://mitra.ac.in/pdf/NIRF-26.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 715,
+     "placed": 580,
+     "medianSalary": 293000,
+     "higherStudies": 51,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43072",
+     "sourceUrl": "https://mitra.ac.in/pdf/NIRF-26.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 670,
+     "placed": 507,
+     "medianSalary": 297000,
+     "higherStudies": 60,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43072",
+     "sourceUrl": "https://mitra.ac.in/pdf/NIRF-26.pdf"
+    }
+   ]
+  },
+  "01107": {
+   "nirfName": "P. R. Pote (Patil) Education & Welfare Trust's Group of Institutions's College of Engineering & Management, Amravati.",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 517,
+     "placed": 322,
+     "medianSalary": 300000,
+     "higherStudies": 11,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43031",
+     "sourceUrl": "https://prpotepatilengg.ac.in/wp-content/uploads/2020/12/NIRF_Engineering.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 558,
+     "placed": 203,
+     "medianSalary": 320000,
+     "higherStudies": 14,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43031",
+     "sourceUrl": "https://prpotepatilengg.ac.in/assets/pdf/NIRF/nirf_engg2024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 501,
+     "placed": 468,
+     "medianSalary": 360000,
+     "higherStudies": 9,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43031",
+     "sourceUrl": "https://prpotepatilengg.ac.in/assets/pdf/NIRF/PRPCEM-NIRF-25-Report-Final.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 388,
+     "placed": 254,
+     "medianSalary": 180000,
+     "higherStudies": 12,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43031",
+     "sourceUrl": "https://prpotepatilengg.ac.in/assets/pdf/NIRF/NIRF_26.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 564,
+     "placed": 252,
+     "medianSalary": 180000,
+     "higherStudies": 109,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43031",
+     "sourceUrl": "https://prpotepatilengg.ac.in/assets/pdf/NIRF/NIRF_26.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 503,
+     "placed": 324,
+     "medianSalary": 450000,
+     "higherStudies": 116,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43031",
+     "sourceUrl": "https://prpotepatilengg.ac.in/assets/pdf/NIRF/NIRF_26.pdf"
+    }
+   ]
+  },
+  "01114": {
+   "nirfName": "Sipna College of Engineering and Technology, Amravati",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 485,
+     "placed": 281,
+     "medianSalary": 350000,
+     "higherStudies": 18,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43142",
+     "sourceUrl": "https://sipnaengg.ac.in/wp-content/uploads/2026/04/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 584,
+     "placed": 283,
+     "medianSalary": 350000,
+     "higherStudies": 13,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43142",
+     "sourceUrl": "https://sipnaengg.ac.in/wp-content/uploads/2026/04/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 604,
+     "placed": 255,
+     "medianSalary": 300000,
+     "higherStudies": 1,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43142",
+     "sourceUrl": "https://sipnaengg.ac.in/wp-content/uploads/2026/04/NIRF-2026.pdf"
+    }
+   ]
+  },
+  "01116": {
+   "nirfName": "College of Engineering & Technology",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 192,
+     "placed": 47,
+     "medianSalary": 243000,
+     "higherStudies": 34,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1455",
+     "sourceUrl": "https://coeta.ac.in/wp-content/uploads/NIRF-2024-ENGINEERING-FINAL-SUBMITTED-REPOERT-College-of-Engineering-Technology20240131-.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 193,
+     "placed": 173,
+     "medianSalary": 254000,
+     "higherStudies": 12,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1455",
+     "sourceUrl": "https://coeta.ac.in/wp-content/uploads/NIRF-Engineering-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 155,
+     "placed": 58,
+     "medianSalary": 305000,
+     "higherStudies": 11,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43169",
+     "sourceUrl": "https://coeta.ac.in/wp-content/uploads/COETA-NIRF-Engineering-25-26.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 172,
+     "placed": 133,
+     "medianSalary": 250000,
+     "higherStudies": 9,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43169",
+     "sourceUrl": "https://coeta.ac.in/wp-content/uploads/COETA-NIRF-Engineering-25-26.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 159,
+     "placed": 103,
+     "medianSalary": 275000,
+     "higherStudies": 10,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43169",
+     "sourceUrl": "https://coeta.ac.in/wp-content/uploads/COETA-NIRF-Engineering-25-26.pdf"
+    }
+   ]
+  },
+  "01119": {
+   "nirfName": "Anuradha College of Engineering and Technology, Chikhli",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 218,
+     "placed": 182,
+     "medianSalary": 350000,
+     "higherStudies": 6,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43097",
+     "sourceUrl": "https://aecc.ac.in/assets/pdf/nirf2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 160,
+     "placed": 147,
+     "medianSalary": 250000,
+     "higherStudies": 4,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43097",
+     "sourceUrl": "https://aecc.ac.in/assets/pdf/nirf2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 139,
+     "placed": 40,
+     "medianSalary": 400000,
+     "higherStudies": 0,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43097",
+     "sourceUrl": "https://aecc.ac.in/assets/pdf/nirf2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 187,
+     "placed": 87,
+     "medianSalary": 250000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43097",
+     "sourceUrl": "https://aecc.ac.in/assets/pdf/nirf2026.pdf"
+    }
+   ]
+  },
+  "01120": {
+   "nirfName": "Jawaharlal Darda Institute of Engineering & Technology",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 204,
+     "placed": 180,
+     "medianSalary": 330000,
+     "higherStudies": 12,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43070",
+     "sourceUrl": "https://jdiet.ac.in/pdf/NIRF%202025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 201,
+     "placed": 164,
+     "medianSalary": 287000,
+     "higherStudies": 3,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43070",
+     "sourceUrl": "https://jdiet.ac.in/pdf/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 170,
+     "placed": 161,
+     "medianSalary": 240000,
+     "higherStudies": 8,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43070",
+     "sourceUrl": "https://jdiet.ac.in/pdf/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 170,
+     "placed": 144,
+     "medianSalary": 298000,
+     "higherStudies": 1,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43070",
+     "sourceUrl": "https://jdiet.ac.in/pdf/NIRF-2026.pdf"
+    }
+   ]
+  },
+  "01126": {
+   "nirfName": "TAKSHASHILA INSTITUTE OF ENGINEERING & TECHNOLOGY,DARAPUR.,DIST:AMRAVATI",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 85,
+     "placed": 44,
+     "medianSalary": 322464,
+     "higherStudies": 13,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43134",
+     "sourceUrl": "https://www.tietdarapur.ac.in/assets/pdf/NIRF_Report_2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 83,
+     "placed": 53,
+     "medianSalary": 196235,
+     "higherStudies": 17,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43134",
+     "sourceUrl": "https://www.tietdarapur.ac.in/assets/pdf/NIRF_Report_2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 123,
+     "placed": 97,
+     "medianSalary": 267000,
+     "higherStudies": 8,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43134",
+     "sourceUrl": "https://www.tietdarapur.ac.in/assets/pdf/NIRF_Report_2026.pdf"
+    }
+   ]
+  },
+  "01265": {
+   "nirfName": "MAULI GROUP OF INSTITUTIONS, COLLEGE OF ENGINEERING AND TECHNOLOGY",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 227,
+     "placed": 111,
+     "medianSalary": 390000,
+     "higherStudies": 16,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43183",
+     "sourceUrl": "https://mcoet.mauligroup.org/wp-content/uploads/2025/02/MAULI-GROUP-OF-INSTITUTIONS-COLLEGE-OF-ENGINEERING-AND-TECHNOLOGY20250131-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 207,
+     "placed": 107,
+     "medianSalary": 390000,
+     "higherStudies": 16,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43183",
+     "sourceUrl": "https://mcoet.mauligroup.org/wp-content/uploads/2025/02/MAULI-GROUP-OF-INSTITUTIONS-COLLEGE-OF-ENGINEERING-AND-TECHNOLOGY20250131-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 149,
+     "placed": 90,
+     "medianSalary": 215000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-43183",
+     "sourceUrl": "https://mcoet.mauligroup.org/wp-content/uploads/2025/02/MAULI-GROUP-OF-INSTITUTIONS-COLLEGE-OF-ENGINEERING-AND-TECHNOLOGY20250131-.pdf"
+    }
+   ]
+  },
+  "01268": {
+   "nirfName": "Siddhivinayak Technical Campus",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 60,
+     "placed": 24,
+     "medianSalary": 400000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42830",
+     "sourceUrl": "https://stc.org.in/Docs/STC_2024-25.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 88,
+     "placed": 37,
+     "medianSalary": 400000,
+     "higherStudies": 1,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42830",
+     "sourceUrl": "https://stc.org.in/Docs/STC_2024-25.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 79,
+     "placed": 29,
+     "medianSalary": 250000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42830",
+     "sourceUrl": "https://stc.org.in/Docs/STC_2024-25.pdf"
+    }
+   ]
+  },
+  "02008": {
+   "nirfName": "Government College of Engineering (Academic Autonomous)",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 417,
+     "placed": 232,
+     "medianSalary": 336000,
+     "higherStudies": 62,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34341",
+     "sourceUrl": "https://geca.ac.in/pdf/NIRF/2022/2022.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 406,
+     "placed": 154,
+     "medianSalary": 450000,
+     "higherStudies": 26,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34341",
+     "sourceUrl": "https://geca.ac.in/pdf/NIRF/2023/Government%20College%20of%20Engineering%20(Academic%20Autonomous)20230626-.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 419,
+     "placed": 235,
+     "medianSalary": 470000,
+     "higherStudies": 66,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34341",
+     "sourceUrl": "https://geca.ac.in/pdf/NIRF/2024/Engineering%2020240304.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 390,
+     "placed": 352,
+     "medianSalary": 650000,
+     "higherStudies": 7,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34341",
+     "sourceUrl": "https://geca.ac.in/pdf/NIRF/2025/Engineering%20NIRF%202025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 434,
+     "placed": 271,
+     "medianSalary": 556638,
+     "higherStudies": 8,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34341",
+     "sourceUrl": "https://geca.ac.in/pdf/NIRF/2026/GECA-Engineering2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 465,
+     "placed": 274,
+     "medianSalary": 580000,
+     "higherStudies": 19,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34341",
+     "sourceUrl": "https://geca.ac.in/pdf/NIRF/2026/GECA-Engineering2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 411,
+     "placed": 251,
+     "medianSalary": 565000,
+     "higherStudies": 36,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34341",
+     "sourceUrl": "https://geca.ac.in/pdf/NIRF/2026/GECA-Engineering2026.pdf"
+    }
+   ]
+  },
+  "02020": {
+   "nirfName": "SHRI GURU GOBIND SINGHJI INSTITUTE OF ENGINEERING AND TECHNOLOGY",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 654,
+     "placed": 235,
+     "medianSalary": 400000,
+     "higherStudies": 25,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-7592",
+     "sourceUrl": "https://www.sggs.ac.in/api/uploads/source/NIRF/SHRI%20GURU%20GOBIND%20SINGHJI%20INSTITUTE%20OF%20ENGINEERING%20AND%20TECHNOLOGY20220212-%20ENGG.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 659,
+     "placed": 266,
+     "medianSalary": 400000,
+     "higherStudies": 30,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-7592",
+     "sourceUrl": "https://www.sggs.ac.in/api/uploads/source/NIRF/SHRI%20GURU%20GOBIND%20SINGHJI%20INSTITUTE%20OF%20ENGINEERING%20AND%20TECHNOLOGY20230113-.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 666,
+     "placed": 302,
+     "medianSalary": 400000,
+     "higherStudies": 34,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-7592",
+     "sourceUrl": "https://www.sggs.ac.in/api/uploads/source/NIRF/SHRI%20GURU%20GOBIND%20SINGHJI%20INSTITUTE%20OF%20ENGINEERING%20AND%20TECHNOLOGY20230113-.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 675,
+     "placed": 412,
+     "medianSalary": 400000,
+     "higherStudies": 31,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-7592",
+     "sourceUrl": "https://www.sggs.ac.in/api/uploads/source/NIRF/SHRI%20GURU%20GOBIND%20SINGHJI%20INSTITUTE%20OF%20ENGINEERING%20AND%20TECHNOLOGY20230113-.pdf"
+    }
+   ]
+  },
+  "02114": {
+   "nirfName": "Deogiri Technical Campus for Engineering and Management Studies",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 585,
+     "placed": 219,
+     "medianSalary": 500000,
+     "higherStudies": 34,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34671",
+     "sourceUrl": "https://www.dietms.org/wp-content/uploads/2024/03/NIRF-2024-Engineering-IR-E-C-34671.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 554,
+     "placed": 358,
+     "medianSalary": 306000,
+     "higherStudies": 25,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34671",
+     "sourceUrl": "https://www.dietms.org/wp-content/uploads/2025/02/NIRF_Engineering-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 452,
+     "placed": 266,
+     "medianSalary": 325000,
+     "higherStudies": 29,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34671",
+     "sourceUrl": "https://www.dietms.org/wp-content/uploads/2026/03/Engineering-NIRF.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 578,
+     "placed": 271,
+     "medianSalary": 350000,
+     "higherStudies": 47,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34671",
+     "sourceUrl": "https://www.dietms.org/wp-content/uploads/2026/03/Engineering-NIRF.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 599,
+     "placed": 371,
+     "medianSalary": 310000,
+     "higherStudies": 52,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34671",
+     "sourceUrl": "https://www.dietms.org/wp-content/uploads/2026/03/Engineering-NIRF.pdf"
+    }
+   ]
+  },
+  "02129": {
+   "nirfName": "M.S. Bidwe College of Engineering, Latur",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 406,
+     "placed": 77,
+     "medianSalary": 350000,
+     "higherStudies": 14,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-7593",
+     "sourceUrl": "https://msbecl.ac.in/uploads/document/document-1775559256.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 391,
+     "placed": 125,
+     "medianSalary": 350000,
+     "higherStudies": 11,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-7593",
+     "sourceUrl": "https://msbecl.ac.in/uploads/document/document-1775559256.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 367,
+     "placed": 32,
+     "medianSalary": 450000,
+     "higherStudies": 9,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-7593",
+     "sourceUrl": "https://msbecl.ac.in/uploads/document/document-1775559256.pdf"
+    }
+   ]
+  },
+  "02130": {
+   "nirfName": "Terna Public Charitable Trust`s College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 226,
+     "placed": 140,
+     "medianSalary": 350000,
+     "higherStudies": 15,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34508",
+     "sourceUrl": "https://coeosmanabad.ac.in/wp-content/uploads/2025/01/Terna-Public-Charitable-Trusts-College-of-Engineering20250129-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 158,
+     "placed": 141,
+     "medianSalary": 300000,
+     "higherStudies": 17,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34508",
+     "sourceUrl": "https://coeosmanabad.ac.in/wp-content/uploads/2026/02/Terna-Public-Charitable-Trusts-College-of-Engineering20260225-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 240,
+     "placed": 80,
+     "medianSalary": 300000,
+     "higherStudies": 12,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34508",
+     "sourceUrl": "https://coeosmanabad.ac.in/wp-content/uploads/2026/02/Terna-Public-Charitable-Trusts-College-of-Engineering20260225-.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 260,
+     "placed": 70,
+     "medianSalary": 300000,
+     "higherStudies": 10,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34508",
+     "sourceUrl": "https://coeosmanabad.ac.in/wp-content/uploads/2026/02/Terna-Public-Charitable-Trusts-College-of-Engineering20260225-.pdf"
+    }
+   ]
+  },
+  "02134": {
+   "nirfName": "P. E. S. College of Engineering, Nagsenvana, Chhatrapati Sambhajinagar (Aurangabad)",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 215,
+     "placed": 90,
+     "medianSalary": 506000,
+     "higherStudies": 13,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34279",
+     "sourceUrl": "https://pescoe.ac.in/campus/data2022/NIRF%202026%20Institute%20Data%20%20for%20Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 116,
+     "placed": 51,
+     "medianSalary": 300000,
+     "higherStudies": 26,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34279",
+     "sourceUrl": "https://pescoe.ac.in/campus/data2022/NIRF%202026%20Institute%20Data%20%20for%20Engineering.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 183,
+     "placed": 28,
+     "medianSalary": 250000,
+     "higherStudies": 32,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34279",
+     "sourceUrl": "https://pescoe.ac.in/campus/data2022/NIRF%202026%20Institute%20Data%20%20for%20Engineering.pdf"
+    }
+   ]
+  },
+  "02138": {
+   "nirfName": "MATSYODARI SHIKSHAN SANSTHA'S COLLEGE OF ENGINEERING AND TECHNOLOGY, JALNA",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 172,
+     "placed": 135,
+     "medianSalary": 300000,
+     "higherStudies": 7,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34516",
+     "sourceUrl": "https://www.msscetjalna.org/downloads/approvals/NIRF%20Data%202026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 80,
+     "placed": 75,
+     "medianSalary": 700000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34516",
+     "sourceUrl": "https://www.msscetjalna.org/downloads/approvals/NIRF%20Data%202026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 118,
+     "placed": 108,
+     "medianSalary": 300000,
+     "higherStudies": 10,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34516",
+     "sourceUrl": "https://www.msscetjalna.org/downloads/approvals/NIRF%20Data%202026.pdf"
+    }
+   ]
+  },
+  "02533": {
+   "nirfName": "CSMSS Chh. Shahu College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 356,
+     "placed": 181,
+     "medianSalary": 255000,
+     "higherStudies": 14,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-51494",
+     "sourceUrl": "https://www.csmssengg.org/NIRF/CSMSS.Chh.ShahuCollegeofEngineering20220217-NIRF_Report.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 379,
+     "placed": 173,
+     "medianSalary": 295000,
+     "higherStudies": 25,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-51494",
+     "sourceUrl": "https://www.csmssengg.org/NIRF/CSMSS_Chh._Shahu_College_of_Engineering_20230202_NIRF_2023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 436,
+     "placed": 207,
+     "medianSalary": 320000,
+     "higherStudies": 22,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-51494",
+     "sourceUrl": "https://www.csmssengg.org/NIRF/CSMSS_Chh._Shahu_College_of_Engineering_20230202_NIRF_2024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 407,
+     "placed": 216,
+     "medianSalary": 363000,
+     "higherStudies": 8,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-51494",
+     "sourceUrl": "https://www.csmssengg.org/NIRF/4CSMSS_Chh_Shahu_College_of_Engineering20250125-NIRF_Report.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 421,
+     "placed": 102,
+     "medianSalary": 300000,
+     "higherStudies": 16,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-51494",
+     "sourceUrl": "https://www.csmssengg.org/NIRF/5CSMSS_Chh._Shahu_College_of_Engineering20260217-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 465,
+     "placed": 243,
+     "medianSalary": 310000,
+     "higherStudies": 15,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-51494",
+     "sourceUrl": "https://www.csmssengg.org/NIRF/5CSMSS_Chh._Shahu_College_of_Engineering20260217-.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 458,
+     "placed": 251,
+     "medianSalary": 258500,
+     "higherStudies": 24,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-51494",
+     "sourceUrl": "https://www.csmssengg.org/NIRF/5CSMSS_Chh._Shahu_College_of_Engineering20260217-.pdf"
+    }
+   ]
+  },
+  "03012": {
+   "nirfName": "Veermata Jijabai Technological Institute, (VJTI, Mumbai)",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 639,
+     "placed": 559,
+     "medianSalary": 930000,
+     "higherStudies": 80,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33641",
+     "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2025/02/NIRF-2025-ENGINEERING_VJTI-Mumbai.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 722,
+     "placed": 585,
+     "medianSalary": 1000000,
+     "higherStudies": 137,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33641",
+     "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2026/04/VJTI_NIRF_Engineering_Data_2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 690,
+     "placed": 570,
+     "medianSalary": 1090000,
+     "higherStudies": 120,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33641",
+     "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2026/04/VJTI_NIRF_Engineering_Data_2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 674,
+     "placed": 562,
+     "medianSalary": 1120000,
+     "higherStudies": 112,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33641",
+     "sourceUrl": "https://vjti.ac.in/wp-content/uploads/2026/04/VJTI_NIRF_Engineering_Data_2026.pdf"
+    }
+   ]
+  },
+  "03014": {
+   "nirfName": "Sardar Patel College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 214,
+     "placed": 104,
+     "medianSalary": 425000,
+     "higherStudies": 32,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34112",
+     "sourceUrl": "https://www.spce.ac.in/Documents/NIRF%202024/NIRF2024_20240120_Engineering.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 209,
+     "placed": 157,
+     "medianSalary": 510000,
+     "higherStudies": 39,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34112",
+     "sourceUrl": "https://www.spce.ac.in/Documents/NIRF%202025/NIRF_Engineering_2025_17022025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 222,
+     "placed": 143,
+     "medianSalary": 595000,
+     "higherStudies": 60,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-34112",
+     "sourceUrl": "https://www.spce.ac.in/Documents/NIRF%202026/SPCE20260309-NIRF.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 214,
+     "placed": 157,
+     "medianSalary": 650000,
+     "higherStudies": 56,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-34112",
+     "sourceUrl": "https://www.spce.ac.in/Documents/NIRF%202026/SPCE20260309-NIRF.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 215,
+     "placed": 152,
+     "medianSalary": 625000,
+     "higherStudies": 28,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-34112",
+     "sourceUrl": "https://www.spce.ac.in/Documents/NIRF%202026/SPCE20260309-NIRF.pdf"
+    }
+   ]
+  },
+  "03033": {
+   "nirfName": "Dr. Babasaheb Ambedkar Technological University",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 593,
+     "placed": 8,
+     "medianSalary": 348000,
+     "higherStudies": 45,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-U-0299",
+     "sourceUrl": "https://dbatu.ac.in/wp-content/uploads/2024/03/NIRF2024_Engineering.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 518,
+     "placed": 127,
+     "medianSalary": 500000,
+     "higherStudies": 64,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-U-0299",
+     "sourceUrl": "https://dbatu.ac.in/wp-content/uploads/2025/02/Engineering_NIRF_2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 504,
+     "placed": 83,
+     "medianSalary": 550000,
+     "higherStudies": 40,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-U-0299",
+     "sourceUrl": "https://dbatu.ac.in/wp-content/uploads/2026/04/Engineering_NIRF26.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 480,
+     "placed": 52,
+     "medianSalary": 400000,
+     "higherStudies": 38,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-U-0299",
+     "sourceUrl": "https://dbatu.ac.in/wp-content/uploads/2026/04/Engineering_NIRF26.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 401,
+     "placed": 74,
+     "medianSalary": 420000,
+     "higherStudies": 29,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-U-0299",
+     "sourceUrl": "https://dbatu.ac.in/wp-content/uploads/2026/04/Engineering_NIRF26.pdf"
+    }
+   ]
+  },
+  "03035": {
+   "nirfName": "Usha Mittal Institute of Technology for Women",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 198,
+     "placed": 183,
+     "medianSalary": 400000,
+     "higherStudies": 2,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-44230",
+     "sourceUrl": "https://www.umit.ac.in/_files/ugd/db66c0_360181a2f05d40399759039b086ac270.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 176,
+     "placed": 82,
+     "medianSalary": 600000,
+     "higherStudies": 2,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-44230",
+     "sourceUrl": "https://www.umit.ac.in/_files/ugd/db66c0_360181a2f05d40399759039b086ac270.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 169,
+     "placed": 118,
+     "medianSalary": 1000000,
+     "higherStudies": 46,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-44230",
+     "sourceUrl": "https://www.umit.ac.in/_files/ugd/db66c0_360181a2f05d40399759039b086ac270.pdf"
+    }
+   ]
+  },
+  "03135": {
+   "nirfName": "Manjara Charitable Trusts Rajiv Gandhi Institute of Technology Serve No.161 CTS No 1976 1 48 Juhu Versova Link Road Behind HDFC Bank Versova Andheri (West) Mumbai 400061",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 469,
+     "placed": 298,
+     "medianSalary": 390000,
+     "higherStudies": 66,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33792",
+     "sourceUrl": "https://www.mctrgit.ac.in/_files/ugd/59b58f_465edad08e64437e86c29e9de1fa0cf6.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 436,
+     "placed": 246,
+     "medianSalary": 420000,
+     "higherStudies": 65,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33792",
+     "sourceUrl": "https://www.mctrgit.ac.in/_files/ugd/59b58f_465edad08e64437e86c29e9de1fa0cf6.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 405,
+     "placed": 151,
+     "medianSalary": 400000,
+     "higherStudies": 29,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33792",
+     "sourceUrl": "https://www.mctrgit.ac.in/_files/ugd/59b58f_465edad08e64437e86c29e9de1fa0cf6.pdf"
+    }
+   ]
+  },
+  "03139": {
+   "nirfName": "Vidyalankar Institute of Technology Pearl Center",
+   "rows": [
+    {
+     "graduationYear": "2017-18",
+     "graduates": 858,
+     "placed": 406,
+     "medianSalary": 318000,
+     "higherStudies": 48,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33588",
+     "sourceUrl": "https://vit.edu.in/images/downloads/NIRF.pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 852,
+     "placed": 438,
+     "medianSalary": 350000,
+     "higherStudies": 50,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33588",
+     "sourceUrl": "https://vit.edu.in/images/downloads/NIRF.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 778,
+     "placed": 370,
+     "medianSalary": 350000,
+     "higherStudies": 56,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33588",
+     "sourceUrl": "https://vit.edu.in/images/downloads/NIRF/NIRF%202023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 813,
+     "placed": 382,
+     "medianSalary": 350000,
+     "higherStudies": 66,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33588",
+     "sourceUrl": "https://vit.edu.in/images/downloads/NIRF/NIRF%202023.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 585,
+     "placed": 345,
+     "medianSalary": 400000,
+     "higherStudies": 49,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33588",
+     "sourceUrl": "https://vit.edu.in/images/downloads/NIRF/NIRF%202023.pdf"
+    }
+   ]
+  },
+  "03148": {
+   "nirfName": "Shah And Anchor Kutchhi Engineering College",
+   "rows": [
+    {
+     "graduationYear": "2017-18",
+     "graduates": 469,
+     "placed": 276,
+     "medianSalary": 318000,
+     "higherStudies": 43,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33550",
+     "sourceUrl": "https://www.sakec.ac.in/wp-content/uploads/2022/06/NIRF-2021-DCS-SAKEC.pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 476,
+     "placed": 211,
+     "medianSalary": 336875,
+     "higherStudies": 39,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33550",
+     "sourceUrl": "https://www.sakec.ac.in/wp-content/uploads/2022/06/NIRF-2022-DCS-SAKEC.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 456,
+     "placed": 251,
+     "medianSalary": 350000,
+     "higherStudies": 31,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33550",
+     "sourceUrl": "https://www.sakec.ac.in/wp-content/uploads/2023/02/NIRF2023_SAKEC.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 452,
+     "placed": 352,
+     "medianSalary": 360000,
+     "higherStudies": 77,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33550",
+     "sourceUrl": "https://www.sakec.ac.in/wp-content/uploads/2024/03/NIRF2024_SAKEC.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 391,
+     "placed": 236,
+     "medianSalary": 400000,
+     "higherStudies": 53,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33550",
+     "sourceUrl": "https://www.sakec.ac.in/wp-content/uploads/2025/02/NIRF2025_SAKEC.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 403,
+     "placed": 260,
+     "medianSalary": 450000,
+     "higherStudies": 58,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33550",
+     "sourceUrl": "https://www.sakec.ac.in/wp-content/uploads/2025/02/NIRF2025_SAKEC.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 651,
+     "placed": 255,
+     "medianSalary": 450000,
+     "higherStudies": 103,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33550",
+     "sourceUrl": "https://www.sakec.ac.in/wp-content/uploads/2025/02/NIRF2025_SAKEC.pdf"
+    }
+   ]
+  },
+  "03154": {
+   "nirfName": "Saraswati Education Society`s Saraswati College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 536,
+     "placed": 426,
+     "medianSalary": 325000,
+     "higherStudies": 29,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33575",
+     "sourceUrl": "https://engineering.saraswatikharghar.edu.in/wp-content/uploads/2023/06/NIRF-2024-ranking-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 552,
+     "placed": 231,
+     "medianSalary": 328000,
+     "higherStudies": 41,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33575",
+     "sourceUrl": "https://engineering.saraswatikharghar.edu.in/wp-content/uploads/2024/05/2025-Jan-NIRF-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 499,
+     "placed": 378,
+     "medianSalary": 360000,
+     "higherStudies": 42,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33575",
+     "sourceUrl": "https://engineering.saraswatikharghar.edu.in/wp-content/uploads/2024/05/2025-Jan-NIRF-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 426,
+     "placed": 372,
+     "medianSalary": 420000,
+     "higherStudies": 46,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33575",
+     "sourceUrl": "https://engineering.saraswatikharghar.edu.in/wp-content/uploads/2024/05/2025-Jan-NIRF-Engineering.pdf"
+    }
+   ]
+  },
+  "03182": {
+   "nirfName": "Thadomal Shahani Engineering College",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 504,
+     "placed": 341,
+     "medianSalary": 450000,
+     "higherStudies": 35,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33681",
+     "sourceUrl": "https://tsec.edu/wp-content/uploads/2022/03/Thadomal-Shahani-Engineering-College20220307-.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 472,
+     "placed": 204,
+     "medianSalary": 500000,
+     "higherStudies": 128,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33681",
+     "sourceUrl": "https://tsec.edu/wp-content/uploads/2023/03/TsecNirf2023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 526,
+     "placed": 321,
+     "medianSalary": 500000,
+     "higherStudies": 61,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33681",
+     "sourceUrl": "https://tsec.edu/wp-content/uploads/2024/03/Thadomal-Shahani-Engineering-College20240302-.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 470,
+     "placed": 264,
+     "medianSalary": 760000,
+     "higherStudies": 129,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33681",
+     "sourceUrl": "https://tsec.edu/wp-content/uploads/2025/02/NIRF-2025_engg.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 489,
+     "placed": 321,
+     "medianSalary": 854000,
+     "higherStudies": 149,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33681",
+     "sourceUrl": "https://tsec.edu/wp-content/uploads/2026/04/Engg-NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 534,
+     "placed": 288,
+     "medianSalary": 760000,
+     "higherStudies": 140,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33681",
+     "sourceUrl": "https://tsec.edu/wp-content/uploads/2026/04/Engg-NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 598,
+     "placed": 335,
+     "medianSalary": 700000,
+     "higherStudies": 95,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33681",
+     "sourceUrl": "https://tsec.edu/wp-content/uploads/2026/04/Engg-NIRF-2026.pdf"
+    }
+   ]
+  },
+  "03184": {
+   "nirfName": "Fr. Conceicao Rodrigues College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 275,
+     "placed": 130,
+     "medianSalary": 700000,
+     "higherStudies": 23,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33981",
+     "sourceUrl": "https://frcrce.ac.in/wp-content/uploads/NIRF/2025/Fr.%20Conceicao%20Rodrigues%20College%20of%20Engineering20241227-%20%281%29.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 330,
+     "placed": 186,
+     "medianSalary": 600000,
+     "higherStudies": 46,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33981",
+     "sourceUrl": "https://frcrce.ac.in/wp-content/uploads/NIRF/2026/Fr.%20Conceicao%20Rodrigues%20College%20of%20Engineering20260205-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 304,
+     "placed": 143,
+     "medianSalary": 540000,
+     "higherStudies": 42,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33981",
+     "sourceUrl": "https://frcrce.ac.in/wp-content/uploads/NIRF/2026/Fr.%20Conceicao%20Rodrigues%20College%20of%20Engineering20260205-.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 320,
+     "placed": 149,
+     "medianSalary": 450000,
+     "higherStudies": 57,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33981",
+     "sourceUrl": "https://frcrce.ac.in/wp-content/uploads/NIRF/2026/Fr.%20Conceicao%20Rodrigues%20College%20of%20Engineering20260205-.pdf"
+    }
+   ]
+  },
+  "03185": {
+   "nirfName": "Vivekanand Education Society`s Institute of Technology Sindhi Society",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 678,
+     "placed": 406,
+     "medianSalary": 500000,
+     "higherStudies": 40,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33895",
+     "sourceUrl": "https://vesit.ves.ac.in/site/assets/files/80440/01704703618annexure-_nirf_2024_submitted_data-vivekanand_education_society_s_institute_of_technology_sindhi_society20240108-.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 607,
+     "placed": 452,
+     "medianSalary": 600000,
+     "higherStudies": 68,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33895",
+     "sourceUrl": "https://vesit.ves.ac.in/site/assets/files/80421/01735363423annexure-_nirf_2025_submitted_data-vivekanand_education_society_s_institute_of_technology_sindhi_society20241227-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 617,
+     "placed": 412,
+     "medianSalary": 600000,
+     "higherStudies": 55,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33895",
+     "sourceUrl": "https://vesit.ves.ac.in/site/assets/files/80404/01770290033nirf_2026-sumitted_data_-vivekanand_education_society_s_institute_of_technology_sindhi_society20260203-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 671,
+     "placed": 389,
+     "medianSalary": 550000,
+     "higherStudies": 57,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33895",
+     "sourceUrl": "https://vesit.ves.ac.in/site/assets/files/80404/01770290033nirf_2026-sumitted_data_-vivekanand_education_society_s_institute_of_technology_sindhi_society20260203-.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 629,
+     "placed": 424,
+     "medianSalary": 450000,
+     "higherStudies": 33,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33895",
+     "sourceUrl": "https://vesit.ves.ac.in/site/assets/files/80404/01770290033nirf_2026-sumitted_data_-vivekanand_education_society_s_institute_of_technology_sindhi_society20260203-.pdf"
+    }
+   ]
+  },
+  "03187": {
+   "nirfName": "DATTA MEGHE COLLEGE OF ENGINEERING",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 612,
+     "placed": 210,
+     "medianSalary": 283000,
+     "higherStudies": 50,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34200",
+     "sourceUrl": "https://s3.us-east-1.amazonaws.com/dmce.ac.in/pdf/NIRF-report-for-2023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 735,
+     "placed": 261,
+     "medianSalary": 336000,
+     "higherStudies": 60,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34200",
+     "sourceUrl": "https://s3.us-east-1.amazonaws.com/dmce.ac.in/pdf/NIRF-report-for-2024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 605,
+     "placed": 331,
+     "medianSalary": 350000,
+     "higherStudies": 29,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34200",
+     "sourceUrl": "https://s3.us-east-1.amazonaws.com/dmce.ac.in/pdf/NIRF-report-for-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 749,
+     "placed": 220,
+     "medianSalary": 500000,
+     "higherStudies": 38,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34200",
+     "sourceUrl": "https://s3.us-east-1.amazonaws.com/dmce.ac.in/pdf/NIRF+report+for+2026+(1).pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 724,
+     "placed": 274,
+     "medianSalary": 550000,
+     "higherStudies": 42,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34200",
+     "sourceUrl": "https://s3.us-east-1.amazonaws.com/dmce.ac.in/pdf/NIRF+report+for+2026+(1).pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 429,
+     "placed": 311,
+     "medianSalary": 500000,
+     "higherStudies": 45,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34200",
+     "sourceUrl": "https://s3.us-east-1.amazonaws.com/dmce.ac.in/pdf/NIRF+report+for+2026+(1).pdf"
+    }
+   ]
+  },
+  "03189": {
+   "nirfName": "BHARATI VIDYAPEETH COLLEGE OF ENGINEERING, NAVI MUMBAI",
+   "rows": [
+    {
+     "graduationYear": "2017-18",
+     "graduates": 485,
+     "placed": 364,
+     "medianSalary": 302000,
+     "higherStudies": 64,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33566",
+     "sourceUrl": "http://bvcoenm.edu.in/wp-content/uploads/2021/03/BHARATI-VIDYAPEETH-COLLEGE-OF-ENGINEERING-NAVI-MUMBAI20210225-.pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 497,
+     "placed": 386,
+     "medianSalary": 330000,
+     "higherStudies": 66,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33566",
+     "sourceUrl": "http://bvcoenm.edu.in/wp-content/uploads/2022/03/BHARATI-VIDYAPEETH-COLLEGE-OF-ENGINEERING-NAVI-MUMBAI20220218-.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 455,
+     "placed": 347,
+     "medianSalary": 350000,
+     "higherStudies": 57,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33566",
+     "sourceUrl": "http://bvcoenm.edu.in/wp-content/uploads/2022/03/BHARATI-VIDYAPEETH-COLLEGE-OF-ENGINEERING-NAVI-MUMBAI20220218-.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 473,
+     "placed": 361,
+     "medianSalary": 350000,
+     "higherStudies": 45,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33566",
+     "sourceUrl": "http://bvcoenm.edu.in/wp-content/uploads/2024/03/BHARATI-VIDYAPEETH-COLLEGE-OF-ENGINEERING-NAVI-MUMBAI20240224-.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 533,
+     "placed": 370,
+     "medianSalary": 403000,
+     "higherStudies": 40,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33566",
+     "sourceUrl": "http://bvcoenm.edu.in/wp-content/uploads/2024/03/BHARATI-VIDYAPEETH-COLLEGE-OF-ENGINEERING-NAVI-MUMBAI20240224-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 511,
+     "placed": 270,
+     "medianSalary": 450000,
+     "higherStudies": 37,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33566",
+     "sourceUrl": "http://bvcoenm.edu.in/wp-content/uploads/2024/03/BHARATI-VIDYAPEETH-COLLEGE-OF-ENGINEERING-NAVI-MUMBAI20240224-.pdf"
+    }
+   ]
+  },
+  "03190": {
+   "nirfName": "Terna Public Charitable Trust's Terna Engineering College",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 616,
+     "placed": 365,
+     "medianSalary": 371000,
+     "higherStudies": 25,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34092",
+     "sourceUrl": "https://ternaengg.ac.in/wp-content/uploads/NIRF24-1.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 678,
+     "placed": 365,
+     "medianSalary": 425000,
+     "higherStudies": 25,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34092",
+     "sourceUrl": "https://ternaengg.ac.in/wp-content/uploads/NIRF24-1.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 671,
+     "placed": 269,
+     "medianSalary": 409000,
+     "higherStudies": 22,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34092",
+     "sourceUrl": "https://ternaengg.ac.in/wp-content/uploads/Terna-Public-Charitable-Trusts-Terna-Engineering-College20260402-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 650,
+     "placed": 250,
+     "medianSalary": 450000,
+     "higherStudies": 35,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34092",
+     "sourceUrl": "https://ternaengg.ac.in/wp-content/uploads/Terna-Public-Charitable-Trusts-Terna-Engineering-College20260402-.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 642,
+     "placed": 196,
+     "medianSalary": 366000,
+     "higherStudies": 24,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34092",
+     "sourceUrl": "https://ternaengg.ac.in/wp-content/uploads/Terna-Public-Charitable-Trusts-Terna-Engineering-College20260402-.pdf"
+    }
+   ]
+  },
+  "03194": {
+   "nirfName": "VIDYAVARDHINI'S COLLEGE OF ENGINEERING AND TECHNOLOGY",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 446,
+     "placed": 264,
+     "medianSalary": 360000,
+     "higherStudies": 25,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34211",
+     "sourceUrl": "https://vcet.edu.in/wp-content/uploads/2026/05/UG_NIRF2026-REPORT.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 367,
+     "placed": 230,
+     "medianSalary": 375000,
+     "higherStudies": 20,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34211",
+     "sourceUrl": "https://vcet.edu.in/wp-content/uploads/2026/05/UG_NIRF2026-REPORT.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 443,
+     "placed": 253,
+     "medianSalary": 320000,
+     "higherStudies": 28,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34211",
+     "sourceUrl": "https://vcet.edu.in/wp-content/uploads/2026/05/UG_NIRF2026-REPORT.pdf"
+    }
+   ]
+  },
+  "03197": {
+   "nirfName": "Fr. C. Rodrigues Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 356,
+     "placed": 182,
+     "medianSalary": 450000,
+     "higherStudies": 100,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33530",
+     "sourceUrl": "https://www.fcrit.ac.in/Collegesystem/pdf/NBA/1777869312_NIRF2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 417,
+     "placed": 281,
+     "medianSalary": 470000,
+     "higherStudies": 34,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33530",
+     "sourceUrl": "https://www.fcrit.ac.in/Collegesystem/pdf/NBA/1775289529_NIRF2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 460,
+     "placed": 300,
+     "medianSalary": 500000,
+     "higherStudies": 54,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33530",
+     "sourceUrl": "https://www.fcrit.ac.in/Collegesystem/pdf/NBA/1775289529_NIRF2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 454,
+     "placed": 260,
+     "medianSalary": 500000,
+     "higherStudies": 17,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33530",
+     "sourceUrl": "https://www.fcrit.ac.in/Collegesystem/pdf/NBA/1775289529_NIRF2026.pdf"
+    }
+   ]
+  },
+  "03199": {
+   "nirfName": "Shri Vile Parle Kelavani Mandal`s Dwarkadas J. Sanghvi College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 699,
+     "placed": 356,
+     "medianSalary": 840000,
+     "higherStudies": 281,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33777",
+     "sourceUrl": "http://www.djsce.ac.in/docs/nirf/NIRF%202026%20ENGG%20DATA.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 732,
+     "placed": 423,
+     "medianSalary": 780007,
+     "higherStudies": 203,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33777",
+     "sourceUrl": "http://www.djsce.ac.in/docs/nirf/NIRF%202026%20ENGG%20DATA.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 863,
+     "placed": 565,
+     "medianSalary": 700000,
+     "higherStudies": 197,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33777",
+     "sourceUrl": "http://www.djsce.ac.in/docs/nirf/NIRF%202026%20ENGG%20DATA.pdf"
+    }
+   ]
+  },
+  "03200": {
+   "nirfName": "Finolex Academy of Management and Technology",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 311,
+     "placed": 267,
+     "medianSalary": 300000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34021",
+     "sourceUrl": "https://famt.ac.in/wp-content/uploads/2026/02/Report-NIRF-2026-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 277,
+     "placed": 217,
+     "medianSalary": 400000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34021",
+     "sourceUrl": "https://famt.ac.in/wp-content/uploads/2026/02/Report-NIRF-2026-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 255,
+     "placed": 247,
+     "medianSalary": 246000,
+     "higherStudies": 4,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34021",
+     "sourceUrl": "https://famt.ac.in/wp-content/uploads/2026/02/Report-NIRF-2026-Engineering.pdf"
+    }
+   ]
+  },
+  "03202": {
+   "nirfName": "Rajendra Mane College of Engineering & Technology",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 156,
+     "placed": 40,
+     "medianSalary": 144000,
+     "higherStudies": 12,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1017",
+     "sourceUrl": "https://www.rmcet.com/assets/documents/NIRF%202023%20Engineering.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 178,
+     "placed": 45,
+     "medianSalary": 232000,
+     "higherStudies": 0,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1017",
+     "sourceUrl": "https://www.rmcet.com/assets/documents/NIRF%202024%20Engineering.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 190,
+     "placed": 65,
+     "medianSalary": 360000,
+     "higherStudies": 4,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1017",
+     "sourceUrl": "https://www.rmcet.com/assets/documents/NIRF%202025%20Engineering.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 119,
+     "placed": 41,
+     "medianSalary": 200000,
+     "higherStudies": 3,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-34156",
+     "sourceUrl": "https://www.rmcet.com/assets/documents/NIRF%201%202026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 122,
+     "placed": 58,
+     "medianSalary": 200000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-34156",
+     "sourceUrl": "https://www.rmcet.com/assets/documents/NIRF%201%202026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 89,
+     "placed": 42,
+     "medianSalary": 250000,
+     "higherStudies": 3,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-34156",
+     "sourceUrl": "https://www.rmcet.com/assets/documents/NIRF%201%202026.pdf"
+    }
+   ]
+  },
+  "03204": {
+   "nirfName": "St. Francis Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 454,
+     "placed": 294,
+     "medianSalary": 430000,
+     "higherStudies": 90,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33882",
+     "sourceUrl": "https://www.sfit.ac.in/pdf/NIRF/NIRF_Report-2024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 543,
+     "placed": 359,
+     "medianSalary": 450000,
+     "higherStudies": 95,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33882",
+     "sourceUrl": "https://www.sfit.ac.in/pdf/NIRF/NIRF_Report-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 553,
+     "placed": 297,
+     "medianSalary": 500000,
+     "higherStudies": 151,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33882",
+     "sourceUrl": "https://www.sfit.ac.in/pdf/NIRF/NIRF_Report-2025.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 524,
+     "placed": 250,
+     "medianSalary": 500000,
+     "higherStudies": 48,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33882",
+     "sourceUrl": "https://www.sfit.ac.in/pdf/NIRF/NIRF_Report-2025.pdf"
+    }
+   ]
+  },
+  "03208": {
+   "nirfName": "Don Bosco Institute Of Technology - Mumbai",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 373,
+     "placed": 196,
+     "medianSalary": 450000,
+     "higherStudies": 89,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33880",
+     "sourceUrl": "https://www.dbit.in/images/pdf/NIRF/DBIT_ENGINEERINGCATEGORY-.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 357,
+     "placed": 179,
+     "medianSalary": 450000,
+     "higherStudies": 37,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33880",
+     "sourceUrl": "https://www.dbit.in/images/pdf/NIRF/NIRF_DBIT_Engineering%20Category_2022.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 379,
+     "placed": 190,
+     "medianSalary": 475000,
+     "higherStudies": 32,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33880",
+     "sourceUrl": "https://www.dbit.in/images/pdf/NIRF/DBIT_Mumbai_IR-E-C-33880_ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 347,
+     "placed": 243,
+     "medianSalary": 500000,
+     "higherStudies": 52,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33880",
+     "sourceUrl": "https://www.dbit.in/images/pdf/NIRF/DBIT_Mumbai_IR-E-C-33880_ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 294,
+     "placed": 182,
+     "medianSalary": 500000,
+     "higherStudies": 48,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33880",
+     "sourceUrl": "https://www.dbit.in/images/pdf/NIRF/DBIT-ENGINEERING2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 236,
+     "placed": 168,
+     "medianSalary": 500000,
+     "higherStudies": 18,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33880",
+     "sourceUrl": "https://www.dbit.in/images/pdf/NIRF/DBIT-ENGINEERING2026.pdf"
+    }
+   ]
+  },
+  "03209": {
+   "nirfName": "K J Somaiya Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 320,
+     "placed": 205,
+     "medianSalary": 503000,
+     "higherStudies": 42,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34048",
+     "sourceUrl": "https://kjsit-files.somaiya.edu.in/NIRF/IR-E-C-34048+-+2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 274,
+     "placed": 163,
+     "medianSalary": 550000,
+     "higherStudies": 67,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34048",
+     "sourceUrl": "https://kjsit-files.somaiya.edu.in/NIRF/IR-E-C-34048+-+2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 321,
+     "placed": 196,
+     "medianSalary": 450000,
+     "higherStudies": 74,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34048",
+     "sourceUrl": "https://kjsit-files.somaiya.edu.in/NIRF/IR-E-C-34048+-+2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 259,
+     "placed": 198,
+     "medianSalary": 500000,
+     "higherStudies": 24,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34048",
+     "sourceUrl": "https://kjsit-files.somaiya.edu.in/NIRF/IR-E-C-34048+-+2026.pdf"
+    }
+   ]
+  },
+  "03210": {
+   "nirfName": "Excelsior Education Societys K C College of Engineering Mith Bunder Road Kopri Thane (E) 400 603",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 247,
+     "placed": 187,
+     "medianSalary": 350000,
+     "higherStudies": 25,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34221",
+     "sourceUrl": "https://www.kccemsr.edu.in/public/nirf-e.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 209,
+     "placed": 134,
+     "medianSalary": 420000,
+     "higherStudies": 18,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34221",
+     "sourceUrl": "https://www.kccemsr.edu.in/public/nirf-e.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 193,
+     "placed": 91,
+     "medianSalary": 360000,
+     "higherStudies": 12,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34221",
+     "sourceUrl": "https://www.kccemsr.edu.in/public/nirf-e.pdf"
+    }
+   ]
+  },
+  "03211": {
+   "nirfName": "SIES Graduate School of Technology",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 441,
+     "placed": 230,
+     "medianSalary": 360000,
+     "higherStudies": 37,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33893",
+     "sourceUrl": "https://www.siesgst.edu.in/images/NIRF%20DCS%20Report%202024%20Engineering.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 449,
+     "placed": 302,
+     "medianSalary": 500000,
+     "higherStudies": 20,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33893",
+     "sourceUrl": "https://www.siesgst.edu.in/images/nirf2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 422,
+     "placed": 234,
+     "medianSalary": 500000,
+     "higherStudies": 47,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33861",
+     "sourceUrl": "https://siesgst.edu.in/images/NIRF%20DCS%20Report%202026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 403,
+     "placed": 186,
+     "medianSalary": 500000,
+     "higherStudies": 50,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33861",
+     "sourceUrl": "https://siesgst.edu.in/images/NIRF%20DCS%20Report%202026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 553,
+     "placed": 319,
+     "medianSalary": 500000,
+     "higherStudies": 75,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33861",
+     "sourceUrl": "https://siesgst.edu.in/images/NIRF%20DCS%20Report%202026.pdf"
+    }
+   ]
+  },
+  "03214": {
+   "nirfName": "Xavier Institute of Engineering, Mahim, Mumbai - 400016",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 177,
+     "placed": 134,
+     "medianSalary": 500000,
+     "higherStudies": 16,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33830",
+     "sourceUrl": "https://www.xavier.ac.in/pdf/NIRF_DCS_Report_2024_2025.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 171,
+     "placed": 149,
+     "medianSalary": 650000,
+     "higherStudies": 22,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33830",
+     "sourceUrl": "https://www.xavier.ac.in/pdf/NIRF_DCS_Report_2024_2025.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 147,
+     "placed": 135,
+     "medianSalary": 450000,
+     "higherStudies": 12,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33830",
+     "sourceUrl": "https://www.xavier.ac.in/pdf/NIRF_DCS_Report_2024_2025.pdf"
+    }
+   ]
+  },
+  "03215": {
+   "nirfName": "Bharatiya Vidya Bhavan`s Sardar Patel Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 271,
+     "placed": 173,
+     "medianSalary": 1192000,
+     "higherStudies": 65,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33773",
+     "sourceUrl": "https://www.spit.ac.in/wp-content/uploads/2025/02/NIRF_2025_Engineering.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 299,
+     "placed": 253,
+     "medianSalary": 1200000,
+     "higherStudies": 34,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33773",
+     "sourceUrl": "https://www.spit.ac.in/wp-content/uploads/2026/07/NIRF_2026_Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 299,
+     "placed": 245,
+     "medianSalary": 1300000,
+     "higherStudies": 37,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33773",
+     "sourceUrl": "https://www.spit.ac.in/wp-content/uploads/2026/07/NIRF_2026_Engineering.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 450,
+     "placed": 339,
+     "medianSalary": 1366000,
+     "higherStudies": 44,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33773",
+     "sourceUrl": "https://www.spit.ac.in/wp-content/uploads/2026/07/NIRF_2026_Engineering.pdf"
+    }
+   ]
+  },
+  "03216": {
+   "nirfName": "Gharda Foundations Gharda Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2016-17",
+     "graduates": 341,
+     "placed": 88,
+     "medianSalary": 263000,
+     "higherStudies": 10,
+     "nirfYear": 2020,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33694",
+     "sourceUrl": "https://git-india.edu.in/wp-content/uploads/2025/06/GF-GIT-Engineering-2020.pdf"
+    },
+    {
+     "graduationYear": "2017-18",
+     "graduates": 275,
+     "placed": 171,
+     "medianSalary": 230000,
+     "higherStudies": 2,
+     "nirfYear": 2020,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33694",
+     "sourceUrl": "https://git-india.edu.in/wp-content/uploads/2025/06/GF-GIT-Engineering-2020.pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 105,
+     "placed": 90,
+     "medianSalary": 220000,
+     "higherStudies": 5,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33694",
+     "sourceUrl": "https://git-india.edu.in/wp-content/uploads/2025/06/GF-GIT-Engineering-2022.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 263,
+     "placed": 50,
+     "medianSalary": 250000,
+     "higherStudies": 13,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33694",
+     "sourceUrl": "https://git-india.edu.in/wp-content/uploads/2025/06/GF-GIT-Engineering-2023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 301,
+     "placed": 94,
+     "medianSalary": 270000,
+     "higherStudies": 9,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33694",
+     "sourceUrl": "https://git-india.edu.in/wp-content/uploads/2025/06/GF-GIT-Engineering-2024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 303,
+     "placed": 105,
+     "medianSalary": 280000,
+     "higherStudies": 6,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33694",
+     "sourceUrl": "https://git-india.edu.in/wp-content/uploads/2025/06/GF-GIT-Engineering-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 234,
+     "placed": 122,
+     "medianSalary": 266000,
+     "higherStudies": 8,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33694",
+     "sourceUrl": "https://git-india.edu.in/pdf/NIRF/GF%20GIT%20Engineering%202026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 220,
+     "placed": 109,
+     "medianSalary": 280000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33694",
+     "sourceUrl": "https://git-india.edu.in/pdf/NIRF/GF%20GIT%20Engineering%202026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 160,
+     "placed": 71,
+     "medianSalary": 250000,
+     "higherStudies": 4,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33694",
+     "sourceUrl": "https://git-india.edu.in/pdf/NIRF/GF%20GIT%20Engineering%202026.pdf"
+    }
+   ]
+  },
+  "03218": {
+   "nirfName": "Aldel Education Trust's St. John College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 324,
+     "placed": 274,
+     "medianSalary": 231000,
+     "higherStudies": 18,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33765",
+     "sourceUrl": "https://sjcem.edu.in/wp-content/uploads/2026/04/Aldel-Education-Trusts-St.-John-College-of-Engineering20230112-.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 412,
+     "placed": 362,
+     "medianSalary": 328000,
+     "higherStudies": 18,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33765",
+     "sourceUrl": "https://sjcem.edu.in/wp-content/uploads/2026/04/Aldel-Education-Trusts-St.-John-College-of-Engineering20230112-.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 395,
+     "placed": 209,
+     "medianSalary": 320000,
+     "higherStudies": 10,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33765",
+     "sourceUrl": "https://sjcem.edu.in/wp-content/uploads/2025/03/NIRF-REPORT_-ENGG_23-24.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 347,
+     "placed": 117,
+     "medianSalary": 220000,
+     "higherStudies": 14,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33765",
+     "sourceUrl": "https://sjcem.edu.in/wp-content/uploads/2026/04/Aldel-Education-Trusts-St.-John-College-of-Engineering20260131-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 254,
+     "placed": 153,
+     "medianSalary": 300000,
+     "higherStudies": 27,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33765",
+     "sourceUrl": "https://sjcem.edu.in/wp-content/uploads/2026/04/Aldel-Education-Trusts-St.-John-College-of-Engineering20260131-.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 302,
+     "placed": 186,
+     "medianSalary": 350000,
+     "higherStudies": 31,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33765",
+     "sourceUrl": "https://sjcem.edu.in/wp-content/uploads/2026/04/Aldel-Education-Trusts-St.-John-College-of-Engineering20260131-.pdf"
+    }
+   ]
+  },
+  "03219": {
+   "nirfName": "Koti Vidya Charitable Trusts Alamuri Ratnamala Institute of Engineering & Technology",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 185,
+     "placed": 152,
+     "medianSalary": 280000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33794",
+     "sourceUrl": "https://armiet.in/wp-content/uploads/2026/06/NIRF-2026-ENGINEERING-Koti-Vidya-Charitable-Trusts-Alamuri-Ratnamala-Institute-of-Engineering-Technology20260402-1.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 255,
+     "placed": 144,
+     "medianSalary": 350000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33794",
+     "sourceUrl": "https://armiet.in/wp-content/uploads/2026/06/NIRF-2026-ENGINEERING-Koti-Vidya-Charitable-Trusts-Alamuri-Ratnamala-Institute-of-Engineering-Technology20260402-1.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 130,
+     "placed": 97,
+     "medianSalary": 360000,
+     "higherStudies": 4,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-33794",
+     "sourceUrl": "https://armiet.in/wp-content/uploads/2026/06/NIRF-2026-ENGINEERING-Koti-Vidya-Charitable-Trusts-Alamuri-Ratnamala-Institute-of-Engineering-Technology20260402-1.pdf"
+    }
+   ]
+  },
+  "03223": {
+   "nirfName": "Mahatma Education Society's, Pillai HOC College of Engineering and technology",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 587,
+     "placed": 86,
+     "medianSalary": 250000,
+     "higherStudies": 7,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34105",
+     "sourceUrl": "https://phcet.ac.in/wp-content/uploads/2022/03/NIRF-2022.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 693,
+     "placed": 81,
+     "medianSalary": 300000,
+     "higherStudies": 5,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34105",
+     "sourceUrl": "https://phcet.ac.in/wp-content/uploads/2024/03/Mahatma-Education-Societys-Pillai-HOC-College-of-Engineering-and-technology20240302-1.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 694,
+     "placed": 263,
+     "medianSalary": 360000,
+     "higherStudies": 35,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34105",
+     "sourceUrl": "https://phcet.ac.in/wp-content/uploads/2025/02/NIRF-Engg-Data-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 444,
+     "placed": 106,
+     "medianSalary": 380000,
+     "higherStudies": 26,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34105",
+     "sourceUrl": "https://phcet.ac.in/wp-content/uploads/2025/02/NIRF-Engg-Data-2025.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 351,
+     "placed": 128,
+     "medianSalary": 330000,
+     "higherStudies": 19,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-34105",
+     "sourceUrl": "https://phcet.ac.in/wp-content/uploads/2025/02/NIRF-Engg-Data-2025.pdf"
+    }
+   ]
+  },
+  "03423": {
+   "nirfName": "SHREE L R TIWARI COLLEGE OF ENGINEERING, THANE",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 384,
+     "placed": 162,
+     "medianSalary": 350000,
+     "higherStudies": 15,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-46313",
+     "sourceUrl": "https://slrtce.in/wp-content/uploads/2026/02/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 340,
+     "placed": 130,
+     "medianSalary": 460000,
+     "higherStudies": 36,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-46313",
+     "sourceUrl": "https://slrtce.in/wp-content/uploads/2026/02/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 271,
+     "placed": 133,
+     "medianSalary": 300000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-46313",
+     "sourceUrl": "https://slrtce.in/wp-content/uploads/2026/02/NIRF-2026.pdf"
+    }
+   ]
+  },
+  "03439": {
+   "nirfName": "Anjuman-I-Islam`s Kalsekar Technical Campus",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 362,
+     "placed": 60,
+     "medianSalary": 250000,
+     "higherStudies": 0,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1467",
+     "sourceUrl": "https://cdn.aiktc.ac.in/wp-content/uploads/2023/01/NIRF-2022-2023-ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 391,
+     "placed": 84,
+     "medianSalary": 300000,
+     "higherStudies": 7,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1467",
+     "sourceUrl": "https://cdn.aiktc.ac.in/wp-content/uploads/2023/01/NIRF-2022-2023-ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 354,
+     "placed": 196,
+     "medianSalary": 300000,
+     "higherStudies": 6,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1467",
+     "sourceUrl": "https://cdn.aiktc.ac.in/wp-content/uploads/2025/01/NIRF-SoET-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 246,
+     "placed": 161,
+     "medianSalary": 531000,
+     "higherStudies": 29,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-45182",
+     "sourceUrl": "https://cdn.aiktc.ac.in/wp-content/uploads/2026/04/NIRF-2026-OVERALL.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 191,
+     "placed": 115,
+     "medianSalary": 470000,
+     "higherStudies": 15,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-45182",
+     "sourceUrl": "https://cdn.aiktc.ac.in/wp-content/uploads/2026/04/NIRF-2026-OVERALL.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 191,
+     "placed": 126,
+     "medianSalary": 465000,
+     "higherStudies": 38,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-45182",
+     "sourceUrl": "https://cdn.aiktc.ac.in/wp-content/uploads/2026/04/NIRF-2026-OVERALL.pdf"
+    }
+   ]
+  },
+  "03475": {
+   "nirfName": "A P Shah Institute Of Technology",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 417,
+     "placed": 147,
+     "medianSalary": 428000,
+     "higherStudies": 56,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-50450",
+     "sourceUrl": "https://www.apsit.edu.in/sites/default/files/2025-02/NIRF-2025-A%20P%20Shah%20Institute%20Of%20Technology20250115-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 469,
+     "placed": 147,
+     "medianSalary": 400000,
+     "higherStudies": 45,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-50450",
+     "sourceUrl": "https://www.apsit.edu.in/sites/default/files/2026-04/A%20P%20Shah%20Institute%20Of%20Technology-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 503,
+     "placed": 212,
+     "medianSalary": 375000,
+     "higherStudies": 32,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-50450",
+     "sourceUrl": "https://www.apsit.edu.in/sites/default/files/2026-04/A%20P%20Shah%20Institute%20Of%20Technology-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 520,
+     "placed": 198,
+     "medianSalary": 394000,
+     "higherStudies": 36,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-50450",
+     "sourceUrl": "https://www.apsit.edu.in/sites/default/files/2026-04/A%20P%20Shah%20Institute%20Of%20Technology-2026.pdf"
+    }
+   ]
+  },
+  "04025": {
+   "nirfName": "GOVERNMENT COLLEGE OF ENGINEERING",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 342,
+     "placed": 168,
+     "medianSalary": 360000,
+     "higherStudies": 41,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-56586",
+     "sourceUrl": "https://www.gcoen.ac.in/downloads/Engineering_NIRF_data.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 367,
+     "placed": 222,
+     "medianSalary": 400000,
+     "higherStudies": 19,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-56586",
+     "sourceUrl": "https://www.gcoen.ac.in/downloads/Engineering_NIRF_data.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 348,
+     "placed": 165,
+     "medianSalary": 600000,
+     "higherStudies": 14,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-56586",
+     "sourceUrl": "https://www.gcoen.ac.in/downloads/GOVERNMENTCOLLEGEOFENGINEERING20260408-_(1)1.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 366,
+     "placed": 169,
+     "medianSalary": 510000,
+     "higherStudies": 21,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-56586",
+     "sourceUrl": "https://www.gcoen.ac.in/downloads/GOVERNMENTCOLLEGEOFENGINEERING20260408-_(1)1.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 326,
+     "placed": 172,
+     "medianSalary": 565000,
+     "higherStudies": 18,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-56586",
+     "sourceUrl": "https://www.gcoen.ac.in/downloads/GOVERNMENTCOLLEGEOFENGINEERING20260408-_(1)1.pdf"
+    }
+   ]
+  },
+  "04104": {
+   "nirfName": "Kavikulguru Institute of Technology and Science",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 464,
+     "placed": 226,
+     "medianSalary": 290000,
+     "higherStudies": 8,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18777",
+     "sourceUrl": "https://kits.edu/UserData/uploads/pages/1160/NIRF_22_ENGG_DCS.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 502,
+     "placed": 132,
+     "medianSalary": 290000,
+     "higherStudies": 1,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18777",
+     "sourceUrl": "https://kits.edu/UserData/uploads/pages/1160/NIRF_2023_ENGG.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 433,
+     "placed": 104,
+     "medianSalary": 336000,
+     "higherStudies": 1,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18777",
+     "sourceUrl": "https://kits.edu/UserData/uploads/pages/1160/NIRF_2024_ENGG.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 326,
+     "placed": 235,
+     "medianSalary": 380000,
+     "higherStudies": 1,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18777",
+     "sourceUrl": "https://kits.edu/UserData/uploads/pages/1160/NIRF_2024_ENGG.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 206,
+     "placed": 186,
+     "medianSalary": 400000,
+     "higherStudies": 15,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18777",
+     "sourceUrl": "https://kits.edu/UserData/uploads/pages/1160/NIRF_2026_ENGG.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 242,
+     "placed": 57,
+     "medianSalary": 440000,
+     "higherStudies": 0,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18777",
+     "sourceUrl": "https://kits.edu/UserData/uploads/pages/1160/NIRF_2026_ENGG.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 237,
+     "placed": 132,
+     "medianSalary": 400000,
+     "higherStudies": 1,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18777",
+     "sourceUrl": "https://kits.edu/UserData/uploads/pages/1160/NIRF_2026_ENGG.pdf"
+    }
+   ]
+  },
+  "04123": {
+   "nirfName": "Priyadarshini Engineering College",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 663,
+     "placed": 270,
+     "medianSalary": 350000,
+     "higherStudies": 44,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18391",
+     "sourceUrl": "https://pcenagpur.edu.in/img_akki/nirf/FINAL_NIRF_DCS_REPORT_FOR_2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 577,
+     "placed": 221,
+     "medianSalary": 350000,
+     "higherStudies": 29,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18391",
+     "sourceUrl": "https://pcenagpur.edu.in/img_akki/nirf/FINAL_NIRF_DCS_REPORT_FOR_2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 1121,
+     "placed": 270,
+     "medianSalary": 350000,
+     "higherStudies": 7,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18391",
+     "sourceUrl": "https://pcenagpur.edu.in/img_akki/nirf/FINAL_NIRF_DCS_REPORT_FOR_2026.pdf"
+    }
+   ]
+  },
+  "04137": {
+   "nirfName": "S. B. Jain Institute of Technology Management and Research",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 435,
+     "placed": 175,
+     "medianSalary": 450000,
+     "higherStudies": 5,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18645",
+     "sourceUrl": "https://www.sbjit.edu.in/wp-content/uploads/2025/02/S.-B.-Jain-Institute-of-Technology-Management-and-Research20250118-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 355,
+     "placed": 130,
+     "medianSalary": 480000,
+     "higherStudies": 22,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18645",
+     "sourceUrl": "https://www.sbjit.edu.in/wp-content/uploads/2025/02/S.-B.-Jain-Institute-of-Technology-Management-and-Research20250118-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 415,
+     "placed": 130,
+     "medianSalary": 338000,
+     "higherStudies": 8,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18645",
+     "sourceUrl": "https://www.sbjit.edu.in/wp-content/uploads/2025/02/S.-B.-Jain-Institute-of-Technology-Management-and-Research20250118-Engineering.pdf"
+    }
+   ]
+  },
+  "04139": {
+   "nirfName": "Jhulelal Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 212,
+     "placed": 210,
+     "medianSalary": 300000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18650",
+     "sourceUrl": "https://www.jitnagpur.edu.in/wp-content/uploads/2026/03/ENGINEERING-26.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 228,
+     "placed": 198,
+     "medianSalary": 350000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18650",
+     "sourceUrl": "https://www.jitnagpur.edu.in/wp-content/uploads/2026/03/ENGINEERING-26.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 213,
+     "placed": 165,
+     "medianSalary": 420000,
+     "higherStudies": 1,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18650",
+     "sourceUrl": "https://www.jitnagpur.edu.in/wp-content/uploads/2026/03/ENGINEERING-26.pdf"
+    }
+   ]
+  },
+  "04144": {
+   "nirfName": "Nagpur Institute of Technology, Katol road",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 270,
+     "placed": 221,
+     "medianSalary": 200000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-18725",
+     "sourceUrl": "https://nit.edu.in/wp-content/uploads/2026/04/Nagpur-Institute-of-Technology-Katol-road20260406-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 263,
+     "placed": 183,
+     "medianSalary": 182000,
+     "higherStudies": 4,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-18725",
+     "sourceUrl": "https://nit.edu.in/wp-content/uploads/2026/04/Nagpur-Institute-of-Technology-Katol-road20260406-.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 217,
+     "placed": 90,
+     "medianSalary": 248000,
+     "higherStudies": 4,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-18725",
+     "sourceUrl": "https://nit.edu.in/wp-content/uploads/2026/04/Nagpur-Institute-of-Technology-Katol-road20260406-.pdf"
+    }
+   ]
+  },
+  "04151": {
+   "nirfName": "TULSIRAMJI GAIKWAD-PATIL COLLEGE OF ENGINEERING AND TECHNOLOGY",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 489,
+     "placed": 266,
+     "medianSalary": 300000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18670",
+     "sourceUrl": "https://tgpcet.edu.in/assets/NIRF/NIRF_Report_2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 399,
+     "placed": 215,
+     "medianSalary": 320000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18670",
+     "sourceUrl": "https://tgpcet.edu.in/assets/NIRF/NIRF_Report_2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 409,
+     "placed": 385,
+     "medianSalary": 340000,
+     "higherStudies": 14,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18670",
+     "sourceUrl": "https://tgpcet.edu.in/assets/NIRF/NIRF_Report_2026.pdf"
+    }
+   ]
+  },
+  "04167": {
+   "nirfName": "Yeshwantrao Chavan College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 1194,
+     "placed": 856,
+     "medianSalary": 650000,
+     "higherStudies": 213,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18254",
+     "sourceUrl": "https://ycce.edu/wp-content/uploads/2026/03/NIRF-2026-DCS-Data-ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 1252,
+     "placed": 1007,
+     "medianSalary": 700000,
+     "higherStudies": 219,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18254",
+     "sourceUrl": "https://ycce.edu/wp-content/uploads/2026/03/NIRF-2026-DCS-Data-ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 1266,
+     "placed": 969,
+     "medianSalary": 957000,
+     "higherStudies": 267,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18254",
+     "sourceUrl": "https://ycce.edu/wp-content/uploads/2026/03/NIRF-2026-DCS-Data-ENGINEERING.pdf"
+    }
+   ]
+  },
+  "04172": {
+   "nirfName": "ANJUMAN COLLEGE OF ENGINEERING & TECHNOLOGY",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 359,
+     "placed": 313,
+     "medianSalary": 400000,
+     "higherStudies": 20,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18770",
+     "sourceUrl": "https://anjumanengg.edu.in/UserData/uploads/NIRF/NIRF_Report_2023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 283,
+     "placed": 78,
+     "medianSalary": 350000,
+     "higherStudies": 23,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18770",
+     "sourceUrl": "https://anjumanengg.edu.in/UserData/uploads/NIRF/Nirf_2022-23.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 445,
+     "placed": 300,
+     "medianSalary": 350000,
+     "higherStudies": 14,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18770",
+     "sourceUrl": "https://anjumanengg.edu.in/UserData/uploads/NIRF/Nirf_2023-24.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 291,
+     "placed": 258,
+     "medianSalary": 300000,
+     "higherStudies": 8,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18770",
+     "sourceUrl": "https://anjumanengg.edu.in/UserData/uploads/NIRF/Nirf_2024-25.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 243,
+     "placed": 161,
+     "medianSalary": 275000,
+     "higherStudies": 12,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18770",
+     "sourceUrl": "https://anjumanengg.edu.in/UserData/uploads/NIRF/Nirf_2024-25.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 210,
+     "placed": 185,
+     "medianSalary": 270000,
+     "higherStudies": 25,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18770",
+     "sourceUrl": "https://anjumanengg.edu.in/UserData/uploads/NIRF/Nirf_2024-25.pdf"
+    }
+   ]
+  },
+  "04174": {
+   "nirfName": "St. Vincent Pallotti College of Engineering and Technology",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 548,
+     "placed": 257,
+     "medianSalary": 325000,
+     "higherStudies": 29,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18657",
+     "sourceUrl": "https://stvincentngp.edu.in/documents/pages/ssvpcet_1770115411.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 508,
+     "placed": 232,
+     "medianSalary": 336000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18657",
+     "sourceUrl": "https://stvincentngp.edu.in/documents/pages/ssvpcet_1770115411.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 523,
+     "placed": 262,
+     "medianSalary": 400000,
+     "higherStudies": 15,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18657",
+     "sourceUrl": "https://stvincentngp.edu.in/documents/pages/ssvpcet_1770115411.pdf"
+    }
+   ]
+  },
+  "04177": {
+   "nirfName": "Priyadarshini Bhagwati College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 300,
+     "placed": 206,
+     "medianSalary": 165000,
+     "higherStudies": 5,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18500",
+     "sourceUrl": "https://pbcoe.edu.in/assets/NIRF%20Report-2022.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 302,
+     "placed": 82,
+     "medianSalary": 380000,
+     "higherStudies": 5,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18500",
+     "sourceUrl": "https://pbcoe.edu.in/assets/NIRF%20Report-2022-23.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 284,
+     "placed": 71,
+     "medianSalary": 330000,
+     "higherStudies": 5,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18500",
+     "sourceUrl": "https://pbcoe.edu.in/assets/NIRF%20Report-2023-24.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 293,
+     "placed": 116,
+     "medianSalary": 356000,
+     "higherStudies": 4,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18500",
+     "sourceUrl": "https://pbcoe.edu.in/assets/NIRF%20Report-2023-24.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 257,
+     "placed": 91,
+     "medianSalary": 317000,
+     "higherStudies": 6,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18500",
+     "sourceUrl": "https://pbcoe.edu.in/assets/NIRF%20Report-2023-24.pdf"
+    }
+   ]
+  },
+  "04192": {
+   "nirfName": "Nagarjuna Institute of Engineering Technology and Management, Satanwari",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 120,
+     "placed": 75,
+     "medianSalary": 360000,
+     "higherStudies": 25,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18934",
+     "sourceUrl": "https://nietm.in/nirf/"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 90,
+     "placed": 55,
+     "medianSalary": 360000,
+     "higherStudies": 15,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18934",
+     "sourceUrl": "https://nietm.in/nirf/"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 135,
+     "placed": 112,
+     "medianSalary": 450000,
+     "higherStudies": 17,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18934",
+     "sourceUrl": "https://nietm.in/nirf/"
+    }
+   ]
+  },
+  "04304": {
+   "nirfName": "MKSSS`s Cummins College of Engineering for Women",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 102,
+     "placed": 30,
+     "medianSalary": 383000,
+     "higherStudies": 2,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18376",
+     "sourceUrl": "https://cumminscollege.edu.in/UserData/uploads/NIRF-REPORT-2024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 89,
+     "placed": 65,
+     "medianSalary": 425000,
+     "higherStudies": 3,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18376",
+     "sourceUrl": "https://cumminscollege.edu.in/UserData/uploads/NIRF-REPORT-ENGINEERING-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 99,
+     "placed": 66,
+     "medianSalary": 693000,
+     "higherStudies": 0,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18376",
+     "sourceUrl": "https://cumminscollege.edu.in/UserData/uploads/pages/273/NIRF-Report-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 141,
+     "placed": 77,
+     "medianSalary": 525000,
+     "higherStudies": 0,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18376",
+     "sourceUrl": "https://cumminscollege.edu.in/UserData/uploads/pages/273/NIRF-Report-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 151,
+     "placed": 83,
+     "medianSalary": 425000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-18376",
+     "sourceUrl": "https://cumminscollege.edu.in/UserData/uploads/pages/273/NIRF-Report-2026.pdf"
+    }
+   ]
+  },
+  "04649": {
+   "nirfName": "Bajaj Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 270,
+     "placed": 195,
+     "medianSalary": 336000,
+     "higherStudies": 8,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-58531",
+     "sourceUrl": "https://bitwardha.ac.in/wp-content/uploads/2026/04/Bajaj-Institute-of-Technology20240228-.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 281,
+     "placed": 203,
+     "medianSalary": 350000,
+     "higherStudies": 10,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-58531",
+     "sourceUrl": "https://bitwardha.ac.in/wp-content/uploads/2026/04/Bajaj-Institute-of-Technology20250120-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 254,
+     "placed": 124,
+     "medianSalary": 300000,
+     "higherStudies": 3,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-58531",
+     "sourceUrl": "https://bitwardha.ac.in/wp-content/uploads/2026/04/Bajaj-Institute-of-Technology20250120-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 237,
+     "placed": 135,
+     "medianSalary": 300000,
+     "higherStudies": 2,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-58531",
+     "sourceUrl": "https://bitwardha.ac.in/wp-content/uploads/2026/04/Bajaj-Institute-of-Technology20250120-.pdf"
+    }
+   ]
+  },
+  "05003": {
+   "nirfName": "North Maharashtra University",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 110,
+     "placed": 43,
+     "medianSalary": 240000,
+     "higherStudies": 29,
+     "nirfYear": 2023,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-U-0320",
+     "sourceUrl": "https://nmu.ac.in/Portals/2/NIRF/2023/North%20Maharashtra%20University20230324-%20Submitted%2024-3-2023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 162,
+     "placed": 8,
+     "medianSalary": 400000,
+     "higherStudies": 18,
+     "nirfYear": 2024,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-U-0320",
+     "sourceUrl": "https://nmu.ac.in/Portals/2/NIRF/2024/NIRF-2024%20Overall.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 132,
+     "placed": 40,
+     "medianSalary": 300000,
+     "higherStudies": 30,
+     "nirfYear": 2025,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-U-0320",
+     "sourceUrl": "https://nmu.ac.in/Portals/2/NIRF/2025/NIRF%202025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 120,
+     "placed": 48,
+     "medianSalary": 369000,
+     "higherStudies": 15,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-U-0320",
+     "sourceUrl": "https://nmu.ac.in/Portals/2/NIRF/2026/NIRF%202026%20Final.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 120,
+     "placed": 41,
+     "medianSalary": 300000,
+     "higherStudies": 13,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-U-0320",
+     "sourceUrl": "https://nmu.ac.in/Portals/2/NIRF/2026/NIRF%202026%20Final.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 96,
+     "placed": 50,
+     "medianSalary": 375000,
+     "higherStudies": 10,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-U-0320",
+     "sourceUrl": "https://nmu.ac.in/Portals/2/NIRF/2026/NIRF%202026%20Final.pdf"
+    }
+   ]
+  },
+  "05103": {
+   "nirfName": "SHRI SHIVAJI VIDYA PRASARAK SANSTHA'S LATE BAPUSAHEB SHIVAJIRAO DEORE COLLEGE OF ENGINEERING, DHULE",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 329,
+     "placed": 153,
+     "medianSalary": 150000,
+     "higherStudies": 16,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1035",
+     "sourceUrl": "https://www.ssvpsengg.ac.in/wp-content/uploads/2022/02/NIRF-2021_2022.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 360,
+     "placed": 157,
+     "medianSalary": 200000,
+     "higherStudies": 23,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1035",
+     "sourceUrl": "https://www.ssvpsengg.ac.in/wp-content/uploads/2023/02/NIRF_Engg.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 400,
+     "placed": 285,
+     "medianSalary": 600000,
+     "higherStudies": 11,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1035",
+     "sourceUrl": "https://www.ssvpsengg.ac.in/wp-content/uploads/2023/02/NIRF_Engg.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 320,
+     "placed": 255,
+     "medianSalary": 360000,
+     "higherStudies": 30,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1035",
+     "sourceUrl": "https://www.ssvpsengg.ac.in/files/NIRF2024-25_ENGG.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 300,
+     "placed": 102,
+     "medianSalary": 336000,
+     "higherStudies": 17,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8874",
+     "sourceUrl": "https://www.ssvpsengg.ac.in/files/Engg-NIRF-2025-26-050226.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 264,
+     "placed": 95,
+     "medianSalary": 180000,
+     "higherStudies": 16,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8874",
+     "sourceUrl": "https://www.ssvpsengg.ac.in/files/Engg-NIRF-2025-26-050226.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 322,
+     "placed": 179,
+     "medianSalary": 180000,
+     "higherStudies": 16,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8874",
+     "sourceUrl": "https://www.ssvpsengg.ac.in/files/Engg-NIRF-2025-26-050226.pdf"
+    }
+   ]
+  },
+  "05106": {
+   "nirfName": "Khandesh College Education Society’s College of Engineering and Management, Jalgaon",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 149,
+     "placed": 10,
+     "medianSalary": 150000,
+     "higherStudies": 0,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8815",
+     "sourceUrl": "https://coem.ac.in/pdf/nirf/nirf_2022_engg.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 160,
+     "placed": 0,
+     "medianSalary": null,
+     "higherStudies": 0,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8815",
+     "sourceUrl": "https://coem.ac.in/pdf/nirf/nirf_2022_engg.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 70,
+     "placed": 44,
+     "medianSalary": 220000,
+     "higherStudies": 0,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8815",
+     "sourceUrl": "https://coem.ac.in/pdf/nirf/nirf_2024_engg.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 100,
+     "placed": 65,
+     "medianSalary": 383000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8815",
+     "sourceUrl": "https://coem.ac.in/pdf/nirf/nirf_2025_engg.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 143,
+     "placed": 27,
+     "medianSalary": 150000,
+     "higherStudies": 1,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8815",
+     "sourceUrl": "https://coem.ac.in/pdf/nirf/nirf_2025_engg.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 150,
+     "placed": 12,
+     "medianSalary": 205000,
+     "higherStudies": 1,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8815",
+     "sourceUrl": "https://coem.ac.in/pdf/nirf/nirf_2025_engg.pdf"
+    }
+   ]
+  },
+  "05108": {
+   "nirfName": "MARATHA VIDYA PRASARAK SAMAJ'S KARMAVEER ADV. BABURAO GANPATRAO THAKARE COLLEGE OF ENGINEERING",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 327,
+     "placed": 203,
+     "medianSalary": 222000,
+     "higherStudies": 38,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41622",
+     "sourceUrl": "https://kbtcoe.org/wp-content/uploads/2021/03/MARATHA-VIDYA-PRASARAK-SAMAJS-KARMAVEER-ADV.-BABURAO-GANPATRAO-THAKARE-COLLEGE-OF-ENGINEERING-20220210-2.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 324,
+     "placed": 233,
+     "medianSalary": 280000,
+     "higherStudies": 40,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41622",
+     "sourceUrl": "https://kbtcoe.org/wp-content/uploads/2021/03/MARATHA-VIDYA-PRASARAK-SAMAJS-KARMAVEER-ADV.-BABURAO-GANPATRAO-THAKARE-COLLEGE-OF-ENGINEERING-20220210-2.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 308,
+     "placed": 180,
+     "medianSalary": 240000,
+     "higherStudies": 19,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41622",
+     "sourceUrl": "https://kbtcoe.org/wp-content/uploads/2021/03/MARATHA-VIDYA-PRASARAK-SAMAJS-KARMAVEER-ADV.-BABURAO-GANPATRAO-THAKARE-COLLEGE-OF-ENGINEERING-20220210-2.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 416,
+     "placed": 227,
+     "medianSalary": 400000,
+     "higherStudies": 23,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41622",
+     "sourceUrl": "https://kbtcoe.org/wp-content/uploads/2026/03/NIRF-2026_KBTCOE_Engineering_compressed.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 336,
+     "placed": 204,
+     "medianSalary": 300000,
+     "higherStudies": 19,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41622",
+     "sourceUrl": "https://kbtcoe.org/wp-content/uploads/2026/03/NIRF-2026_KBTCOE_Engineering_compressed.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 317,
+     "placed": 205,
+     "medianSalary": 310000,
+     "higherStudies": 22,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41622",
+     "sourceUrl": "https://kbtcoe.org/wp-content/uploads/2026/03/NIRF-2026_KBTCOE_Engineering_compressed.pdf"
+    }
+   ]
+  },
+  "05109": {
+   "nirfName": "SF's Sandip Institute of Technology and Research Centre",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 478,
+     "placed": 233,
+     "medianSalary": 385000,
+     "higherStudies": 66,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41520",
+     "sourceUrl": "https://sitrc.sandipfoundation.org/wp-content/uploads/2025/02/NIRF-Report-2025_Engineering.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 370,
+     "placed": 217,
+     "medianSalary": 540000,
+     "higherStudies": 64,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41520",
+     "sourceUrl": "https://sitrc.sandipfoundation.org/wp-content/uploads/2026/04/NIRF_Engg_2026_Report.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 320,
+     "placed": 294,
+     "medianSalary": 550000,
+     "higherStudies": 26,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41520",
+     "sourceUrl": "https://sitrc.sandipfoundation.org/wp-content/uploads/2026/04/NIRF_Engg_2026_Report.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 323,
+     "placed": 296,
+     "medianSalary": 580000,
+     "higherStudies": 27,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41520",
+     "sourceUrl": "https://sitrc.sandipfoundation.org/wp-content/uploads/2026/04/NIRF_Engg_2026_Report.pdf"
+    }
+   ]
+  },
+  "05121": {
+   "nirfName": "K. K. Wagh Institute Of Engineering Education & Research",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 812,
+     "placed": 709,
+     "medianSalary": 377500,
+     "higherStudies": 28,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41256",
+     "sourceUrl": "https://www.kkwagh.edu.in/public/engineering/pdf/nirf-report-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 869,
+     "placed": 492,
+     "medianSalary": 450000,
+     "higherStudies": 34,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41256",
+     "sourceUrl": "https://www.kkwagh.edu.in/public/engineering/pdf/nirf-report-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 925,
+     "placed": 553,
+     "medianSalary": 430000,
+     "higherStudies": 42,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41256",
+     "sourceUrl": "https://www.kkwagh.edu.in/public/engineering/pdf/nirf-report-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 921,
+     "placed": 663,
+     "medianSalary": 412500,
+     "higherStudies": 81,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41256",
+     "sourceUrl": "https://www.kkwagh.edu.in/public/engineering/pdf/nirf-report-2026.pdf"
+    }
+   ]
+  },
+  "05162": {
+   "nirfName": "Amrutvahini College of Engineering, Sangamner",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 875,
+     "placed": 577,
+     "medianSalary": 360000,
+     "higherStudies": 19,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41515",
+     "sourceUrl": "https://www.avcoe.org/pdf/NIRF%202022%20Engineering_compressed.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 842,
+     "placed": 456,
+     "medianSalary": 310000,
+     "higherStudies": 3,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41515",
+     "sourceUrl": "https://www.avcoe.org/pdf/NIRF%202022%20Engineering_compressed.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 850,
+     "placed": 465,
+     "medianSalary": 350000,
+     "higherStudies": 22,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41515",
+     "sourceUrl": "https://www.avcoe.org/pdf/NIRF%202022%20Engineering_compressed.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 790,
+     "placed": 601,
+     "medianSalary": 340000,
+     "higherStudies": 25,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-41515",
+     "sourceUrl": "https://www.avcoe.org/pdf/NIRF%202026%20Overall_compressed.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 652,
+     "placed": 449,
+     "medianSalary": 280000,
+     "higherStudies": 14,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-41515",
+     "sourceUrl": "https://www.avcoe.org/pdf/NIRF%202026%20Overall_compressed.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 511,
+     "placed": 448,
+     "medianSalary": 325000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-41515",
+     "sourceUrl": "https://www.avcoe.org/pdf/NIRF%202026%20Overall_compressed.pdf"
+    }
+   ]
+  },
+  "05164": {
+   "nirfName": "PSGVPM'S D.N.PATEL COLLEGE OF ENGINEERING, SHAHADA, DIST-NANDURBAR.",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 295,
+     "placed": 35,
+     "medianSalary": 300000,
+     "higherStudies": 27,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8912",
+     "sourceUrl": "https://coeshahada.ac.in/wp-content/uploads/2026/05/C-8912_DCS_PSGVPMS-D.N.PATEL-COLLEGE-OF-ENGINEERING-SHAHADA-DIST-NANDURBAR.20260402.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 240,
+     "placed": 57,
+     "medianSalary": 320000,
+     "higherStudies": 29,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8912",
+     "sourceUrl": "https://coeshahada.ac.in/wp-content/uploads/2026/05/C-8912_DCS_PSGVPMS-D.N.PATEL-COLLEGE-OF-ENGINEERING-SHAHADA-DIST-NANDURBAR.20260402.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 240,
+     "placed": 65,
+     "medianSalary": 350000,
+     "higherStudies": 24,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8912",
+     "sourceUrl": "https://coeshahada.ac.in/wp-content/uploads/2026/05/C-8912_DCS_PSGVPMS-D.N.PATEL-COLLEGE-OF-ENGINEERING-SHAHADA-DIST-NANDURBAR.20260402.pdf"
+    }
+   ]
+  },
+  "05171": {
+   "nirfName": "GF's Godavari College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 198,
+     "placed": 92,
+     "medianSalary": 350000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8836",
+     "sourceUrl": "https://www.gfgcoe.ac.in/NIRF/NIRF2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 166,
+     "placed": 5,
+     "medianSalary": 360000,
+     "higherStudies": 7,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8836",
+     "sourceUrl": "https://www.gfgcoe.ac.in/NIRF/NIRF2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 182,
+     "placed": 38,
+     "medianSalary": 360000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8836",
+     "sourceUrl": "https://www.gfgcoe.ac.in/NIRF/NIRF2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 107,
+     "placed": 32,
+     "medianSalary": 360000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8836",
+     "sourceUrl": "https://www.gfgcoe.ac.in/NIRF/NIRF2026.pdf"
+    }
+   ]
+  },
+  "05172": {
+   "nirfName": "SES'S R.C.PATEL INSTITUTE OF TECHNOLOGY, SHIRPUR",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 556,
+     "placed": 418,
+     "medianSalary": 240000,
+     "higherStudies": 7,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8838",
+     "sourceUrl": "https://www.rcpit.ac.in/files/NIRF-2021-22.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 541,
+     "placed": 404,
+     "medianSalary": 330000,
+     "higherStudies": 0,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8838",
+     "sourceUrl": "https://www.rcpit.ac.in/files/NIRF-2024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 514,
+     "placed": 419,
+     "medianSalary": 360000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8838",
+     "sourceUrl": "https://www.rcpit.ac.in/files/NIRF-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 532,
+     "placed": 368,
+     "medianSalary": 350000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8838",
+     "sourceUrl": "https://www.rcpit.ac.in/files/NIRF-2025.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 443,
+     "placed": 355,
+     "medianSalary": 320000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-8838",
+     "sourceUrl": "https://www.rcpit.ac.in/files/NIRF-2025.pdf"
+    }
+   ]
+  },
+  "05181": {
+   "nirfName": "Gokhale Education Society's R. H. Sapat College of Engineering, Management Studies and Research",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 400,
+     "placed": 339,
+     "medianSalary": 260000,
+     "higherStudies": 16,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41921",
+     "sourceUrl": "https://ges-coengg.org/wp-content/uploads/2024/10/NIRF-2023-24-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 495,
+     "placed": 388,
+     "medianSalary": 350000,
+     "higherStudies": 25,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41921",
+     "sourceUrl": "https://ges-coengg.org/wp-content/uploads/2025/01/NIRF24-25-ENGINEERING-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 510,
+     "placed": 365,
+     "medianSalary": 280000,
+     "higherStudies": 35,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41921",
+     "sourceUrl": "https://ges-coengg.org/wp-content/uploads/2025/04/NIRF-2025-26-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 387,
+     "placed": 239,
+     "medianSalary": 280000,
+     "higherStudies": 25,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41921",
+     "sourceUrl": "https://ges-coengg.org/wp-content/uploads/2025/04/NIRF-2025-26-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 424,
+     "placed": 279,
+     "medianSalary": 360000,
+     "higherStudies": 30,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41921",
+     "sourceUrl": "https://ges-coengg.org/wp-content/uploads/2025/04/NIRF-2025-26-Engineering.pdf"
+    }
+   ]
+  },
+  "05411": {
+   "nirfName": "JAMIA MOHAMMADIA EDUCATION SOCIETYs MUMBAI MAULANA MUKHTAR AHMAD NADVI TECHNICAL CAMPUS, MALEGAON",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 82,
+     "placed": 44,
+     "medianSalary": 180000,
+     "higherStudies": 3,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-47550",
+     "sourceUrl": "https://mmantc.edu.in/wp-content/uploads/2025/02/JAMIA-MOHAMMADIA-EDUCATION-SOCIETYs-MUMBAI-MAULANA-MUKHTAR-AHMAD-NADVI-TECHNICAL-CAMPUS-MALEGAON20250215-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 80,
+     "placed": 60,
+     "medianSalary": 192000,
+     "higherStudies": 5,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-47550",
+     "sourceUrl": "https://mmantc.edu.in/wp-content/uploads/2025/02/JAMIA-MOHAMMADIA-EDUCATION-SOCIETYs-MUMBAI-MAULANA-MUKHTAR-AHMAD-NADVI-TECHNICAL-CAMPUS-MALEGAON20250215-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 76,
+     "placed": 48,
+     "medianSalary": 240000,
+     "higherStudies": 2,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-47550",
+     "sourceUrl": "https://mmantc.edu.in/wp-content/uploads/2025/02/JAMIA-MOHAMMADIA-EDUCATION-SOCIETYs-MUMBAI-MAULANA-MUKHTAR-AHMAD-NADVI-TECHNICAL-CAMPUS-MALEGAON20250215-.pdf"
+    }
+   ]
+  },
+  "06005": {
+   "nirfName": "Government College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2016-17",
+     "graduates": 356,
+     "placed": 179,
+     "medianSalary": 300000,
+     "higherStudies": 17,
+     "nirfYear": 2020,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11009",
+     "sourceUrl": "https://gcekarad.ac.in/uploads/general/nirf/Government_College_of_Engineering20191207-.pdf"
+    },
+    {
+     "graduationYear": "2017-18",
+     "graduates": 322,
+     "placed": 183,
+     "medianSalary": 300000,
+     "higherStudies": 35,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11009",
+     "sourceUrl": "https://gcekarad.ac.in/uploads/general/nirf/Government_College_of_Engineering20210218-_1613649953.pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 311,
+     "placed": 165,
+     "medianSalary": 310000,
+     "higherStudies": 55,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11009",
+     "sourceUrl": "https://gcekarad.ac.in/uploads/general/nirf/Government_College_of_Engineering20220217-_1645085196.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 321,
+     "placed": 231,
+     "medianSalary": 380000,
+     "higherStudies": 50,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11009",
+     "sourceUrl": "https://gcekarad.ac.in/uploads/general/nirf/Government_College_of_Engineering20220217-_1645085196.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 312,
+     "placed": 300,
+     "medianSalary": 400000,
+     "higherStudies": 12,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11009",
+     "sourceUrl": "https://gcekarad.ac.in/uploads/general/nirf/Government_College_of_Engineering20220217-_1645085196.pdf"
+    }
+   ]
+  },
+  "06007": {
+   "nirfName": "Walchand College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 428,
+     "placed": 322,
+     "medianSalary": 845000,
+     "higherStudies": null,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11015",
+     "sourceUrl": "https://walchandsangli.ac.in/wp-content/uploads/NIRF-24-2025-Data-Submitted.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 469,
+     "placed": 424,
+     "medianSalary": 800000,
+     "higherStudies": null,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11015",
+     "sourceUrl": "https://walchandsangli.ac.in/wp-content/uploads/NIRF-24-2025-Data-Submitted.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 436,
+     "placed": 370,
+     "medianSalary": 924000,
+     "higherStudies": null,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11015",
+     "sourceUrl": "https://walchandsangli.ac.in/wp-content/uploads/NIRF-24-2025-Data-Submitted.pdf"
+    }
+   ]
+  },
+  "06145": {
+   "nirfName": "JSPMs Jayawantrao Sawant College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 548,
+     "placed": 365,
+     "medianSalary": 328000,
+     "higherStudies": 14,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42216",
+     "sourceUrl": "https://www.jspmjscoe.edu.in/storage/PDF/JSPMs%20Jayawantrao%20Sawant%20College%20of%20Engineering20240318-.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 518,
+     "placed": 381,
+     "medianSalary": 383000,
+     "higherStudies": 3,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42216",
+     "sourceUrl": "https://www.jspmjscoe.edu.in/storage/PDF/JSPMs%20Jayawantrao%20Sawant%20College%20of%20Engineering20250131-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 487,
+     "placed": 301,
+     "medianSalary": 338000,
+     "higherStudies": 6,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42216",
+     "sourceUrl": "https://www.jspmjscoe.edu.in/storage/PDF/JSPMs%20Jayawantrao%20Sawant%20College%20of%20Engineering20250131-.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 399,
+     "placed": 325,
+     "medianSalary": 350000,
+     "higherStudies": 12,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42216",
+     "sourceUrl": "https://www.jspmjscoe.edu.in/storage/PDF/JSPMs%20Jayawantrao%20Sawant%20College%20of%20Engineering20250131-.pdf"
+    }
+   ]
+  },
+  "06146": {
+   "nirfName": "MIT Academy of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 589,
+     "placed": 496,
+     "medianSalary": 500000,
+     "higherStudies": 7,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41725",
+     "sourceUrl": "https://mitaoe.ac.in/assets/images/pdf/MIT%20-Academy-of-Engineering20241226-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 709,
+     "placed": 505,
+     "medianSalary": 500000,
+     "higherStudies": 10,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41725",
+     "sourceUrl": "https://mitaoe.ac.in/assets/images/pdf/MIT-Academy-of-Engineering20260212-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 668,
+     "placed": 488,
+     "medianSalary": 500000,
+     "higherStudies": 21,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41725",
+     "sourceUrl": "https://mitaoe.ac.in/assets/images/pdf/MIT-Academy-of-Engineering20260212-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 685,
+     "placed": 466,
+     "medianSalary": 500000,
+     "higherStudies": 12,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41725",
+     "sourceUrl": "https://mitaoe.ac.in/assets/images/pdf/MIT-Academy-of-Engineering20260212-Engineering.pdf"
+    }
+   ]
+  },
+  "06156": {
+   "nirfName": "Marathwada Mitra Mandal College of Engineering Pune",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 625,
+     "placed": 441,
+     "medianSalary": 400000,
+     "higherStudies": 17,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41309",
+     "sourceUrl": "https://mmcoe.edu.in/wp-content/uploads/2025/02/Engineering-MMCOE-Report-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 540,
+     "placed": 370,
+     "medianSalary": 375000,
+     "higherStudies": 55,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41309",
+     "sourceUrl": "https://mmcoe.edu.in/wp-content/uploads/2026/03/Engg._NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 560,
+     "placed": 344,
+     "medianSalary": 400000,
+     "higherStudies": 43,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41309",
+     "sourceUrl": "https://mmcoe.edu.in/wp-content/uploads/2026/03/Engg._NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 536,
+     "placed": 346,
+     "medianSalary": 450000,
+     "higherStudies": 45,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41309",
+     "sourceUrl": "https://mmcoe.edu.in/wp-content/uploads/2026/03/Engg._NIRF-2026.pdf"
+    }
+   ]
+  },
+  "06175": {
+   "nirfName": "Pimpri Chinchwad College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 814,
+     "placed": 555,
+     "medianSalary": 450000,
+     "higherStudies": 29,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41991",
+     "sourceUrl": "http://www.pccoepune.com/pdf/NIRF-2024-Engineering-PCCoE-Data.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 802,
+     "placed": 603,
+     "medianSalary": 537000,
+     "higherStudies": 23,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41991",
+     "sourceUrl": "http://www.pccoepune.com/pdf/NIRF-2025-Engineering-PCCoE-Data.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 1016,
+     "placed": 721,
+     "medianSalary": 575000,
+     "higherStudies": 30,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41991",
+     "sourceUrl": "http://www.pccoepune.com/pdf/NIRF-2026-Engineering-PCCoE-Data.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 961,
+     "placed": 596,
+     "medianSalary": 480000,
+     "higherStudies": 35,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41991",
+     "sourceUrl": "http://www.pccoepune.com/pdf/NIRF-2026-Engineering-PCCoE-Data.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 1042,
+     "placed": 653,
+     "medianSalary": 450000,
+     "higherStudies": 37,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41991",
+     "sourceUrl": "http://www.pccoepune.com/pdf/NIRF-2026-Engineering-PCCoE-Data.pdf"
+    }
+   ]
+  },
+  "06177": {
+   "nirfName": "Sinhgad College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 1021,
+     "placed": 747,
+     "medianSalary": 475000,
+     "higherStudies": 98,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41391",
+     "sourceUrl": "https://cms.sinhgad.edu/media/566165/nirf%202025%20report.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 1207,
+     "placed": 611,
+     "medianSalary": 450000,
+     "higherStudies": 123,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41391",
+     "sourceUrl": "https://cms.sinhgad.edu/media/526080/sinhgad%20college%20of%20engineering20260213%20_nirf2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 1103,
+     "placed": 602,
+     "medianSalary": 520000,
+     "higherStudies": 95,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41391",
+     "sourceUrl": "https://cms.sinhgad.edu/media/526080/sinhgad%20college%20of%20engineering20260213%20_nirf2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 953,
+     "placed": 354,
+     "medianSalary": 450000,
+     "higherStudies": 104,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41391",
+     "sourceUrl": "https://cms.sinhgad.edu/media/526080/sinhgad%20college%20of%20engineering20260213%20_nirf2026.pdf"
+    }
+   ]
+  },
+  "06182": {
+   "nirfName": "Sinhgad Technical Education Society`s Sinhgad Institute of Technology & Science",
+   "rows": [
+    {
+     "graduationYear": "2016-17",
+     "graduates": 511,
+     "placed": 122,
+     "medianSalary": 325000,
+     "higherStudies": 119,
+     "nirfYear": 2020,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41214",
+     "sourceUrl": "https://cms.sinhgad.edu/SITS/SITS_NIRF.pdf"
+    },
+    {
+     "graduationYear": "2017-18",
+     "graduates": 552,
+     "placed": 212,
+     "medianSalary": 600000,
+     "higherStudies": 78,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41214",
+     "sourceUrl": "https://cms.sinhgad.edu/media/495730/sits-nirf.pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 578,
+     "placed": 121,
+     "medianSalary": 450000,
+     "higherStudies": 87,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41214",
+     "sourceUrl": "https://cms.sinhgad.edu/media/495730/sits-nirf.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 450,
+     "placed": 187,
+     "medianSalary": 450000,
+     "higherStudies": 68,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41214",
+     "sourceUrl": "https://cms.sinhgad.edu/media/495730/sits-nirf.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 457,
+     "placed": 277,
+     "medianSalary": 350000,
+     "higherStudies": 16,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41214",
+     "sourceUrl": "https://cms.sinhgad.edu/media/546159/sits-nirf.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 386,
+     "placed": 264,
+     "medianSalary": 450000,
+     "higherStudies": 17,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41214",
+     "sourceUrl": "https://cms.sinhgad.edu/media/546159/sits-nirf.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 345,
+     "placed": 214,
+     "medianSalary": 450000,
+     "higherStudies": 24,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41214",
+     "sourceUrl": "https://cms.sinhgad.edu/media/569605/nirf-engineering%202025-26.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 410,
+     "placed": 121,
+     "medianSalary": 450000,
+     "higherStudies": 20,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41214",
+     "sourceUrl": "https://cms.sinhgad.edu/media/569605/nirf-engineering%202025-26.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 366,
+     "placed": 101,
+     "medianSalary": 500000,
+     "higherStudies": 15,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41214",
+     "sourceUrl": "https://cms.sinhgad.edu/media/569605/nirf-engineering%202025-26.pdf"
+    }
+   ]
+  },
+  "06185": {
+   "nirfName": "Sinhgad Technical Education Society`s Sinhgad Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2015-16",
+     "graduates": 640,
+     "placed": 328,
+     "medianSalary": 240000,
+     "higherStudies": 62,
+     "nirfYear": 2019,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41599",
+     "sourceUrl": "http://www.sinhgad.edu/2018/SIT/NIRF2018-19.pdf"
+    },
+    {
+     "graduationYear": "2016-17",
+     "graduates": 612,
+     "placed": 321,
+     "medianSalary": 242000,
+     "higherStudies": 58,
+     "nirfYear": 2019,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41599",
+     "sourceUrl": "http://www.sinhgad.edu/2018/SIT/NIRF2018-19.pdf"
+    },
+    {
+     "graduationYear": "2017-18",
+     "graduates": 764,
+     "placed": 319,
+     "medianSalary": 320000,
+     "higherStudies": 58,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41599",
+     "sourceUrl": "http://sit.sinhgad.edu/media/500917/sinhgad%20technical%20education%20society%60s%20sinhgad%20institute%20of%20technology20210226-%20(1).pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 852,
+     "placed": 345,
+     "medianSalary": 320000,
+     "higherStudies": 42,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41599",
+     "sourceUrl": "http://sit.sinhgad.edu/media/500917/sinhgad%20technical%20education%20society%60s%20sinhgad%20institute%20of%20technology20210226-%20(1).pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 758,
+     "placed": 327,
+     "medianSalary": 350000,
+     "higherStudies": 5,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41599",
+     "sourceUrl": "http://sit.sinhgad.edu/media/500917/sinhgad%20technical%20education%20society%60s%20sinhgad%20institute%20of%20technology20210226-%20(1).pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 465,
+     "placed": 367,
+     "medianSalary": 450000,
+     "higherStudies": 61,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41599",
+     "sourceUrl": "https://cms.sinhgad.edu/media/561911/nirf_2025_sit_lonavala.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 327,
+     "placed": 197,
+     "medianSalary": 450000,
+     "higherStudies": 65,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41599",
+     "sourceUrl": "https://cms.sinhgad.edu/media/561911/nirf_2025_sit_lonavala.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 381,
+     "placed": 113,
+     "medianSalary": 450000,
+     "higherStudies": 64,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41599",
+     "sourceUrl": "https://cms.sinhgad.edu/media/561911/nirf_2025_sit_lonavala.pdf"
+    }
+   ]
+  },
+  "06203": {
+   "nirfName": "MARATHWADA MITRA MANDAL'S INSTITUTE OF TECHNOLOGY",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 115,
+     "placed": 97,
+     "medianSalary": 280000,
+     "higherStudies": 3,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41943",
+     "sourceUrl": "https://mmit.edu.in/wp-content/uploads/2025/08/MMIT-NIRF-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 211,
+     "placed": 141,
+     "medianSalary": 286000,
+     "higherStudies": 1,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41943",
+     "sourceUrl": "https://mmit.edu.in/wp-content/uploads/2026/04/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 254,
+     "placed": 163,
+     "medianSalary": 320000,
+     "higherStudies": 4,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41943",
+     "sourceUrl": "https://mmit.edu.in/wp-content/uploads/2026/04/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 226,
+     "placed": 150,
+     "medianSalary": 320000,
+     "higherStudies": 9,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41943",
+     "sourceUrl": "https://mmit.edu.in/wp-content/uploads/2026/04/NIRF-2026.pdf"
+    }
+   ]
+  },
+  "06207": {
+   "nirfName": "Dr. D. Y. Patil Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 998,
+     "placed": 925,
+     "medianSalary": 630000,
+     "higherStudies": 18,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42227",
+     "sourceUrl": "https://engg.dypvp.edu.in/DownloadS3File.aspx?file=NIRF-2025"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 1085,
+     "placed": 1032,
+     "medianSalary": 675000,
+     "higherStudies": 23,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42227",
+     "sourceUrl": "https://engg.dypvp.edu.in/DownloadS3File.aspx?file=NIRF-2026"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 1261,
+     "placed": 1170,
+     "medianSalary": 690000,
+     "higherStudies": 41,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42227",
+     "sourceUrl": "https://engg.dypvp.edu.in/DownloadS3File.aspx?file=NIRF-2026"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 1161,
+     "placed": 1076,
+     "medianSalary": 720000,
+     "higherStudies": 26,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42227",
+     "sourceUrl": "https://engg.dypvp.edu.in/DownloadS3File.aspx?file=NIRF-2026"
+    }
+   ]
+  },
+  "06214": {
+   "nirfName": "Kasegaon Education Society`s Rajarambapu Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 505,
+     "placed": 397,
+     "medianSalary": 418000,
+     "higherStudies": 27,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11208",
+     "sourceUrl": "https://ritindia.edu/ritwebsite/admin/upload/noticeannouncement/NIRF-Enggineering-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 526,
+     "placed": 409,
+     "medianSalary": 415000,
+     "higherStudies": 35,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11208",
+     "sourceUrl": "https://ritindia.edu/ritwebsite/admin/upload/noticeannouncement/NIRF-Enggineering-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 565,
+     "placed": 458,
+     "medianSalary": 420000,
+     "higherStudies": 24,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11208",
+     "sourceUrl": "https://ritindia.edu/ritwebsite/admin/upload/noticeannouncement/NIRF-Enggineering-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 545,
+     "placed": 471,
+     "medianSalary": 430000,
+     "higherStudies": 32,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11208",
+     "sourceUrl": "https://ritindia.edu/ritwebsite/admin/upload/noticeannouncement/NIRF-Enggineering-2026.pdf"
+    }
+   ]
+  },
+  "06223": {
+   "nirfName": "Nagesh Karajagi Orchid College of Engineering and Technology, Solapur.",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 409,
+     "placed": 305,
+     "medianSalary": 240000,
+     "higherStudies": 12,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-15688",
+     "sourceUrl": "https://orchidengg.ac.in/wp-content/uploads/2026/04/NIRF-2026_Engineering-Submitted-Data_compressed.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 455,
+     "placed": 333,
+     "medianSalary": 240000,
+     "higherStudies": 22,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-15688",
+     "sourceUrl": "https://orchidengg.ac.in/wp-content/uploads/2026/04/NIRF-2026_Engineering-Submitted-Data_compressed.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 430,
+     "placed": 407,
+     "medianSalary": 240000,
+     "higherStudies": 7,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-15688",
+     "sourceUrl": "https://orchidengg.ac.in/wp-content/uploads/2026/04/NIRF-2026_Engineering-Submitted-Data_compressed.pdf"
+    }
+   ]
+  },
+  "06250": {
+   "nirfName": "D. Y. Patil College of Engineering & Technology",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 780,
+     "placed": 473,
+     "medianSalary": 480000,
+     "higherStudies": 13,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11125",
+     "sourceUrl": "https://pub-c398185b3af042318383473fdcadf890.r2.dev/NIRF/NIRF%202026%20D.%20Y.%20Patil%20College%20of%20Engineering%20%26%20Technology.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 665,
+     "placed": 407,
+     "medianSalary": 413000,
+     "higherStudies": 49,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11125",
+     "sourceUrl": "https://pub-c398185b3af042318383473fdcadf890.r2.dev/NIRF/NIRF%202026%20D.%20Y.%20Patil%20College%20of%20Engineering%20%26%20Technology.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 767,
+     "placed": 466,
+     "medianSalary": 400000,
+     "higherStudies": 44,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11125",
+     "sourceUrl": "https://pub-c398185b3af042318383473fdcadf890.r2.dev/NIRF/NIRF%202026%20D.%20Y.%20Patil%20College%20of%20Engineering%20%26%20Technology.pdf"
+    }
+   ]
+  },
+  "06265": {
+   "nirfName": "Walchand Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 578,
+     "placed": 339,
+     "medianSalary": 310000,
+     "higherStudies": 27,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-15788",
+     "sourceUrl": "https://www.witsolapur.org/assets/documents/academics/examination/accrediations/NIRF/NIRF%20Ranking%202023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 544,
+     "placed": 356,
+     "medianSalary": 360000,
+     "higherStudies": 22,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-15788",
+     "sourceUrl": "https://www.witsolapur.org/assets/documents/academics/examination/accrediations/NIRF/NIRF%20Ranking%202024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 546,
+     "placed": 427,
+     "medianSalary": 437500,
+     "higherStudies": 18,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-15788",
+     "sourceUrl": "https://www.witsolapur.org/assets/documents/academics/examination/accrediations/NIRF/Engineering%20NIRF%20Ranking%202025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 576,
+     "placed": 348,
+     "medianSalary": 481000,
+     "higherStudies": 23,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-15788",
+     "sourceUrl": "https://www.witsolapur.org/assets/documents/academics/examination/accrediations/NIRF/Engineering%20NIRF%20Ranking%202026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 570,
+     "placed": 358,
+     "medianSalary": 510000,
+     "higherStudies": 26,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-15788",
+     "sourceUrl": "https://www.witsolapur.org/assets/documents/academics/examination/accrediations/NIRF/Engineering%20NIRF%20Ranking%202026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 628,
+     "placed": 330,
+     "medianSalary": 410000,
+     "higherStudies": 19,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-15788",
+     "sourceUrl": "https://www.witsolapur.org/assets/documents/academics/examination/accrediations/NIRF/Engineering%20NIRF%20Ranking%202026.pdf"
+    }
+   ]
+  },
+  "06267": {
+   "nirfName": "Kolhapur Institute of Technology`s College of Engineering (Autonomous)",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 768,
+     "placed": 385,
+     "medianSalary": 380000,
+     "higherStudies": 57,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-10996",
+     "sourceUrl": "https://www.kitcoek.in/documents/About/nirf/2024/NIRF%202025%20ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 904,
+     "placed": 537,
+     "medianSalary": 420000,
+     "higherStudies": 59,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-10996",
+     "sourceUrl": "https://www.kitcoek.in/documents/About/nirf/2026/KIT%20NIRF%20Engineering%202026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 786,
+     "placed": 510,
+     "medianSalary": 514000,
+     "higherStudies": 22,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-10996",
+     "sourceUrl": "https://www.kitcoek.in/documents/About/nirf/2026/KIT%20NIRF%20Engineering%202026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 802,
+     "placed": 623,
+     "medianSalary": 550000,
+     "higherStudies": 44,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-10996",
+     "sourceUrl": "https://www.kitcoek.in/documents/About/nirf/2026/KIT%20NIRF%20Engineering%202026.pdf"
+    }
+   ]
+  },
+  "06269": {
+   "nirfName": "PADMABHOOSHAN VASANTRAODADA PATIL INSTITUTE OF TECHNOLOGY",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 647,
+     "placed": 280,
+     "medianSalary": 410000,
+     "higherStudies": 14,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11196",
+     "sourceUrl": "https://www.pvpitsangli.edu.in/wp-content/uploads/Engg-PADMABHOOSHAN-VASANTRAODADA-PATIL-INSTITUTE-OF-TECHNOLOGY20250115-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 632,
+     "placed": 254,
+     "medianSalary": 350000,
+     "higherStudies": 12,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11196",
+     "sourceUrl": "https://www.pvpitsangli.edu.in/files/nirf/PADMABHOOSHAN-VASANTRAODADA-PATIL-INSTITUTE-OF-TECHNOLOGY20260226-ENGG.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 570,
+     "placed": 162,
+     "medianSalary": 350000,
+     "higherStudies": 10,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11196",
+     "sourceUrl": "https://www.pvpitsangli.edu.in/files/nirf/PADMABHOOSHAN-VASANTRAODADA-PATIL-INSTITUTE-OF-TECHNOLOGY20260226-ENGG.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 600,
+     "placed": 161,
+     "medianSalary": 350000,
+     "higherStudies": 10,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11196",
+     "sourceUrl": "https://www.pvpitsangli.edu.in/files/nirf/PADMABHOOSHAN-VASANTRAODADA-PATIL-INSTITUTE-OF-TECHNOLOGY20260226-ENGG.pdf"
+    }
+   ]
+  },
+  "06270": {
+   "nirfName": "Karmaveer Bhaurao Patil College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 196,
+     "placed": 160,
+     "medianSalary": 350000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11018",
+     "sourceUrl": "https://www.kbpcoes.edu.in/admin/assets/images/mandatory_disclosures/Nirf_Report_2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 238,
+     "placed": 155,
+     "medianSalary": 351000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11018",
+     "sourceUrl": "https://www.kbpcoes.edu.in/admin/assets/images/mandatory_disclosures/Nirf_Report_2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 290,
+     "placed": 244,
+     "medianSalary": 320000,
+     "higherStudies": 1,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11018",
+     "sourceUrl": "https://www.kbpcoes.edu.in/admin/assets/images/mandatory_disclosures/Nirf_Report_2026.pdf"
+    }
+   ]
+  },
+  "06272": {
+   "nirfName": "Dr D. Y. Patil Pratishthans D.Y. Patil College of Engineering, Akurdi, Pune",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 752,
+     "placed": 708,
+     "medianSalary": 420000,
+     "higherStudies": 41,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41513",
+     "sourceUrl": "https://www.dypcoeakurdi.ac.in/images/Gallery/NIRF2024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 826,
+     "placed": 721,
+     "medianSalary": 480000,
+     "higherStudies": 68,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41513",
+     "sourceUrl": "https://www.dypcoeakurdi.ac.in/images/Gallery/NIRFEngineering.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 871,
+     "placed": 607,
+     "medianSalary": 420000,
+     "higherStudies": 55,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41513",
+     "sourceUrl": "https://www.dypcoeakurdi.ac.in/images/Gallery/NIRF2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 701,
+     "placed": 616,
+     "medianSalary": 450000,
+     "higherStudies": 41,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41513",
+     "sourceUrl": "https://www.dypcoeakurdi.ac.in/images/Gallery/NIRF2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 846,
+     "placed": 742,
+     "medianSalary": 500000,
+     "higherStudies": 35,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41513",
+     "sourceUrl": "https://www.dypcoeakurdi.ac.in/images/Gallery/NIRF2026.pdf"
+    }
+   ]
+  },
+  "06273": {
+   "nirfName": "Bansilal Ramnath Agarwal Charitable Trust`s Vishwakarama Institute of Technology",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 1488,
+     "placed": 1282,
+     "medianSalary": 700000,
+     "higherStudies": 127,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41351",
+     "sourceUrl": "https://www.vit.edu/wp-content/uploads/2026/04/NIRF-2026-DCS-Data-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 1272,
+     "placed": 1096,
+     "medianSalary": 750000,
+     "higherStudies": 127,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41351",
+     "sourceUrl": "https://www.vit.edu/wp-content/uploads/2026/04/NIRF-2026-DCS-Data-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 1532,
+     "placed": 1442,
+     "medianSalary": 810000,
+     "higherStudies": 46,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41351",
+     "sourceUrl": "https://www.vit.edu/wp-content/uploads/2026/04/NIRF-2026-DCS-Data-Engineering.pdf"
+    }
+   ]
+  },
+  "06274": {
+   "nirfName": "PVG's College of Engineering and Technology and G. K. Pate (Wani) Institute of Management",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 518,
+     "placed": 349,
+     "medianSalary": 450000,
+     "higherStudies": 53,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42143",
+     "sourceUrl": "https://www.pvgcoet.ac.in/wp-content/uploads/2025/02/PVGs-College-of-Engineering-and-Technology-and-G.-K.-Pate-Wani-Institute-of-Management20241231-.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 611,
+     "placed": 410,
+     "medianSalary": 510000,
+     "higherStudies": 30,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42143",
+     "sourceUrl": "https://www.pvgcoet.ac.in/wp-content/uploads/2026/04/DCS-Report-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 588,
+     "placed": 260,
+     "medianSalary": 477833,
+     "higherStudies": 21,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42143",
+     "sourceUrl": "https://www.pvgcoet.ac.in/wp-content/uploads/2026/04/DCS-Report-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 561,
+     "placed": 402,
+     "medianSalary": 450000,
+     "higherStudies": 21,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-42143",
+     "sourceUrl": "https://www.pvgcoet.ac.in/wp-content/uploads/2026/04/DCS-Report-2026.pdf"
+    }
+   ]
+  },
+  "06277": {
+   "nirfName": "Dr. J. J. Magdum College of Engineering, JAYSINGPUR",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 140,
+     "placed": 70,
+     "medianSalary": 350000,
+     "higherStudies": 5,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11241",
+     "sourceUrl": "https://www.jjmcoe.ac.in/wp-content/uploads/2024/03/Dr.-J.-J.-Magdum-College-of-Engineering-JAYSINGPUR20240308-.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 140,
+     "placed": 66,
+     "medianSalary": 350000,
+     "higherStudies": 2,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11241",
+     "sourceUrl": "https://www.jjmcoe.ac.in/wp-content/uploads/2026/04/NIRF-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 112,
+     "placed": 62,
+     "medianSalary": 350000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11241",
+     "sourceUrl": "https://www.jjmcoe.ac.in/wp-content/uploads/2026/04/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 163,
+     "placed": 82,
+     "medianSalary": 350000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11241",
+     "sourceUrl": "https://www.jjmcoe.ac.in/wp-content/uploads/2026/04/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 217,
+     "placed": 105,
+     "medianSalary": 400000,
+     "higherStudies": 11,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11241",
+     "sourceUrl": "https://www.jjmcoe.ac.in/wp-content/uploads/2026/04/NIRF-2026.pdf"
+    }
+   ]
+  },
+  "06278": {
+   "nirfName": "All India Shivaji Memorial Societys College of Engineering, Pune",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 712,
+     "placed": 426,
+     "medianSalary": 450000,
+     "higherStudies": 17,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41227",
+     "sourceUrl": "https://aissmscoe.com/wp-content/uploads/2026/04/ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 640,
+     "placed": 401,
+     "medianSalary": 450000,
+     "higherStudies": 23,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41227",
+     "sourceUrl": "https://aissmscoe.com/wp-content/uploads/2026/04/ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 492,
+     "placed": 381,
+     "medianSalary": 550000,
+     "higherStudies": 75,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41227",
+     "sourceUrl": "https://aissmscoe.com/wp-content/uploads/2026/04/ENGINEERING.pdf"
+    }
+   ]
+  },
+  "06281": {
+   "nirfName": "Modern Education Society's Wadia College of Engineering, Pune",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 464,
+     "placed": 333,
+     "medianSalary": 412333,
+     "higherStudies": 13,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41607",
+     "sourceUrl": "https://mescoe.mespune.org/wp-content/uploads/2025/03/1.MESWCoE_Engineering_NIRF-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 470,
+     "placed": 155,
+     "medianSalary": 466151,
+     "higherStudies": 17,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41607",
+     "sourceUrl": "https://mescoe.mespune.org/wp-content/uploads/2026/04/Modern-Education-Societys-Wadia-College-of-Engineering-Pune20260413-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 433,
+     "placed": 179,
+     "medianSalary": 418938,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41607",
+     "sourceUrl": "https://mescoe.mespune.org/wp-content/uploads/2026/04/Modern-Education-Societys-Wadia-College-of-Engineering-Pune20260413-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 346,
+     "placed": 148,
+     "medianSalary": 416933,
+     "higherStudies": 10,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41607",
+     "sourceUrl": "https://mescoe.mespune.org/wp-content/uploads/2026/04/Modern-Education-Societys-Wadia-College-of-Engineering-Pune20260413-Engineering.pdf"
+    }
+   ]
+  },
+  "06283": {
+   "nirfName": "Annasaheb Dange College of Engineering and Technology, Ashta",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 699,
+     "placed": 413,
+     "medianSalary": 300000,
+     "higherStudies": 8,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11099",
+     "sourceUrl": "https://www.adcet.ac.in/files/nirf/NIRF-2026-Engineering-240226.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 532,
+     "placed": 465,
+     "medianSalary": 300000,
+     "higherStudies": 7,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11099",
+     "sourceUrl": "https://www.adcet.ac.in/files/nirf/NIRF-2026-Engineering-240226.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 641,
+     "placed": 467,
+     "medianSalary": 300000,
+     "higherStudies": 28,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-11099",
+     "sourceUrl": "https://www.adcet.ac.in/files/nirf/NIRF-2026-Overall-240226.pdf"
+    }
+   ]
+  },
+  "06284": {
+   "nirfName": "Vidya Pratishthan's Kamalnayan Bajaj Institute of Engineering & Technology, Baramati, M.I.D.C.road, District - Pune",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 459,
+     "placed": 263,
+     "medianSalary": 300000,
+     "higherStudies": 7,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41689",
+     "sourceUrl": "http://www.vpkbiet.org/pdf/research/NIRF_Engineering_2022.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 411,
+     "placed": 259,
+     "medianSalary": 350000,
+     "higherStudies": 16,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41689",
+     "sourceUrl": "http://www.vpkbiet.org/pdf/research/NIRF_Engineering_2023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 369,
+     "placed": 271,
+     "medianSalary": 360000,
+     "higherStudies": 18,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41689",
+     "sourceUrl": "http://www.vpkbiet.org/pdf/research/Engineering%20Category%20%20-%202024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 355,
+     "placed": 263,
+     "medianSalary": 400000,
+     "higherStudies": 11,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41689",
+     "sourceUrl": "http://www.vpkbiet.org/pdf/research/Engineering%20%20Category%20VPKBIET%202025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 432,
+     "placed": 167,
+     "medianSalary": 401000,
+     "higherStudies": 8,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41689",
+     "sourceUrl": "http://www.vpkbiet.org/pdf/research/VPKBIET%20NIRF%202026%20Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 486,
+     "placed": 221,
+     "medianSalary": 425000,
+     "higherStudies": 17,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41689",
+     "sourceUrl": "http://www.vpkbiet.org/pdf/research/VPKBIET%20NIRF%202026%20Engineering.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 455,
+     "placed": 273,
+     "medianSalary": 401000,
+     "higherStudies": 8,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41689",
+     "sourceUrl": "http://www.vpkbiet.org/pdf/research/VPKBIET%20NIRF%202026%20Engineering.pdf"
+    }
+   ]
+  },
+  "06285": {
+   "nirfName": "Bharati Vidyapeeth 'S College of Engineering for Women",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 226,
+     "placed": 184,
+     "medianSalary": 350000,
+     "higherStudies": 16,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41377",
+     "sourceUrl": "https://coewpune.bharatividyapeeth.edu/media/pdf/NIRF_2024_051224.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 216,
+     "placed": 196,
+     "medianSalary": 400000,
+     "higherStudies": 4,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41377",
+     "sourceUrl": "https://coewpune.bharatividyapeeth.edu/media/pdf/NIRF_2024_051224.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 224,
+     "placed": 151,
+     "medianSalary": 540000,
+     "higherStudies": 8,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41377",
+     "sourceUrl": "https://coewpune.bharatividyapeeth.edu/media/pdf/NIRF_2024_051224.pdf"
+    }
+   ]
+  },
+  "06288": {
+   "nirfName": "Bharati Vidyapeeth`s College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 330,
+     "placed": 136,
+     "medianSalary": 360000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11135",
+     "sourceUrl": "https://coekolhapur.bharatividyapeeth.edu/media/pdf/Bharati_Vidyapeeths_College_of_Engineering20260228-1_02042026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 296,
+     "placed": 114,
+     "medianSalary": 320000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11135",
+     "sourceUrl": "https://coekolhapur.bharatividyapeeth.edu/media/pdf/Bharati_Vidyapeeths_College_of_Engineering20260228-1_02042026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 330,
+     "placed": 100,
+     "medianSalary": 360000,
+     "higherStudies": 6,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11135",
+     "sourceUrl": "https://coekolhapur.bharatividyapeeth.edu/media/pdf/Bharati_Vidyapeeths_College_of_Engineering20260228-1_02042026.pdf"
+    }
+   ]
+  },
+  "06307": {
+   "nirfName": "DHOLE PATIL EDUCATION SOCIETY'S, DHOLE PATIL COLLEGE OF ENGINEERING.",
+   "rows": [
+    {
+     "graduationYear": "2017-18",
+     "graduates": 196,
+     "placed": 91,
+     "medianSalary": 250000,
+     "higherStudies": 2,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41485",
+     "sourceUrl": "https://dpcoepune.edu.in/wp-content/uploads/2025/03/India-Rankings-2021-DHOLE-PATIL-EDUCATION-SOCIETYS-DHOLE-PATIL-COLLEGE-OF-ENGINEERING.20210203-.pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 116,
+     "placed": 72,
+     "medianSalary": 276000,
+     "higherStudies": 5,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41485",
+     "sourceUrl": "https://dpcoepune.edu.in/wp-content/uploads/2026/04/DPCOE-NIRF-RANKING-2025.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 122,
+     "placed": 86,
+     "medianSalary": 300000,
+     "higherStudies": 14,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41485",
+     "sourceUrl": "https://dpcoepune.edu.in/wp-content/uploads/2023/02/NIRF-Ranking-2023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 221,
+     "placed": 102,
+     "medianSalary": 318000,
+     "higherStudies": 5,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41485",
+     "sourceUrl": "https://dpcoepune.edu.in/wp-content/uploads/2023/02/NIRF-Ranking-2023.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 230,
+     "placed": 118,
+     "medianSalary": 350000,
+     "higherStudies": 9,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41485",
+     "sourceUrl": "https://dpcoepune.edu.in/wp-content/uploads/2026/04/DPCOE-NIRF-RANKING-2022.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 376,
+     "placed": 266,
+     "medianSalary": 300000,
+     "higherStudies": 13,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41485",
+     "sourceUrl": "https://dpcoepune.edu.in/wp-content/uploads/2026/04/DPES-NIRF-Ranking-20260206.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 352,
+     "placed": 156,
+     "medianSalary": 350000,
+     "higherStudies": 12,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41485",
+     "sourceUrl": "https://dpcoepune.edu.in/wp-content/uploads/2026/04/DPES-NIRF-Ranking-20260206.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 233,
+     "placed": 176,
+     "medianSalary": 500000,
+     "higherStudies": 16,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41485",
+     "sourceUrl": "https://dpcoepune.edu.in/wp-content/uploads/2026/04/DPES-NIRF-Ranking-20260206.pdf"
+    }
+   ]
+  },
+  "06466": {
+   "nirfName": "SHREE SANTKRUPA SHIKSHAN SANSTHA SHREE SANTKRUPA INSTITUTE OF ENGINEERING & TECHNOLOGY KARAD",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 135,
+     "placed": 45,
+     "medianSalary": 275000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-S-2134",
+     "sourceUrl": "https://www.sietghogaon.org/uploads/naac/NIRF/SHREE%20SANTKRUPA%20SHIKSHAN%20SANSTHA%20SHREE%20SANTKRUPA%20INSTITUTE%20OF%20ENGINEERING%20and%20TECH.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 102,
+     "placed": 44,
+     "medianSalary": 300000,
+     "higherStudies": 0,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-58643",
+     "sourceUrl": "https://www.sietghogaon.org/uploads/naac/NIRF/NIRF%20data%202024-25.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 90,
+     "placed": 19,
+     "medianSalary": 325000,
+     "higherStudies": 0,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-58643",
+     "sourceUrl": "https://www.sietghogaon.org/uploads/naac/NIRF/NIRF%20data%202024-25.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 66,
+     "placed": 31,
+     "medianSalary": 325000,
+     "higherStudies": 0,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-58643",
+     "sourceUrl": "https://www.sietghogaon.org/uploads/naac/NIRF/NIRF%20data%202024-25.pdf"
+    }
+   ]
+  },
+  "06754": {
+   "nirfName": "International Institute of Information Technology (I²IT)",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 198,
+     "placed": 163,
+     "medianSalary": 525000,
+     "higherStudies": 7,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41681",
+     "sourceUrl": "https://www.isquareit.edu.in/wp-content/uploads/2025/02/NIRF-2025-submitted-data.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 223,
+     "placed": 82,
+     "medianSalary": 550000,
+     "higherStudies": 5,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41681",
+     "sourceUrl": "https://www.isquareit.edu.in/wp-content/uploads/2025/02/NIRF-2025-submitted-data.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 213,
+     "placed": 75,
+     "medianSalary": 500000,
+     "higherStudies": 12,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41681",
+     "sourceUrl": "https://www.isquareit.edu.in/wp-content/uploads/2025/02/NIRF-2025-submitted-data.pdf"
+    }
+   ]
+  },
+  "06757": {
+   "nirfName": "Yashoda Technical campus, Faculty of Engineering, Wadhe",
+   "rows": [
+    {
+     "graduationYear": "2019-20",
+     "graduates": 103,
+     "placed": 60,
+     "medianSalary": 210000,
+     "higherStudies": 6,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11075",
+     "sourceUrl": "https://www.yes.edu.in/files/nirf/NIRF-Faculty-of-Engineering-2023.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 164,
+     "placed": 127,
+     "medianSalary": 310000,
+     "higherStudies": 4,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11075",
+     "sourceUrl": "https://www.yes.edu.in/files/nirf/NIRF-2024_Yashoda-Technical-campus-Faculty-of-Engineering-301224.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 156,
+     "placed": 75,
+     "medianSalary": 250000,
+     "higherStudies": 0,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11075",
+     "sourceUrl": "https://www.yes.edu.in/files/nirf/NIRF-2024_Yashoda-Technical-campus-Faculty-of-Engineering-301224.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 124,
+     "placed": 82,
+     "medianSalary": 272000,
+     "higherStudies": 2,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11075",
+     "sourceUrl": "https://www.yes.edu.in/files/nirf/NIRF-2024_Yashoda-Technical-campus-Faculty-of-Engineering-301224.pdf"
+    }
+   ]
+  },
+  "06762": {
+   "nirfName": "Nanasaheb Mahadik College of Engineering, Peth",
+   "rows": [
+    {
+     "graduationYear": "2016-17",
+     "graduates": 219,
+     "placed": 2,
+     "medianSalary": 123000,
+     "higherStudies": 15,
+     "nirfYear": 2020,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11074",
+     "sourceUrl": "https://www.nmcoe.org.in/pdf/NIRF2020-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2017-18",
+     "graduates": 205,
+     "placed": 0,
+     "medianSalary": null,
+     "higherStudies": 6,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11074",
+     "sourceUrl": "https://www.nmcoe.org.in/pdf/NIRF2021-ENGINEERING.pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 280,
+     "placed": 39,
+     "medianSalary": 200000,
+     "higherStudies": 10,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11074",
+     "sourceUrl": "https://www.nmcoe.org.in/pdf/Nanasaheb%20Mahadik%20College%20of%20Engineering,%20Peth2022.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 252,
+     "placed": 149,
+     "medianSalary": 300000,
+     "higherStudies": 7,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11074",
+     "sourceUrl": "https://www.nmcoe.org.in/pdf/Nanasaheb%20Mahadik%20College%20of%20Engineering,%20Peth2022.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 311,
+     "placed": 142,
+     "medianSalary": 291000,
+     "higherStudies": 2,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11074",
+     "sourceUrl": "https://www.nmcoe.org.in/pdf/Nanasaheb%20Mahadik%20College%20of%20Engineering,%20Peth2022.pdf"
+    }
+   ]
+  },
+  "06770": {
+   "nirfName": "SKN SINHGAD INSTITUTE OF TECHNOLOGY & SCIENCE",
+   "rows": [
+    {
+     "graduationYear": "2018-19",
+     "graduates": 391,
+     "placed": 87,
+     "medianSalary": 420000,
+     "higherStudies": 10,
+     "nirfYear": 2022,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-45897",
+     "sourceUrl": "https://cms.sinhgad.edu/media/512090/nirf%20report%202022.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 280,
+     "placed": 126,
+     "medianSalary": 336000,
+     "higherStudies": 10,
+     "nirfYear": 2023,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-45897",
+     "sourceUrl": "https://cms.sinhgad.edu/media/531525/nirf_report_2022_23.pdf"
+    },
+    {
+     "graduationYear": "2020-21",
+     "graduates": 158,
+     "placed": 145,
+     "medianSalary": 360000,
+     "higherStudies": 1,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1010",
+     "sourceUrl": "https://cms.sinhgad.edu/media/540102/nirf%20report%202024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 174,
+     "placed": 130,
+     "medianSalary": 400000,
+     "higherStudies": 1,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1010",
+     "sourceUrl": "https://cms.sinhgad.edu/media/566266/nirf%20report%202025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 146,
+     "placed": 77,
+     "medianSalary": 500000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1010",
+     "sourceUrl": "https://cms.sinhgad.edu/media/566266/nirf%20report%202025.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 42,
+     "placed": 42,
+     "medianSalary": 405000,
+     "higherStudies": 0,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-I-1010",
+     "sourceUrl": "https://cms.sinhgad.edu/media/566266/nirf%20report%202025.pdf"
+    }
+   ]
+  },
+  "06780": {
+   "nirfName": "D. Y. Patil Education Society, D.Y. Patil Technical Campus, Faculty of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2017-18",
+     "graduates": 236,
+     "placed": 60,
+     "medianSalary": 180000,
+     "higherStudies": 118,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11157",
+     "sourceUrl": "https://foet.dypgroup.edu.in/wp-content/uploads/2021/03/Engineering-2021.pdf"
+    },
+    {
+     "graduationYear": "2018-19",
+     "graduates": 156,
+     "placed": 68,
+     "medianSalary": 180000,
+     "higherStudies": 23,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11157",
+     "sourceUrl": "https://foet.dypgroup.edu.in/wp-content/uploads/2021/03/Engineering-2021.pdf"
+    },
+    {
+     "graduationYear": "2019-20",
+     "graduates": 161,
+     "placed": 30,
+     "medianSalary": 200000,
+     "higherStudies": 10,
+     "nirfYear": 2021,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-11157",
+     "sourceUrl": "https://foet.dypgroup.edu.in/wp-content/uploads/2021/03/Engineering-2021.pdf"
+    }
+   ]
+  },
+  "06782": {
+   "nirfName": "SAHAKAR MAHARSHI SHANKARRAO MOHITE PATIL INSTITUTE OF TECHNOLOGY AND RESEARCH, SHANKARNAGAR",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 137,
+     "placed": 79,
+     "medianSalary": 180000,
+     "higherStudies": 3,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-45127",
+     "sourceUrl": "https://www.smsmpitr.edu.in/pdf/Nirf.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 181,
+     "placed": 83,
+     "medianSalary": 210000,
+     "higherStudies": 2,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-45127",
+     "sourceUrl": "https://www.smsmpitr.edu.in/pdf/Nirf.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 158,
+     "placed": 16,
+     "medianSalary": 265000,
+     "higherStudies": 6,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-45127",
+     "sourceUrl": "https://www.smsmpitr.edu.in/pdf/Nirf.pdf"
+    }
+   ]
+  },
+  "06794": {
+   "nirfName": "(A.B.M.S.) Akhil Bharatiya Maratha Shikshan Parishad's College of Engineering & Research Address: S. No. 103, Shahu College Campus, Parvati, Taluka: Pune (corporation Area) District: Pune - 411009",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 358,
+     "placed": 168,
+     "medianSalary": 275000,
+     "higherStudies": 54,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41484",
+     "sourceUrl": "https://abmspcoerpune.org/wp-content/uploads/2026/04/Engineering.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 250,
+     "placed": 57,
+     "medianSalary": 356662,
+     "higherStudies": 14,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41484",
+     "sourceUrl": "https://abmspcoerpune.org/wp-content/uploads/2026/04/Engineering.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 214,
+     "placed": 35,
+     "medianSalary": 350000,
+     "higherStudies": 3,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41484",
+     "sourceUrl": "https://abmspcoerpune.org/wp-content/uploads/2026/04/Engineering.pdf"
+    }
+   ]
+  },
+  "06796": {
+   "nirfName": "Bharati Vidyapeeth`s College of Engineering",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 195,
+     "placed": 133,
+     "medianSalary": 450000,
+     "higherStudies": 4,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41597",
+     "sourceUrl": "https://bvcoe.bharatividyapeeth.edu/media/pdf/Engineering_All_Report_2024_180124.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 184,
+     "placed": 100,
+     "medianSalary": 400000,
+     "higherStudies": 9,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41597",
+     "sourceUrl": "https://bvcoe.bharatividyapeeth.edu/media/pdf/Engineering_All_Report_2025_170125.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 196,
+     "placed": 158,
+     "medianSalary": 400000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41597",
+     "sourceUrl": "https://bvcoe.bharatividyapeeth.edu/media/pdf/Engineering_All_Report_2026_04032026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 166,
+     "placed": 122,
+     "medianSalary": 400000,
+     "higherStudies": 3,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41597",
+     "sourceUrl": "https://bvcoe.bharatividyapeeth.edu/media/pdf/Engineering_All_Report_2026_04032026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 152,
+     "placed": 112,
+     "medianSalary": 400000,
+     "higherStudies": 3,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-41597",
+     "sourceUrl": "https://bvcoe.bharatividyapeeth.edu/media/pdf/Engineering_All_Report_2026_04032026.pdf"
+    }
+   ]
+  },
+  "06797": {
+   "nirfName": "DNYANSHREE INSTITUTE OF ENGINEERING AND TECHNOLOGY, SATARA",
+   "rows": [
+    {
+     "graduationYear": "2020-21",
+     "graduates": 240,
+     "placed": 67,
+     "medianSalary": 336000,
+     "higherStudies": 9,
+     "nirfYear": 2024,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-48655",
+     "sourceUrl": "https://www.dnyanshree.edu.in/pdf/nirf2024.pdf"
+    },
+    {
+     "graduationYear": "2021-22",
+     "graduates": 264,
+     "placed": 66,
+     "medianSalary": 348000,
+     "higherStudies": 3,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-48655",
+     "sourceUrl": "https://www.dnyanshree.edu.in/pdf/NIRF2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 201,
+     "placed": 29,
+     "medianSalary": 330000,
+     "higherStudies": 7,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-48655",
+     "sourceUrl": "https://www.dnyanshree.edu.in/pdf/NIRF2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 239,
+     "placed": 84,
+     "medianSalary": 300000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-48655",
+     "sourceUrl": "https://www.dnyanshree.edu.in/pdf/NIRF2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 148,
+     "placed": 55,
+     "medianSalary": 300000,
+     "higherStudies": 2,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-48655",
+     "sourceUrl": "https://www.dnyanshree.edu.in/pdf/NIRF2026.pdf"
+    }
+   ]
+  },
+  "06808": {
+   "nirfName": "SHALAKA FOUNDATIONS KEYSTONE SCHOOL OF ENGINEERING, PUNE",
+   "rows": [
+    {
+     "graduationYear": "2022-23",
+     "graduates": 76,
+     "placed": 66,
+     "medianSalary": 300000,
+     "higherStudies": 0,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-45882",
+     "sourceUrl": "https://keystone.ac.in/img/NIRF.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 82,
+     "placed": 71,
+     "medianSalary": 350000,
+     "higherStudies": 3,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-45882",
+     "sourceUrl": "https://keystone.ac.in/img/NIRF.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 110,
+     "placed": 96,
+     "medianSalary": 400000,
+     "higherStudies": 0,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-45882",
+     "sourceUrl": "https://keystone.ac.in/img/NIRF.pdf"
+    }
+   ]
+  },
+  "06822": {
+   "nirfName": "Pimpri Chinchwad Education Trust's Pimpri Chinchwad College of Engineering and Research, Laxminagar, Ravet",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 325,
+     "placed": 214,
+     "medianSalary": 450000,
+     "higherStudies": 7,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-49660",
+     "sourceUrl": "https://www.pccoer.com/pdf/NIRF-2025-IR-E-C-49660-PCCOER-Engineering.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 369,
+     "placed": 273,
+     "medianSalary": 425000,
+     "higherStudies": 19,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-49660",
+     "sourceUrl": "https://www.pccoer.com/pdf/Engineering-Report-NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 368,
+     "placed": 230,
+     "medianSalary": 450000,
+     "higherStudies": 20,
+     "nirfYear": 2026,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-49660",
+     "sourceUrl": "https://www.pccoer.com/pdf/Engineering-Report-NIRF-2026.pdf"
+    }
+   ]
+  },
+  "06834": {
+   "nirfName": "Dr D Y Patil Educational Federation Dr D Y Patil College of Engineering & Innovation, Varale, Talegaon, Maval",
+   "rows": [
+    {
+     "graduationYear": "2021-22",
+     "graduates": 171,
+     "placed": 155,
+     "medianSalary": 305000,
+     "higherStudies": 1,
+     "nirfYear": 2025,
+     "nirfCategory": "Engineering",
+     "nirfInstituteId": "IR-E-C-50614",
+     "sourceUrl": "https://www.dypcoei.edu.in/wp-content/uploads/2026/05/NIRF-2025.pdf"
+    },
+    {
+     "graduationYear": "2022-23",
+     "graduates": 180,
+     "placed": 144,
+     "medianSalary": 410011,
+     "higherStudies": 4,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-50614",
+     "sourceUrl": "https://www.dypcoei.edu.in/wp-content/uploads/2026/05/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2023-24",
+     "graduates": 181,
+     "placed": 80,
+     "medianSalary": 250000,
+     "higherStudies": 5,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-50614",
+     "sourceUrl": "https://www.dypcoei.edu.in/wp-content/uploads/2026/05/NIRF-2026.pdf"
+    },
+    {
+     "graduationYear": "2024-25",
+     "graduates": 264,
+     "placed": 141,
+     "medianSalary": 525000,
+     "higherStudies": 14,
+     "nirfYear": 2026,
+     "nirfCategory": "Overall",
+     "nirfInstituteId": "IR-O-C-50614",
+     "sourceUrl": "https://www.dypcoei.edu.in/wp-content/uploads/2026/05/NIRF-2026.pdf"
+    }
+   ]
+  }
+ }
+}

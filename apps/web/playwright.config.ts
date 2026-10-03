@@ -1,29 +1,63 @@
 import { defineConfig, devices } from "@playwright/test";
 
+/**
+ * End-to-end tests run against the real API code serving the invented demo dataset
+ * (`apps/api/src/demo`), so no database or secrets are needed, locally or in CI.
+ */
+const WEB_PORT = 5173;
+/** A second web server with sign-in turned on, against the fake Supabase in e2e/fixtures/supabase.ts (#23). */
+const AUTH_PORT = 5174;
+const SUPABASE_E2E_URL = "https://compass-e2e.supabase.co";
+/** E2E_LIVE=1 runs the real API against DATABASE_URL_STAGING instead of the demo dataset. */
+const LIVE = !!process.env.E2E_LIVE;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
-  reporter: "list",
+  reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: `http://localhost:${WEB_PORT}`,
     trace: "on-first-retry",
+    serviceWorkers: "block",
+    // Optional: use a pre-installed Chromium instead of the one `playwright install` downloads
+    launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
   },
-  projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-  ],
+  projects: LIVE
+    ? [{ name: "live", use: { ...devices["Desktop Chrome"] }, grep: /@live/ }]
+    : [
+        { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } }, grepInvert: /@phone|@live/, testIgnore: /[\\/]auth[\\/]/ },
+        { name: "phone", use: { ...devices["Pixel 7"] }, grep: /@phone/, testIgnore: /[\\/]auth[\\/]/ },
+        { name: "auth", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 }, baseURL: `http://localhost:${AUTH_PORT}` }, testMatch: /[\\/]auth[\\/].*\.spec\.ts$/ },
+      ],
   webServer: [
     {
-      command: "npm run dev -w @mhtcet/api",
+      command: LIVE ? "npm run start -w @mhtcet/api" : "npm run dev:demo -w @mhtcet/api",
       url: "http://localhost:3001/api/health",
+      // every test shares one IP; the API's per-IP budgets would throttle the suite itself
+      env: { ...process.env, RATE_LIMITS: "off" } as Record<string, string>,
       reuseExistingServer: !process.env.CI,
-      timeout: 30_000,
+      timeout: 60_000,
     },
     {
-      command: "npm run dev -w @mhtcet/web",
-      url: "http://localhost:5173",
+      command: `npm run dev -w @mhtcet/web -- --port ${WEB_PORT} --strictPort`,
+      url: `http://localhost:${WEB_PORT}`,
+      // no Google sign-in in e2e (#15): process env beats apps/web/.env.local in Vite
+      env: { ...process.env, VITE_SUPABASE_URL: "", VITE_SUPABASE_ANON_KEY: "" } as Record<string, string>,
       reuseExistingServer: !process.env.CI,
-      timeout: 30_000,
+      timeout: 60_000,
     },
+    ...(LIVE
+      ? []
+      : [
+          {
+            command: `npm run dev -w @mhtcet/web -- --port ${AUTH_PORT} --strictPort`,
+            url: `http://localhost:${AUTH_PORT}`,
+            // sign-in on, pointed at a Supabase URL the tests intercept: nothing reaches the network
+            env: { ...process.env, VITE_SUPABASE_URL: SUPABASE_E2E_URL, VITE_SUPABASE_ANON_KEY: "e2e-anon-key" } as Record<string, string>,
+            reuseExistingServer: !process.env.CI,
+            timeout: 60_000,
+          },
+        ]),
   ],
 });

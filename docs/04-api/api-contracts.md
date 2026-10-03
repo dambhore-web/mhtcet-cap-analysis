@@ -4,14 +4,30 @@ Status: draft for Phase 6. An OpenAPI file will replace this table once the fram
 All routes are under `/api`, JSON in and out, request bodies schema-validated, errors per
 `error-model.md`.
 
+Implemented (apps/api, Hono). Auth and entitlements arrive with #15/#21; today every route is public.
+
+JSON responses of 1 KB or more are gzipped when the request sends `Accept-Encoding: gzip`
+(browsers always do). The assistant's event stream is never compressed (#27).
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/health` | Liveness |
+| GET | `/api/meta` | What data is loaded: counts, lists × rounds with source files, fee and district coverage, recent loads (#114) |
+| GET | `/api/colleges?q=&university=&district=&type=&limit=` | College search; response also lists the `districts` and `collegeTypes` present |
+| GET | `/api/colleges/:code/cutoffs?year=` | Every cutoff row for a college, each with `source` (PDF) and `sourcePage`; the college's HU, district, type, intake |
+| GET | `/api/cutoffs/open-latest` | Every branch's open closing rank (MH list): rows `[choiceCode, collegeCode, branch, roundI \| null, latestRound, branchGroup \| null, seatType]` for the cache year (groups as in the rank finder). `seatType` is the first of `seatTypes` the branch has: GOPENS, then GOPENO and GOPENH (most university-affiliated colleges have no state-level open seats), then LOPENS/O/H (women's colleges). Feeds the landing ruler, colleges strips, by-branch and estimate (TASK-0004) |
+| GET | `/api/sitemap` | SEO: every college with cutoffs in the cache year and the choice codes of its branches with cutoffs, `{ year, colleges: [{ code, branches }] }`. Codes only; the web build turns it into `sitemap.xml` |
+| GET | `/api/colleges/:code/fees` | FRA fees matched to the 5-digit college code; `year` is the entry's FRA academic year (2026-27, or 2025-26 when the college isn't on the newer report); `basis` is `fra-report` (the FRA's published approved-fee report; `verified: true`) or `fra-order`, with `fraStatus` as printed. Without fees: `available: false` with `collegeType`, `reason` (`state-set`, `not-on-fra-report`, `unknown`) and TFWS seats from the seat matrix (#42) |
+| POST | `/api/rank-finder` | FR-005. `candidature: "MH" \| "AI"` (#8). Each option has `firstRoundClosing`, `lastRoundClosing`, `rounds[]`, `source`, `list`, `district` |
+| POST | `/api/simulate` | CAP replay of Rounds I–IV with the auto-freeze rule (#36): `rounds[]`, a per-choice `grid`, `freezeZones`, `assumptions` |
+| GET | `/api/merit-estimate?percentile=&subjectGroup=` | MHT-CET percentile → state merit range (statistical until the state merit list is loaded, #10) |
+| GET | `/api/jee-estimate?percentile=` | FR-006: JEE percentile → All India merit number from `merit_lookup` (list PCMAI); `kind: "jee-rank"` fallback is never used to search seats |
+| POST | `/api/assistant` | FR-009, grounded answer as SSE: `{sources}` · `{delta}`* · `{done}` (#18) |
+
+Planned:
+
 | Method | Path | Auth | Entitlement | Purpose |
 |---|---|---|---|---|
-| GET | `/api/years` | none | free | Years with loaded data |
-| GET | `/api/colleges?year=&q=&district=&university=` | none | free | College search, paginated (`limit`, `cursor`) |
-| GET | `/api/colleges/:code/cutoffs?year=` | none / user | free: `DECISION REQUIRED` how much | Cutoffs per branch × seat type × round |
-| POST | `/api/rank-finder` | user | free: limited · paid: full (`DECISION REQUIRED`) | FR-005 |
-| POST | `/api/jee/rank` | none | free | FR-006: percentile → estimated All India merit no |
-| POST | `/api/assistant` | user | paid | FR-009, streamed response |
 | GET/PUT | `/api/me/profile` | user | free | Saved rank, category, gender, flags |
 | GET | `/api/me/usage` | user | free | Usage against plan limits |
 | POST | `/api/billing/checkout` | user | free | Start a payment |
@@ -29,6 +45,11 @@ Response:
     "status": "round1", "seatType": "GOPENS", "closingMerit": 4148, "round": "I", "year": 2026 } ] }
 ```
 Validation: `merit` positive integer; `category` from the glossary list; `gender` `M`|`F`.
+
+## Demo mode
+`npm run dev:demo -w @mhtcet/api` serves the real routes over an invented dataset
+(`apps/api/src/demo`) with no database, and a deterministic stand-in for the language model.
+The Playwright suite runs against it.
 
 ## Rate limits
 `ASSUMPTION`: per-IP limit on public routes and per-user limit on the assistant, set in Phase 6.

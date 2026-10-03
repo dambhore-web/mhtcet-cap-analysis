@@ -78,6 +78,10 @@ export interface College {
   status: string | null;
   homeUniversity: string | null;
   totalIntake: number | null;
+  /** District from the official institute list; null until loaded (migration 002). */
+  district?: string | null;
+  /** Government, Government-aided, Unaided, Autonomous, University department …; null until loaded. */
+  collegeType?: string | null;
 }
 
 export interface Branch {

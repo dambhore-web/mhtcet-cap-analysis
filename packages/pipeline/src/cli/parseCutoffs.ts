@@ -7,7 +7,7 @@ import { readManifest } from "../manifest.ts";
 import { processedDir, rawDir } from "../paths.ts";
 import { readPages } from "../pdf.ts";
 import { MhCutoffParser, type MhBranch, type MhCollege, type ParseIssue } from "../parse/cutoffMh.ts";
-import { AI_LAYOUT, DIPLOMA_LAYOUT, RowListParser } from "../parse/cutoffRows.ts";
+import { AI_LAYOUT, AI_LAYOUT_2023, DIPLOMA_LAYOUT, DIPLOMA_LAYOUT_2023, RowListParser } from "../parse/cutoffRows.ts";
 
 const AUTHORITY: AuthorityId = "MH-CET-CELL";
 const year = Number(process.argv[2] ?? 2026);
@@ -38,7 +38,9 @@ for (const f of manifest.cutoffLists) {
     for (const [k, v] of p.branches) branches.set(k, v);
     files.push({ file: name, kind: f.kind, round: f.round, titleRounds: [...p.titleRounds], rows: rows.length - before, issues: p.issues, serialProblems: [] });
   } else {
-    const p = new RowListParser(f.kind === "AI" ? AI_LAYOUT : DIPLOMA_LAYOUT);
+    const aiLayout = year === 2023 ? AI_LAYOUT_2023 : AI_LAYOUT;
+    const diplomaLayout = year === 2023 ? DIPLOMA_LAYOUT_2023 : DIPLOMA_LAYOUT;
+    const p = new RowListParser(f.kind === "AI" ? aiLayout : diplomaLayout);
     for await (const words of readPages(path)) p.addPage(words);
     for (const r of p.rows) {
       rows.push({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkMeritList, parseMeritPage, type MeritParseIssue } from "../src/parse/merit.ts";
+import { checkMeritList, MH_MERIT_LAYOUT, parseMeritPage, type MeritParseIssue } from "../src/parse/merit.ts";
 import { line } from "./words.ts";
 
 // Fake IDs and names.
@@ -24,6 +24,27 @@ describe("parseMeritPage", () => {
   });
   it("keeps no names or IDs", () => {
     expect(JSON.stringify(rows)).not.toMatch(/EN\d{8}|TESTNAME/);
+  });
+});
+
+describe("parseMeritPage (state list layout)", () => {
+  // Fake IDs and names; category and gender columns sit between the name and the exam.
+  const mhPage = [
+    ...line(117, [138, "Candidate's"], [516, "Merit"], [537, "Exam"]),
+    ...line(140, [42, "1"], [59, "EN99990001"], [99, "TESTNAME"], [262, "OPEN"], [312, "Male"], [486, "-/-"], [512, "MHT-CET-PCM"], [561, "100.0000000"], [604, "99.5"]),
+    ...line(260, [40, "14"], [59, "EN99990014"], [99, "TESTNAME"], [262, "OBC"], [312, "Female"], [486, "LM/-"], [512, "MHT-CET-PCM"], [561, "99.9894910"], [604, "99.1"]),
+  ];
+  const issues: MeritParseIssue[] = [];
+  const rows = parseMeritPage(mhPage, 1, issues, MH_MERIT_LAYOUT);
+  it("reads merit, exam and the merit-exam percentile", () => {
+    expect(rows).toEqual([
+      { merit: 1, exam: "MHT-CET-PCM", score: 100 },
+      { merit: 14, exam: "MHT-CET-PCM", score: 99.989491 },
+    ]);
+    expect(issues).toEqual([]);
+  });
+  it("keeps no names, IDs, category or gender", () => {
+    expect(JSON.stringify(rows)).not.toMatch(/EN\d{8}|TESTNAME|OPEN|OBC|Male|Female/);
   });
 });
 

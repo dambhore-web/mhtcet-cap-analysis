@@ -46,6 +46,18 @@ describe("GET /api/colleges", () => {
     expect(colleges[0].name.localeCompare(colleges[1].name, "en")).toBeLessThanOrEqual(0);
   });
 
+  it("skips colleges with no cutoffs in the cache year (earlier-year-only colleges)", async () => {
+    const cache = seedCache();
+    cache.colleges.set("09999", {
+      authority: "MH-CET-CELL", exam: "MHT-CET", code: "09999", name: "Aaa Closed College",
+      status: null, homeUniversity: null, totalIntake: null,
+    });
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges");
+    const body = (await res.json()) as { colleges: { code: string }[] };
+    expect(body.colleges.map((c) => c.code)).not.toContain("09999");
+    expect(body.colleges).toHaveLength(2);
+  });
+
   it("filters by query string", async () => {
     const { status, body } = await get("/api/colleges?q=jijabai");
     expect(status).toBe(200);
@@ -124,6 +136,17 @@ describe("POST /api/rank-finder", () => {
     expect(vjti?.status).toBe("out-of-range");
   });
 
+  it("filters by several branch groups (any one matches) and ignores unknown groups", async () => {
+    const codes = async (branchGroups: string[]) => {
+      const { status, body } = await post("/api/rank-finder", { ...base, filters: { branchGroups } });
+      expect(status).toBe(200);
+      return (body.options as { collegeCode: string }[]).map((o) => o.collegeCode);
+    };
+    expect(await codes(["Civil", "Computer & IT"])).toContain("1002");
+    expect(await codes(["Civil", "Mechanical"])).toEqual([]);
+    expect(await codes(["Not a group"])).toContain("1002");
+  });
+
   it("returns 400 for missing merit", async () => {
     const { status } = await post("/api/rank-finder", { ...base, merit: undefined });
     expect(status).toBe(400);
@@ -179,6 +202,25 @@ describe("GET /api/merit-estimate", () => {
     const [lo, hi] = body.estimatedMeritRange as [number, number];
     expect(lo).toBeGreaterThan(0);
     expect(hi).toBeGreaterThan(lo);
+  });
+
+  it("reads only the state merit list, never MHT-CET rows from the All India list", async () => {
+    const calls: { sql: string; params: unknown[] }[] = [];
+    const pool = {
+      query: async (sql: string, params: unknown[]) => {
+        calls.push({ sql, params });
+        return { rows: [{ cnt: "0", min_merit: null, max_merit: null }] };
+      },
+    } as never;
+    const res = await createApp(seedCache(), pool).request(
+      "http://localhost/api/merit-estimate?percentile=90&subjectGroup=PCM",
+    );
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(calls).toHaveLength(1);
+    expect(calls[0].sql).toMatch(/list = \$3/);
+    expect(calls[0].params).toEqual([90, 2026, "PCMMH", "MHT-CET-PCM"]);
+    // No state list loaded yet → honest statistical fallback
+    expect(body.method).toBe("statistical");
   });
 
   it("returns 400 when percentile is missing", async () => {
@@ -239,5 +281,281 @@ describe("not found", () => {
     const { status, body } = await get("/api/nope");
     expect(status).toBe(404);
     expect(body).toMatchObject({ error: "not_found" });
+  });
+});
+
+// ─── Fees from the fee table ─────────────────────────────────────────────────
+
+describe("GET /api/colleges/:code/fees with fees loaded from the database", () => {
+  it("uses the cache's fee rows instead of fees.json, with null parts and the source", async () => {
+    const cache = seedCache();
+    cache.fees = {
+      "1002": {
+        name: "VJTI", collegeCode: "1002", tuitionFee: null, developmentFee: null, otherFees: null, totalAnnualFee: 21000,
+        tfwsAvailable: false, tfwsSeats: null, fraOrderRef: null, fraOrderUrl: null, sampleOnly: false,
+        academicYear: "2026-27", source: "college", sourceUrl: "https://example.org/fees.pdf",
+      },
+    };
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/fees");
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body).toMatchObject({
+      available: true, year: "2026-27", source: "college", sourceUrl: "https://example.org/fees.pdf",
+      fees: { tuitionFee: null, developmentFee: null, otherFees: null, totalAnnualFee: 21000 },
+    });
+    const other = await createApp(cache, stubPool).request("http://localhost/api/colleges/5002/fees");
+    expect(((await other.json()) as { available: boolean }).available).toBe(false);
+  });
+});
+
+// ─── Placement (NIRF) ────────────────────────────────────────────────────────
+
+describe("GET /api/colleges/:code/placement", () => {
+  it("returns each graduating batch with rates, and available: false without data", async () => {
+    const cache = seedCache();
+    cache.placement = new Map([["1002", [
+      { graduationYear: "2023-24", graduates: 400, placed: 300, medianSalary: 650000, higherStudies: 20, nirfYear: 2025, nirfCategory: "Engineering", sourceUrl: "https://example.org/nirf-2025.pdf" },
+      { graduationYear: "2024-25", graduates: 410, placed: null, medianSalary: null, higherStudies: 0, nirfYear: 2026, nirfCategory: "Overall", sourceUrl: "https://example.org/nirf-2026.pdf" },
+    ]]]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/placement");
+    const body = (await res.json()) as { available: boolean; batches: Array<Record<string, unknown>> };
+    expect(body.available).toBe(true);
+    expect(body.batches[0]).toMatchObject({ graduationYear: "2023-24", placedPct: 75, higherStudiesPct: 5, medianSalary: 650000, nirfYear: 2025 });
+    expect(body.batches[1]).toMatchObject({ graduationYear: "2024-25", placed: null, placedPct: null, higherStudiesPct: 0 });
+    const other = await createApp(cache, stubPool).request("http://localhost/api/colleges/5002/placement");
+    expect(await other.json()).toEqual({ available: false, code: "5002" });
+  });
+
+  it("returns the college's own website figures, alone or with NIRF", async () => {
+    const cache = seedCache();
+    cache.placementClaims = new Map([["5002", {
+      year: "2024-25", highest: 1_200_000, average: 450_000, median: null, placedPct: 85, crawledAt: "2026-09-29",
+      claims: [{ metric: "highest", value: 1_200_000, year: "2024-25", snippet: "Highest package 12 LPA", sourceUrl: "https://example.org/placements" }],
+    }]]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges/5002/placement");
+    const body = (await res.json()) as { available: boolean; batches: unknown[]; collegeClaims: Record<string, unknown> };
+    expect(body.available).toBe(true);
+    expect(body.batches).toEqual([]);
+    expect(body.collegeClaims).toMatchObject({ year: "2024-25", highest: 1_200_000, average: 450_000, placedPct: 85, sources: ["https://example.org/placements"] });
+  });
+
+  it("is unavailable when the placement table was not loaded", async () => {
+    const res = await createApp(seedCache(), stubPool).request("http://localhost/api/colleges/1002/placement");
+    expect(((await res.json()) as { available: boolean }).available).toBe(false);
+  });
+});
+
+// ─── Branch history (year-on-year) ───────────────────────────────────────────
+
+describe("GET /api/branches/:choiceCode/history", () => {
+  it("merges earlier years from the history cache with the cache year's state rows", async () => {
+    const cache = seedCache();
+    cache.history.set("1002119110", [
+      { year: 2024, round: "I", seatType: "GOPENS", section: "State Level", stage: "I", closingMerit: 180, closingPercentile: null },
+      { year: 2025, round: "I", seatType: "GOPENS", section: "State Level", stage: "I", closingMerit: 165, closingPercentile: null },
+    ]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/branches/1002119110/history");
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { years: number[]; collegeCode: string; rows: { year: number; round: string; closingMerit: number }[] };
+    expect(body.collegeCode).toBe("1002");
+    expect(body.years).toEqual([2024, 2025, 2026]);
+    expect(body.rows.filter((r) => r.round === "I").map((r) => [r.year, r.closingMerit])).toEqual([[2024, 180], [2025, 165], [2026, 150]]);
+  });
+
+  it("returns 404 for an unknown choice code", async () => {
+    const { status } = await get("/api/branches/9999999999/history");
+    expect(status).toBe(404);
+  });
+});
+
+// ─── Every branch's open closing rank (landing page ruler) ───────────────────
+
+describe("GET /api/cutoffs/open-latest", () => {
+  const base = { authority: "MH-CET-CELL", exam: "MHT-CET", year: 2026, list: "MH", collegeCode: "1002", section: "State Level", seatType: "GOPENS", stage: "I", closingPercentile: null, sourceFile: "test", sourcePage: 1 } as const;
+  type Row = [string, string, string, number | null, number, string | null, string];
+
+  it("uses each branch's GOPENS Round I and latest-round closing rank when the branch has state-level seats", async () => {
+    const cache = seedCache();
+    cache.cutoffsByChoiceCode.set("1002119110", [
+      ...(cache.cutoffsByChoiceCode.get("1002119110") ?? []),
+      { ...base, choiceCode: "1002119110", round: "III", closingMerit: 120 },
+      { ...base, choiceCode: "1002119110", round: "I", closingMerit: 99 },
+    ]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/cutoffs/open-latest");
+    expect(res.status).toBe(200);
+    const b = (await res.json()) as { year: number; seatTypes: string[]; rows: Row[] };
+    expect(b.seatTypes).toEqual(["GOPENS", "GOPENO", "GOPENH", "LOPENS", "LOPENO", "LOPENH"]);
+    // the branch also has home-university rows, but its state-level seat wins
+    expect(b.rows.find((r) => r[0] === "1002119110")).toEqual(["1002119110", "1002", "Computer Engineering", 99, 120, "Computer & IT", "GOPENS"]);
+  });
+
+  it("falls back to GOPENO, then GOPENH, for colleges without state-level open seats", async () => {
+    const cache = seedCache();
+    const b = (await (await createApp(cache, stubPool).request("http://localhost/api/cutoffs/open-latest")).json()) as { rows: Row[] };
+    // the fixture has only home-university open seats: the college is no longer dropped
+    expect(b.rows.length).toBeGreaterThan(0);
+    expect(b.rows.every((r) => r[6] === "GOPENO" || r[6] === "GOPENH")).toBe(true);
+    const hOnly = b.rows.find((r) => r[6] === "GOPENH");
+    expect(hOnly).toBeDefined();
+    const code = hOnly![0];
+    cache.cutoffsByChoiceCode.set(code, [
+      ...(cache.cutoffsByChoiceCode.get(code) ?? []),
+      { ...base, choiceCode: code, section: "Other Than Home University", seatType: "GOPENO", round: "I", closingMerit: 77 },
+    ]);
+    const again = (await (await createApp(cache, stubPool).request("http://localhost/api/cutoffs/open-latest")).json()) as { rows: Row[] };
+    const row = again.rows.find((r) => r[0] === code)!;
+    expect(row[6]).toBe("GOPENO");
+    expect(row[4]).toBe(77);
+  });
+});
+
+// ─── Rank finder: earlier years on each option ───────────────────────────────
+
+describe("POST /api/rank-finder pastYears", () => {
+  it("adds last-round closing ranks of earlier years for the same seat type", async () => {
+    const cache = seedCache();
+    cache.history.set("1002119110", [
+      { year: 2024, round: "I", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 140, closingPercentile: null },
+      { year: 2024, round: "III", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 190, closingPercentile: null },
+      { year: 2024, round: "II", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 170, closingPercentile: null },
+      { year: 2025, round: "I", seatType: "GOPENH", section: "Home University", stage: "I", closingMerit: 145, closingPercentile: null },
+      { year: 2025, round: "I", seatType: "LOPENH", section: "Home University", stage: "I", closingMerit: 999, closingPercentile: null },
+    ]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/rank-finder", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year: 2026, merit: 100, candidature: "MH", homeUniversity: "University of Mumbai", category: "OPEN", gender: "M", subjectGroup: "PCM" }),
+    });
+    const body = (await res.json()) as { options: { choiceCode: string; seatType: string; pastYears: unknown[] }[] };
+    const vjti = body.options.find((o) => o.choiceCode === "1002119110")!;
+    expect(vjti.seatType).toBe("GOPENH");
+    expect(vjti.pastYears).toEqual([
+      { year: 2024, lastRoundClosing: 190 },
+      { year: 2025, lastRoundClosing: 145 },
+    ]);
+  });
+});
+
+// ─── Seat matrix: seats on options and TFWS on fees ──────────────────────────
+
+describe("seat matrix in the API", () => {
+  const withSeats = () => {
+    const cache = seedCache();
+    cache.seats.set("1002119110", new Map([["GOPENH", 2], ["GOBCH", 5], ["AI", 9], ["TFWS", 3], ["EWS", 6]]));
+    return cache;
+  };
+
+  it("adds the option's seat-type count and the branch intake (without EWS/TFWS)", async () => {
+    const res = await createApp(withSeats(), stubPool).request("http://localhost/api/rank-finder", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year: 2026, merit: 100, candidature: "MH", homeUniversity: "University of Mumbai", category: "OPEN", gender: "M", subjectGroup: "PCM" }),
+    });
+    const body = (await res.json()) as { options: { choiceCode: string; seats: unknown }[] };
+    expect(body.options.find((o) => o.choiceCode === "1002119110")!.seats).toEqual({ seatType: 2, branch: 16 });
+  });
+
+  it("gives TFWS seats and branches on the fee card from the seat matrix", async () => {
+    const cache = withSeats();
+    cache.fees = {
+      "1002": {
+        name: "VJTI", collegeCode: "1002", tuitionFee: 80000, developmentFee: 5000, otherFees: 0, totalAnnualFee: 85000,
+        tfwsAvailable: false, tfwsSeats: null, fraOrderRef: null, fraOrderUrl: null, sampleOnly: false, academicYear: "2026-27",
+      },
+    };
+    const res = await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/fees");
+    expect(await res.json()).toMatchObject({ available: true, tfwsAvailable: true, tfwsSeats: 3, tfwsBranches: 1 });
+  });
+
+  it("returns null seats when the seat matrix has no row", async () => {
+    const res = await createApp(seedCache(), stubPool).request("http://localhost/api/rank-finder", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year: 2026, merit: 100, candidature: "MH", homeUniversity: "University of Mumbai", category: "OPEN", gender: "M", subjectGroup: "PCM" }),
+    });
+    const body = (await res.json()) as { options: { seats: unknown }[] };
+    expect(body.options[0].seats).toEqual({ seatType: null, branch: null });
+  });
+});
+
+// ─── Sitemap (SEO) ──────────────────────────────────────────────────────────
+
+describe("GET /api/sitemap", () => {
+  it("lists colleges with cutoffs and the choice codes of their branches with cutoffs", async () => {
+    const cache = seedCache();
+    const res = await createApp(cache, stubPool).request("http://localhost/api/sitemap");
+    expect(res.status).toBe(200);
+    const b = (await res.json()) as { year: number; colleges: { code: string; branches: string[] }[] };
+    expect(b.year).toBe(cache.year);
+    expect(b.colleges.length).toBeGreaterThan(0);
+    for (const col of b.colleges) {
+      expect(cache.colleges.has(col.code)).toBe(true);
+      for (const cc of col.branches) {
+        expect(cache.branches.get(cc)?.collegeCode).toBe(col.code);
+        expect(cache.cutoffsByChoiceCode.get(cc)?.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("leaves out branches without cutoffs", async () => {
+    const cache = seedCache();
+    const [cc] = [...cache.cutoffsByChoiceCode.keys()];
+    cache.cutoffsByChoiceCode.set(cc, []);
+    const b = (await (await createApp(cache, stubPool).request("http://localhost/api/sitemap")).json()) as { colleges: { branches: string[] }[] };
+    expect(b.colleges.flatMap((c) => c.branches)).not.toContain(cc);
+  });
+});
+
+// ─── Fees: official basis and why a college has none (#42) ───────────────────
+
+describe("GET /api/colleges/:code/fees: basis and missing fees (#42)", () => {
+  const fraEntry = {
+    name: "Test Unaided", collegeCode: "1002", tuitionFee: 100000, developmentFee: 15000, otherFees: 0, totalAnnualFee: 115000,
+    tfwsAvailable: false, tfwsSeats: null, fraOrderRef: null, fraOrderUrl: null, sampleOnly: false, academicYear: "2026-27",
+    source: "FRA", sourceUrl: "https://ay26-27.mahafraportal.org/report?institute=EN1002", fraStatus: "No Upward Revision",
+  };
+
+  it("treats a fee from the FRA's approved-fee report as official, with its status and year", async () => {
+    const cache = seedCache();
+    cache.fees = { "1002": fraEntry };
+    const body = (await (await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/fees")).json()) as Record<string, unknown>;
+    expect(body).toMatchObject({ available: true, verified: true, basis: "fra-report", fraStatus: "No Upward Revision", year: "2026-27" });
+    expect(body.disclaimer).toBe("From the Fee Regulating Authority's approved-fee report for 2026-27. Confirm with the college before paying.");
+  });
+
+  it("says a government college's fees are set by the state, not the FRA", async () => {
+    const cache = seedCache();
+    cache.fees = {};
+    const code = [...cache.colleges.keys()][0];
+    cache.colleges.set(code, { ...cache.colleges.get(code)!, collegeType: "Government" });
+    const body = (await (await createApp(cache, stubPool).request(`http://localhost/api/colleges/${code}/fees`)).json()) as Record<string, unknown>;
+    expect(body).toMatchObject({ available: false, code, collegeType: "Government", reason: "state-set" });
+  });
+
+  it("says a private college is not on the FRA report, and still gives TFWS seats", async () => {
+    const cache = seedCache();
+    cache.seats.set("1002119110", new Map([["TFWS", 3]]));
+    cache.fees = {};
+    cache.colleges.set("1002", { ...cache.colleges.get("1002")!, collegeType: "Unaided" });
+    const body = (await (await createApp(cache, stubPool).request("http://localhost/api/colleges/1002/fees")).json()) as Record<string, unknown>;
+    expect(body).toMatchObject({ available: false, reason: "not-on-fra-report", tfwsSeats: 3, tfwsBranches: 1 });
+  });
+});
+
+// ─── SEO pages (build-time HTML per public URL) ─────────────────────────────
+
+describe("GET /api/seo-pages", () => {
+  it("gives each college with its branches' open-seat closing and years, matching open-latest", async () => {
+    const cache = seedCache();
+    const app = createApp(cache, stubPool);
+    const pages = (await (await app.request("http://localhost/api/seo-pages")).json()) as {
+      year: number;
+      colleges: { code: string; name: string; branches: { choiceCode: string; name: string; roundI: number | null; latest: number; seatType: string; years: number[] }[] }[];
+    };
+    const open = (await (await app.request("http://localhost/api/cutoffs/open-latest")).json()) as { rows: [string, string, string, number | null, number, string | null, string][] };
+    expect(pages.year).toBe(cache.year);
+    const branches = pages.colleges.flatMap((c) => c.branches.map((b) => [b.choiceCode, c.code, b.name, b.roundI, b.latest, b.seatType]));
+    expect(branches.length).toBe(open.rows.length);
+    for (const r of open.rows) expect(branches).toContainEqual([r[0], r[1], r[2], r[3], r[4], r[6]]);
+    for (const c of pages.colleges) {
+      expect(c.name).toBe(cache.colleges.get(c.code)!.name);
+      for (const b of c.branches) expect(b.years).toContain(cache.year);
+    }
   });
 });

@@ -1,11 +1,24 @@
+import type { HistoryRow } from "./yearTrend";
 export type Category = "OPEN" | "OBC" | "SEBC" | "SC" | "ST" | "VJ" | "NT1" | "NT2" | "NT3";
 export type RankStatus = "round-I" | "later-round" | "out-of-range";
 
 export interface ResultFilters {
   university?: string | null;
   district?: string | null;
+  collegeType?: string | null;
   branchGroup?: string | null;
+  /** Several branch groups at once (from the onboarding "branches of interest" step); any one matches. */
+  branchGroups?: string[];
+  branch?: string | null;
 }
+
+/** MH: state merit number, state-quota seats. AI: All India merit number, All India seats (JEE Main). */
+export type Candidature = "MH" | "AI";
+
+export type OpenLatestRow = [string, string, string, number | null, number, string | null, string];
+
+/** Rows any student can compete for: leaves out ladies-only seats, for counts across all of CAP. */
+export const generalOpen = (rows: OpenLatestRow[]) => rows.filter((r) => !r[6]?.startsWith("L"));
 
 export const BRANCH_GROUPS = [
   "Computer & IT",
@@ -21,6 +34,7 @@ export const BRANCH_GROUPS = [
 export interface FindRequest {
   year?: number;
   merit: number;
+  candidature?: Candidature;
   homeUniversity: string | null;
   category: Category | null;
   gender: "M" | "F";
@@ -30,16 +44,41 @@ export interface FindRequest {
   filters?: ResultFilters;
 }
 
+export interface SourceRef {
+  file: string;
+  page: number | null;
+}
+
 export interface FindOption {
   collegeCode: string;
   collegeName: string;
+  district?: string | null;
+  collegeType?: string | null;
   choiceCode: string;
   branch: string;
+  list?: Candidature;
   seatType: string;
   status: RankStatus;
-  round: number | null;
+  round: number | string | null;
   closingMerit: number;
+  /** Round I closing for this seat type (null if it had no Round I value). */
+  firstRoundClosing?: number | null;
+  /** Closing in the last published round. */
+  lastRoundClosing?: number | null;
+  rounds?: { round: string; closingMerit: number }[];
+  /** Official list and page behind closingMerit (NFR-001). */
+  source?: SourceRef | null;
   year: number;
+  /** Same branch and seat type in earlier CAP years (state list), oldest first. */
+  pastYears?: PastYear[];
+  /** Seats in the CAP seat matrix: this seat type, and the branch's sanctioned intake. */
+  seats?: { seatType: number | null; branch: number | null };
+}
+
+export interface PastYear {
+  year: number;
+  /** Closing rank in that year's last round. */
+  lastRoundClosing: number;
 }
 
 export interface FindResponse {
@@ -52,6 +91,21 @@ export interface College {
   name: string;
   status: string | null;
   homeUniversity: string | null;
+  district?: string | null;
+  collegeType?: string | null;
+}
+
+export interface DataMeta {
+  year: number;
+  colleges: number;
+  branches: number;
+  cutoffRows: number;
+  lists: { list: string; round: string; rows: number; files: string[] }[];
+  districtsLoaded: number;
+  /** Earlier CAP years loaded for year-on-year trends, e.g. [2023, 2024, 2025]. */
+  earlierYears?: number[];
+  fees: { colleges: number; verified: number };
+  loads: { id: string; startedAt: string; finishedAt: string | null; status: string }[];
 }
 
 const BASE = import.meta.env.VITE_API_URL ?? "";
@@ -87,18 +141,73 @@ export interface CollegeFees {
   code: string;
   name: string;
   year: string;
-  fees: { tuitionFee: number; developmentFee: number; otherFees: number; totalAnnualFee: number };
+  /** Parts are null when the source gives only the total. */
+  fees: { tuitionFee: number | null; developmentFee: number | null; otherFees: number | null; totalAnnualFee: number };
+  /** "FRA" (Fee Regulating Authority report) or "college" (the college's own fee notice). */
+  source?: string;
+  sourceUrl?: string | null;
   tfwsAvailable: boolean;
   tfwsSeats: number | null;
+  /** Branches with TFWS seats, from the CAP seat matrix. */
+  tfwsBranches?: number | null;
   fraOrderRef: string | null;
   fraOrderUrl: string | null;
   sampleOnly: boolean;
+  /** True when the amounts come from the Fee Regulating Authority (its order or its approved-fee report). */
+  verified?: boolean;
+  /** Where the amounts come from (#42). */
+  basis?: "fra-order" | "fra-report" | "unverified";
+  /** The FRA report's status, e.g. "Approved", "No Upward Revision", "Interim Order of High Court". */
+  fraStatus?: string | null;
+  disclaimer: string;
+}
+
+/** One graduating batch from the college's NIRF data (GET /api/colleges/:code/placement). */
+export interface PlacementBatch {
+  graduationYear: string;
+  graduates: number;
+  placed: number | null;
+  placedPct: number | null;
+  /** Rupees per year, of placed graduates. */
+  medianSalary: number | null;
+  higherStudies: number | null;
+  higherStudiesPct: number | null;
+  nirfYear: number;
+  nirfCategory: string;
+  sourceUrl: string;
+}
+
+/** A college's own latest figures from its website (not verified). Packages in rupees per year. */
+export interface CollegeClaims {
+  year: string | null;
+  highest: number | null;
+  average: number | null;
+  median: number | null;
+  placedPct: number | null;
+  crawledAt: string;
+  claims: Array<{ metric: string; value: number; year: string | null; snippet: string; sourceUrl: string }>;
+  sources: string[];
+  disclaimer: string;
+}
+
+export interface CollegePlacement {
+  available: true;
+  code: string;
+  collegeClaims: CollegeClaims | null;
+  program: string;
+  /** Oldest batch first. */
+  batches: PlacementBatch[];
   disclaimer: string;
 }
 
 export interface CollegeFeesUnavailable {
   available: false;
   code: string;
+  collegeType?: string | null;
+  /** Why there are no fees (#42): set by the state/university, or not on the FRA's report. */
+  reason?: "state-set" | "not-on-fra-report" | "unknown";
+  tfwsSeats?: number | null;
+  tfwsBranches?: number | null;
 }
 
 export interface SimulateRequest {
@@ -109,22 +218,34 @@ export interface SimulateRequest {
   minorityCommunity: string | null;
   flags: { ews: boolean; tfws: boolean; defence: boolean; pwd: boolean; orphan: boolean };
   subjectGroup: "PCM" | "PCB";
+  candidature?: Candidature;
   preferences: string[];
 }
 
-export interface SimulatedAllotment {
-  round: "I" | "II" | "III";
-  rank: number;
+export interface SimulatedChoice {
   choiceCode: string;
-  collegeName: string;
-  branch: string;
-  seatType: string;
-  closingMerit: number;
+  collegeCode: string | null;
+  collegeName: string | null;
+  branch: string | null;
+  known: boolean;
+}
+
+export interface SimulatedRound {
+  round: "I" | "II" | "III" | "IV";
+  preference: number | null;
+  seatType: string | null;
+  closingMerit: number | null;
+  movedUp: boolean;
+  frozen: boolean;
+  frozenEarlier: boolean;
+  choice: SimulatedChoice | null;
 }
 
 export interface SimulateResponse {
-  allotments: SimulatedAllotment[];
-  rounds: string[];
+  rounds: SimulatedRound[];
+  grid: (SimulatedChoice & { preference: number; byRound: Partial<Record<SimulatedRound["round"], { seatType: string; closingMerit: number } | null>> })[];
+  freezeZones: Partial<Record<SimulatedRound["round"], number>>;
+  assumptions: string;
 }
 
 export interface AssistantMessage {
@@ -136,17 +257,37 @@ export interface AssistantProfile {
   merit?: number | null;
   category?: string | null;
   gender?: string | null;
+  homeUniversity?: string | null;
 }
 
 export const api = {
   find: (req: FindRequest) => post<FindResponse>("/api/rank-finder", req),
   simulate: (req: SimulateRequest) => post<SimulateResponse>("/api/simulate", req),
-  colleges: (q: string, university?: string) =>
-    get<{ colleges: College[]; count: number; total: number }>(
-      `/api/colleges?q=${encodeURIComponent(q)}&university=${encodeURIComponent(university ?? "")}&limit=400`
+  colleges: (q: string, university?: string, filters: { district?: string; type?: string } = {}) =>
+    get<{ colleges: College[]; count: number; total: number; districts?: string[]; collegeTypes?: string[] }>(
+      `/api/colleges?q=${encodeURIComponent(q)}&university=${encodeURIComponent(university ?? "")}` +
+        `&district=${encodeURIComponent(filters.district ?? "")}&type=${encodeURIComponent(filters.type ?? "")}&limit=400`
     ),
+  branches: () => get<{ branches: string[] }>("/api/branches"),
+  /** State closing ranks for one branch across the loaded years (year-on-year trends). */
+  branchHistory: (choiceCode: string) =>
+    get<{ choiceCode: string; collegeCode: string; collegeName: string | null; branch: string; years: number[]; rows: HistoryRow[] }>(
+      `/api/branches/${encodeURIComponent(choiceCode)}/history`,
+    ),
+  meta: () => get<DataMeta>("/api/meta"),
+  /**
+   * Every branch's open closing rank: [choiceCode, collegeCode, branch, roundI, latest, group, seatType].
+   * State level (GOPENS) where the branch has it, else other-than-home-university (GOPENO), home
+   * university (GOPENH), then ladies-only open seats at women's colleges (LOPEN*).
+   */
+  openLatest: () =>
+    get<{ year: number; seatTypes: string[]; rows: OpenLatestRow[] }>("/api/cutoffs/open-latest"),
   collegeCutoffs: (code: string) =>
-    get<{ college: { code: string; name: string }; year: number; cutoffs: object[] }>(
+    get<{
+      college: { code: string; name: string; status?: string | null; homeUniversity?: string | null; district?: string | null; collegeType?: string | null; totalIntake?: number | null };
+      year: number;
+      cutoffs: object[];
+    }>(
       `/api/colleges/${code}/cutoffs`
     ),
   meritEstimate: (percentile: number, subjectGroup: "PCM" | "PCB") =>
@@ -155,6 +296,8 @@ export const api = {
     ),
   collegeFees: (code: string) =>
     get<CollegeFees | CollegeFeesUnavailable>(`/api/colleges/${code}/fees`),
+  collegePlacement: (code: string) =>
+    get<CollegePlacement | { available: false; code: string }>(`/api/colleges/${code}/placement`),
   jeeEstimate: (percentile: number) =>
     get<{
       percentile: number;

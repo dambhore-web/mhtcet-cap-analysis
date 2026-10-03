@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>College Page Layout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Latin:wdth,wght@75..125,400..800&family=Geist+Mono:wght@400;500;600&family=Poppins:wght@400;500;600&display=swap">
+<style>
+/* ── Tokens ───────────────────────────────────────────────────────────
+   Colour: the app's Calm blue palette, unchanged.
+   Type:   Anek Latin (display, narrow width) · Poppins (body, as in the app)
+           · Geist Mono (merit numbers, like a CET Cell allotment list).
+   Signature: the merit ruler in the hero. */
+:root {
+  --ink:#0f172a; --text:#1e293b; --muted:#475569; --muted-2:#64748b;
+  --page:#f8fafc; --card:#fff; --line:#e2e8f0; --line-soft:#f1f5f9;
+  --blue:#2563eb; --blue-deep:#1d4ed8; --blue-soft:#93c5fd; --tint:#eff6ff; --tint-2:#f5f8ff;
+  --amber:#f59e0b; --amber-text:#b45309; --amber-bg:#fffbeb;
+  --r-sm:8px; --r-md:12px; --r-lg:18px;
+  --shadow:0 1px 2px rgba(15,23,42,.04), 0 6px 24px rgba(15,23,42,.05);
+  --display:"Anek Latin","Poppins",system-ui,sans-serif;
+  --body:"Poppins","Segoe UI",system-ui,sans-serif;
+  --mono:"Geist Mono",ui-monospace,"Cascadia Mono",monospace;
+}
+* { box-sizing:border-box; }
+body { margin:0; background:#e6ebf2; color:var(--text); font:14px/1.55 var(--body); }
+h1,h2,h3 { margin:0; color:var(--ink); }
+p { margin:0; }
+a { color:var(--blue); }
+:focus-visible { outline:2px solid var(--blue); outline-offset:2px; border-radius:4px; }
+.num, .mono { font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+
+/* ── Mockup chrome (not part of the design) ── */
+.toolbar { position:sticky; top:0; z-index:30; background:var(--ink); color:#fff; padding:10px 16px; display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; font-size:12px; }
+.toolbar strong { font-size:13px; font-weight:600; margin-right:auto; }
+.seg { display:inline-flex; background:#1e293b; border-radius:999px; padding:3px; }
+.seg button { font:inherit; border:0; background:none; color:#cbd5e1; padding:5px 12px; border-radius:999px; cursor:pointer; }
+.seg button[aria-pressed="true"] { background:#fff; color:var(--ink); font-weight:600; }
+.toolbar label { color:#cbd5e1; display:flex; gap:6px; align-items:center; cursor:pointer; }
+.stage { padding:24px 16px 64px; display:flex; justify-content:center; }
+.device { width:100%; max-width:1360px; background:var(--page); border-radius:14px; box-shadow:0 10px 40px rgba(15,23,42,.15); overflow:clip; transition:max-width .25s; }
+body.phone .device { max-width:390px; }
+
+/* ── Nav ── */
+.topnav { height:60px; background:#fff; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; padding:0 40px; }
+.brand { display:flex; align-items:center; gap:9px; font:700 21px/1 var(--display); font-stretch:95%; color:var(--ink); }
+.brand-mark { width:30px; height:30px; border-radius:50%; background:var(--blue); display:grid; place-items:center; color:#fff; }
+.brand-sub { border-left:1px solid var(--line); padding-left:14px; font-size:12px; color:var(--muted-2); }
+.navlinks { margin-left:auto; display:flex; gap:28px; font-size:13px; }
+.navlinks a { color:var(--muted); text-decoration:none; padding:20px 0; }
+.navlinks a[aria-current] { color:var(--blue); font-weight:600; box-shadow:inset 0 -2px 0 var(--blue); }
+.menu { display:none; margin-left:auto; font-size:22px; color:var(--muted); }
+body.phone .topnav { padding:0 16px; height:54px; }
+body.phone .brand-sub, body.phone .navlinks { display:none; }
+body.phone .menu { display:block; }
+
+/* ── Page grid ── */
+.page { padding:28px 40px 36px; display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:20px 24px; align-items:start; }
+.hero { grid-column:1 / -1; }
+.col { display:flex; flex-direction:column; gap:20px; min-width:0; }
+.side { position:sticky; top:72px; gap:16px; }
+body.phone .page { padding:18px 16px 28px; display:flex; flex-direction:column; gap:14px; }
+body.phone .col { display:contents; }
+body.phone .side { position:static; }
+body.phone [data-k="branch"] { order:2; } body.phone [data-k="glance"] { order:3; }
+body.phone [data-k="drill"] { order:4; } body.phone [data-k="fees"] { order:5; }
+body.phone [data-k="placement"] { order:6; } body.phone .foot { order:7; } body.phone .side-note { order:8; }
+
+/* ── Hero ── */
+.eyebrow { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12px; color:var(--muted-2); }
+.eyebrow .mono { color:var(--ink); font-weight:500; }
+.hero-top { display:flex; justify-content:space-between; align-items:flex-end; gap:16px 24px; flex-wrap:wrap; }
+.hero h1 { font:700 46px/1.02 var(--display); font-stretch:82%; letter-spacing:-.015em; margin-top:8px; max-width:900px; text-wrap:balance; }
+.hero h1 .place { display:block; font-weight:500; font-size:.52em; letter-spacing:0; color:var(--muted); margin-top:6px; font-stretch:90%; }
+body.phone .hero h1 { font-size:31px; }
+.actions { display:flex; gap:8px; }
+.btn { font:500 13px/1 var(--body); border:1px solid var(--line); background:#fff; color:var(--text); padding:8px 13px; border-radius:var(--r-sm); cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+.btn:hover { border-color:var(--blue-soft); }
+.btn-primary { background:var(--blue); border-color:var(--blue); color:#fff; }
+.btn-primary:hover { background:var(--blue-deep); }
+.btn-sm { font-size:12px; padding:6px 10px; }
+.btn svg { width:15px; height:15px; }
+
+/* the merit ruler (signature) */
+.ruler-card { margin-top:22px; background:var(--card); border:1px solid #e8edf5; border-radius:var(--r-lg); box-shadow:var(--shadow); padding:20px 24px 18px; display:grid; grid-template-columns:230px minmax(0,1fr); gap:8px 32px; align-items:center; }
+body.phone .ruler-card { grid-template-columns:1fr; padding:16px; gap:14px; }
+.controls { display:flex; flex-direction:column; gap:12px; }
+.field { display:flex; flex-direction:column; gap:4px; }
+.field > span { font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted-2); }
+.merit-in { font:700 38px/1 var(--display); font-stretch:85%; font-variant-numeric:tabular-nums; color:var(--ink); border:0; border-bottom:2px solid var(--line); padding:4px 0 6px; width:100%; background:none; letter-spacing:-.02em; }
+.merit-in:focus { outline:none; border-bottom-color:var(--blue); }
+select { font:inherit; font-size:13px; border:1px solid var(--line); border-radius:var(--r-sm); padding:7px 9px; background:#fff; color:var(--text); width:100%; }
+.row2 { display:grid; grid-template-columns:1fr; gap:10px; }
+body.phone .row2 { grid-template-columns:1fr 1fr; }
+.verdict { font:600 26px/1.15 var(--display); font-stretch:88%; color:var(--ink); }
+.verdict .mono { font-family:inherit; letter-spacing:0; }
+.verdict b { color:var(--blue); font-weight:700; }
+body.phone .verdict { font-size:21px; }
+.verdict-sub { font-size:12px; color:var(--muted-2); margin-top:4px; }
+.ruler { position:relative; margin-top:8px; touch-action:none; user-select:none; }
+.ruler svg { display:block; width:100%; overflow:visible; }
+.ruler .handle { cursor:grab; }
+.ruler .handle:active { cursor:grabbing; }
+.ruler-hint { font-size:11px; color:var(--muted-2); display:flex; justify-content:space-between; gap:8px; margin-top:2px; }
+body.phone .ruler-hint span:nth-child(2) { display:none; }
+
+/* ── Cards ── */
+.card { background:var(--card); border:1px solid #e8edf5; border-radius:var(--r-lg); box-shadow:var(--shadow); padding:22px 24px; }
+body.phone .card { padding:16px; }
+.side .card { padding:18px; }
+.card-head { display:flex; align-items:baseline; gap:8px 12px; flex-wrap:wrap; }
+.card-head h2 { font:650 23px/1.1 var(--display); font-stretch:85%; letter-spacing:-.005em; }
+.side .card-head h2 { font-size:18px; }
+.card-head .desc { font-size:12px; color:var(--muted-2); margin-top:3px; }
+.small { font-size:12px; color:var(--muted-2); }
+.info { display:flex; gap:8px; align-items:flex-start; background:#fff7ed; border:1px dashed #fdba74; border-radius:var(--r-md); padding:8px 11px; font-size:12px; color:#9a3412; margin-top:14px; }
+body.no-notes .info { display:none; }
+
+/* charts */
+.legend { display:flex; gap:18px; flex-wrap:wrap; align-items:center; font-size:11px; color:var(--muted); margin:14px 0 4px; }
+.dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:-1px; }
+.dot-r1 { border:2px solid var(--blue); background:#fff; }
+.dot-last { background:var(--amber); }
+.dash { display:inline-block; width:16px; border-top:2px dashed var(--ink); margin-right:6px; vertical-align:3px; }
+.chart-wrap { position:relative; }
+svg.dumbbell { display:block; width:100%; }
+svg.dumbbell .row { outline:none; }
+.tip { position:absolute; pointer-events:none; background:var(--ink); color:#fff; font-size:12px; padding:8px 10px; border-radius:var(--r-sm); min-width:160px; box-shadow:0 8px 24px rgba(15,23,42,.2); z-index:3; }
+.tip b { display:block; margin-bottom:4px; font-weight:600; }
+.tip div { display:flex; justify-content:space-between; gap:12px; font-family:var(--mono); }
+.chart-foot { display:flex; justify-content:space-between; gap:10px; font-size:12px; margin-top:4px; flex-wrap:wrap; }
+.chart-foot a { font-weight:500; }
+
+/* drill-in */
+.chips { display:flex; gap:6px; flex-wrap:wrap; margin:16px 0 12px; }
+body.phone .chips { flex-wrap:nowrap; overflow-x:auto; margin:14px -16px 12px; padding:0 16px 4px; scrollbar-width:none; }
+.chip { font:inherit; font-size:12px; white-space:nowrap; border:1px solid var(--line); background:#fff; color:var(--text); padding:6px 11px; border-radius:var(--r-sm); cursor:pointer; display:inline-flex; gap:7px; align-items:baseline; }
+.chip:hover { border-color:var(--blue-soft); }
+.chip .rk { font:500 11px var(--mono); color:var(--muted-2); }
+.chip.reach .rk { color:var(--blue); }
+.chip[aria-pressed="true"] { background:var(--ink); border-color:var(--ink); color:#fff; }
+.chip[aria-pressed="true"] .rk { color:var(--blue-soft); }
+.add-row { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; background:var(--tint-2); border-radius:var(--r-md); padding:9px 12px; font-size:12px; color:var(--muted); }
+.add-row strong { color:var(--ink); font-weight:500; }
+.add-row .acts { display:flex; gap:8px; }
+
+/* side */
+.kv { margin:14px 0 0; display:grid; grid-template-columns:1fr 1fr; gap:14px 12px; }
+.kv dt { font-size:11px; color:var(--muted-2); }
+.kv dd { margin:2px 0 0; font-weight:600; font-size:13px; color:var(--ink); }
+.kv dd.big { font:700 26px/1.1 var(--display); font-stretch:85%; }
+.fees-total { display:flex; align-items:baseline; gap:8px; margin-top:10px; }
+.fees-total .num { font:700 28px/1 var(--display); font-stretch:85%; color:var(--ink); }
+.sample { display:inline-block; font:600 10px var(--body); background:var(--amber-bg); color:var(--amber-text); border-radius:999px; padding:1px 8px; }
+details summary { list-style:none; cursor:pointer; }
+details summary::-webkit-details-marker { display:none; }
+.more { display:inline-block; color:var(--blue); font-size:12px; font-weight:500; margin-top:10px; }
+details[open] .more .o, details:not([open]) .more .c { display:none; }
+.fees-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0 6px; }
+.fees-grid dt { font-size:11px; color:var(--muted-2); } .fees-grid dd { margin:0; font:500 13px var(--mono); }
+.pl-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:12px; }
+.pl-grid div { border-left:2px solid var(--line); padding-left:10px; }
+.pl-grid .num { display:block; font:700 22px/1.15 var(--display); font-stretch:85%; color:var(--ink); line-height:1.2; }
+table { width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
+th { text-align:left; font-size:11px; color:var(--muted-2); font-weight:500; padding:5px 3px; border-bottom:1px solid var(--line); }
+td { padding:6px 3px; border-bottom:1px solid var(--line-soft); }
+td:not(:first-child), th:not(:first-child) { text-align:right; font-family:var(--mono); }
+.foot { font-size:12px; color:var(--muted-2); }
+
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M8 3h8l-1 6 3 4H6l3-4z"/></symbol>
+</svg>
+
+<div class="toolbar">
+  <strong>College page · design pass (mockup)</strong>
+  <div class="seg" role="group" aria-label="Device">
+    <button type="button" data-dev="desktop" aria-pressed="true">Desktop</button>
+    <button type="button" data-dev="phone" aria-pressed="false">Phone</button>
+  </div>
+  <label><input type="checkbox" id="notes" checked> Design notes</label>
+</div>
+
+<div class="stage">
+  <div class="device">
+    <header class="topnav">
+      <span class="brand"><span class="brand-mark"><svg width="17" height="17"><use href="#i-compass"/></svg></span>Compass</span>
+      <span class="brand-sub">MHT-CET CAP cutoffs</span>
+      <nav class="navlinks"><a href="find.html">Find colleges</a><a href="colleges.html" aria-current="page">Colleges</a><a href="list.html">My option form</a><a href="index.html">All mockups</a></nav>
+      <span class="menu" aria-hidden="true">≡</span>
+    </header>
+
+    <main class="page">
+      <!-- HERO: the college, then the merit ruler that answers "can I get in?" -->
+      <section class="hero" data-k="hero">
+        <div class="eyebrow">
+          <span>College code <span class="mono">03012</span></span>
+          <span>Government-Aided</span>
+          <span>Mumbai-Suburban</span>
+          <span>CAP <span class="mono">2026</span> closing ranks</span>
+        </div>
+        <div class="hero-top">
+          <h1>Veermata Jijabai Technological Institute (VJTI)<span class="place">Matunga, Mumbai</span></h1>
+          <div class="actions">
+            <button class="btn" type="button"><svg><use href="#i-link"/></svg>Copy link</button>
+            <button class="btn" type="button"><svg><use href="#i-pin"/></svg>Add to compare</button>
+          </div>
+        </div>
+
+        <div class="ruler-card">
+          <form class="controls" onsubmit="event.preventDefault(); readInputs();">
+            <label class="field"><span>Your state merit number</span><input class="merit-in" id="merit-in" inputmode="numeric" autocomplete="off" aria-describedby="ruler-hint"></label>
+            <div class="row2">
+              <label class="field"><span>Category</span><select id="cat-in"></select></label>
+              <label class="field"><span>University</span><select><option>All levels</option><option>State</option></select></label>
+            </div>
+          </form>
+          <div>
+            <p class="verdict" aria-live="polite" data-verdict></p>
+            <p class="verdict-sub" data-verdict-sub></p>
+            <div class="ruler" data-ruler></div>
+            <div class="ruler-hint" id="ruler-hint"><span>← harder to get</span><span>Drag the pin, or type your merit number</span><span>easier to get →</span></div>
+          </div>
+        </div>
+        <p class="info">The signature element: one ruler for the whole college. Each tick is a branch's latest-round cutoff; the pin is you. Ticks to the right of the pin turn blue: those branches admitted someone with your merit or worse. Dragging the pin (or using the arrow keys on it) updates both charts below. It replaces the illustration, the trust badges and the separate “Your chances” card.</p>
+      </section>
+
+      <!-- LEFT: charts -->
+      <div class="col">
+        <section class="card" data-k="branch">
+          <div class="card-head">
+            <div><h2>Closing rank by branch</h2><p class="desc">The last merit number admitted to each branch. Lower is harder to get.</p></div>
+          </div>
+          <div class="legend">
+            <span><span class="dot dot-r1"></span>Round I</span>
+            <span><span class="dot dot-last"></span>Latest round</span>
+            <span><span class="dash"></span>Your merit</span>
+          </div>
+          <div class="chart-wrap" data-chart="branch"></div>
+          <div class="chart-foot"><span class="small">Hover a row for both rounds. Click it to see how its cutoff moved over the years.</span><a href="#">Show as a table →</a></div>
+        </section>
+
+        <section class="card" data-k="drill">
+          <div class="card-head">
+            <div><h2>One branch, every seat type</h2><p class="desc">Closing ranks for OBC, ladies, TFWS and the rest, in the branch you pick.</p></div>
+          </div>
+          <div class="chips" role="group" aria-label="Branch" data-chips></div>
+          <div class="add-row">
+            <span>Choice code <strong class="mono" data-code></strong> · <span data-branch-name></span></span>
+            <span class="acts"><a class="btn btn-sm" href="branch.html" id="trends-link" style="text-decoration:none">Branch trends</a><button class="btn btn-sm btn-primary" type="button"><svg><use href="#i-plus"/></svg>Add to option form</button></span>
+          </div>
+          <div class="legend">
+            <span><span class="dot dot-r1"></span>Round I</span>
+            <span><span class="dot dot-last"></span>Latest round</span>
+            <span><span class="dash"></span>Your merit</span>
+          </div>
+          <div class="chart-wrap" data-chart="seat"></div>
+          <div class="chart-foot"><span class="small">Hardest seat type first.</span><a href="#">Show as a table →</a></div>
+          <p class="info">Branch buttons carry their cutoff (blue = within your merit) and replace the dropdown. The “Try a different merit number” slider is gone: the ruler's pin does that job for the whole page.</p>
+        </section>
+
+        <p class="foot">Closing ranks from official CET Cell CAP 2026 allotment lists. Past cutoffs are a guide, not a guarantee. <a href="#">Disclaimer</a></p>
+      </div>
+
+      <!-- RIGHT: college facts -->
+      <aside class="col side">
+        <section class="card" data-k="glance">
+          <div class="card-head"><h2>At a glance</h2></div>
+          <dl class="kv">
+            <div><dt>Branches in CAP</dt><dd class="big">9</dd></div>
+            <div><dt>Total intake</dt><dd class="big">540</dd></div>
+            <div><dt>Home university</dt><dd>None (state level only)</dd></div>
+            <div><dt>District</dt><dd>Mumbai-Suburban</dd></div>
+          </dl>
+        </section>
+
+        <details class="card" data-k="fees">
+          <summary>
+            <div class="card-head"><h2>Fees per year</h2></div>
+            <div class="fees-total"><span class="num">₹85,000</span><span class="sample">sample</span></div>
+            <span class="more"><span class="o">Show breakdown ↓</span><span class="c">Hide breakdown ↑</span></span>
+          </summary>
+          <dl class="fees-grid">
+            <div><dt>Tuition</dt><dd>₹70,000</dd></div>
+            <div><dt>Development</dt><dd>₹10,000</dd></div>
+            <div><dt>Other</dt><dd>₹5,000</dd></div>
+          </dl>
+          <p class="small">Placeholder figures: the app has no fee record for VJTI yet.</p>
+        </details>
+
+        <details class="card" data-k="placement">
+          <summary>
+            <div class="card-head"><h2>Placement</h2><span class="small">B.E./B.Tech</span></div>
+            <div class="pl-grid">
+              <div><span class="num">87.2%</span><span class="small">placed</span></div>
+              <div><span class="num">₹11.2L</span><span class="small">median</span></div>
+              <div><span class="num">₹72.3L</span><span class="small">highest</span></div>
+            </div>
+            <span class="more"><span class="o">Show each batch ↓</span><span class="c">Hide batches ↑</span></span>
+          </summary>
+          <p class="small" style="margin-top:8px"><span class="sample">Unverified</span> Placed and highest are the college's own 2025-26 figures; median is from NIRF 2024-25.</p>
+          <table>
+            <thead><tr><th>Batch</th><th>Grads</th><th>Placed</th><th>Median</th></tr></thead>
+            <tbody>
+              <tr><td>2024-25</td><td>674</td><td>83.4%</td><td>₹11.2L</td></tr>
+              <tr><td>2023-24</td><td>690</td><td>82.6%</td><td>₹10.9L</td></tr>
+              <tr><td>2022-23</td><td>722</td><td>81%</td><td>₹10L</td></tr>
+              <tr><td>2021-22</td><td>639</td><td>87.5%</td><td>₹9.3L</td></tr>
+            </tbody>
+          </table>
+        </details>
+        <p class="info side-note">Right column: facts about the college in quiet type; it stays in view while you scroll. Icon tiles removed so the headings carry it.</p>
+      </aside>
+    </main>
+  </div>
+</div>
+
+<script>
+// Real CAP 2026 numbers for VJTI (03012) from /api/colleges/03012/cutoffs: [Round I, latest round] per seat type
+const DATA = {"Civil Engineering":{"code":"0301219110","s":{"GOPENS":[4390,4621],"GSCS":[15032,17437],"GSTS":[41275,41593],"GVJS":[10541,10541],"GNT2S":[8178,8178],"GNT3S":[7252,7252],"GOBCS":[5761,5185],"GSEBCS":[6958,6958],"LOPENS":[6729,6758],"LSCS":[22593,22593],"LSTS":[38043,38043],"LNT1S":[15928,15928],"LOBCS":[9771,11331],"LSEBCS":[8569,11531],"PWDOPENS":[78526,78526],"PWDOBCS":[99872,99872],"DEFOPENS":[17803,17803],"DEFOBCS":[22684,22684],"TFWS":[4923,4923],"PWDROBCS":[96126,174712],"DEFROBCS":[18003,18003],"ORPHANN":[195774,195774],"EWS":[12833,13462]}},"Computer Engineering":{"code":"0301224510","s":{"GOPENS":[71,71],"GSCS":[2632,5431],"GSTS":[7992,8500],"GNT1S":[134,134],"GNT2S":[753,903],"GNT3S":[252,252],"GOBCS":[120,120],"GSEBCS":[546,763],"LOPENS":[166,166],"LSCS":[5554,8730],"LSTS":[13697,13697],"LVJS":[5758,5758],"LNT2S":[2198,2198],"LNT3S":[3061,3061],"LOBCS":[715,976],"LSEBCS":[890,890],"PWDOPENS":[3834,3834],"PWDOBCS":[11855,18345],"DEFOPENS":[57499,57499],"DEFOBCS":[22220,22220],"TFWS":[90,90],"PWDROBCS":[10129,21444],"DEFROBCS":[15476,15476],"ORPHANN":[8497,8497],"EWS":[620,620]}},"Information Technology":{"code":"0301224610","s":{"GNT2S":[1098,1098],"GOPENS":[243,75],"GSCS":[4169,4886],"GSTS":[16184,16184],"GVJS":[1946,1946],"GNT3S":[429,429],"GOBCS":[690,662],"GSEBCS":[774,1318],"LOPENS":[480,205],"LSCS":[6824,9496],"LSTS":[21503,21503],"LNT1S":[3905,3905],"LNT2S":[3334,3334],"LOBCS":[1172,1469],"LSEBCS":[1467,1467],"PWDOPENS":[8322,18789],"PWDOBCS":[21444,56581],"DEFOPENS":[103408,103408],"DEFOBCS":[32222,32222],"TFWS":[510,520],"PWDROBCS":[15995,24249],"DEFRSEBCS":[12060,12060],"ORPHANN":[12052,12052],"EWS":[1360,1437]}},"Electrical Engineering":{"code":"0301229310","s":{"GOPENS":[1538,1832],"GSCS":[11164,9786],"GSTS":[34751,47318],"GVJS":[7509,7509],"GNT1S":[5985,6338],"GNT2S":[4546,5107],"GNT3S":[3727,3727],"GOBCS":[2379,2553],"GSEBCS":[3443,3340],"LOPENS":[2283,2222],"LSCS":[15198,15198],"LSTS":[34683,34683],"LVJS":[6676,6676],"LOBCS":[3668,3668],"LSEBCS":[4686,6204],"PWDOPENS":[39422,39422],"PWDOBCS":[68782,68782],"DEFOPENS":[3407,3407],"DEFOBCS":[9744,9744],"TFWS":[2416,2447],"PWDROBCS":[51336,51336],"DEFRSEBCS":[4865,4865],"ORPHANI":[161112,161112],"EWS":[5090,5127]}},"Electronics and Telecommunication Engg":{"code":"0301237210","s":{"GOPENS":[475,490],"GSCS":[5773,6262],"GSTS":[22709,22709],"GVJS":[3610,5325],"GNT1S":[4586,5985],"GNT2S":[3091,3091],"GOBCS":[1255,1295],"GSEBCS":[1682,1682],"LOPENS":[1155,1390],"LSCS":[9496,11648],"LSTS":[37763,37763],"LNT2S":[4942,4942],"LNT3S":[5426,5426],"LOBCS":[1929,1430],"LSEBCS":[2111,3754],"PWDOPENS":[20275,34637],"PWDOBCS":[43754,43754],"DEFOPENS":[40064,40064],"DEFOBCS":[1658,1658],"TFWS":[917,1149],"PWDROBCS":[26510,26510],"DEFRSEBCS":[2129,2129],"ORPHANN":[40012,25814],"EWS":[2180,2259]}},"Electronics Engineering":{"code":"0301237610","s":{"DEFOBCS":[6485,3312],"GOPENS":[925,1168],"GSCS":[8403,8958],"GSTS":[27504,32442],"GVJS":[5325,5645],"GNT2S":[4342,5854],"GNT3S":[1677,1677],"GOBCS":[1660,1776],"GSEBCS":[2159,2159],"LOPENS":[1531,2042],"LSCS":[12926,12926],"LSTS":[51457,51457],"LVJS":[10188,10188],"LNT1S":[4091,4091],"LNT2S":[5129,5129],"LOBCS":[3347,3347],"LSEBCS":[3237,3237],"PWDOPENS":[20669,55355],"PWDOBCS":[58956,58956],"DEFOPENS":[2555,2555],"TFWS":[1419,1962],"PWDRSCS":[44622,44622],"DEFRSEBCS":[3681,3681],"ORPHANI":[98494,151301],"EWS":[3070,3070]}},"Mechanical Engineering":{"code":"0301261210","s":{"GOPENS":[1661,1911],"GSCS":[11337,11337],"GSTS":[39685,41284],"GVJS":[9890,9890],"GNT1S":[6024,6024],"GNT2S":[5559,7525],"GNT3S":[3818,3818],"GOBCS":[2697,2697],"GSEBCS":[3749,3693],"LOPENS":[3242,3271],"LSCS":[19243,19243],"LSTS":[53400,53400],"LNT3S":[9163,9163],"LOBCS":[5155,5292],"LSEBCS":[5663,5663],"PWDOPENS":[59157,59157],"PWDOBCS":[83385,83385],"DEFOPENS":[8461,8461],"DEFOBCS":[15432,15432],"TFWS":[3116,3051],"PWDROBCS":[78595,75814],"DEFRSEBCS":[11545,13705],"ORPHANN":[144440,144440],"EWS":[5379,5492]}},"Production Engineering[Sandwich]":{"code":"0301262610","s":{"LNT2S":[37416,37416],"GOPENS":[4369,3425],"GSCS":[20622,20622],"GSTS":[67938,67938],"GVJS":[20651,20651],"GNT2S":[9631,9631],"GNT3S":[11209,11209],"GOBCS":[5923,5792],"GSEBCS":[6754,6754],"LOPENS":[6411,6544],"LSCS":[30589,30589],"LSTS":[43805,43805],"LVJS":[38682,38682],"LNT1S":[22533,22533],"LOBCS":[10548,10548],"LSEBCS":[10656,10656],"PWDOPENS":[151634,151634],"PWDOBCS":[186519,4479],"DEFOPENS":[14697,16716],"DEFOBCS":[23848,23848],"TFWS":[5157,5493],"PWDRSCS":[171397,171397],"DEFRSEBCS":[22460,28018],"EWS":[9999,9795],"ORPHANI":[4411,4411]}},"Textile Technology":{"code":"0301289610","s":{"GOPENS":[7359,8037],"GSCS":[24503,24222],"GSTS":[95484,109892],"GVJS":[28331,23130],"GNT1S":[14051,16316],"GNT2S":[22943,22943],"GNT3S":[15929,15929],"GOBCS":[12825,14574],"GSEBCS":[13648,19328],"LOPENS":[10901,12889],"LSCS":[33174,33174],"LSTS":[95258,95258],"LVJS":[39242,108528],"LNT2S":[20198,38122],"LOBCS":[16731,16731],"LSEBCS":[13470,34526],"PWDOPENS":[56734,56734],"DEFOPENS":[24307,24307],"DEFOBCS":[44394,44394],"TFWS":[10909,14415],"DEFROBCS":[27981,56618],"EWS":[20740,20840],"PWDOBCS":[9563,9563],"ORPHANI":[8368,8912]}}};
+
+const QUOTA = { G: "General", L: "Ladies", DEF: "Defence", DEFR: "Defence, common", PWD: "Disability (PWD)", PWDR: "PWD, common" };
+const CAT = { OPEN: "open", OBC: "OBC", SEBC: "SEBC", SC: "SC", ST: "ST", VJ: "VJ/DT", NT1: "NT-B", NT2: "NT-C", NT3: "NT-D" };
+const STANDALONE = { TFWS: "TFWS (fee waiver)", EWS: "EWS", ORPHANN: "Orphan", ORPHANI: "Orphan" };
+function seatLabel(t) {
+  if (STANDALONE[t]) return STANDALONE[t];
+  const m = t.match(/^(PWDR|PWD|DEFR|DEF|G|L)(OPEN|OBC|SEBC|SC|ST|VJ|NT1|NT2|NT3)([HOS])$/);
+  return m ? `${QUOTA[m[1]]} ${CAT[m[2]]}` : t;
+}
+const SHORT = { "Computer Engineering": "Computer", "Information Technology": "IT", "Electronics and Telecommunication Engg": "E&TC",
+  "Electronics Engineering": "Electronics", "Electrical Engineering": "Electrical", "Mechanical Engineering": "Mechanical",
+  "Production Engineering[Sandwich]": "Production", "Civil Engineering": "Civil", "Textile Technology": "Textile" };
+const fmt = n => n.toLocaleString("en-IN");
+const TICKS = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 400000];
+const tl = t => t >= 1000 ? t / 1000 + "k" : String(t);
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+let merit = 1500, category = "GOPENS", selected = "Civil Engineering";
+
+function branchSeries() {
+  return Object.entries(DATA).filter(([, b]) => b.s[category])
+    .map(([name, b]) => ({ label: name, r1: b.s[category][0], last: b.s[category][1] }))
+    .sort((p, q) => p.last - q.last);
+}
+
+// ── Merit ruler ───────────────────────────────────────────────
+function ruler() {
+  const wrap = document.querySelector("[data-ruler]");
+  const series = branchSeries();
+  const W = wrap.clientWidth || 700, narrow = W < 520;
+  const PAD = 14, LANE = 16, LANES = 3;
+  const vals = series.map(s => s.last).concat(merit);
+  const a = TICKS.filter(t => t <= Math.min(...vals)).at(-1) ?? 50;
+  const z = TICKS.find(t => t >= Math.max(...vals)) ?? 400000;
+  const x = v => PAD + (Math.log(v) - Math.log(a)) / (Math.log(z) - Math.log(a)) * (W - PAD * 2);
+  const inv = px => Math.exp(Math.log(a) + (px - PAD) / (W - PAD * 2) * (Math.log(z) - Math.log(a)));
+  const top = LANES * LANE + 8, base = top + 26, chipY = base + LANES * LANE + 12, H = chipY + 22;
+  const pinX = x(merit);
+
+  // labels alternate above / below; on overlap they move to the next lane or the other side
+  const ends = { up: Array(LANES).fill(-1e9), dn: Array(LANES).fill(-1e9) };
+  const charW = narrow ? 5.6 : 6.4;
+  let labels = "", ticks = "";
+  series.forEach((s, i) => {
+    const tx = x(s.last), reach = merit <= s.last;
+    const name = SHORT[s.label] ?? s.label, w = `${name} ${fmt(s.last)}`.length * charW;
+    let side = i % 2 ? "dn" : "up", lane = ends[side].findIndex(e => e < tx - w / 2 - 6);
+    if (lane < 0) { side = side === "up" ? "dn" : "up"; lane = ends[side].findIndex(e => e < tx - w / 2 - 6); }
+    if (lane < 0) lane = LANES - 1;
+    ends[side][lane] = tx + w / 2;
+    const ly = side === "up" ? top - 8 - lane * LANE : base + 16 + lane * LANE;
+    const anchor = tx - w / 2 < 0 ? "start" : tx + w / 2 > W ? "end" : "middle";
+    ticks += `<line x1="${tx}" x2="${tx}" y1="${side === "up" ? ly + 4 : top}" y2="${side === "up" ? base : ly - 11}" stroke="${reach ? "var(--blue)" : "#cbd5e1"}" stroke-width="${reach ? 2 : 1.5}"/>`;
+    labels += `<text x="${anchor === "start" ? Math.max(tx - 4, 0) : anchor === "end" ? Math.min(tx + 4, W) : tx}" y="${ly}" text-anchor="${anchor}" font-size="${narrow ? 10.5 : 11.5}" fill="${reach ? "var(--blue-deep)" : "var(--muted-2)"}" font-family="var(--body)" font-weight="${reach ? 600 : 400}" stroke="#fff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">${esc(name)} <tspan font-family="var(--mono)" font-weight="500">${fmt(s.last)}</tspan></text>`;
+  });
+
+  const axis = TICKS.filter(t => t >= a && t <= z).map(t =>
+    `<line x1="${x(t)}" x2="${x(t)}" y1="${base}" y2="${base + 5}" stroke="#94a3b8"/>`).join("");
+  wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="height:${H}px" role="img" aria-label="Your merit ${fmt(merit)} against every branch's latest-round cutoff">
+    <rect x="${PAD}" y="${top}" width="${Math.max(pinX - PAD, 0)}" height="${base - top}" rx="4" fill="#f1f5f9"/>
+    <rect x="${pinX}" y="${top}" width="${Math.max(W - PAD - pinX, 0)}" height="${base - top}" rx="4" fill="var(--tint)"/>
+    ${axis}${ticks}${labels}
+    <g class="handle" tabindex="0" role="slider" aria-label="Your merit number" aria-valuemin="${a}" aria-valuemax="${z}" aria-valuenow="${merit}" aria-valuetext="${fmt(merit)}">
+      <rect x="${pinX - 16}" y="${top - 14}" width="32" height="${H - top + 14}" fill="transparent"/>
+      <line x1="${pinX}" x2="${pinX}" y1="${top - 6}" y2="${base + 4}" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="${pinX}" x2="${pinX}" y1="${base + 4}" y2="${chipY}" stroke="var(--ink)" stroke-width="1" stroke-dasharray="2 3"/>
+      <rect x="${pinX - 34}" y="${chipY}" width="68" height="21" rx="10.5" fill="var(--ink)"/>
+      <text x="${pinX}" y="${chipY + 14.5}" text-anchor="middle" font-size="11" fill="#fff" font-family="var(--mono)" font-weight="600">You ${fmt(merit)}</text>
+      <circle cx="${pinX}" cy="${top - 8}" r="6" fill="#fff" stroke="var(--ink)" stroke-width="2"/>
+    </g>
+  </svg>`;
+
+  const svg = wrap.querySelector("svg"), handle = wrap.querySelector(".handle");
+  const toMerit = e => {
+    const r = svg.getBoundingClientRect();
+    const v = inv(Math.min(Math.max((e.clientX - r.left) * (W / r.width), PAD), W - PAD));
+    const step = v < 1000 ? 5 : 10;
+    return Math.max(1, Math.round(v / step) * step);
+  };
+  svg.onpointerdown = e => {
+    svg.setPointerCapture(e.pointerId);
+    setMerit(toMerit(e));
+  };
+  handle.onkeydown = e => {
+    const step = e.shiftKey ? 500 : merit < 1000 ? 10 : 50;
+    if (e.key === "ArrowLeft" || e.key === "ArrowDown") { e.preventDefault(); setMerit(Math.max(1, merit - step), true); }
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") { e.preventDefault(); setMerit(merit + step, true); }
+  };
+  ruler.toMerit = toMerit;
+}
+// drag continues across re-renders, so it listens on the wrapper (which is not replaced)
+let dragging = false;
+document.addEventListener("pointerdown", e => { if (e.target.closest("[data-ruler]")) dragging = true; });
+document.addEventListener("pointermove", e => { if (dragging) setMerit(ruler.toMerit(e)); });
+document.addEventListener("pointerup", () => { dragging = false; });
+
+// ── Dumbbell chart (same encoding as the app's CutoffChart) ──
+function dumbbell(wrap, series, opts = {}) {
+  const width = wrap.clientWidth || 600, narrow = width < 520;
+  const LEFT = narrow ? 108 : 196, RIGHT = narrow ? 14 : 22, ROW = opts.row ?? 34, TOP = 8, BTM = 40;
+  const CW = Math.max(width - LEFT - RIGHT, 1), H = TOP + series.length * ROW + BTM, yAxis = H - BTM;
+  const vals = series.flatMap(s => [s.r1, s.last]).concat(merit);
+  const a = TICKS.filter(t => t <= Math.min(...vals)).at(-1) ?? TICKS[0];
+  const z = TICKS.find(t => t >= Math.max(...vals)) ?? TICKS.at(-1);
+  const x = v => LEFT + (Math.log(v) - Math.log(a)) / (Math.log(z) - Math.log(a)) * CW;
+  let ticks = TICKS.filter(t => t >= a && t <= z);
+  if (narrow) ticks = ticks.filter((_, i) => i % 2 === 0 || i === ticks.length - 1);
+  const max = narrow ? 14 : 27;
+  let s = `<svg class="dumbbell" viewBox="0 0 ${width} ${H}" style="height:${H}px" role="img" aria-label="${opts.aria}">`;
+  series.forEach((d, i) => { if (i % 2 === 0) s += `<rect x="0" y="${TOP + i * ROW}" width="${width}" height="${ROW}" fill="#fafbfd"/>`; });
+  for (const t of ticks) s += `<line x1="${x(t)}" x2="${x(t)}" y1="${TOP}" y2="${yAxis}" stroke="var(--line)"/><text x="${x(t)}" y="${yAxis + 16}" text-anchor="middle" font-size="11" fill="var(--muted-2)" font-family="var(--mono)">${tl(t)}</text>`;
+  s += `<text x="${LEFT + CW / 2}" y="${H - 4}" text-anchor="middle" font-size="11" fill="var(--muted-2)" font-family="var(--body)">Closing rank (log scale)</text>`;
+  series.forEach((d, i) => {
+    const cy = TOP + i * ROW + ROW / 2, x1 = x(d.r1), x2 = x(d.last), reach = merit <= d.last;
+    const lbl = d.label.length > max ? d.label.slice(0, max - 1) + "…" : d.label;
+    s += `<g class="row" data-i="${i}" ${opts.onRow ? 'tabindex="0" role="button"' : ""} style="cursor:${opts.onRow ? "pointer" : "default"}">
+      <rect class="hit" x="0" y="${cy - ROW / 2}" width="${width}" height="${ROW}" fill="transparent"/>
+      <text x="${LEFT - 12}" y="${cy + 4}" text-anchor="end" font-size="12" font-weight="${reach ? 600 : 400}" fill="${reach ? "var(--blue-deep)" : "var(--muted)"}" font-family="var(--body)" pointer-events="none">${esc(lbl)}</text>
+      ${d.r1 !== d.last ? `<line x1="${x1}" x2="${x2}" y1="${cy}" y2="${cy}" stroke="var(--amber)" stroke-width="3" stroke-linecap="round" opacity=".45" pointer-events="none"/>` : ""}
+      <circle cx="${x1}" cy="${cy}" r="5" fill="#fff" stroke="var(--blue)" stroke-width="2" pointer-events="none"/>
+      ${d.r1 !== d.last ? `<circle cx="${x2}" cy="${cy}" r="5" fill="var(--amber)" pointer-events="none"/>` : ""}
+    </g>`;
+  });
+  s += `<line x1="${x(merit)}" x2="${x(merit)}" y1="${TOP - 4}" y2="${yAxis}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3" pointer-events="none"/>`;
+  s += `</svg><div class="tip" hidden></div>`;
+  wrap.innerHTML = s;
+  const tip = wrap.querySelector(".tip");
+  wrap.querySelectorAll("g.row").forEach(g => {
+    const d = series[+g.dataset.i], hit = g.querySelector(".hit");
+    const show = () => { hit.setAttribute("fill", "rgba(219,234,254,.55)"); tip.innerHTML = `<b>${esc(d.label)}</b><div><span>Round I</span><span>${fmt(d.r1)}</span></div><div><span>Latest round</span><span>${fmt(d.last)}</span></div>`; tip.hidden = false; };
+    const hide = () => { hit.setAttribute("fill", "transparent"); tip.hidden = true; };
+    g.onmouseenter = show; g.onmouseleave = hide; g.onfocus = show; g.onblur = hide;
+    g.onmousemove = e => { const r = wrap.getBoundingClientRect(); tip.style.left = Math.min(e.clientX - r.left + 14, r.width - 180) + "px"; tip.style.top = (e.clientY - r.top + 14) + "px"; };
+    if (opts.onRow) { g.onclick = () => opts.onRow(d); g.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); opts.onRow(d); } }; }
+  });
+}
+
+function render() {
+  const bs = branchSeries();
+  const reach = bs.filter(d => merit <= d.last);
+  const catName = seatLabel(category).replace(/^General /, "").toLowerCase();
+  document.querySelector("[data-verdict]").innerHTML = reach.length
+    ? `At <span class="mono">${fmt(merit)}</span>, <b>${reach.length} of ${bs.length}</b> branches here were within reach.`
+    : `At <span class="mono">${fmt(merit)}</span>, none of the ${bs.length} branches here were within reach.`;
+  document.querySelector("[data-verdict-sub]").textContent =
+    `Latest CAP 2026 round, ${catName} seats. ` + (reach.length ? `Hardest one within reach: ${reach[0].label} (${fmt(reach[0].last)}).` : `The easiest branch closed at ${fmt(bs.at(-1).last)}.`);
+  ruler();
+
+  dumbbell(document.querySelector('[data-chart="branch"]'), bs, { aria: "Closing rank for each branch",
+    onRow: d => { location.href = "branch.html?choice=" + DATA[d.label].code; } });
+
+  const b = DATA[selected];
+  document.querySelector("[data-branch-name]").textContent = selected;
+  document.querySelector("[data-code]").textContent = b.code;
+  document.getElementById("trends-link").href = "branch.html?choice=" + b.code;
+  const seats = Object.entries(b.s).map(([t, [r1, last]]) => ({ label: seatLabel(t), r1, last })).sort((p, q) => p.last - q.last);
+  dumbbell(document.querySelector('[data-chart="seat"]'), seats, { row: 28, aria: `Closing rank for each seat type in ${selected}` });
+
+  document.querySelector("[data-chips]").innerHTML = Object.entries(DATA)
+    .sort((p, q) => (p[1].s[category]?.[1] ?? 1e9) - (q[1].s[category]?.[1] ?? 1e9))
+    .map(([n, v]) => { const c = v.s[category]?.[1]; return `<button type="button" class="chip${c && merit <= c ? " reach" : ""}" aria-pressed="${n === selected}" data-b="${esc(n)}">${esc(SHORT[n] ?? n)}<span class="rk">${c ? fmt(c) : "—"}</span></button>`; }).join("");
+}
+
+const meritIn = document.getElementById("merit-in");
+function setMerit(v, refocus) {
+  if (v === merit) return;
+  merit = v; meritIn.value = fmt(merit); render();
+  if (refocus) document.querySelector("[data-ruler] .handle").focus();
+}
+function readInputs() {
+  const v = parseInt(meritIn.value.replace(/[^0-9]/g, ""), 10);
+  if (v > 0) merit = v;
+  meritIn.value = fmt(merit);
+  category = document.getElementById("cat-in").value;
+  render();
+}
+meritIn.value = fmt(merit);
+meritIn.onchange = readInputs;
+let typing; meritIn.oninput = () => { clearTimeout(typing); typing = setTimeout(() => { const v = parseInt(meritIn.value.replace(/[^0-9]/g, ""), 10); if (v > 0 && v !== merit) { merit = v; render(); } }, 250); };
+
+const cats = [...new Set(Object.values(DATA).flatMap(b => Object.keys(b.s)))].filter(t => /^(G|L)[A-Z0-9]+S$/.test(t) || t === "TFWS" || t === "EWS");
+document.getElementById("cat-in").innerHTML = cats.map(t => `<option value="${t}"${t === category ? " selected" : ""}>${seatLabel(t)}</option>`).join("");
+document.getElementById("cat-in").onchange = readInputs;
+document.querySelector("[data-chips]").onclick = e => { const c = e.target.closest(".chip"); if (c) { selected = c.dataset.b; render(); } };
+document.querySelectorAll("[data-dev]").forEach(btn => btn.onclick = () => {
+  document.body.classList.toggle("phone", btn.dataset.dev === "phone");
+  document.querySelectorAll("[data-dev]").forEach(x => x.setAttribute("aria-pressed", x === btn));
+});
+document.getElementById("notes").onchange = e => document.body.classList.toggle("no-notes", !e.target.checked);
+let rt, lastW = 0; new ResizeObserver(([e]) => { const w = Math.round(e.contentRect.width); if (w === lastW) return; lastW = w; clearTimeout(rt); rt = setTimeout(render, 60); }).observe(document.querySelector(".device"));
+document.fonts?.ready.then(render);
+render();
+</script>
+</body>
+</html>

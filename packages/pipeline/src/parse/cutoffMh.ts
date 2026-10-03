@@ -1,5 +1,6 @@
 import { isSeatType } from "@mhtcet/core";
 import { clusterLines, median, type Line, type Word } from "../layout.ts";
+import { normaliseChoiceCode, normaliseCollegeCode } from "./codes.ts";
 
 /**
  * Parser for the official "Cut Off List for Maharashtra & Minority Seats" PDFs (MH lists).
@@ -76,10 +77,26 @@ interface Row {
   page: number;
 }
 
+/**
+ * Historical PDFs used different seat-type spellings. Normalise to the canonical 2026 codes
+ * before header detection so older years parse cleanly.
+ *   ORPH / ORPHAN  → ORPHANN  (2024-2025 used short form for non-minority orphan)
+ *   Codes missing trailing level letter (S = state level): PWDROBC → PWDROBCS, DEFRSEBC → DEFRSEBCS
+ */
+const SEAT_CODE_ALIASES: Record<string, string> = { ORPH: "ORPHANN", ORPHAN: "ORPHANN" };
+function normSeatCode(code: string): string {
+  const alias = SEAT_CODE_ALIASES[code];
+  if (alias) return alias;
+  if (!isSeatType(code) && isSeatType(code + "S")) return code + "S";
+  return code;
+}
+
+const COLLEGE_HEADER = /^\d{4,5} - /;
 const CHROME =
   /Government of Maharashtra|State Common Entrance Test Cell|Cut Off List for|Degree Courses|Master of Engineering|\(Integrated|Admissions A\.Y\./;
 const TITLE_ROUND = /CAP\s+Round\s*-?\s*([IVX]+)\b/;
-const COLLEGE = /^\d{5}$/;
+/** College codes are 5 digits in 2026; 4 digits in 2023–2025 (normalised to 5, see codes.ts). */
+const COLLEGE = /^\d{4,5}$/;
 /** Choice code: 9-10 digits plus optional suffix letters (T TFWS, L regional language, F female, U unaided, K Konkan). */
 const CHOICE = /^\d{9,10}[A-Z]{0,3}$/;
 const NUM = /^\d+$/;
@@ -114,7 +131,10 @@ export class MhCutoffParser {
     this.lastRow = null;
     for (const line of lines) {
       if (/Legends/.test(line.text)) break; // footer: legend, note, page number
-      if (CHROME.test(line.text)) {
+      // A college header is never chrome, even when its name contains a chrome phrase:
+      // "… Group of Institutions (Integrated Campus)" matched `\(Integrated` (meant for the title
+      // "… (Integrated 5 Years)"), so 02111, 02116 and 05303 were filed under the college before them.
+      if (!COLLEGE_HEADER.test(line.text) && CHROME.test(line.text)) {
         const m = TITLE_ROUND.exec(line.text);
         if (m) this.titleRounds.add(m[1]);
         continue;
@@ -132,8 +152,8 @@ export class MhCutoffParser {
     const t = ws.map((w) => w.text);
 
     if (COLLEGE.test(t[0]) && t[1] === "-") {
-      this.collegeCode = t[0];
-      this.colleges.set(t[0], { code: t[0], name: t.slice(2).join(" ") });
+      this.collegeCode = normaliseCollegeCode(t[0]);
+      this.colleges.set(this.collegeCode, { code: this.collegeCode, name: t.slice(2).join(" ") });
       this.branch = null;
       this.section = null;
       this.table = null;
@@ -144,9 +164,9 @@ export class MhCutoffParser {
     if (CHOICE.test(t[0]) && t[1] === "-") {
       if (!this.collegeCode) return this.issue("branch-without-college", line.text);
       this.branch = {
-        choiceCode: t[0], collegeCode: this.collegeCode, name: t.slice(2).join(" "), status: null, homeUniversity: null,
+        choiceCode: normaliseChoiceCode(t[0]), collegeCode: this.collegeCode, name: t.slice(2).join(" "), status: null, homeUniversity: null,
       };
-      this.branches.set(t[0], this.branch);
+      this.branches.set(this.branch.choiceCode, this.branch);
       this.section = null;
       this.table = null;
       this.lastRow = null;
@@ -170,7 +190,7 @@ export class MhCutoffParser {
       this.expect = null;
       return;
     }
-    const codes = t.filter((x) => x !== "Stage");
+    const codes = t.filter((x) => x !== "Stage").map(normSeatCode);
     if (codes.length && codes.every(isSeatType)) return this.header(line, codes, continuation);
     if (t.length === 1 && t[0] === "Stage") return;
 
@@ -197,7 +217,8 @@ export class MhCutoffParser {
 
   private header(line: Line, codes: string[], continuation: boolean): void {
     const hws = line.words.filter((w) => w.text !== "Stage");
-    const headers = hws.map((w) => ({ code: w.text, center: (w.x0 + w.x1) / 2 }));
+    // Use the normalized codes (already checked by the caller) so ORPHAN→ORPHANN etc. are stored.
+    const headers = hws.map((w, i) => ({ code: codes[i], center: (w.x0 + w.x1) / 2 }));
     const diffs = headers.slice(1).map((h, i) => h.center - headers[i].center);
     const pitch = diffs.length ? median(diffs) : DEFAULT_PITCH;
     let ctx: Ctx;

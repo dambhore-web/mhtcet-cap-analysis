@@ -1,8 +1,17 @@
 import type { Context } from "hono";
 import { z } from "zod";
-import { CATEGORIES, rankFind, type CandidateProfile, type CollegeEligibilityContext } from "@mhtcet/core";
+import {
+  CATEGORIES,
+  rankFind,
+  simulateCap,
+  SIMULATED_ROUNDS,
+  AUTO_FREEZE_TOP_N,
+  type CandidateProfile,
+  type CollegeEligibilityContext,
+  type Round,
+  type RoundSeat,
+} from "@mhtcet/core";
 import { type AppCache, minorityCommunity } from "../startup.ts";
-import type { Round } from "@mhtcet/core";
 
 const FlagsSchema = z.object({
   ews: z.boolean().default(false),
@@ -15,17 +24,16 @@ const FlagsSchema = z.object({
 const RequestSchema = z.object({
   year: z.number().int().min(2023).max(2030).default(2026),
   merit: z.number().int().min(1),
+  candidature: z.enum(["MH", "AI"]).default("MH"),
   homeUniversity: z.string().nullable().default(null),
   category: z.enum(CATEGORIES).nullable().default(null),
   gender: z.enum(["M", "F"]),
   minorityCommunity: z.string().nullable().default(null),
   flags: FlagsSchema,
   subjectGroup: z.enum(["PCM", "PCB"]).default("PCM"),
-  /** Ordered preference list — first choice first. Max 300. Must be numeric choice codes. */
-  preferences: z.array(z.string().regex(/^\d{5,15}[A-Z0-9]{0,4}$/)).min(1).max(300),
+  /** Ordered preference list — first choice first. Max 300. */
+  preferences: z.array(z.string().min(1)).min(1).max(300),
 });
-
-const ROUNDS: Round[] = ["I", "II", "III"];
 
 export interface SimulatedAllotment {
   round: Round;
@@ -36,6 +44,11 @@ export interface SimulatedAllotment {
   seatType: string;
   closingMerit: number;
 }
+
+export const SIMULATION_ASSUMPTIONS =
+  "A replay of last year's closing ranks. Each round gives your highest choice that had a seat for your merit; " +
+  "after a seat you float (keep it and stay in line for higher choices) unless the auto-freeze rule locks it. " +
+  "This year's cutoffs and vacancies will differ, so treat it as a rehearsal, not a prediction.";
 
 /** POST /api/simulate */
 export async function postSimulate(c: Context, cache: AppCache) {
@@ -58,7 +71,7 @@ export async function postSimulate(c: Context, cache: AppCache) {
   }
 
   const candidate: CandidateProfile = {
-    candidature: "MH",
+    candidature: req.candidature,
     homeUniversity: req.homeUniversity,
     category: req.category,
     gender: req.gender,
@@ -72,43 +85,53 @@ export async function postSimulate(c: Context, cache: AppCache) {
     subjectGroup: req.subjectGroup,
   };
 
-  const allotments: SimulatedAllotment[] = [];
+  // seats[i][round]: the best eligible seat at preference i+1 that admitted this merit in that round
+  const seats: Partial<Record<Round, RoundSeat | null>>[] = [];
+  const choices: { choiceCode: string; collegeCode: string | null; collegeName: string | null; branch: string | null; known: boolean }[] = [];
 
-  for (const round of ROUNDS) {
-    for (let i = 0; i < req.preferences.length; i++) {
-      const choiceCode = req.preferences[i];
-      const cutoffs = cache.cutoffsByChoiceCode.get(choiceCode);
-      if (!cutoffs || cutoffs.length === 0) continue;
-
-      const branch = cache.branches.get(choiceCode);
-      if (!branch) continue;
-      const college = cache.colleges.get(branch.collegeCode);
-      if (!college) continue;
-
+  for (const choiceCode of req.preferences) {
+    const cutoffs = cache.cutoffsByChoiceCode.get(choiceCode) ?? [];
+    const branch = cache.branches.get(choiceCode);
+    const college = branch ? cache.colleges.get(branch.collegeCode) : undefined;
+    choices.push({ choiceCode, collegeCode: branch?.collegeCode ?? null, collegeName: college?.name ?? null, branch: branch?.name ?? null, known: !!college });
+    const byRound: Partial<Record<Round, RoundSeat | null>> = {};
+    if (college) {
       const collegeCtx: CollegeEligibilityContext = {
         homeUniversity: college.homeUniversity,
         minorityCommunity: minorityCommunity(college.status),
       };
-
-      // Only pass cutoffs for this round — simulates that round's allotment
-      const roundCutoffs = cutoffs.filter((r) => r.round === round);
-      if (roundCutoffs.length === 0) continue;
-
-      const result = rankFind(candidate, collegeCtx, roundCutoffs);
-      if (!result.best || result.best.status === "out-of-range") continue;
-
-      allotments.push({
-        round,
-        rank: i + 1,
-        choiceCode,
-        collegeName: college.name,
-        branch: branch.name,
-        seatType: result.best.seatType,
-        closingMerit: result.best.closingMerit,
-      });
-      break; // Found allotment for this round — move to next round
+      for (const round of SIMULATED_ROUNDS) {
+        const roundCutoffs = cutoffs.filter((r) => r.round === round);
+        const best = roundCutoffs.length ? rankFind(candidate, collegeCtx, roundCutoffs).best : null;
+        byRound[round] = best && best.status !== "out-of-range" ? { seatType: best.seatType, closingMerit: best.closingMerit } : null;
+      }
     }
+    seats.push(byRound);
   }
 
-  return c.json({ allotments, rounds: ROUNDS });
+  const rounds = simulateCap(seats).map((r) => ({
+    ...r,
+    choice: r.preference ? choices[r.preference - 1] : null,
+  }));
+
+  // Legacy shape kept for older clients: one entry per round that held a seat
+  const allotments: SimulatedAllotment[] = rounds
+    .filter((r) => r.preference && r.choice?.known)
+    .map((r) => ({
+      round: r.round,
+      rank: r.preference!,
+      choiceCode: r.choice!.choiceCode,
+      collegeName: r.choice!.collegeName!,
+      branch: r.choice!.branch!,
+      seatType: r.seatType!,
+      closingMerit: r.closingMerit!,
+    }));
+
+  return c.json({
+    rounds,
+    grid: choices.map((ch, i) => ({ preference: i + 1, ...ch, byRound: seats[i] })),
+    freezeZones: AUTO_FREEZE_TOP_N,
+    assumptions: SIMULATION_ASSUMPTIONS,
+    allotments,
+  });
 }

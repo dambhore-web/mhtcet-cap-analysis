@@ -1,5 +1,6 @@
 import { clusterLines, type Word } from "../layout.ts";
 import type { ParseIssue } from "./cutoffMh.ts";
+import { normaliseChoiceCode, normaliseCollegeCode } from "./codes.ts";
 
 /**
  * Parser for the row-per-branch official cutoff lists: the All India list (`..._AI_CutOff.pdf`)
@@ -49,12 +50,39 @@ export const AI_LAYOUT: RowListLayout = {
   seatType: { lo: 760, hi: 840 },
 };
 
+/**
+ * 2023 AI lists have slightly different column positions vs 2026:
+ *   Round I  — exam x≈630, type x=690/699/709, seatType x=758
+ *   Rounds II/III — exam x≈637, type x=697/706/715, seatType x=765
+ * The windows are made tighter to avoid cross-column captures.
+ */
+export const AI_LAYOUT_2023: RowListLayout = {
+  srNo: { lo: 40, hi: 80 },
+  merit: { lo: 80, hi: 122 },
+  percentile: { lo: 105, hi: 165 },
+  choiceCode: { lo: 160, hi: 230 },
+  exam: { lo: 615, hi: 685 },
+  type: { lo: 685, hi: 750 },
+  seatType: { lo: 750, hi: 840 },
+};
+
 export const DIPLOMA_LAYOUT: RowListLayout = {
   srNo: { lo: 40, hi: 80 },
   merit: { lo: 80, hi: 122 },
   percentile: { lo: 105, hi: 165 },
   choiceCode: { lo: 160, hi: 225 },
   exam: { lo: 680, hi: 790 },
+  type: null,
+  seatType: null,
+};
+
+/** 2023–2025 Diploma PDFs use a narrower portrait layout (choice code at x≈119, not 160+). */
+export const DIPLOMA_LAYOUT_2023: RowListLayout = {
+  srNo: { lo: 20, hi: 55 },
+  merit: { lo: 42, hi: 80 },
+  percentile: { lo: 72, hi: 120 },
+  choiceCode: { lo: 110, hi: 165 },
+  exam: { lo: 655, hi: 760 },
   type: null,
   seatType: null,
 };
@@ -110,10 +138,11 @@ export class RowListParser {
         continue;
       }
       if (!pct) this.issues.push({ page: this.page, kind: "row-without-percentile", detail: a.text });
+      const digitLen = (a.text.match(/^\d+/)?.[0] ?? "").length;
       this.rows.push({
         srNo: sr ? Number(sr.text.replace(/,/g, "")) : null,
-        collegeCode: a.text.slice(0, 5),
-        choiceCode: a.text,
+        collegeCode: normaliseCollegeCode(a.text.slice(0, digitLen === 9 ? 4 : 5)),
+        choiceCode: normaliseChoiceCode(a.text),
         closingMerit: Number(merit.text),
         closingPercentile: pct ? Number(PCT.exec(pct.text)![1]) : null,
         exam: joinWin(a, L.exam),

@@ -1,6 +1,6 @@
 # Project status
 
-_Last updated: 2026-09-27_
+_Last updated: 2026-10-02_
 
 ## Current phase
 **Phase 2 done / Phase 4–5 started** — the 2026 data layer is built by AG-002 on branch
@@ -29,7 +29,34 @@ _Last updated: 2026-09-27_
   - multi-state readiness: `authority` + `exam` on all tables and core types (operator decision)
 - Tests: 33 vitest tests with synthetic fixtures, incl. a privacy regression test for masking
 
+- **#136** Find colleges: Likely / Target / Reach tiles (Reach = up to 10% worse than last
+  year's closing; `docs/03-domain/result-bands.md`). **#138** College page section links. **#137** Option form coverage. **#135** Next-step card. **#15** Google sign-in (staging). **#139** My account dashboard. Fix: colleges without
+  state-level open seats (254 of 387) now shown.
+  Branch `feat/find-bands-college-nav`.
+
 ## In progress
+- **App redesign (TASK-0004)** on branch `feat/app-redesign` (from `Dev`, not pushed): every page
+  restyled to the October 2026 mockups in `docs/mockups/`, plus `GET /api/cutoffs/open-latest`.
+  Typecheck and tests pass; every route checked in the browser at desktop width and for overflow
+  at 375px. Awaiting owner review before merging into `Dev`.
+- **Journeys J1–J13 (tracking #119)** on branch `claude/magical-ritchie-wcwhc0`, for review into
+  `Dev`. All 13 pass end to end on the demo dataset (`apps/web/e2e/journeys`). Blocked:
+  - J14 and accounts: need sign-in and payment decisions/credentials (#15, #21, #34, #117).
+  - Earlier years (2023–2025) and districts: loaded to staging on 2026-09-28 through the
+    "Staging data load" workflow (codes normalised to the 2026 form). Seats left (#40) still open.
+  - FRA fees (#42): done 2026-09-28 with `npm run fees -w @mhtcet/pipeline`: 319 of 387 current
+    colleges (313 FRA 2026-27, 6 FRA 2025-26). The 27 government/aided/university colleges and 41
+    unaided colleges not on the FRA report have no fees. The FRA report has no TFWS data or order
+    links, so no entry is "verified".
+- **Seat matrix data (#40, first half):** parser, checks, migration `003_seat_matrix.sql` and
+  staging loader for 2023–2026 (1,900 / 2,055 / 2,181 / 2,307 branches; every branch's printed
+  totals add up). The "seats left" half of #40 is still open.
+- **UI audit fixes (issues #93–#108, tracking #109)** on branch `claude/magical-ritchie-wcwhc0`, for
+  review into `Dev`: design tokens (one type scale, radii, colours), one top navigation with account
+  menu and mobile menu, shared page header and container, error boundary and validated local
+  storage, grouped Find results, plain-language seat labels (NT1/2/3 = NT-B/C/D), new
+  `/estimate` page, CAP guide with How CAP works and Seat codes tabs, empty states, self-hosted fonts.
+  Checked at 360, 390, 768 and 1440 px with no horizontal overflow.
 - **TASK-0003: responsive web app** (branch `feat/web-app`), rank finder first. Start here:
   `tasks/TASK-0003.md` has the plan, the mockups link and the data findings needed for the rank finder.
 - `data/2026-initial` reviewed, merged to `main` and pushed (a841b85). Production DB not loaded (owner decision)
@@ -38,6 +65,7 @@ _Last updated: 2026-09-27_
 Nothing is blocked. The paid launch is gated on the legal items in `docs/07-security/legal-open-items.md`.
 
 ## Next steps
+- Placement data for the 242 colleges still without it (#134): list in `docs/00-project/backlog.md`.
 1. Operator reviews `data/2026-initial` (and `reports/run-*.json`); decides on push/merge and a
    production load (needs explicit approval)
 2. Full allotment crawl (1,548 PDFs) and parser hardening for any new layouts (Phase 5)
@@ -61,9 +89,10 @@ Nothing is blocked. The paid launch is gated on the legal items in `docs/07-secu
 | 10 | Earlier years | not started |
 
 ## Product decisions (2026-09-27)
-Name **Compass** · Maharashtra first, other states later (ADR-007) · build locally, host on
-Railway · Google sign-in only · English only · free vs paid parked. UI mockups:
-https://claude.ai/artifact/7K3x3et9aFdXhbyVx5sLn4 (private). All decisions: `docs/DECISIONS.md`.
+Name **Compass** · Maharashtra first, other states later (ADR-007) · build locally, host web and API on
+Railway (Vercel retired, #118) · plain CSS, no Tailwind · Google sign-in only · English only · free vs paid parked. Reach band = up to 10% worse than last year's closing (2026-10-02, #136). UI mockups:
+https://claude.ai/artifact/AMQz7i84DpLtphboyZUZuD (private, 30 screens + journey map; supersedes
+the earlier phone mockup). Navigation and the 14 user journeys: `docs/02-architecture/navigation.md`. All decisions: `docs/DECISIONS.md`.
 
 ## Known risks
 Commercial reuse of CET Cell data: owner confirmed permitted (L1–L3 resolved). Remaining
@@ -82,7 +111,7 @@ ADR-001 to ADR-006 accepted. Schema: `packages/pipeline/migrations/001_initial_s
 AG-002 ran its first build (this change). AG-001 designed only. LLM provider: `DECISION REQUIRED`.
 
 ## Test status
-`npm run typecheck` clean; `npm test` 33/33 passing.
+`npm run typecheck` clean; `npm test` 394/394 passing; Playwright e2e 55/55 on the demo dataset (2026-10-02).
 
 ## Deployment status
 Nothing deployed. Data exists only in the Supabase **staging** project. The COEP dashboard is a

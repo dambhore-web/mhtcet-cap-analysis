@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   DndContext,
@@ -9,304 +9,308 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-  arrayMove,
-} from "@dnd-kit/sortable";
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { loadList, saveList, removeFromList, type ListItem } from "../lib/list";
+import { AUTO_FREEZE_TOP_N, BAND_LABELS } from "@mhtcet/core";
+import { api } from "../lib/api";
+import { saveList, removeFromList, useList, OPTION_FORM_MAX, type ListItem } from "../lib/list";
 import { useProfile } from "../lib/ProfileContext";
+import { PageHeader } from "../components/PageHeader";
+import { PlanNextStep, PlanSubnav } from "../components/PlanSubnav";
+import { Icon } from "../components/Icon";
+import { formatNumber, formatRound } from "../lib/format";
+import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
+import { CATEGORY_OPTIONS } from "../lib/categories";
+import { coverageChecks, freezeRoundOf, listChecks, listCoverage, reachOf, type ListCoverage, type Reach } from "../lib/optionForm";
+import { usePageMeta } from "../lib/seo";
 import "./ListPage.css";
 
-function exportCSV(items: ListItem[], merit: number) {
-  const header = ["Rank", "Choice Code", "College", "Branch", "Seat Type", "Closing Merit 2026", "Your Surplus"];
-  const rows = items.map((item, i) => [
-    String(i + 1),
-    item.choiceCode,
-    item.collegeName,
-    item.branch,
-    item.seatType,
-    String(item.closingMerit),
-    String(item.closingMerit - merit),
-  ]);
-  const csv = [header, ...rows].map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
-  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "compass-preference-list.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
+const REACH_TEXT: Record<Reach, string> = {
+  "round-I": "Got in Round I",
+  later: "Got in a later round",
+  out: "Out of reach",
+  unknown: "",
+};
 
-async function exportPDF(items: ListItem[], merit: number, category: string) {
-  const { jsPDF } = await import("jspdf");
-  const autoTable = (await import("jspdf-autotable")).default;
+/** Rounds with an auto-freeze zone (core AUTO_FREEZE_TOP_N: Round I choice 1, II 1–3, III 1–6). */
+const FREEZE_ROUNDS = (["I", "II", "III"] as const).filter((r) => AUTO_FREEZE_TOP_N[r] != null);
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.text("MHT-CET 2026 Preference List", 14, 18);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(
-    `Merit: ${merit.toLocaleString("en-IN")}  ·  Category: ${category || "Open"}  ·  Generated: ${new Date().toLocaleDateString("en-IN")}`,
-    14,
-    26
-  );
-  doc.setFontSize(8);
-  doc.setTextColor(120, 120, 120);
-  doc.text("Compass · compass.mhtcet.in · Based on official DTE Maharashtra 2026 CAP cutoffs. Not a guarantee.", 14, 32);
-  doc.setTextColor(0, 0, 0);
-
-  autoTable(doc, {
-    startY: 36,
-    head: [["#", "Choice Code", "College", "Branch", "Seat Type", "Closing Merit", "Surplus"]],
-    body: items.map((item, i) => {
-      const surplus = item.closingMerit - merit;
-      return [
-        String(i + 1),
-        item.choiceCode,
-        item.collegeName,
-        item.branch,
-        item.seatType,
-        item.closingMerit.toLocaleString("en-IN"),
-        surplus >= 0 ? `+${surplus.toLocaleString("en-IN")}` : surplus.toLocaleString("en-IN"),
-      ];
-    }),
-    styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [101, 82, 216] },
-    columnStyles: {
-      0: { cellWidth: 8 },
-      1: { cellWidth: 28, font: "courier" },
-      2: { cellWidth: 70 },
-      3: { cellWidth: 55 },
-      4: { cellWidth: 22 },
-      5: { cellWidth: 22, halign: "right" },
-      6: { cellWidth: 20, halign: "right" },
-    },
-    alternateRowStyles: { fillColor: [246, 247, 255] },
-  });
-
-  doc.save("compass-preference-list.pdf");
-}
-
-// Auto-freeze zones: R I = option 1 only, R II = 1–3, R III = 1–6
-function FreezeZones({ rank }: { rank: number }) {
+/**
+ * Three bars in the row's left edge, one per round: a bar is drawn where this position would lock a
+ * seat in that round, so the freeze zones read as brackets down the list (TASK-0004).
+ */
+function FreezeGutter({ rank, count }: { rank: number; count: number }) {
   return (
-    <div className="freeze-zones" title={`Auto-freeze: R I if #1, R II if #1–3, R III if #1–6`}>
-      <span className={`fz-sq${rank <= 1 ? " fz-active" : ""}`} />
-      <span className={`fz-sq${rank <= 3 ? " fz-active" : ""}`} />
-      <span className={`fz-sq${rank <= 6 ? " fz-active" : ""}`} />
-    </div>
+    <span className="list-gutter" aria-hidden="true">
+      {FREEZE_ROUNDS.map((r, k) => {
+        const n = Math.min(AUTO_FREEZE_TOP_N[r] ?? 0, count);
+        const on = rank <= n;
+        return <i key={r} className={`fz fz-${k}${on ? " on" : ""}${on && rank === 1 ? " top" : ""}${on && rank === n ? " bot" : ""}`} />;
+      })}
+    </span>
   );
 }
 
 function SortableRow({
   item,
-  rank,
+  index,
+  count,
   merit,
   onRemove,
+  onMove,
 }: {
   item: ListItem;
-  rank: number;
-  merit: number;
+  index: number;
+  count: number;
+  merit: number | null;
   onRemove: (id: string) => void;
+  onMove: (from: number, to: number) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
-  const surplus = item.closingMerit - merit;
+  const rank = index + 1;
+  const reach = reachOf(item, merit);
+  const freeze = freezeRoundOf(rank);
+  const what = `${item.branch} at ${item.collegeName}`;
 
   return (
-    <div
+    <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`list-row${isDragging ? " dragging" : ""}`}
+      className={`list-row${isDragging ? " dragging" : ""}${freeze ? " in-freeze" : ""}`}
     >
-      <button className="drag-handle" {...attributes} {...listeners} aria-label="Drag to reorder">⠿</button>
-      <FreezeZones rank={rank} />
-      <span className="list-rank">{rank}</span>
-      <span className="list-code">{item.choiceCode}</span>
+      <FreezeGutter rank={rank} count={count} />
+      <button type="button" className="drag-handle" {...attributes} {...listeners} aria-label={`Drag to reorder choice ${rank}, ${what}`}>
+        <Icon name="menu" size={16} />
+      </button>
+      <span className="list-rank">
+        {rank}
+        {freeze && (
+          <span className="list-freeze" title={`Auto-freezes if allotted in ${formatRound(freeze)} or later`}>
+            <Icon name="lock" size={12} />
+            <span className="sr-only">Auto-freeze zone from {formatRound(freeze)}</span>
+          </span>
+        )}
+      </span>
       <div className="list-detail">
-        <span className="list-college">{item.collegeName}</span>
+        <Link to={`/colleges/${item.collegeCode}`} className="list-college">{item.collegeName}</Link>
         <span className="list-branch">{item.branch}</span>
-      </div>
-      <span className="list-seat">{item.seatType}</span>
-      <div className="list-merit-col">
-        <span className="list-closing">{item.closingMerit.toLocaleString("en-IN")}</span>
-        <span className={`list-surplus${surplus >= 0 ? " pos" : " neg"}`}>
-          {surplus >= 0 ? `+${surplus.toLocaleString("en-IN")}` : surplus.toLocaleString("en-IN")}
+        <span className="list-meta">
+          <span className="list-code">{item.choiceCode}</span>
+          <abbr className="list-seat" title={seatTypeLabel(item.seatType)}>{seatTypeShortLabel(item.seatType)}</abbr>
         </span>
       </div>
-      <button className="list-remove" onClick={() => onRemove(item.id)} aria-label="Remove">×</button>
-    </div>
+      <div className="list-merit-col">
+        <span className="list-closing">
+          {item.firstRoundClosing != null && item.lastRoundClosing != null
+            ? `${formatNumber(item.firstRoundClosing)} → ${formatNumber(item.lastRoundClosing)}`
+            : formatNumber(item.closingMerit)}
+        </span>
+        {reach !== "unknown" && <span className={`list-reach list-reach--${reach}`}>{REACH_TEXT[reach]}</span>}
+      </div>
+      <div className="list-actions">
+        <button type="button" className="list-icon-btn" onClick={() => onMove(index, index - 1)} disabled={index === 0} aria-label={`Move ${what} up`}>
+          <Icon name="arrowUp" size={16} />
+        </button>
+        <button type="button" className="list-icon-btn list-down" onClick={() => onMove(index, index + 1)} disabled={index === count - 1} aria-label={`Move ${what} down`}>
+          <Icon name="arrowUp" size={16} />
+        </button>
+        <button type="button" className="list-icon-btn list-remove" onClick={() => onRemove(item.id)} aria-label={`Remove ${what}`}>
+          <Icon name="close" size={16} />
+        </button>
+      </div>
+    </li>
   );
 }
 
+/** My CAP plan step 1, journey J8: order the choices that go into the CAP option form. */
 export function ListPage() {
+  usePageMeta({ title: "Your option form", noindex: true });
   const { profile } = useProfile();
-  const [items, setItems] = useState<ListItem[]>(() => loadList());
-  const [copied, setCopied] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState(false);
-
-  const merit = profile.meritNumber ?? 0;
-  const category = profile.category ?? "";
+  const items = useList();
+  const merit = profile.meritNumber;
+  const categoryLabel = CATEGORY_OPTIONS.find((c) => c.value === (profile.category ?? ""))?.label ?? "Open";
+  const [districts, setDistricts] = useState<Map<string, string> | null>(null);
+  useEffect(() => {
+    let live = true;
+    api.colleges("")
+      .then((r) => live && setDistricts(new Map(r.colleges.filter((c) => c.district).map((c) => [c.code, c.district!]))))
+      .catch(() => {}); // coverage works without districts
+    return () => { live = false; };
+  }, []);
+  const coverage = items.length > 0 ? listCoverage(items, merit, districts ? (code) => districts.get(code) ?? null : undefined) : null;
+  const checks = [...listChecks(items, merit), ...(coverage ? coverageChecks(coverage) : [])];
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const move = useCallback(
+    (from: number, to: number) => {
+      if (to < 0 || to >= items.length) return;
+      saveList(arrayMove(items, from, to));
+    },
+    [items],
   );
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = items.findIndex((i) => i.id === active.id);
-    const newIndex = items.findIndex((i) => i.id === over.id);
-    const reordered = arrayMove(items, oldIndex, newIndex);
-    setItems(reordered);
-    saveList(reordered);
+    move(items.findIndex((i) => i.id === active.id), items.findIndex((i) => i.id === over.id));
   }
-
-  const handleRemove = useCallback((id: string) => {
-    setItems(removeFromList(id));
-  }, []);
-
-  async function handleCopyCodes() {
-    const codes = items.map((i) => i.choiceCode).join("\n");
-    await navigator.clipboard.writeText(codes);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  async function handlePDF() {
-    setPdfLoading(true);
-    try {
-      await exportPDF(items, merit, category);
-    } finally {
-      setPdfLoading(false);
-    }
-  }
-
-  // Advisory checks
-  const topOption = items[0];
-  const topSurplus = topOption ? topOption.closingMerit - merit : null;
-  const topOutOfReach = topSurplus !== null && merit > 0 && topSurplus < 0;
-  const noGreenOptions = merit > 0 && items.every((i) => i.closingMerit < merit);
 
   return (
-    <div className="list-page">
-      <div className="list-content">
-        {/* Header */}
-        <header className="list-header">
-          <div className="list-header-top">
-            <div>
-              <h1>Shortlist &amp; option form</h1>
-              <p>{items.length === 0 ? "No options saved yet" : `${items.length} option${items.length !== 1 ? "s" : ""} · drag to reorder`}</p>
-            </div>
-            <div className="list-header-actions">
-              {items.length > 0 && (
-                <>
-                  <button className="list-export-btn" onClick={() => exportCSV(items, merit)}>CSV</button>
-                  <button className="list-export-btn" onClick={handlePDF} disabled={pdfLoading}>{pdfLoading ? "…" : "PDF"}</button>
-                  <button className="list-copy-btn" onClick={handleCopyCodes} aria-live="polite">{copied ? "Copied ✓" : "Copy codes"}</button>
-                </>
-              )}
-              <Link to="/simulator" className="list-sim-cta">Test in simulator →</Link>
-            </div>
-          </div>
-          {merit > 0 && (
-            <div className="list-merit-bar">
-              Merit <strong>{merit.toLocaleString("en-IN")}</strong>
-              {category && <span className="list-cat-badge">{category}</span>}
-            </div>
-          )}
-        </header>
+    <div className="page list-page">
+      <PageHeader
+        breadcrumb={[{ label: "My CAP plan" }, { label: "Option form" }]}
+        title="Your CAP option form"
+        subtitle={
+          items.length === 0
+            ? "Build the list of choice codes you will fill in the CAP option form, in order of preference."
+            : `${items.length} of ${OPTION_FORM_MAX} choices. Order matters: in each round CAP gives you the highest choice on this list that has a seat for your merit.`
+        }
+        actions={
+          <Link to="/list/add" className="btn btn-primary btn-sm">
+            <Icon name="plus" size={16} />
+            Add options from any college
+          </Link>
+        }
+      />
+      <PlanSubnav />
 
-        <div className="list-body">
-          {/* Main list */}
-          <div className="list-main">
-            {items.length === 0 ? (
-              <div className="list-empty">
-                <h2>Your list is empty</h2>
-                <p>Go to <Link to="/">Find colleges</Link>, search for options, and tap <span className="list-add-hint">+</span> to save them here.</p>
-                <p className="list-empty-note">Up to 300 options · drag to reorder · export as PDF or CSV — free.</p>
-              </div>
-            ) : (
-              <>
-                <div className="list-table-head">
-                  <span className="lth-zones" title="Auto-freeze zones: R I · R II · R III">Freeze</span>
-                  <span className="lth-rank">#</span>
-                  <span className="lth-code">Choice code</span>
-                  <span className="lth-detail">College / Branch</span>
-                  <span className="lth-seat">Seat</span>
-                  <span className="lth-merit">Closing / Surplus</span>
-                  <span className="lth-del" />
-                </div>
-
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                  <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-                    <div className="list-rows" role="list">
-                      {items.map((item, i) => (
-                        <SortableRow key={item.id} item={item} rank={i + 1} merit={merit} onRemove={handleRemove} />
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-
-                <div className="list-footnote">
-                  {items.length}/300 options · 2026 closing merits from official DTE Maharashtra lists
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <aside className="list-sidebar">
-            <div className="list-sidebar-card list-freeze-rule">
-              <h3 className="list-sidebar-title">The auto-freeze rule</h3>
-              <div className="list-freeze-row">
-                <div className="fz-demo"><span className="fz-sq fz-active"/><span className="fz-sq"/><span className="fz-sq"/></div>
-                <div><strong>Round I</strong> — only option 1 is auto-frozen</div>
-              </div>
-              <div className="list-freeze-row">
-                <div className="fz-demo"><span className="fz-sq fz-active"/><span className="fz-sq fz-active"/><span className="fz-sq"/></div>
-                <div><strong>Round II</strong> — options 1–3 are auto-frozen</div>
-              </div>
-              <div className="list-freeze-row">
-                <div className="fz-demo"><span className="fz-sq fz-active"/><span className="fz-sq fz-active"/><span className="fz-sq fz-active"/></div>
-                <div><strong>Round III</strong> — options 1–6 are auto-frozen</div>
-              </div>
-              <p className="list-freeze-note">Put your most-wanted options at the top. CAP auto-freezes your allotment if it falls in the freeze zone for that round.</p>
-            </div>
-
-            {items.length > 0 && (
-              <div className="list-sidebar-card list-checks">
-                <h3 className="list-sidebar-title">Checks on your list</h3>
-                {!topOutOfReach && !noGreenOptions && (
-                  <div className="list-check list-check-ok">Your top option is within reach at merit {merit > 0 ? merit.toLocaleString("en-IN") : "—"}</div>
-                )}
-                {topOutOfReach && (
-                  <div className="list-check list-check-warn">Top option closed at {topOption.closingMerit.toLocaleString("en-IN")} — outside your merit. Consider reordering.</div>
-                )}
-                {noGreenOptions && merit > 0 && (
-                  <div className="list-check list-check-warn">No options are within your merit ({merit.toLocaleString("en-IN")}). Add reachable options or use the simulator.</div>
-                )}
-                {items.length < 3 && (
-                  <div className="list-check list-check-info">Add at least 3–5 options to improve your chances of an allotment.</div>
-                )}
-              </div>
-            )}
-
-            <Link to="/simulator" className="list-sim-sidebar-cta">
-              Test this list in the simulator →
+      {items.length === 0 ? (
+        <div className="empty-state">
+          <Icon name="list" size={28} className="empty-state-icon" />
+          <h2>Your option form is empty</h2>
+          <p>
+            Find your options, or browse any college, and use the <strong>+</strong> button to add a branch here. Then order
+            the list, test it in the simulator and export it for the CAP portal.
+          </p>
+          <div className="list-empty-actions">
+            <Link to="/find" className="btn btn-primary">
+              <Icon name="search" size={18} />
+              Find my options
             </Link>
+            <Link to="/list/add" className="btn btn-secondary">Add options from any college</Link>
+          </div>
+        </div>
+      ) : (
+        <div className="list-layout">
+          <div className="list-main">
+            {merit ? (
+              <p className="list-merit-bar">
+                Your merit <strong>{formatNumber(merit)}</strong>
+                <span className="badge badge-sample">{categoryLabel}</span>
+                <Link to="/profile/details">Change</Link>
+              </p>
+            ) : null}
+
+            <p className="list-freeze-key">
+              {FREEZE_ROUNDS.map((r, k) => (
+                <span key={r}><i className={`fz fz-${k}`} />Auto-freeze from {formatRound(r)} (choice{AUTO_FREEZE_TOP_N[r] === 1 ? "" : "s"} 1{AUTO_FREEZE_TOP_N[r] === 1 ? "" : `–${AUTO_FREEZE_TOP_N[r]}`})</span>
+              ))}
+            </p>
+            <div className="list-table card">
+              <div className="list-table-head" aria-hidden="true">
+                <span>Freeze</span>
+                <span />
+                <span>#</span>
+                <span>College, branch and choice code</span>
+                <span className="lth-merit">Closing rank, R I → last</span>
+                <span />
+              </div>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                  <ol className="list-rows" aria-label="Choices in order of preference">
+                    {items.map((item, i) => (
+                      <SortableRow key={item.id} item={item} index={i} count={items.length} merit={merit} onRemove={removeFromList} onMove={move} />
+                    ))}
+                  </ol>
+                </SortableContext>
+              </DndContext>
+            </div>
+            <p className="list-footnote">
+              Closing ranks from official CET Cell CAP lists. Your option form is saved in this browser only.
+            </p>
+            <PlanNextStep current="/list" />
+          </div>
+
+          <aside className="list-side" aria-label="About your option form">
+            <section className="card list-side-card">
+              <h2 className="label">The auto-freeze rule</h2>
+              <p>If you are allotted one of your top choices, the seat locks and you can't move up in later rounds.</p>
+              <ul className="list-freeze-rules">
+                {(["I", "II", "III"] as const).map((r) => {
+                  const n = AUTO_FREEZE_TOP_N[r] ?? 0;
+                  return (
+                    <li key={r}>
+                      <Icon name="lock" size={14} />
+                      {formatRound(r)}: {n === 1 ? "choice 1" : `choices 1–${n}`}
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="list-side-note">Rules as published for 2025-26. <Link to="/guide?tab=freeze">Read more</Link></p>
+            </section>
+            {coverage && (
+              <section className="card list-side-card" aria-labelledby="list-checks-title">
+                <h2 id="list-checks-title" className="label">Checks on your list</h2>
+                <CoveragePanel c={coverage} />
+                {checks.length > 0 && <ul className="list-checks">
+                  {checks.map((c) => (
+                    <li key={c.text} className={`list-check list-check--${c.level}`}>
+                      <Icon name={c.level === "warn" ? "alert" : "help"} size={16} />
+                      {c.text}
+                    </li>
+                  ))}
+                </ul>}
+              </section>
+            )}
           </aside>
         </div>
-      </div>
+      )}
+    </div>
+  );
+}
+
+const BAND_ORDER = ["likely", "target", "reach", "out"] as const;
+const pct = (share: number) => `${Math.round(share * 100)}%`;
+
+/** How the list is spread (#137): bands as one bar, then branch groups, districts and size. */
+function CoveragePanel({ c }: { c: ListCoverage }) {
+  return (
+    <div className="list-coverage" aria-label="Coverage">
+      {c.bands && (
+        <div className="lc-bands">
+          <div className="lc-bar" aria-hidden="true">
+            {BAND_ORDER.map((b) => c.bands![b] > 0 && <span key={b} className={`lc-seg lc-seg--${b}`} style={{ flexGrow: c.bands![b] }} />)}
+          </div>
+          <ul className="lc-legend">
+            {BAND_ORDER.map((b) => (
+              <li key={b} className={`lc-key lc-key--${b}`}>
+                <span className="lc-dot" aria-hidden="true" />
+                <strong className="mono">{c.bands![b]}</strong> {BAND_LABELS[b]}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <dl className="lc-facts">
+        <div>
+          <dt>Branch groups</dt>
+          <dd><strong className="mono">{c.groups.distinct}</strong>{c.groups.distinct > 1 && <> · most are {c.groups.top.name} ({pct(c.groups.top.share)})</>}{c.groups.distinct === 1 && <> · all {c.groups.top.name}</>}</dd>
+        </div>
+        {c.districts && (
+          <div>
+            <dt>Districts</dt>
+            <dd><strong className="mono">{c.districts.distinct}</strong>{c.districts.distinct > 1 ? <> · most in {c.districts.top.name} ({pct(c.districts.top.share)})</> : <> · all in {c.districts.top.name}</>}</dd>
+          </div>
+        )}
+        <div>
+          <dt>Choices</dt>
+          <dd><strong className="mono">{c.size}</strong> of {c.max} allowed</dd>
+        </div>
+      </dl>
     </div>
   );
 }
