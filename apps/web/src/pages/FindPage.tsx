@@ -330,7 +330,10 @@ export function FindPage() {
   // The two views: every figure in merit numbers or in percentiles. The student's own percentile is
   // what they typed; after a merit search (or with the pin moved) it is read off the printed pairs.
   const view = useMemo<FigureView>(() => {
-    const pctOf = (m: number) => meritToPercentile(scale, m);
+    // The All India pairs are JEE rows only; a merit number past the JEE block belongs to an
+    // MHT-CET or Diploma candidate, whose percentile isn't on the JEE scale
+    const jeeEnd = searchKind.candidature === "AI" ? scale.at(-1)?.[0] : undefined;
+    const pctOf = (m: number) => (jeeEnd != null && m > jeeEnd ? null : meritToPercentile(scale, m));
     const youPct = whatIf == null && searchedPct != null ? searchedPct : pctOf(effMerit);
     const percentile = figures === "percentile" && youPct != null;
     return {
@@ -347,7 +350,7 @@ export function FindPage() {
         ? `${searchedPct != null && whatIf == null ? "" : "≈ "}${formatPercentile(youPct!)}`
         : `${searchedPct != null && whatIf == null ? "≈ " : ""}${formatNumber(effMerit)}`,
     };
-  }, [scale, figures, searchedPct, whatIf, effMerit]);
+  }, [scale, figures, searchedPct, whatIf, effMerit, searchKind.candidature]);
   const shown = useMemo(() => {
     if (whatIf == null) return options;
     if (whatIfOptions) return whatIfOptions;

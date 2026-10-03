@@ -216,12 +216,25 @@ export function rankFind(
 type Score = { kind: "merit"; value: number } | { kind: "percentile"; value: number };
 
 /**
+ * The All India merit list ranks every JEE (Main) candidate first, then MHT-CET, Diploma and
+ * D.Voc. (rule 10(2)). An AI row whose last admitted candidate came from a later exam was reached
+ * past every JEE candidate, and its printed percentile is on that exam's scale, not JEE's.
+ */
+const AI_JEE = /^JEE/i;
+const pastJee = (row: CutoffRow) => row.list === "AI" && !AI_JEE.test(row.exam);
+
+/** The row's closing percentile when it can be compared with the candidate's (null otherwise). */
+const comparablePercentile = (row: CutoffRow) => (pastJee(row) ? null : (row.closingPercentile ?? null));
+
+/**
  * Whether the candidate is at or better than the last candidate admitted on this row. Each row
  * prints that candidate's merit number and percentile, so either can be compared; a row without a
- * printed percentile can't be matched by percentile.
+ * printed percentile can't be matched by percentile. A JEE percentile is within every AI row that
+ * went past the JEE candidates.
  */
 function within(by: Score, row: CutoffRow): boolean {
   if (by.kind === "merit") return by.value <= row.closingMerit;
+  if (pastJee(row)) return true;
   return row.closingPercentile != null && by.value >= row.closingPercentile;
 }
 
@@ -229,7 +242,7 @@ const closing = (status: RankStatus, row: CutoffRow) => ({
   status,
   round: row.round,
   closingMerit: row.closingMerit,
-  closingPercentile: row.closingPercentile ?? null,
+  closingPercentile: comparablePercentile(row),
 });
 
 /**
@@ -268,7 +281,7 @@ export function roundClosings(rows: readonly CutoffRow[]): RoundClosing[] {
       out.push({
         round: r.round,
         closingMerit: r.closingMerit,
-        closingPercentile: r.closingPercentile ?? null,
+        closingPercentile: comparablePercentile(r),
         sourceFile: r.sourceFile ?? null,
         sourcePage: r.sourcePage ?? null,
       });

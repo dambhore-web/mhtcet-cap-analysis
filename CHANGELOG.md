@@ -1,6 +1,14 @@
 # Changelog
 
 ## Unreleased
+### Fixed
+- All India searches by **JEE percentile** no longer compare it with MHT-CET percentiles. The All
+  India merit list ranks every JEE candidate first (rule 10(2)), so a row whose last admitted student
+  came from MHT-CET (1,002 of 6,561 AI rows in 2026) is within reach for every JEE student, and its
+  percentile is not shown against theirs. On the 2026 AI lists a JEE percentile now gives the same
+  status as the student's All India merit number in 199,932 of 200,018 checks; the 86 others are
+  exact percentile ties, which a percentile alone can't split.
+
 ### Added
 - Find colleges by **percentile**, and results in **two views** (percentile or merit number).
   Students know their MHT-CET / JEE percentile weeks before the merit list, so the score tile and

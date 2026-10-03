@@ -32,7 +32,7 @@ _Last updated: 2026-10-03_
 - **Percentile search (2026-10-03, merged to `Dev`):** Find, the questions and the landing page take a
   percentile or a merit number; a percentile is matched against each row's printed closing
   percentile; results switch between percentile and merit views (`GET /api/percentile-scale`).
-  Open: All India percentile searches still compare against non-JEE rows on the AI lists.
+  All India: a JEE percentile is within every AI row past the JEE block (fixed 2026-10-03).
 - **SEO (2026-10-03, on `main`):** prerendered HTML for every public page; district and
   branch-group landing pages.
 
