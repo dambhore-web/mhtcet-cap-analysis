@@ -5,7 +5,7 @@ import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
 import { Icon } from "../components/Icon";
 import { formatNumber } from "../lib/format";
-import { usePageMeta } from "../lib/seo";
+import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
 import "./EligibilityPage.css";
 
 type Flag = "ews" | "tfws" | "defence" | "pwd" | "orphan";
@@ -56,7 +56,7 @@ const ALWAYS = [
 
 /** Journey J6 (#82): "Do TFWS, EWS or Defence seats help me?" */
 export function EligibilityPage() {
-  usePageMeta({ title: "Which CAP seat types can I take?", description: "Home university, category, ladies, TFWS, EWS, defence and PWD seats: which MHT-CET CAP seat types apply to you and how many more branches they open." });
+  usePageMeta(STATIC_PAGE_META["/eligibility"]);
   const { profile, setProfile } = useProfile();
   const navigate = useNavigate();
   const [flags, setFlags] = useState<Record<Flag, boolean>>({ ews: profile.ews, tfws: profile.tfws, defence: profile.defence, pwd: profile.pwd, orphan: profile.orphan });

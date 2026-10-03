@@ -4,7 +4,7 @@ import { api, type DataMeta } from "../lib/api";
 import { PageHeader } from "../components/PageHeader";
 import { Icon, type IconName } from "../components/Icon";
 import { formatNumber, formatRound } from "../lib/format";
-import { usePageMeta } from "../lib/seo";
+import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
 import "./DataPage.css";
 
 const STEPS: { icon: IconName; title: string; body: string }[] = [
@@ -19,7 +19,7 @@ type Status = "loading" | "done" | "error";
 
 /** Journey J13, "Can I trust these numbers?" (#114). */
 export function DataPage() {
-  usePageMeta({ title: "Where our numbers come from", description: "The official CET Cell lists behind every closing merit number on GetMeCollege, how they are read and checked, and what past cutoffs can't tell you." });
+  usePageMeta(STATIC_PAGE_META["/data"]);
   const [meta, setMeta] = useState<DataMeta | null>(null);
   const [status, setStatus] = useState<Status>("loading");
 

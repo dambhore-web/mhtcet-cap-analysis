@@ -537,3 +537,25 @@ describe("GET /api/colleges/:code/fees: basis and missing fees (#42)", () => {
     expect(body).toMatchObject({ available: false, reason: "not-on-fra-report", tfwsSeats: 3, tfwsBranches: 1 });
   });
 });
+
+// ─── SEO pages (build-time HTML per public URL) ─────────────────────────────
+
+describe("GET /api/seo-pages", () => {
+  it("gives each college with its branches' open-seat closing and years, matching open-latest", async () => {
+    const cache = seedCache();
+    const app = createApp(cache, stubPool);
+    const pages = (await (await app.request("http://localhost/api/seo-pages")).json()) as {
+      year: number;
+      colleges: { code: string; name: string; branches: { choiceCode: string; name: string; roundI: number | null; latest: number; seatType: string; years: number[] }[] }[];
+    };
+    const open = (await (await app.request("http://localhost/api/cutoffs/open-latest")).json()) as { rows: [string, string, string, number | null, number, string | null, string][] };
+    expect(pages.year).toBe(cache.year);
+    const branches = pages.colleges.flatMap((c) => c.branches.map((b) => [b.choiceCode, c.code, b.name, b.roundI, b.latest, b.seatType]));
+    expect(branches.length).toBe(open.rows.length);
+    for (const r of open.rows) expect(branches).toContainEqual([r[0], r[1], r[2], r[3], r[4], r[6]]);
+    for (const c of pages.colleges) {
+      expect(c.name).toBe(cache.colleges.get(c.code)!.name);
+      for (const b of c.branches) expect(b.years).toContain(cache.year);
+    }
+  });
+});

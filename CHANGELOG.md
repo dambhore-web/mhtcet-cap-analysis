@@ -1,6 +1,14 @@
 # Changelog
 
 ## Unreleased
+### Added
+- SEO, prerendered pages (`docs/09-devops/seo.md`): in production builds (`VITE_SITE_URL` set) every
+  public URL gets a ready-made HTML file with its own title, description, canonical URL, share tags,
+  structured data (`CollegeOrUniversity`, `BreadcrumbList`, `WebSite`) and a plain-HTML version of
+  its content, from the new `GET /api/seo-pages`; 2,727 pages on the 2026 data. Crawlers and link
+  previews that don't run JavaScript see the real page. Routing moved from `serve -s` to
+  `dist/serve.json`: prerendered files served as they are, app-only routes to the app, unknown URLs
+  404. **Start the web service without `-s`.**
 ### Changed
 - Renamed to **GetMeCollege** (domain getmecollege.com, owner decision 2026-10-03): logo, page
   titles, share text, install name, legal pages, sign-in, the assistant ("Ask GetMeCollege"),
