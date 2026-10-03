@@ -4,7 +4,7 @@
 // Without it (local builds, staging, previews) robots.txt blocks every crawler and no sitemap is
 // written, so test deployments never end up in search results.
 //
-// The sitemap lists the public pages plus every college and branch page, from the API's
+// The sitemap lists the public pages plus every college, branch and district page, from the API's
 // GET /api/sitemap (SITEMAP_API_URL, else VITE_API_URL). If that call fails while VITE_SITE_URL is
 // set, the build fails: a production build without its sitemap should not ship silently.
 // Usage: node scripts/write-seo-files.mjs   (from apps/web, after vite build)
@@ -16,12 +16,18 @@ export const STATIC_PATHS = ["/", "/colleges", "/branches", "/guide", "/data", "
 
 const xmlEscape = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-/** The URLs to list: static pages, then each college and its branches. */
+/** The URLs to list: static pages, each college and its branches, then the district landing pages. */
 export function sitemapPaths(data) {
   const paths = [...STATIC_PATHS];
   for (const c of data.colleges) {
     paths.push(`/colleges/${c.code}`);
     for (const b of c.branches) paths.push(`/colleges/${c.code}/${b}`);
+  }
+  const districts = data.districts ?? [];
+  if (districts.length) paths.push("/engineering-colleges");
+  for (const d of districts) {
+    paths.push(`/engineering-colleges/${d.slug}`);
+    for (const g of d.groups) paths.push(`/engineering-colleges/${d.slug}/${g}`);
   }
   return paths;
 }

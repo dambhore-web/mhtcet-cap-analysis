@@ -27,6 +27,18 @@ describe("robots.txt and sitemap.xml (SEO)", () => {
     expect(paths.some((p: string) => /profile|list|find|simulator|summary/.test(p))).toBe(false);
   });
 
+  it("lists the district landing pages and their branch-group pages", () => {
+    const paths = sitemapPaths({ ...DATA, districts: [{ slug: "pune", groups: ["computer-it", "mechanical"] }, { slug: "washim", groups: [] }] });
+    expect(paths.slice(-5)).toEqual([
+      "/engineering-colleges",
+      "/engineering-colleges/pune",
+      "/engineering-colleges/pune/computer-it",
+      "/engineering-colleges/pune/mechanical",
+      "/engineering-colleges/washim",
+    ]);
+    expect(sitemapPaths(DATA)).not.toContain("/engineering-colleges");
+  });
+
   it("writes valid sitemap XML with absolute URLs", () => {
     const xml = buildSitemapXml("https://compass.example/", DATA);
     expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true);

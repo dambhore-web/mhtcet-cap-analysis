@@ -9,3 +9,4 @@ export * from "./capRules.ts";
 export * from "./simulate.ts";
 export * from "./bands.ts";
 export * from "./branchGroups.ts";
+export * from "./slugs.ts";

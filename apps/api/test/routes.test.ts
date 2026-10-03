@@ -559,3 +559,61 @@ describe("GET /api/seo-pages", () => {
     }
   });
 });
+
+// ─── District landing pages (SEO) ────────────────────────────────────────────
+
+describe("GET /api/districts and /api/districts/:slug", () => {
+  const withDistricts = () => {
+    const cache = seedCache();
+    for (const c of cache.colleges.values()) c.district = "Pune";
+    cache.colleges.get("1002")!.district = "Mumbai-City";
+    return cache;
+  };
+
+  it("lists each district by slug, with a branch-group page only when 2+ colleges qualify", async () => {
+    const cache = withDistricts();
+    let b = (await (await createApp(cache, stubPool).request("http://localhost/api/districts")).json()) as {
+      districts: { slug: string; name: string; colleges: number; groups: { slug: string }[] }[];
+    };
+    expect(b.districts.map((d) => d.slug)).toEqual(["mumbai-city", "pune"]);
+    expect(b.districts.every((d) => d.groups.length === 0)).toBe(true);
+
+    cache.colleges.get("1002")!.district = "Pune";
+    b = (await (await createApp(cache, stubPool).request("http://localhost/api/districts")).json()) as typeof b;
+    expect(b.districts).toHaveLength(1);
+    expect(b.districts[0]).toMatchObject({ slug: "pune", name: "Pune", colleges: 2, groups: [{ slug: "computer-it", name: "Computer & IT", colleges: 2 }] });
+  });
+
+  it("gives a district's colleges with branches, and fee and placement only from official sources", async () => {
+    const cache = withDistricts();
+    cache.fees = {
+      "5002": { name: "Pune Engineering College", collegeCode: "5002", tuitionFee: 90000, developmentFee: 10000, otherFees: 0, totalAnnualFee: 100000,
+        tfwsAvailable: false, tfwsSeats: null, fraOrderRef: null, fraOrderUrl: null, sampleOnly: false, academicYear: "2026-27",
+        source: "FRA", sourceUrl: "https://ay26-27.mahafraportal.org/report?institute=EN5002" },
+    };
+    cache.placement = new Map([["5002", [
+      { graduationYear: "2023-24", graduates: 100, placed: 70, medianSalary: 450000, higherStudies: 5, nirfYear: 2025, nirfCategory: "Engineering", sourceUrl: "x" },
+      { graduationYear: "2024-25", graduates: 100, placed: 75, medianSalary: 500000, higherStudies: 5, nirfYear: 2026, nirfCategory: "Engineering", sourceUrl: "x" },
+    ]]]);
+    const res = await createApp(cache, stubPool).request("http://localhost/api/districts/pune");
+    expect(res.status).toBe(200);
+    const d = (await res.json()) as { name: string; colleges: { code: string; fee: unknown; placement: unknown; branches: { group: string | null; roundI: number | null }[] }[] };
+    expect(d.name).toBe("Pune");
+    expect(d.colleges).toHaveLength(1);
+    expect(d.colleges[0]).toMatchObject({ code: "5002", fee: { total: 100000, year: "2026-27" }, placement: { medianSalary: 500000, graduationYear: "2024-25" } });
+    expect(d.colleges[0].branches[0]).toMatchObject({ group: "Computer & IT", roundI: 8500 });
+
+    const mumbai = (await (await createApp(cache, stubPool).request("http://localhost/api/districts/mumbai-city")).json()) as { colleges: { fee: unknown; placement: unknown }[] };
+    expect(mumbai.colleges[0]).toMatchObject({ fee: null, placement: null });
+  });
+
+  it("answers 404 for an unknown district", async () => {
+    const res = await createApp(withDistricts(), stubPool).request("http://localhost/api/districts/atlantis");
+    expect(res.status).toBe(404);
+  });
+
+  it("adds districts and their group pages to the sitemap data", async () => {
+    const b = (await (await createApp(withDistricts(), stubPool).request("http://localhost/api/sitemap")).json()) as { districts: { slug: string; groups: string[] }[] };
+    expect(b.districts).toEqual([{ slug: "mumbai-city", groups: [] }, { slug: "pune", groups: [] }]);
+  });
+});

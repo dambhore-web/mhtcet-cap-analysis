@@ -12,15 +12,23 @@
   - without `VITE_SITE_URL` (local, staging, previews): `robots.txt` blocks every crawler, no sitemap;
   - with it (production only): crawling allowed except `/summary` (its links carry a student's
     details), and a sitemap of the public pages plus every college and branch page with cutoffs
-    (2,728 URLs on the 2026 data), from the API's `GET /api/sitemap`. The build fails if that call
+    (2,920 URLs on the 2026 data, with the district pages), from the API's `GET /api/sitemap`. The build fails if that call
     fails, rather than shipping without a sitemap.
 - **Prerendered pages** (`scripts/prerender.ts`, production only, like the sitemap): the build
-  writes a ready-made HTML file for every public URL (2,727 on the 2026 data) from the API's
+  writes a ready-made HTML file for every public URL (2,919 on the 2026 data) from the API's
   `GET /api/seo-pages`. Each has that page's own title, description, canonical URL, share tags,
   structured data (`WebPage` about a `CollegeOrUniversity`, `BreadcrumbList`; `WebSite` on the home
   page) and a plain-HTML version of its key content (a college's branches with Round I and
   last-round closing on open seats). The app starts over it as usual. Crawlers and link previews
   that don't run JavaScript now see the real page.
+- **District landing pages** (`src/pages/DistrictPage.tsx`, text in `src/lib/districts.ts`): the
+  hub `/engineering-colleges`, one page per district (`/engineering-colleges/pune`) and one per
+  district and branch group (`/engineering-colleges/pune/computer-it`) when at least 2 colleges in
+  the district have that group (`MIN_COLLEGES_PER_GROUP_PAGE`). Slugs come from `slugify` in
+  `@mhtcet/core`. Each lists colleges or branches by open-seat closing merit number, lowest first,
+  with the FRA-approved fee and NIRF median salary only where published. Data from
+  `GET /api/districts` and `/api/districts/:slug`; prerendered (`CollectionPage`, `ItemList`,
+  `BreadcrumbList`) and in the sitemap. 192 pages on the 2026 data.
 - **Routing** comes from `dist/serve.json`, not `serve -s` (which sent every URL to `index.html`
   and hid the prerendered files): prerendered URLs are served from their own file, app-only routes
   (`APP_ONLY_ROUTES` in `scripts/prerender.ts`) get `index.html`, and any other URL gets

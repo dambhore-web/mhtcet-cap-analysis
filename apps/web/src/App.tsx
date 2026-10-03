@@ -28,6 +28,7 @@ import { BranchTrendsPage } from "./pages/BranchTrendsPage";
 import { AllotmentPage } from "./pages/AllotmentPage";
 import { ExportPage } from "./pages/ExportPage";
 import { BranchesPage } from "./pages/BranchesPage";
+import { DistrictPage } from "./pages/DistrictPage";
 
 /** Find needs saved details or a merit number in the URL (a shared result link); otherwise start at the landing page. */
 function RequireProfile({ children }: { children: React.ReactNode }) {
@@ -60,6 +61,9 @@ function AppRoutes() {
         <Route path="colleges" element={<CollegesPage />} />
         <Route path="colleges/:code" element={<CollegePage />} />
         <Route path="colleges/:code/:choiceCode" element={<BranchTrendsPage />} />
+        <Route path="engineering-colleges" element={<DistrictPage />} />
+        <Route path="engineering-colleges/:district" element={<DistrictPage />} />
+        <Route path="engineering-colleges/:district/:group" element={<DistrictPage />} />
         <Route path="compare" element={<ComparePage />} />
         <Route path="list" element={<ListPage />} />
         <Route path="list/add" element={<AddOptionsPage />} />

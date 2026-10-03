@@ -12,7 +12,8 @@ import { Icon } from "../components/Icon";
 import { SectionNav, type NavSection } from "../components/SectionNav";
 import { avatarTint, collegeInitials, formatNumber, formatRound, roundIndex } from "../lib/format";
 import { formatInr } from "../lib/plans";
-import { eligibleSeatTypes, type CandidateProfile } from "@mhtcet/core";
+import { eligibleSeatTypes, slugify, type CandidateProfile } from "@mhtcet/core";
+import { districtPath } from "../lib/districts";
 import { AddToFormButton } from "../components/AddToFormButton";
 import { listItemFrom } from "../lib/list";
 import { minorityOf } from "../lib/categories";
@@ -480,7 +481,7 @@ export function CollegePage() {
               <div><dt>Branches in CAP</dt><dd className="big">{branches.length}</dd></div>
               {data.college.totalIntake ? <div><dt>Total intake</dt><dd className="big">{formatNumber(data.college.totalIntake)}</dd></div> : null}
               <div><dt>Home university</dt><dd>{data.college.homeUniversity ?? "None (state level only)"}</dd></div>
-              {data.college.district ? <div><dt>District</dt><dd>{data.college.district}</dd></div> : null}
+              {data.college.district ? <div><dt>District</dt><dd><Link to={districtPath(slugify(data.college.district))}>{data.college.district}</Link></dd></div> : null}
             </dl>
           </section>
 
