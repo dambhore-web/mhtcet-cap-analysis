@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, generalOpen, BRANCH_GROUPS, type DataMeta, type OpenLatestRow } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
@@ -97,12 +97,15 @@ export function LandingPage() {
     };
   }, [kind, scale]);
 
-  // The percentile box starts at the current merit number's percentile once the pairs arrive
+  // The percentile box starts at the current merit number's percentile once the pairs arrive; only
+  // once, so clearing the box to type a new percentile doesn't fill it again
+  const prefilled = useRef(false);
   useEffect(() => {
-    if (kind !== "percentile" || !scale?.length || pctText) return;
+    if (kind !== "percentile" || !scale?.length || prefilled.current) return;
+    prefilled.current = true;
     const p = meritToPercentile(scale, merit);
     if (p != null) setPctText(formatPercentile(p));
-  }, [kind, scale, merit, pctText]);
+  }, [kind, scale, merit]);
 
   const setFromPct = (text: string) => {
     setPctText(text);
