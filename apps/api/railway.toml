@@ -1,7 +1,7 @@
 # Railway service: compass-api. Root directory = repo root (the API imports packages/core);
 # set the service's config file path to apps/api/railway.toml. See docs/09-devops/deployment.md.
 [build]
-buildCommand = "npm ci --include=dev"
+buildCommand = "npm install --include=dev"
 watchPatterns = ["apps/api/**", "packages/core/**", "package.json", "package-lock.json"]
 
 [deploy]
