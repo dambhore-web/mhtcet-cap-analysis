@@ -3,5 +3,8 @@
 # so one file serves both compass-api and compass-web.
 # Railway-level settings (healthcheck, watchPatterns, restartPolicy) live in the
 # service-specific files: apps/api/railway.toml and apps/web/railway.toml.
+[build]
+buildCommand = "npm ci --include=dev && ${SERVICE_BUILD:-true}"
+
 [deploy]
 startCommand = "sh -c \"$SERVICE_CMD\""
