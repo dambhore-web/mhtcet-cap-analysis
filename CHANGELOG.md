@@ -9,6 +9,13 @@
   previews that don't run JavaScript see the real page. Routing moved from `serve -s` to
   `dist/serve.json`: prerendered files served as they are, app-only routes to the app, unknown URLs
   404. **Start the web service without `-s`.**
+- SEO, district landing pages: `/engineering-colleges` (all districts), `/engineering-colleges/pune`
+  and `/engineering-colleges/pune/computer-it` (a district's branch group, only when 2+ colleges
+  have it): colleges and branches with CAP closing merit numbers on open seats, the FRA-approved
+  fee and NIRF median salary only where published (government and aided colleges' fees are
+  explained, not guessed). New `GET /api/districts` and `/api/districts/:slug`; prerendered and in
+  the sitemap: 192 pages on the 2026 data (34 districts, 157 group pages). College pages link to
+  their district; the colleges list links to the hub.
 ### Changed
 - Renamed to **GetMeCollege** (domain getmecollege.com, owner decision 2026-10-03): logo, page
   titles, share text, install name, legal pages, sign-in, the assistant ("Ask GetMeCollege"),
@@ -17,6 +24,13 @@
   `compass_*`, so saved details and option forms carry over. Also: "Ask which is safest" →
   "which options suit you"; the install description no longer says "colleges you can get".
 ### Fixed
+- Four colleges were in the wrong district: VJTI and ICT (Matunga) showed under Mumbai Suburban
+  instead of Mumbai City, New Satara College (Pandharpur) under Satara instead of Solapur, Ideal
+  Institute (Wada) under Thane instead of Palghar. Their districts had been guessed from the name;
+  fixed in `college-meta-2026.json`, the generator script (its Mumbai City / Suburban areas were
+  swapped) and migration `009_fix_college_districts.sql`.
+- College page descriptions dropped the district for many colleges (e.g. in Nashik): the check for
+  "name already says where it is" split the district on the letter "s" instead of whitespace.
 - Web: the Content Security Policy now allows the Supabase origin; built deployments would
   otherwise have blocked sign-in and sync (#131).
 - API: a dropped idle database connection no longer crashes the process (logged as `db_idle_error`).

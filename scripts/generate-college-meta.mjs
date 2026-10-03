@@ -139,6 +139,11 @@ for (const [instId, district] of FRA_DISTRICTS) {
 // Manual overrides for colleges not matchable by name pattern
 const MANUAL_DISTRICT = {
   "02008": "Chhatrapati Sambhaji Nagar", // GCE Chhatrapati Sambhajinagar (spelling variant)
+  "03012": "Mumbai-City",                 // VJTI, Matunga
+  "03036": "Mumbai-City",                 // Institute of Chemical Technology, Matunga
+  "03035": "Mumbai-Suburban",             // Usha Mittal Institute, SNDT University, Juhu
+  "03465": "Palghar",                     // Ideal Institute, Wada (Palghar district since 2014)
+  "06725": "Solapur",                     // New Satara College, Pandharpur (the name says Satara)
   "03014": "Mumbai-Suburban",             // SPCE Andheri
   "03033": "Raigad",                      // DBATU Lonere
   "03436": "Thane",                       // BRH College Ambernath
@@ -204,8 +209,11 @@ const CITY_DISTRICT = [
   [/\bJalna\b/i, "Jalna"],
   [/\bHingoli\b/i, "Hingoli"],
   [/\bParbhani\b/i, "Parbhani"],
-  [/Bandra|Byculla|Sion\b|Wadala\b|Vile Parle\b|Andheri\b|Borivali\b|Malad\b|Kandivali\b/i, "Mumbai-City"],
-  [/\bMumbai\b/i, "Mumbai-Suburban"],
+  // Mumbai City district is the island city (Colaba to Sion/Mahim); Bandra, Andheri, Vile Parle,
+  // Borivali, Malad, Kandivali, Bhandup, Chembur etc. are Mumbai Suburban. A bare "Mumbai" is
+  // ambiguous: such colleges need a MANUAL_DISTRICT entry, so it is not guessed here.
+  [/Matunga\b|Byculla\b|Sion\b|Wadala\b|Dadar\b|Mahim\b|Parel\b|Worli\b|Colaba\b|Churchgate\b|Fort\b/i, "Mumbai-City"],
+  [/Bandra|Vile Parle\b|Andheri\b|Borivali\b|Malad\b|Kandivali\b|Bhandup\b|Chembur\b|Juhu\b|Santacruz\b|Powai\b|Goregaon\b|Kurla\b|Ghatkopar\b|Mulund\b/i, "Mumbai-Suburban"],
   [/Navi Mumbai|Kopar Khairane|Nerul\b|Vashi\b|Airoli\b|Belapur\b|New Panvel\b|Kharghar\b/i, "Thane"],
   [/\bThane\b/i, "Thane"],
   [/\bPalghar\b|Vasai\b|Boisar\b|\bShahapur\b/i, "Palghar"],

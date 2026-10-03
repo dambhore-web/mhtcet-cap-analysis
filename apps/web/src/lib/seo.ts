@@ -47,7 +47,7 @@ export function clip(text: string, max = 160): string {
 
 export function collegeMeta(c: { name: string; district?: string | null }, branchCount: number, year: number): PageMeta {
   // "VJTI, Matunga, Mumbai" already says where it is: no ", Mumbai-Suburban" after it
-  const place = c.district?.split(/[-s]/)[0] ?? "";
+  const place = c.district?.split(/[-\s]/)[0] ?? "";
   const where = c.district && !c.name.toLowerCase().includes(place.toLowerCase()) ? `, ${c.district}` : "";
   return {
     title: `${c.name} — CAP ${year} cutoffs by branch`,

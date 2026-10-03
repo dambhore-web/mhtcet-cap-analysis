@@ -9,6 +9,9 @@ step held back, so the rollout is one pass. Add to it whenever a change needs a 
       `008_lock_public_tables.sql` (row-level security on every table; Supabase's public API closed
       to the data tables). `npm run migrate` targets staging only: use the SQL editor or an
       approved run against production.
+- [ ] Run `009_fix_college_districts.sql` (four college districts: VJTI and ICT to Mumbai-City,
+      New Satara College Pandharpur to Solapur, Ideal Institute Wada to Palghar), then restart the
+      API so its cache picks them up.
 - [ ] Create the SELECT-only `compass_api` role **with its read policies** (needed because of 008)
       and use it in the API's `DATABASE_URL` (#131 O2; SQL in
       `docs/07-security/security-review-2026-09.md`). Then check the API still loads its data.

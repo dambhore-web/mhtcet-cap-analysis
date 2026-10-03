@@ -1,0 +1,298 @@
+/* District landing pages (SEO): hub, district, district + branch group */
+
+.district-page .page-header-sub {
+  max-width: 72ch;
+}
+
+.dp-skeleton {
+  height: 320px;
+  background: linear-gradient(90deg, var(--white), var(--lavender-2), var(--white));
+}
+
+/* ─── Hub: one card per district ─── */
+.dp-hub {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dp-hub-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+}
+
+.dp-hub-name {
+  font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.dp-hub-name:hover {
+  color: var(--violet);
+  text-decoration: underline;
+}
+
+.dp-hub-count {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.dp-hub-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 6px;
+  font-size: var(--text-xs);
+}
+
+/* ─── Branch-group links ─── */
+.dp-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.dp-group {
+  text-decoration: none;
+  min-height: 32px;
+}
+
+a.dp-group:hover {
+  border-color: var(--violet-soft);
+  background: var(--lavender);
+  color: var(--violet-deep);
+}
+
+.dp-group.is-current {
+  border-color: var(--violet);
+  background: var(--violet);
+  color: var(--white);
+}
+
+/* ─── Table ─── */
+.dp-table-card {
+  padding: 16px 0 4px;
+}
+
+.dp-table-card .card-head {
+  padding: 0 16px 12px;
+}
+
+.dp-table-card .card-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.dp-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.dp-table th {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--muted-2);
+  white-space: nowrap;
+}
+
+.dp-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+
+.dp-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.dp-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dp-college {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.dp-tile {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-num);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.dp-college-name {
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.35;
+}
+
+.dp-college-name:hover {
+  color: var(--violet);
+}
+
+.dp-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  color: var(--muted-2);
+  white-space: normal;
+}
+
+.dp-branch {
+  margin-left: 44px;
+}
+
+.dp-merit {
+  font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--violet-deep);
+}
+
+.dp-none {
+  font-size: var(--text-xs);
+  color: var(--muted-2);
+}
+
+/* ─── Notes and links ─── */
+.dp-note {
+  max-width: 80ch;
+  margin: 16px 0 0;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--muted-2);
+}
+
+.dp-back {
+  margin: 16px 0 0;
+}
+
+.dp-others {
+  margin-top: 32px;
+}
+
+.dp-others h2 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+}
+
+.dp-others ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 639px) {
+  .dp-hub {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .dp-hub-name {
+    font-size: 19px;
+  }
+
+  .dp-hub-groups {
+    display: none;
+  }
+
+  /* each row becomes a small card: the college on top, its figures labelled below */
+  .dp-table-card .table-scroll {
+    overflow: visible;
+    background: none;
+  }
+
+  .dp-table {
+    min-width: 0;
+  }
+
+  .dp-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .dp-table tbody,
+  .dp-table tr,
+  .dp-table td {
+    display: block;
+  }
+
+  .dp-table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .dp-table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .dp-table td {
+    padding: 0;
+    border: 0;
+  }
+
+  .dp-table .num {
+    text-align: left;
+    white-space: normal;
+  }
+
+  .dp-table .dp-cell-college {
+    grid-column: 1 / -1;
+  }
+
+  .dp-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: var(--label-tracking);
+    text-transform: uppercase;
+    color: var(--muted-2);
+  }
+
+  .dp-branch {
+    margin-left: 44px;
+  }
+}

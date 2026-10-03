@@ -101,6 +101,12 @@ export function CollegesPage() {
       <PageHeader
         title="Colleges"
         subtitle="Search all 387 engineering colleges in CAP. Open a college to see its closing ranks, fees and branches, or add up to 3 to compare."
+        actions={
+          <Link to="/engineering-colleges" className="btn btn-secondary btn-sm">
+            <Icon name="building" size={16} />
+            Browse by district
+          </Link>
+        }
       />
 
       <div className="colleges-filters card">

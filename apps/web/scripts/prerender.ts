@@ -16,6 +16,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { branchMeta, collegeMeta, fullTitle, SITE_NAME, STATIC_PAGE_META, type PageMeta } from "../src/lib/seo.ts";
 import { seatTypeLabel } from "../src/lib/seatType.ts";
+import {
+  collegeRows, DISTRICT_HUB_PATH, districtIntro, districtLabel, districtMeta, districtPath, formatLakh, groupIntro, groupMeta,
+  groupPath, groupRows, hubMeta, noFeeText, SOURCES_NOTE, type DistrictCollege, type DistrictDetail,
+} from "../src/lib/districts.ts";
 
 export interface SeoBranch {
   choiceCode: string;
@@ -35,6 +39,8 @@ export interface SeoCollege {
 export interface SeoData {
   year: number;
   colleges: SeoCollege[];
+  /** District landing pages, from GET /api/districts/:slug for each district. */
+  districts?: DistrictDetail[];
 }
 
 export interface Page {
@@ -123,6 +129,108 @@ export function staticPage(siteUrl: string, path: string, data: SeoData): Page {
   };
 }
 
+// ─── District landing pages ────────────────────────────────────────────────
+
+const HUB_CRUMB = [{ name: "Colleges", path: "/colleges" }, { name: "By district", path: DISTRICT_HUB_PATH }];
+
+const feeCell = (c: DistrictCollege) => (c.fee ? `₹${c.fee.total.toLocaleString("en-IN")} (FRA, ${esc(c.fee.year)})` : noFeeText(c.collegeType));
+const salaryCell = (c: DistrictCollege) =>
+  c.placement ? `${formatLakh(c.placement.medianSalary)} (NIRF, batch ${esc(c.placement.graduationYear)})` : "Not published";
+
+function collegeList(siteUrl: string, name: string, colleges: DistrictCollege[]) {
+  return {
+    "@type": "ItemList",
+    name,
+    itemListElement: colleges.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, url: `${siteUrl}/colleges/${c.code}` })),
+  };
+}
+
+export function hubPage(siteUrl: string, year: number, districts: DistrictDetail[]): Page {
+  const meta = hubMeta(districts.length, year);
+  const items = districts
+    .map((d) => {
+      const groups = d.groups.map((g) => `<a href="${groupPath(d.slug, g.slug)}">${esc(g.name)}</a>`).join(" · ");
+      return `<li><a href="${districtPath(d.slug)}">${esc(districtLabel(d.name))}</a>: ${d.colleges.length} ${d.colleges.length === 1 ? "college" : "colleges"}${groups ? ` (${groups})` : ""}</li>`;
+    })
+    .join("");
+  return {
+    path: DISTRICT_HUB_PATH,
+    meta,
+    body:
+      `<main class="page prerendered"><nav aria-label="Breadcrumb"><a href="/colleges">Colleges</a></nav>` +
+      `<h1>Engineering colleges by district</h1><p>${esc(meta.description ?? "")}</p><ul>${items}</ul><p>${esc(SOURCES_NOTE)}</p></main>`,
+    jsonLd: [
+      { "@context": "https://schema.org", "@type": "CollectionPage", name: fullTitle(meta.title), url: siteUrl + DISTRICT_HUB_PATH },
+      breadcrumb(siteUrl, HUB_CRUMB),
+    ],
+  };
+}
+
+export function districtPage(siteUrl: string, d: DistrictDetail, all: DistrictDetail[]): Page {
+  const path = districtPath(d.slug);
+  const meta = districtMeta(d);
+  const place = districtLabel(d.name);
+  const rows = collegeRows(d.colleges)
+    .map(
+      ({ college: c, top }) =>
+        `<tr><td><a href="/colleges/${c.code}">${esc(c.name)}</a>${c.collegeType ? ` (${esc(c.collegeType)})` : ""}</td>` +
+        `<td>${num(top.roundI ?? top.latest)}, <a href="/colleges/${c.code}/${top.choiceCode}">${esc(top.name)}</a>${top.roundI === null ? " (last round)" : ""}</td>` +
+        `<td>${c.branches.length}</td><td>${feeCell(c)}</td><td>${salaryCell(c)}</td></tr>`,
+    )
+    .join("");
+  const groups = d.groups.map((g) => `<li><a href="${groupPath(d.slug, g.slug)}">${esc(g.name)} engineering colleges in ${esc(place)}</a></li>`).join("");
+  const others = all.filter((o) => o.slug !== d.slug).map((o) => `<a href="${districtPath(o.slug)}">${esc(districtLabel(o.name))}</a>`).join(" · ");
+  return {
+    path,
+    meta,
+    body:
+      `<main class="page prerendered"><nav aria-label="Breadcrumb"><a href="/colleges">Colleges</a> / <a href="${DISTRICT_HUB_PATH}">By district</a></nav>` +
+      `<h1>Engineering colleges in ${esc(place)}</h1><p>${esc(districtIntro(d))}</p>` +
+      (groups ? `<ul>${groups}</ul>` : "") +
+      `<table><caption>CAP ${d.year}: each college's lowest closing merit number on open seats</caption><thead><tr><th>College</th><th>Lowest closing</th><th>Branches</th><th>Fee per year</th><th>Median salary</th></tr></thead><tbody>${rows}</tbody></table>` +
+      `<p>${esc(SOURCES_NOTE)}</p>${others ? `<p>Other districts: ${others}</p>` : ""}</main>`,
+    jsonLd: [
+      { "@context": "https://schema.org", "@type": "CollectionPage", name: fullTitle(meta.title), url: siteUrl + path, mainEntity: collegeList(siteUrl, meta.title, d.colleges) },
+      breadcrumb(siteUrl, [...HUB_CRUMB, { name: place, path }]),
+    ],
+  };
+}
+
+export function districtGroupPage(siteUrl: string, d: DistrictDetail, groupSlug: string, all: DistrictDetail[]): Page | null {
+  const group = d.groups.find((g) => g.slug === groupSlug);
+  if (!group) return null;
+  const path = groupPath(d.slug, group.slug);
+  const meta = groupMeta(d, group.name);
+  const place = districtLabel(d.name);
+  const branchRows = groupRows(d.colleges, group.name);
+  const rows = branchRows
+    .map(
+      ({ college: c, branch: b }) =>
+        `<tr><td><a href="/colleges/${c.code}">${esc(c.name)}</a>: <a href="/colleges/${c.code}/${b.choiceCode}">${esc(b.name)}</a></td>` +
+        `<td>${num(b.roundI)}</td><td>${num(b.latest)}</td><td>${feeCell(c)}</td><td>${salaryCell(c)}</td></tr>`,
+    )
+    .join("");
+  const others = all
+    .filter((o) => o.slug !== d.slug && o.groups.some((g) => g.slug === group.slug))
+    .map((o) => `<a href="${groupPath(o.slug, group.slug)}">${esc(districtLabel(o.name))}</a>`)
+    .join(" · ");
+  const colleges = [...new Map(branchRows.map((r) => [r.college.code, r.college])).values()];
+  return {
+    path,
+    meta,
+    body:
+      `<main class="page prerendered"><nav aria-label="Breadcrumb"><a href="/colleges">Colleges</a> / <a href="${DISTRICT_HUB_PATH}">By district</a> / <a href="${districtPath(d.slug)}">${esc(place)}</a></nav>` +
+      `<h1>${esc(group.name)} engineering colleges in ${esc(place)}</h1><p>${esc(groupIntro(d, group.name))}</p>` +
+      `<table><caption>CAP ${d.year} closing merit numbers, open seats</caption><thead><tr><th>College and branch</th><th>Round I</th><th>Last round</th><th>Fee per year</th><th>Median salary</th></tr></thead><tbody>${rows}</tbody></table>` +
+      `<p>${esc(SOURCES_NOTE)}</p><p><a href="${districtPath(d.slug)}">All engineering colleges in ${esc(place)}</a></p>` +
+      `${others ? `<p>${esc(group.name)} colleges in other districts: ${others}</p>` : ""}</main>`,
+    jsonLd: [
+      { "@context": "https://schema.org", "@type": "CollectionPage", name: fullTitle(meta.title), url: siteUrl + path, mainEntity: collegeList(siteUrl, meta.title, colleges) },
+      breadcrumb(siteUrl, [...HUB_CRUMB, { name: place, path: districtPath(d.slug) }, { name: group.name, path }]),
+    ],
+  };
+}
+
 /** The site-wide entity, added to the home page. */
 export function siteJsonLd(siteUrl: string) {
   return { "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME, url: siteUrl + "/" };
@@ -154,6 +262,17 @@ export function allPages(siteUrl: string, data: SeoData): Page[] {
   for (const c of data.colleges) {
     pages.push(collegePage(siteUrl, data.year, c));
     for (const b of c.branches) pages.push(branchPage(siteUrl, data.year, c, b));
+  }
+  const districts = data.districts ?? [];
+  if (districts.length) {
+    pages.push(hubPage(siteUrl, data.year, districts));
+    for (const d of districts) {
+      pages.push(districtPage(siteUrl, d, districts));
+      for (const g of d.groups) {
+        const p = districtGroupPage(siteUrl, d, g.slug, districts);
+        if (p) pages.push(p);
+      }
+    }
   }
   return pages;
 }
@@ -194,6 +313,17 @@ export function prerenderedServeConfig(existing: { headers?: unknown[] }) {
   };
 }
 
+/** Every district's detail, for the district landing pages. A failed call fails the build. */
+async function fetchDistricts(api: string): Promise<DistrictDetail[]> {
+  const get = async <T>(path: string): Promise<T> => {
+    const res = await fetch(`${api}${path}`);
+    if (!res.ok) throw new Error(`[prerender] ${api}${path} answered ${res.status}`);
+    return (await res.json()) as T;
+  };
+  const { districts } = await get<{ districts: { slug: string }[] }>("/api/districts");
+  return Promise.all(districts.map((d) => get<DistrictDetail>(`/api/districts/${encodeURIComponent(d.slug)}`)));
+}
+
 async function main() {
   const siteUrl = (process.env.VITE_SITE_URL ?? "").trim().replace(/\/+$/, "");
   if (!siteUrl) {
@@ -205,6 +335,7 @@ async function main() {
   const res = await fetch(`${api}/api/seo-pages`);
   if (!res.ok) throw new Error(`[prerender] ${api}/api/seo-pages answered ${res.status}`);
   const data = (await res.json()) as SeoData;
+  data.districts = await fetchDistricts(api);
 
   const dist = fileURLToPath(new URL("../dist/", import.meta.url));
   const template = readFileSync(join(dist, "index.html"), "utf8");
@@ -224,7 +355,7 @@ async function main() {
   writeFileSync(join(dist, "404.html"), template.replace("</head>", `    <meta name="robots" content="noindex" />\n  </head>`));
   const serveJson = join(dist, "serve.json");
   writeFileSync(serveJson, JSON.stringify(prerenderedServeConfig(JSON.parse(readFileSync(serveJson, "utf8"))), null, 2) + "\n");
-  console.log(`[prerender] ${pages.length} pages (${data.colleges.length} colleges) written as .html`);
+  console.log(`[prerender] ${pages.length} pages (${data.colleges.length} colleges, ${data.districts.length} districts) written as .html`);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

@@ -1,4 +1,5 @@
 import type { HistoryRow } from "./yearTrend";
+import type { DistrictDetail, DistrictSummary } from "./districts";
 export type Category = "OPEN" | "OBC" | "SEBC" | "SC" | "ST" | "VJ" | "NT1" | "NT2" | "NT3";
 export type RankStatus = "round-I" | "later-round" | "out-of-range";
 
@@ -296,6 +297,9 @@ export const api = {
     ),
   collegeFees: (code: string) =>
     get<CollegeFees | CollegeFeesUnavailable>(`/api/colleges/${code}/fees`),
+  /** District landing pages (SEO): every district, then one district's colleges and branches. */
+  districts: () => get<{ year: number; districts: DistrictSummary[] }>("/api/districts"),
+  district: (slug: string) => get<DistrictDetail>(`/api/districts/${encodeURIComponent(slug)}`),
   collegePlacement: (code: string) =>
     get<CollegePlacement | { available: false; code: string }>(`/api/colleges/${code}/placement`),
   jeeEstimate: (percentile: number) =>

@@ -1,12 +1,15 @@
 import type { Context } from "hono";
+import type { FeeIndex } from "../feeIndex.ts";
 import type { AppCache } from "../startup.ts";
+import { districtSummaries } from "./districts.ts";
 
 /**
  * GET /api/sitemap — the public pages worth listing for search engines (SEO): every college that has
- * cutoffs in the cache year, with the choice codes of its branches that have cutoffs. The web build
- * turns this into sitemap.xml (apps/web/scripts/write-seo-files.mjs). Only codes, no data values.
+ * cutoffs in the cache year, with the choice codes of its branches that have cutoffs, and every
+ * district landing page with its branch-group pages. The web build turns this into sitemap.xml
+ * (apps/web/scripts/write-seo-files.mjs). Only codes and slugs, no data values.
  */
-export function getSitemap(c: Context, cache: AppCache) {
+export function getSitemap(c: Context, cache: AppCache, fees: FeeIndex) {
   const byCollege = new Map<string, string[]>();
   for (const [choiceCode, rows] of cache.cutoffsByChoiceCode) {
     if (rows.length === 0) continue;
@@ -17,5 +20,6 @@ export function getSitemap(c: Context, cache: AppCache) {
   const colleges = [...byCollege]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([code, branches]) => ({ code, branches: branches.sort() }));
-  return c.json({ year: cache.year, colleges });
+  const districts = districtSummaries(cache, fees).map((d) => ({ slug: d.slug, groups: d.groups.map((g) => g.slug) }));
+  return c.json({ year: cache.year, colleges, districts });
 }

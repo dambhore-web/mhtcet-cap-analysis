@@ -1,9 +1,33 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  allPages, APP_ONLY_ROUTES, branchPage, collegePage, fileFor, prerenderedServeConfig, renderPage, staticPage, type SeoData,
+  allPages, APP_ONLY_ROUTES, branchPage, collegePage, districtGroupPage, districtPage, fileFor, hubPage, prerenderedServeConfig, renderPage,
+  staticPage, type SeoData,
 } from "../scripts/prerender";
 import { STATIC_PAGE_META } from "../src/lib/seo";
+import { DISTRICT_HUB_PATH, type DistrictDetail } from "../src/lib/districts";
+
+const PUNE: DistrictDetail = {
+  year: 2026,
+  slug: "pune",
+  name: "Pune",
+  groups: [{ slug: "computer-it", name: "Computer & IT", colleges: 2 }],
+  colleges: [
+    {
+      code: "16006", name: "COEP Technological University", collegeType: "Government", fee: null,
+      placement: { medianSalary: 1200000, graduationYear: "2024-25" },
+      branches: [
+        { choiceCode: "1600624210", name: "Computer Engineering", group: "Computer & IT", roundI: 150, latest: 170, seatType: "GOPENS" },
+        { choiceCode: "1600661210", name: "Mechanical Engineering", group: "Mechanical", roundI: 2100, latest: 2500, seatType: "GOPENS" },
+      ],
+    },
+    {
+      code: "06271", name: "Pune Institute of <Computer> Technology", collegeType: "Un-Aided", fee: { total: 145000, year: "2026-27" }, placement: null,
+      branches: [{ choiceCode: "0627124210", name: "Computer Engineering", group: "Computer & IT", roundI: null, latest: 900, seatType: "GOPENO" }],
+    },
+  ],
+};
+const WASHIM: DistrictDetail = { ...PUNE, slug: "washim", name: "Washim", groups: [], colleges: [{ ...PUNE.colleges[1], code: "09999", name: "Washim College" }] };
 
 const SITE = "https://getmecollege.com";
 const DATA: SeoData = {
@@ -64,6 +88,39 @@ describe("prerendered pages (SEO)", () => {
     expect(fileFor("/colleges/16006")).toBe("colleges/16006.html");
   });
 
+  it("a district page: its own title, the colleges table, group links and official figures only", () => {
+    const html = renderPage(TEMPLATE, SITE, districtPage(SITE, PUNE, [PUNE, WASHIM]));
+    expect(html).toContain("<title>Engineering colleges in Pune — CAP 2026 cutoffs, fees | GetMeCollege</title>");
+    expect(html).toContain('<link rel="canonical" href="https://getmecollege.com/engineering-colleges/pune" />');
+    expect(html).toContain("<h1>Engineering colleges in Pune</h1>");
+    expect(html).toContain('<a href="/engineering-colleges/pune/computer-it">Computer &amp; IT engineering colleges in Pune</a>');
+    // COEP first (150), its fee set by the state, its NIRF median shown
+    expect(html).toMatch(/COEP Technological University<\/a> \(Government\)<\/td><td>150, .*<td>Set by the state<\/td><td>₹12 lakh \(NIRF, batch 2024-25\)<\/td>/);
+    expect(html).toContain("<td>₹1,45,000 (FRA, 2026-27)</td><td>Not published</td>");
+    expect(html).toContain("Pune Institute of &lt;Computer&gt; Technology");
+    expect(html).toContain('<a href="/engineering-colleges/washim">Washim</a>');
+    expect(html).toContain('"@type":"CollectionPage"');
+  });
+
+  it("a district + branch-group page lists only that group's branches", () => {
+    const page = districtGroupPage(SITE, PUNE, "computer-it", [PUNE, WASHIM])!;
+    expect(page.path).toBe("/engineering-colleges/pune/computer-it");
+    expect(page.meta.title).toBe("Computer & IT engineering colleges in Pune — CAP 2026 cutoffs");
+    expect(page.body).toContain("Computer Engineering");
+    expect(page.body).not.toContain("Mechanical Engineering");
+    expect(page.body).toContain("<td>–</td><td>900</td>"); // no Round I: a dash
+    expect(districtGroupPage(SITE, PUNE, "mechanical", [PUNE])).toBeNull(); // fewer than 2 colleges: no page
+  });
+
+  it("adds the hub, each district and each group page when district data is given", () => {
+    const paths = allPages(SITE, { ...DATA, districts: [PUNE, WASHIM] }).map((p) => p.path);
+    expect(paths).toEqual(expect.arrayContaining(["/engineering-colleges", "/engineering-colleges/pune", "/engineering-colleges/pune/computer-it", "/engineering-colleges/washim"]));
+    expect(paths).not.toContain("/engineering-colleges/washim/computer-it");
+    expect(fileFor("/engineering-colleges/pune/computer-it")).toBe("engineering-colleges/pune/computer-it.html");
+    const hub = hubPage(SITE, 2026, [PUNE, WASHIM]);
+    expect(hub.body).toContain('<a href="/engineering-colleges/pune">Pune</a>: 2 colleges');
+  });
+
   it("serve.json keeps the security headers and sends only app routes to index.html", () => {
     const cfg = prerenderedServeConfig({ headers: [{ source: "**", headers: [] }] });
     expect(cfg.headers).toHaveLength(1);
@@ -75,7 +132,7 @@ describe("prerendered pages (SEO)", () => {
   it("every route in App.tsx is either prerendered or listed as an app-only route", () => {
     const app = readFileSync(new URL("../src/App.tsx", import.meta.url), "utf8");
     const routes = [...app.matchAll(/path="([^"]+)"/g)].map((m) => "/" + m[1]).filter((r) => r !== "/*");
-    const prerendered = (r: string) => r in STATIC_PAGE_META || r.startsWith("/colleges/:code");
+    const prerendered = (r: string) => r in STATIC_PAGE_META || r.startsWith("/colleges/:code") || r.startsWith(DISTRICT_HUB_PATH);
     const listed = (r: string) => APP_ONLY_ROUTES.some((a) => a === r || (a.endsWith("/**") && r.startsWith(a.slice(0, -3) + "/")));
     for (const r of routes) expect(prerendered(r) || listed(r), r).toBe(true);
   });
