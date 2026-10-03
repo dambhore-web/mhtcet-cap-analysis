@@ -2,7 +2,6 @@
 # set the service's config file path to apps/web/railway.toml. VITE_API_URL is read at build
 # time. See docs/09-devops/deployment.md.
 [build]
-builder = "NIXPACKS"
 buildCommand = "npm ci --include=dev && npm run build -w @mhtcet/web"
 watchPatterns = ["apps/web/**", "packages/core/**", "package.json", "package-lock.json"]
 
