@@ -16,6 +16,18 @@ export interface PageMeta {
   noindex?: boolean;
 }
 
+/** The public pages that are the same for everyone (also prerendered at build, scripts/prerender.ts). */
+export const STATIC_PAGE_META: Record<string, PageMeta> = {
+  "/": { title: "GetMeCollege — MHT-CET CAP cutoffs for every college and branch", description: "Closing merit numbers for every Maharashtra engineering college and branch from the official CET Cell CAP lists: every round, every seat type, earlier years." },
+  "/colleges": { title: "Maharashtra engineering colleges — CAP cutoffs", description: "Every engineering college in MHT-CET CAP with its branches' closing merit numbers, sortable by how hard each was to get. From the official CET Cell lists." },
+  "/branches": { title: "Engineering branches — CAP cutoffs by branch", description: "Computer, IT, E&TC, Mechanical, Civil and more: closing merit numbers by branch across Maharashtra colleges, by seat type. From the official CET Cell CAP lists." },
+  "/guide": { title: "How MHT-CET CAP works — rounds, seat codes, freeze, float, slide", description: "A plain-language guide to the CAP option form, the rounds, auto-freeze, freeze, float and slide, and seat type codes such as GOPENS and TFWS." },
+  "/data": { title: "Where our numbers come from", description: "The official CET Cell lists behind every closing merit number on GetMeCollege, how they are read and checked, and what past cutoffs can't tell you." },
+  "/estimate": { title: "MHT-CET percentile to merit number estimate", description: "Estimate your state merit number range from your MHT-CET percentile, and see which branches that range reached in past CAP rounds." },
+  "/eligibility": { title: "Which CAP seat types can I take?", description: "Home university, category, ladies, TFWS, EWS, defence and PWD seats: which MHT-CET CAP seat types apply to you and how many more branches they open." },
+  "/legal": { title: "Disclaimer, privacy and terms", description: "GetMeCollege is an unofficial guide to MHT-CET CAP. What the data means, how your details are kept, and the terms of use." },
+};
+
 /** The public address, e.g. https://compass.example (VITE_SITE_URL); this origin when unset. */
 export function siteUrl(): string {
   const configured = (import.meta.env.VITE_SITE_URL as string | undefined)?.replace(/\/+$/, "");

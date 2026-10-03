@@ -26,9 +26,13 @@ export function getBranches(c: Context, cache: AppCache) {
  */
 export const OPEN_FALLBACK = ["GOPENS", "GOPENO", "GOPENH", "LOPENS", "LOPENO", "LOPENH"] as const;
 
-export function getOpenLatest(c: Context, cache: AppCache) {
+/** One branch's open-seat closing in the cache year: [choiceCode, collegeCode, branch, roundI, latest, group, seatType]. */
+export type OpenLatestRow = [string, string, string, number | null, number, string | null, string];
+
+/** Every branch's open-seat Round I and latest-round closing (OPEN_FALLBACK order); shared by open-latest and seo-pages. */
+export function openLatestRows(cache: AppCache): OpenLatestRow[] {
   const groups = Object.entries(BRANCH_GROUP_PATTERNS);
-  const rows: [string, string, string, number | null, number, string | null, string][] = [];
+  const rows: OpenLatestRow[] = [];
   for (const [choiceCode, cutoffs] of cache.cutoffsByChoiceCode) {
     let seatType = "";
     let open: typeof cutoffs = [];
@@ -47,7 +51,11 @@ export function getOpenLatest(c: Context, cache: AppCache) {
     const group = groups.find(([, re]) => re.test(branch.name))?.[0] ?? null;
     rows.push([choiceCode, branch.collegeCode, branch.name, r1, sorted[sorted.length - 1].closingMerit, group, seatType]);
   }
-  return c.json({ year: cache.year, seatTypes: OPEN_FALLBACK, rows });
+  return rows;
+}
+
+export function getOpenLatest(c: Context, cache: AppCache) {
+  return c.json({ year: cache.year, seatTypes: OPEN_FALLBACK, rows: openLatestRows(cache) });
 }
 
 /**

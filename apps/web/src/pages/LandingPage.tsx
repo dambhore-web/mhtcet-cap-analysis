@@ -7,7 +7,7 @@ import { logBounds, logScale } from "../lib/logScale";
 import { profileResultsPath } from "../lib/onboarding";
 import { Icon } from "../components/Icon";
 import { MeritRuler } from "../components/MeritRuler";
-import { usePageMeta } from "../lib/seo";
+import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
 import "./OnboardingPage.css";
 import "./LandingPage.css";
 
@@ -30,7 +30,7 @@ const EXAMPLE_MERIT = 12000;
 
 /** "/" for every visitor (#142, #144): all of CAP on one merit ruler, then how it works. */
 export function LandingPage() {
-  usePageMeta({ title: "GetMeCollege — MHT-CET CAP cutoffs for every college and branch" });
+  usePageMeta(STATIC_PAGE_META["/"]);
   const { hasProfile, profile } = useProfile();
   const resultsPath = hasProfile ? profileResultsPath(profile) : null;
   const [meta, setMeta] = useState<DataMeta | null>(null);

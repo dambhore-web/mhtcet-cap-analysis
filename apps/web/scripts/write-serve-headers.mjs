@@ -59,7 +59,10 @@ const headers = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
 ];
 
-const config = { headers: [{ source: "**", headers }] };
+// Routing is set here, not with `serve -s`: -s rewrites every extensionless URL to index.html before
+// looking for a file, which would hide the prerendered pages (scripts/prerender.ts). Default: one
+// catch-all to the app, as -s did; prerender.ts narrows it when it writes per-page HTML.
+const config = { cleanUrls: true, rewrites: [{ source: "**", destination: "/index.html" }], headers: [{ source: "**", headers }] };
 const out = fileURLToPath(new URL("../dist/serve.json", import.meta.url));
 writeFileSync(out, JSON.stringify(config, null, 2) + "\n");
 console.log(`[headers] wrote ${out}${apiOrigin ? ` (API ${apiOrigin})` : " (no VITE_API_URL: same-origin API)"}${supabaseOrigin ? ` (Supabase ${supabaseOrigin})` : " (no sign-in)"}`);

@@ -6,5 +6,6 @@ buildCommand = "npm ci --include=dev && npm run build -w @mhtcet/web"
 watchPatterns = ["apps/web/**", "packages/core/**", "package.json", "package-lock.json"]
 
 [deploy]
-startCommand = "npx serve -s apps/web/dist -l $PORT"
+# no -s: routing comes from dist/serve.json (written at build), so prerendered pages are served
+startCommand = "npx serve apps/web/dist -l $PORT"
 restartPolicyType = "ON_FAILURE"

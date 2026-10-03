@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
-import { usePageMeta } from "../lib/seo";
+import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
 import "./LegalPage.css";
 
 type Tab = "disclaimer" | "privacy" | "terms";
@@ -12,7 +12,7 @@ const TABS: [Tab, string][] = [
 ];
 
 export function LegalPage() {
-  usePageMeta({ title: "Disclaimer, privacy and terms", description: "GetMeCollege is an unofficial guide to MHT-CET CAP. What the data means, how your details are kept, and the terms of use." });
+  usePageMeta(STATIC_PAGE_META["/legal"]);
   const [params, setParams] = useSearchParams();
   const raw = params.get("tab");
   const tab: Tab = raw === "privacy" || raw === "terms" ? raw : "disclaimer";

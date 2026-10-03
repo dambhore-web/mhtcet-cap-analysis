@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/write-serve-headers.mjs && node scripts/write-seo-files.mjs",
+    "build": "tsc -b && vite build && node scripts/write-serve-headers.mjs && node scripts/write-seo-files.mjs && tsx scripts/prerender.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "e2e": "playwright test",

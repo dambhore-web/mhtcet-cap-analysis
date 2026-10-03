@@ -16,6 +16,7 @@ import { postAssistant } from "./routes/assistant.ts";
 import { getMeta } from "./routes/meta.ts";
 import { getBranches, getBranchHistory, getOpenLatest } from "./routes/branches.ts";
 import { getSitemap } from "./routes/sitemap.ts";
+import { getSeoPages } from "./routes/seoPages.ts";
 import type { AppCache } from "./startup.ts";
 import { buildFeeIndex } from "./feeIndex.ts";
 import { compressJson } from "./compress.ts";
@@ -86,6 +87,7 @@ export function createApp(cache: AppCache, pool: pg.Pool, options: AppOptions = 
   app.get("/api/branches/:choiceCode/history", (c) => getBranchHistory(c, cache));
   app.get("/api/cutoffs/open-latest", (c) => getOpenLatest(c, cache));
   app.get("/api/sitemap", (c) => getSitemap(c, cache));
+  app.get("/api/seo-pages", (c) => getSeoPages(c, cache));
   app.get("/api/colleges/:code/fees", (c) => getCollegeFees(c, fees, cache));
   app.get("/api/colleges/:code/placement", (c) => getCollegePlacement(c, cache));
   app.post("/api/assistant", (c) => postAssistant(c, cache, options.assistantClient));

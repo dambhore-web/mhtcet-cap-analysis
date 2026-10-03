@@ -11,7 +11,7 @@ import { LadderAxis, LadderLegend, MeritLadder, ladderDomain } from "../componen
 import { formatNumber } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { logBounds, logScale } from "../lib/logScale";
-import { usePageMeta } from "../lib/seo";
+import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
 import "./BranchesPage.css";
 
 /** One branch group's closing ranks as a small barcode, with the student's merit as a line. */
@@ -116,7 +116,7 @@ function isGroup(v: string | null): v is BranchGroup {
  * branch group, with Round I and last-round closing ranks against the student's merit.
  */
 export function BranchesPage() {
-  usePageMeta({ title: "Engineering branches — CAP cutoffs by branch", description: "Computer, IT, E&TC, Mechanical, Civil and more: closing merit numbers by branch across Maharashtra colleges, by seat type. From the official CET Cell CAP lists." });
+  usePageMeta(STATIC_PAGE_META["/branches"]);
   const { profile } = useProfile();
   const [params, setParams] = useSearchParams();
   const selectedBranch = params.get("branch") ?? null;

@@ -36,6 +36,12 @@ step held back, so the rollout is one pass. Add to it whenever a change needs a 
 - [ ] DNS: point getmecollege.com and www.getmecollege.com at the Railway web service (custom domains);
       www redirects to the bare domain. Point the API at e.g. api.getmecollege.com.
 - [ ] Production web service: `VITE_SITE_URL=https://getmecollege.com` (build time). Never on staging.
+      With it the build also writes the prerendered pages, so the API must be reachable at
+      `VITE_API_URL` while the web service builds.
+- [ ] Web service start command **without `-s`**: `SERVICE_CMD=npx serve apps/web/dist -l $PORT`
+      (routing comes from `dist/serve.json`; `-s` would hide the prerendered pages).
+- [ ] After deploy: view the page source of `https://getmecollege.com/colleges/16006`: it has
+      COEP's own `<title>`, a canonical URL and the branch table; `/nope` answers 404.
 - [ ] After deploy: `/robots.txt` allows crawling and lists the sitemap; `/sitemap.xml` has every
       college and branch page.
 - [ ] Google Search Console: verify the domain and submit `https://getmecollege.com/sitemap.xml`.
