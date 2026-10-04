@@ -54,6 +54,15 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
+        // the PDF and spreadsheet export libraries (about 900 KB) load only when someone exports: not
+        // worth every first visit downloading them in the background
+        globIgnores: [
+          "**/jspdf*.js",
+          "**/html2canvas*.js",
+          "**/purify.es*.js",
+          "**/write-excel-file*.js",
+          "**/index.es-*.js", // canvg, pulled in by jspdf
+        ],
         // a new version takes over at once (autoUpdate); public/registerSW.js then reloads the page
         // (with injectRegister false the plugin no longer sets these itself)
         skipWaiting: true,

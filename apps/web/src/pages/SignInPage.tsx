@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { RETURN_KEY, useAuth } from "../lib/AuthContext";
 import { PageHeader } from "../components/PageHeader";
@@ -29,10 +29,15 @@ export function SignInPage() {
   const [error, setError] = useState(returnedError ? "Google sign-in didn't finish. Try again, or continue without signing in." : "");
   const coming = params.has("code");
 
-  // back from Google and signed in: carry on where they were
+  // back from Google and signed in: carry on where they were. Once: the user can arrive twice in a
+  // row (the stored session, then the sign-in event), and returnPath() empties the stored path
+  const userId = user?.id ?? null;
+  const left = useRef(false);
   useEffect(() => {
-    if (user && !authLoading) navigate(returnPath(), { replace: true });
-  }, [user, authLoading, navigate]);
+    if (!userId || authLoading || left.current) return;
+    left.current = true;
+    navigate(returnPath(), { replace: true });
+  }, [userId, authLoading, navigate]);
 
   async function handleGoogleSignIn() {
     setLoading(true);
