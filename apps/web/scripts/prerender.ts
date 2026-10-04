@@ -14,6 +14,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { fetchApi } from "./fetch-api.mjs";
 import { branchGroupMeta, branchMeta, closingPhrase, collegeMeta, fullTitle, type OpenClosing, SITE_NAME, STATIC_PAGE_META, type PageMeta } from "../src/lib/seo.ts";
 import { estimateFaqs, formatPercentile, percentileRows, type ScalePoint } from "../src/lib/percentile.ts";
 import { CAP_STEPS, DECISIONS, FAQS } from "../src/lib/guide.ts";
@@ -718,7 +719,7 @@ export function prerenderedServeConfig(existing: { headers?: unknown[] }) {
 /** Every district's detail, for the district landing pages. A failed call fails the build. */
 async function fetchDistricts(api: string): Promise<DistrictDetail[]> {
   const get = async <T>(path: string): Promise<T> => {
-    const res = await fetch(`${api}${path}`);
+    const res = await fetchApi(`${api}${path}`);
     if (!res.ok) throw new Error(`[prerender] ${api}${path} answered ${res.status}`);
     return (await res.json()) as T;
   };
@@ -729,7 +730,7 @@ async function fetchDistricts(api: string): Promise<DistrictDetail[]> {
 /** The year's merit ↔ percentile pairs for both lists. A failed call fails the build. */
 async function fetchScales(api: string): Promise<NonNullable<SeoData["scales"]>> {
   const get = async (list: "MH" | "AI") => {
-    const res = await fetch(`${api}/api/percentile-scale?list=${list}`);
+    const res = await fetchApi(`${api}/api/percentile-scale?list=${list}`);
     if (!res.ok) throw new Error(`[prerender] ${api}/api/percentile-scale?list=${list} answered ${res.status}`);
     return (await res.json()) as { year: number; points: ScalePoint[] };
   };
@@ -745,7 +746,7 @@ async function main() {
   }
   const api = (process.env.SITEMAP_API_URL || process.env.VITE_API_URL || "").replace(/\/+$/, "");
   if (!api) throw new Error("[prerender] set VITE_API_URL or SITEMAP_API_URL");
-  const res = await fetch(`${api}/api/seo-pages`);
+  const res = await fetchApi(`${api}/api/seo-pages`);
   if (!res.ok) throw new Error(`[prerender] ${api}/api/seo-pages answered ${res.status}`);
   const data = (await res.json()) as SeoData;
   data.districts = await fetchDistricts(api);
