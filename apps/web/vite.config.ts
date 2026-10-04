@@ -34,6 +34,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
+        // The app shell answers page loads, but not files: /sitemap.xml, /robots.txt and the like
+        // must come from the server, or a returning visitor opening them sees the landing page
+        navigateFallbackDenylist: [/^\/api\//, /\/[^/?]+\.[a-z0-9]+$/i],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
