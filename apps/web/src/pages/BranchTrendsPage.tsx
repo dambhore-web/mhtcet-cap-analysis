@@ -11,7 +11,7 @@ import { formatNumber, formatRound, roundIndex } from "../lib/format";
 import { roundMerit } from "../lib/logScale";
 import { seatTypeLabel, seatTypeSortKey } from "../lib/seatType";
 import { trendVerdict, yearSeries, yearsWithin, type HistoryRow, type RoundMode } from "../lib/yearTrend";
-import { branchMeta, usePageMeta } from "../lib/seo";
+import { branchMeta, openClosing, usePageMeta } from "../lib/seo";
 import "./BranchTrendsPage.css";
 
 interface Row {
@@ -21,6 +21,7 @@ interface Row {
   round: string;
   seatType: string;
   closingMerit: number;
+  closingPercentile?: number | null;
 }
 
 type Status = "loading" | "done" | "error";
@@ -63,7 +64,7 @@ export function BranchTrendsPage() {
     status === "error" || (status === "done" && branchRows.length === 0)
       ? { title: "Branch not found", noindex: true }
       : college && branchRows.length > 0
-        ? branchMeta(college.name, branch, dataYears.length ? dataYears : year ? [year] : [])
+        ? branchMeta(college.name, branch, dataYears.length ? dataYears : year ? [year] : [], year ? openClosing(branchRows, year) : null)
         : null,
   );
   const seatTypes = useMemo(

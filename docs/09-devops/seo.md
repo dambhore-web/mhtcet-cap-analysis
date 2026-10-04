@@ -21,6 +21,17 @@
   page) and a plain-HTML version of its key content (a college's branches with Round I and
   last-round closing on open seats). The app starts over it as usual. Crawlers and link previews
   that don't run JavaScript now see the real page.
+- **College and branch pages** (2,720 on the 2026 data, median about 480 words): a lead sentence
+  with the real numbers ("closed at merit 150 (99.976 percentile) in CAP 2026 Round I on open seats,
+  170 in the last round"), a year-on-year trend in plain words, facts (seats, fee, NIRF salary, All
+  India closing), the Round I closing per category seat type (OBC, SC, ST, EWS, TFWS, ladies…), open
+  seats year by year, a short FAQ (visible, and as `FAQPage` data), and links to the college's other
+  branches, similar cutoffs in the same district and branch group, and the district pages. Titles
+  lead with the search words ("… cutoff, COEP Technological University — CAP 2024–2026"), and the
+  descriptions carry the numbers. The app sets the same title and description (`collegeMeta`,
+  `branchMeta`, `openClosing` in `src/lib/seo.ts`), so the page Google renders says the same as the
+  prerendered one. Data: `GET /api/seo-pages` (percentiles, intake, earlier years, seat types, All
+  India) plus the district data for fees, salaries and neighbours.
 - **District landing pages** (`src/pages/DistrictPage.tsx`, text in `src/lib/districts.ts`): the
   hub `/engineering-colleges`, one page per district (`/engineering-colleges/pune`) and one per
   district and branch group (`/engineering-colleges/pune/computer-it`) when at least 2 colleges in

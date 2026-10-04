@@ -17,7 +17,7 @@ import { districtPath } from "../lib/districts";
 import { AddToFormButton } from "../components/AddToFormButton";
 import { listItemFrom } from "../lib/list";
 import { minorityOf } from "../lib/categories";
-import { collegeMeta, usePageMeta } from "../lib/seo";
+import { collegeMeta, openClosing, type OpenClosing, usePageMeta } from "../lib/seo";
 import "./CollegePage.css";
 
 interface CutoffRow {
@@ -229,7 +229,19 @@ export function CollegePage() {
 
   const crumbs = [{ label: "Colleges", to: "/colleges" }, { label: data?.college.name ?? "College" }];
 
-  usePageMeta(data ? collegeMeta(data.college, branches.length, data.year) : error ? { title: "College not found", noindex: true } : null);
+  // the branch that was hardest to get on open seats, for the page description
+  const topBranch = useMemo(() => {
+    if (!data) return null;
+    let top: { branch: string; closing: OpenClosing } | null = null;
+    for (const b of branches) {
+      const closing = openClosing(data.cutoffs.filter((r) => r.branch === b), data.year);
+      const v = closing && (closing.roundI ?? closing.latest);
+      if (closing && v != null && (!top || v < (top.closing.roundI ?? top.closing.latest))) top = { branch: b, closing };
+    }
+    return top;
+  }, [data, branches]);
+
+  usePageMeta(data ? collegeMeta(data.college, branches.length, data.year, topBranch) : error ? { title: "College not found", noindex: true } : null);
 
   // #138: only sections this college actually has; Cutoffs first, since it is why people come here
   const navSections = useMemo(() => {

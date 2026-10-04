@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { branchMeta, clip, collegeMeta, fullTitle, publicAddressRedirect } from "../src/lib/seo";
+import { branchMeta, clip, collegeMeta, fullTitle, openClosing, publicAddressRedirect } from "../src/lib/seo";
 
 describe("page meta (SEO)", () => {
   it("adds the site name once", () => {
@@ -18,7 +18,7 @@ describe("page meta (SEO)", () => {
 
   it("describes a college page from its real data", () => {
     const m = collegeMeta({ name: "COEP Technological University", district: "Pune" }, 9, 2026);
-    expect(m.title).toBe("COEP Technological University — CAP 2026 cutoffs by branch");
+    expect(m.title).toBe("COEP Technological University cutoff 2026 — MHT-CET CAP, all branches");
     expect(m.description).toContain("9 branches at COEP Technological University, Pune");
     expect(m.description!.length).toBeLessThanOrEqual(160);
     expect(collegeMeta({ name: "X" }, 1, 2026).description).toContain("1 branch at X:");
@@ -26,8 +26,29 @@ describe("page meta (SEO)", () => {
 
   it("describes a branch page with its years", () => {
     const m = branchMeta("COEP Technological University", "Computer Engineering", [2023, 2026, 2024, 2025]);
-    expect(m.title).toBe("Computer Engineering, COEP Technological University — CAP cutoffs 2023–2026");
-    expect(branchMeta("X", "Civil Engineering", [2026]).title).toBe("Civil Engineering, X — CAP cutoffs 2026");
+    expect(m.title).toBe("Computer Engineering cutoff, COEP Technological University — CAP 2023–2026");
+    expect(branchMeta("X", "Civil Engineering", [2026]).title).toBe("Civil Engineering cutoff, X — CAP 2026");
+  });
+
+  it("puts the real closing numbers in the descriptions when they are known", () => {
+    const open = { year: 2026, roundI: 150, roundIPct: 99.9767, latest: 170 };
+    expect(branchMeta("COEP", "CSE", [2026], open).description).toBe(
+      "CSE at COEP closed at merit 150 (99.976 percentile) in CAP 2026 Round I on open seats, 170 in the last round. Every round and seat type, 2026.",
+    );
+    expect(collegeMeta({ name: "COEP", district: "Pune" }, 9, 2026, { branch: "CSE", closing: open }).description).toContain("COEP, Pune: MHT-CET CAP 2026 cutoffs for 9 branches. CSE closed at merit 150");
+    // no Round I value: the last round is named instead
+    expect(branchMeta("X", "Y", [2026], { year: 2026, roundI: null, latest: 900 }).description).toContain("closed at merit 900 in the last round of CAP 2026 on open seats.");
+  });
+
+  it("finds a branch's open-seat closing from its rows, state level first", () => {
+    const rows = [
+      { list: "MH", round: "II", seatType: "GOPENS", closingMerit: 170, closingPercentile: 99.97 },
+      { list: "MH", round: "I", seatType: "GOPENS", closingMerit: 150, closingPercentile: 99.98 },
+      { list: "MH", round: "I", seatType: "GOPENH", closingMerit: 90, closingPercentile: 99.99 },
+      { list: "AI", round: "I", seatType: "AI", closingMerit: 10, closingPercentile: 99.9 },
+    ];
+    expect(openClosing(rows, 2026)).toEqual({ year: 2026, roundI: 150, roundIPct: 99.98, latest: 170 });
+    expect(openClosing(rows.filter((r) => r.seatType === "AI"), 2026)).toBeNull();
   });
 
   it("never promises a seat", () => {

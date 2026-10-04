@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { formatPercentile } from "./percentile";
 
 /**
  * Per-page title, description, canonical URL and share-preview tags (SEO). The app renders in the
@@ -62,24 +63,74 @@ export function clip(text: string, max = 160): string {
   return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
 }
 
-export function collegeMeta(c: { name: string; district?: string | null }, branchCount: number, year: number): PageMeta {
+/** A branch's open-seat closing in one CAP year, as the college and branch pages describe it. */
+export interface OpenClosing {
+  year: number;
+  roundI: number | null;
+  roundIPct?: number | null;
+  latest: number;
+}
+
+/** The open seat a branch is described by: state level first, as GET /api/cutoffs/open-latest. */
+const OPEN_FALLBACK = ["GOPENS", "GOPENO", "GOPENH", "LOPENS", "LOPENO", "LOPENH"];
+const ROUND_ORDER = ["I", "II", "III", "IV", "V", "VI"];
+
+/** One branch's open-seat Round I (tightest) and last-round closing from its cutoff rows (MH list). */
+export function openClosing(
+  rows: readonly { list: string; round: string | number; seatType: string; closingMerit: number; closingPercentile?: number | null }[],
+  year: number,
+): OpenClosing | null {
+  for (const st of OPEN_FALLBACK) {
+    const open = rows.filter((r) => r.list === "MH" && r.seatType === st);
+    if (!open.length) continue;
+    const r1 = open.filter((r) => String(r.round) === "I").sort((a, b) => a.closingMerit - b.closingMerit)[0];
+    const n = (r: (typeof open)[number]) => ROUND_ORDER.indexOf(String(r.round));
+    const last = [...open].sort((a, b) => n(b) - n(a) || b.closingMerit - a.closingMerit)[0];
+    return { year, roundI: r1?.closingMerit ?? null, roundIPct: r1?.closingPercentile ?? null, latest: last.closingMerit };
+  }
+  return null;
+}
+
+const fmt = (n: number) => n.toLocaleString("en-IN");
+
+/** "closed at merit 150 (99.97 percentile) in CAP 2026 Round I on open seats, 170 in the last round" */
+export function closingPhrase(o: OpenClosing): string {
+  const first = o.roundI ?? o.latest;
+  const pct = o.roundI != null && o.roundIPct != null ? ` (${formatPercentile(o.roundIPct)} percentile)` : "";
+  const when = o.roundI != null ? `CAP ${o.year} Round I` : `the last round of CAP ${o.year}`;
+  const later = o.roundI != null && o.latest !== o.roundI ? `, ${fmt(o.latest)} in the last round` : "";
+  return `closed at merit ${fmt(first)}${pct} in ${when} on open seats${later}`;
+}
+
+export function collegeMeta(
+  c: { name: string; district?: string | null },
+  branchCount: number,
+  year: number,
+  /** The branch that was hardest to get, for the description. */
+  top?: { branch: string; closing: OpenClosing } | null,
+): PageMeta {
   // "VJTI, Matunga, Mumbai" already says where it is: no ", Mumbai-Suburban" after it
   const place = c.district?.split(/[-\s]/)[0] ?? "";
   const where = c.district && !c.name.toLowerCase().includes(place.toLowerCase()) ? `, ${c.district}` : "";
+  const branches = `${branchCount} ${branchCount === 1 ? "branch" : "branches"}`;
   return {
-    title: `${c.name} — CAP ${year} cutoffs by branch`,
+    title: `${c.name} cutoff ${year} — MHT-CET CAP, all branches`,
     description: clip(
-      `Closing merit numbers for ${branchCount} ${branchCount === 1 ? "branch" : "branches"} at ${c.name}${where}: MHT-CET CAP ${year}, Round I to the last round, by seat type. From the official CET Cell lists.`,
+      top
+        ? `${c.name}${where}: MHT-CET CAP ${year} cutoffs for ${branches}. ${top.branch} ${closingPhrase(top.closing)}. Every round and seat type, from the official CET Cell lists.`
+        : `Closing merit numbers for ${branches} at ${c.name}${where}: MHT-CET CAP ${year}, Round I to the last round, by seat type. From the official CET Cell lists.`,
     ),
   };
 }
 
-export function branchMeta(collegeName: string, branch: string, years: number[]): PageMeta {
+export function branchMeta(collegeName: string, branch: string, years: number[], open?: OpenClosing | null): PageMeta {
   const span = years.length > 1 ? `${Math.min(...years)}–${Math.max(...years)}` : years.length === 1 ? String(years[0]) : "";
   return {
-    title: `${branch}, ${collegeName} — CAP cutoffs${span ? ` ${span}` : ""}`,
+    title: `${branch} cutoff, ${collegeName} — CAP${span ? ` ${span}` : ""}`,
     description: clip(
-      `${branch} at ${collegeName}: MHT-CET CAP closing merit numbers${span ? ` for ${span}` : ""} by round and seat type, with the trend year to year. From the official CET Cell lists.`,
+      open
+        ? `${branch} at ${collegeName} ${closingPhrase(open)}. Every round and seat type${span ? `, ${span}` : ""}.`
+        : `${branch} at ${collegeName}: MHT-CET CAP closing merit numbers${span ? ` for ${span}` : ""} by round and seat type, with the trend year to year. From the official CET Cell lists.`,
     ),
   };
 }
