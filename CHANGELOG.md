@@ -10,6 +10,11 @@
   (guide, estimate); college, branch and group pages keep them as prerendered text.
 
 ### Fixed
+- No more blank page for returning visitors after a deploy. Their first page could come from the old
+  service worker's cache while the new one took over and deleted it, leaving the old page's script
+  missing. `public/registerSW.js` (loaded before the app bundle) now reloads the page once when a
+  new version takes control; `skipWaiting`/`clientsClaim` are set explicitly. Checked by building
+  two versions and opening the site as a returning visitor in between.
 - The web build waits out a restarting API: its calls for the sitemap and prerendered pages retry
   502/503/504 answers and failed connections for about four minutes. The production web build of
   542ee15 failed when it asked for `/api/sitemap` while the API was redeploying from the same push.
