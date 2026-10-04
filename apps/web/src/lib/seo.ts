@@ -34,6 +34,23 @@ export function siteUrl(): string {
   return configured || window.location.origin;
 }
 
+/**
+ * Where a visit to the hosting platform's own address (*.up.railway.app) should go instead: the same
+ * page on the public address, so search engines see one copy of the site. null when the visit is
+ * already on the public address, or when no public address is configured (staging, local).
+ */
+export function publicAddressRedirect(configured: string | undefined, at: Pick<Location, "hostname" | "pathname" | "search" | "hash">): string | null {
+  const site = configured?.trim().replace(/\/+$/, "");
+  if (!site || !at.hostname.endsWith(".up.railway.app")) return null;
+  let host: string;
+  try {
+    host = new URL(site).hostname;
+  } catch {
+    return null;
+  }
+  return host === at.hostname ? null : `${site}${at.pathname}${at.search}${at.hash}`;
+}
+
 export function fullTitle(title: string): string {
   return title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
 }

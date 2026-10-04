@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  allPages, APP_ONLY_ROUTES, branchPage, collegePage, districtGroupPage, districtPage, fileFor, hubPage, prerenderedServeConfig, renderPage,
-  staticPage, type SeoData,
+  allPages, APP_ONLY_ROUTES, APP_SHELL, branchPage, collegePage, districtGroupPage, districtPage, fileFor, homePage, hubPage, OG_IMAGE,
+  prerenderedServeConfig, renderPage, staticPage, type SeoData,
 } from "../scripts/prerender";
 import { STATIC_PAGE_META } from "../src/lib/seo";
 import { DISTRICT_HUB_PATH, type DistrictDetail } from "../src/lib/districts";
@@ -121,12 +121,37 @@ describe("prerendered pages (SEO)", () => {
     expect(hub.body).toContain('<a href="/engineering-colleges/pune">Pune</a>: 2 colleges');
   });
 
-  it("serve.json keeps the security headers and sends only app routes to index.html", () => {
+  it("serve.json keeps the security headers and sends only app routes to the empty app shell", () => {
     const cfg = prerenderedServeConfig({ headers: [{ source: "**", headers: [] }] });
     expect(cfg.headers).toHaveLength(1);
     expect(cfg.cleanUrls).toBe(true);
     expect(cfg.rewrites.map((r) => r.source)).toEqual(APP_ONLY_ROUTES);
+    expect(new Set(cfg.rewrites.map((r) => r.destination))).toEqual(new Set([`/${APP_SHELL}`]));
     expect(cfg.rewrites.some((r) => r.source === "**")).toBe(false);
+  });
+
+  it("the home page: canonical, a real heading and links to districts, top colleges and the guides", () => {
+    const home = homePage(SITE, { ...DATA, districts: [PUNE, WASHIM] });
+    expect(home.path).toBe("/");
+    expect(home.body).toContain("<h1>MHT-CET CAP cutoffs for every Maharashtra engineering college and branch</h1>");
+    expect(home.body).toContain('<a href="/engineering-colleges/pune">Engineering colleges in Pune</a> (2)');
+    expect(home.body).toContain('<a href="/engineering-colleges/pune/computer-it">Computer &amp; IT colleges in Pune</a>');
+    expect(home.body).toContain('<a href="/colleges/16006">COEP Technological University</a>, Pune: from 150');
+    for (const link of ["/estimate", "/guide", "/colleges", "/branches"]) expect(home.body).toContain(`href="${link}"`);
+    expect(home.body).toContain("CAP 2024–2026");
+    expect(home.jsonLd.map((j) => (j as { "@type": string })["@type"])).toEqual(["WebSite", "WebPage"]);
+    const html = renderPage(TEMPLATE, SITE, home);
+    expect(html).toContain('<link rel="canonical" href="https://getmecollege.com/" />');
+    expect(html).not.toMatch(/<div id="root"><\/div>/);
+  });
+
+  it("every page carries the share image, with its size and alt text", () => {
+    const html = renderPage(TEMPLATE, SITE, collegePage(SITE, 2026, DATA.colleges[0]));
+    expect(html).toContain(`<meta property="og:image" content="https://getmecollege.com${OG_IMAGE.path}" />`);
+    expect(html).toContain('<meta property="og:image:width" content="1200" />');
+    expect(html).toContain('<meta property="og:image:height" content="630" />');
+    expect(html).toContain('<meta name="twitter:image" content="https://getmecollege.com/og-image.png" />');
+    expect(html).toContain('property="og:image:alt"');
   });
 
   it("every route in App.tsx is either prerendered or listed as an app-only route", () => {

@@ -236,6 +236,72 @@ export function siteJsonLd(siteUrl: string) {
   return { "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME, url: siteUrl + "/" };
 }
 
+/** How many colleges the home page names as the most sought after in the latest year. */
+export const HOME_TOP_COLLEGES = 20;
+/** Districts whose Computer & IT pages the home page links, largest first. */
+const HOME_GROUP_DISTRICTS = 6;
+
+/**
+ * The home page: what the site covers, how it works, and links into every district and the most
+ * sought-after colleges, so a crawler's first page leads everywhere. The app replaces it on start.
+ */
+export function homePage(siteUrl: string, data: SeoData): Page {
+  const meta = STATIC_PAGE_META["/"];
+  const districts = data.districts ?? [];
+  const branches = data.colleges.reduce((n, c) => n + c.branches.length, 0);
+  const years = [...new Set(data.colleges.flatMap((c) => c.branches.flatMap((b) => b.years)))].sort();
+  const span = years.length > 1 ? `${years[0]}–${years[years.length - 1]}` : String(data.year);
+  // a college's lowest open-seat closing in the latest year: Round I, else the last round
+  const lowest = (c: SeoCollege) => Math.min(...c.branches.map((b) => b.roundI ?? b.latest));
+  const top = data.colleges
+    .filter((c) => c.branches.length)
+    .map((c) => ({ c, closing: lowest(c) }))
+    .sort((a, b) => a.closing - b.closing)
+    .slice(0, HOME_TOP_COLLEGES);
+  const topItems = top
+    .map(({ c, closing }) => `<li><a href="/colleges/${c.code}">${esc(c.name)}</a>${c.district ? `, ${esc(districtLabel(c.district))}` : ""}: from ${num(closing)}</li>`)
+    .join("");
+  const districtItems = [...districts]
+    .sort((a, b) => b.colleges.length - a.colleges.length)
+    .map((d) => `<li><a href="${districtPath(d.slug)}">Engineering colleges in ${esc(districtLabel(d.name))}</a> (${d.colleges.length})</li>`)
+    .join("");
+  const computer = [...districts]
+    .sort((a, b) => b.colleges.length - a.colleges.length)
+    .flatMap((d) => {
+      const g = d.groups.find((x) => x.slug === "computer-it");
+      return g ? [`<a href="${groupPath(d.slug, g.slug)}">${esc(g.name)} colleges in ${esc(districtLabel(d.name))}</a>`] : [];
+    })
+    .slice(0, HOME_GROUP_DISTRICTS)
+    .join(" · ");
+  const body =
+    `<main class="page prerendered">` +
+    `<h1>MHT-CET CAP cutoffs for every Maharashtra engineering college and branch</h1>` +
+    `<p>${esc(meta.description ?? "")} ${num(data.colleges.length)} colleges and ${num(branches)} branches, CAP ${span}. ` +
+    `Put in your MHT-CET merit number or percentile (or your JEE Main percentile for All India seats) and see which colleges and branches took a student like you last year, and in which round.</p>` +
+    `<h2>How it works</h2><ol>` +
+    `<li>Your merit number, or your percentile if the merit list isn't out yet.</li>` +
+    `<li>Your seat details: category, gender, home university and special seats decide which seats you can take.</li>` +
+    `<li>Colleges by chance: where a student like you got a seat last year, and in which round.</li>` +
+    `<li>Your option form: order your choices, test them in the simulator, export for the CAP portal.</li></ol>` +
+    `<p><a href="/estimate">MHT-CET percentile to merit number</a> · <a href="/guide">How CAP works: rounds, seat codes, freeze, float, slide</a> · ` +
+    `<a href="/colleges">All colleges</a> · <a href="/branches">Cutoffs by branch</a> · <a href="/data">Where the numbers come from</a></p>` +
+    (top.length
+      ? `<h2>Most sought-after engineering colleges, CAP ${data.year}</h2><p>Lowest closing merit number on open seats, any branch.</p><ol>${topItems}</ol>`
+      : "") +
+    (computer ? `<h2>Computer engineering colleges</h2><p>${computer}</p>` : "") +
+    (districtItems ? `<h2>Engineering colleges by district</h2><ul>${districtItems}</ul>` : "") +
+    `${NOTE}</main>`;
+  return {
+    path: "/",
+    meta,
+    body,
+    jsonLd: [siteJsonLd(siteUrl), { "@context": "https://schema.org", "@type": "WebPage", name: fullTitle(meta.title), url: siteUrl + "/" }],
+  };
+}
+
+/** The share image every page uses (public/og-image.png, 1200 × 630). */
+export const OG_IMAGE = { path: "/og-image.png", width: 1200, height: 630, alt: "GetMeCollege: MHT-CET CAP cutoffs for every Maharashtra engineering college" };
+
 /** index.html with this page's head tags and body content. */
 export function renderPage(template: string, siteUrl: string, page: Page): string {
   const title = fullTitle(page.meta.title);
@@ -248,6 +314,9 @@ export function renderPage(template: string, siteUrl: string, page: Page): strin
     .replace(/<meta property="og:description" content="[^"]*" \/>/, `<meta property="og:description" content="${esc(desc)}" />`);
   const extra =
     `<link rel="canonical" href="${esc(url)}" />\n    <meta property="og:url" content="${esc(url)}" />\n` +
+    `    <meta property="og:image" content="${esc(siteUrl + OG_IMAGE.path)}" />\n` +
+    `    <meta property="og:image:width" content="${OG_IMAGE.width}" />\n    <meta property="og:image:height" content="${OG_IMAGE.height}" />\n` +
+    `    <meta property="og:image:alt" content="${esc(OG_IMAGE.alt)}" />\n    <meta name="twitter:image" content="${esc(siteUrl + OG_IMAGE.path)}" />\n` +
     page.jsonLd.map((j) => `    <script type="application/ld+json">${JSON.stringify(j).replace(/</g, "\\u003c")}</script>\n`).join("");
   html = html.replace("</head>", `    ${extra}  </head>`);
   // only the page's own content goes inside #root; React replaces it when the app starts
@@ -304,12 +373,18 @@ export const APP_ONLY_ROUTES = [
   "/welcome/**",
 ];
 
-/** serve.json once per-page HTML exists: app-only routes to index.html, the rest from files. */
+/**
+ * The app shell without any page's content (written by the web build next to index.html). App-only
+ * routes and the service worker's page-load fallback use it; index.html becomes the home page.
+ */
+export const APP_SHELL = "app.html";
+
+/** serve.json once per-page HTML exists: app-only routes to the app shell, the rest from files. */
 export function prerenderedServeConfig(existing: { headers?: unknown[] }) {
   return {
     ...existing,
     cleanUrls: true,
-    rewrites: APP_ONLY_ROUTES.map((source) => ({ source, destination: "/index.html" })),
+    rewrites: APP_ONLY_ROUTES.map((source) => ({ source, destination: `/${APP_SHELL}` })),
   };
 }
 
@@ -338,8 +413,8 @@ async function main() {
   data.districts = await fetchDistricts(api);
 
   const dist = fileURLToPath(new URL("../dist/", import.meta.url));
-  const template = readFileSync(join(dist, "index.html"), "utf8");
-  if (!template.includes('<div id="root"></div>')) throw new Error("[prerender] dist/index.html has no empty #root");
+  const template = readFileSync(join(dist, APP_SHELL), "utf8");
+  if (!template.includes('<div id="root"></div>')) throw new Error(`[prerender] dist/${APP_SHELL} has no empty #root`);
 
   const pages = allPages(siteUrl, data);
   for (const p of pages) {
@@ -347,15 +422,13 @@ async function main() {
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, renderPage(template, siteUrl, p));
   }
-  // index.html is the home page and also the fallback for every other route: only the site entity
-  // goes in, no canonical URL (it would be wrong for those other routes)
-  const site = `    <script type="application/ld+json">${JSON.stringify(siteJsonLd(siteUrl))}</script>\n  </head>`;
-  writeFileSync(join(dist, "index.html"), template.replace("</head>", site));
+  // index.html is the home page; app-only routes are served the empty shell (app.html) instead
+  writeFileSync(join(dist, "index.html"), renderPage(template, siteUrl, homePage(siteUrl, data)));
   // unknown URLs: the app (it shows "not found"), with a real 404 status from `serve`
   writeFileSync(join(dist, "404.html"), template.replace("</head>", `    <meta name="robots" content="noindex" />\n  </head>`));
   const serveJson = join(dist, "serve.json");
   writeFileSync(serveJson, JSON.stringify(prerenderedServeConfig(JSON.parse(readFileSync(serveJson, "utf8"))), null, 2) + "\n");
-  console.log(`[prerender] ${pages.length} pages (${data.colleges.length} colleges, ${data.districts.length} districts) written as .html`);
+  console.log(`[prerender] home + ${pages.length} pages (${data.colleges.length} colleges, ${data.districts.length} districts) written as .html`);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
