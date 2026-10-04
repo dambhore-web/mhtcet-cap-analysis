@@ -24,6 +24,8 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- before the app bundle: reloads the page if a new version takes over (public/registerSW.js) -->
+    <script src="/registerSW.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

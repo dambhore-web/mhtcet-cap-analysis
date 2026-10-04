@@ -25,6 +25,8 @@ export default defineConfig({
     appShell(),
     VitePWA({
       registerType: "autoUpdate",
+      // public/registerSW.js registers the worker and reloads the page once after an update
+      injectRegister: false,
       includeAssets: ["favicon.svg"],
       manifest: {
         name: "GetMeCollege — MHT-CET CAP Cutoffs",
@@ -52,6 +54,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
+        // a new version takes over at once (autoUpdate); public/registerSW.js then reloads the page
+        // (with injectRegister false the plugin no longer sets these itself)
+        skipWaiting: true,
+        clientsClaim: true,
         // the empty shell, not index.html: in production index.html is the prerendered home page
         navigateFallback: "app.html",
         // The app shell answers page loads, but not files: /sitemap.xml, /robots.txt and the like
