@@ -9,6 +9,7 @@
 | User profile (rank, category, gender, flags) | User input | Yes, sensitive | DB | Own-row access only; not logged; minimal fields to the LLM |
 | Payment records | Payment provider | Yes | Provider; DB keeps plan, status, provider reference only | No card or UPI details stored |
 | Assistant conversations | User input | May contain personal data | `DECISION REQUIRED`: store or not, and for how long | If stored: own-row access, retention limit |
+| Site analytics (page path, browser, device, approximate location) | Google Analytics 4 (`src/lib/analytics.ts`), public site only | Pseudonymous (`_ga` cookie ID) | Google | Consent mode: no cookies until the visitor accepts (banner; changeable on the privacy page); page path only, never the query string (Find links carry merit, category, gender); ads, ad personalisation and Google signals off |
 
 ## DPDP Act 2023 (India)
 Consent notice at sign-up, purpose limitation, erasure on request, grievance contact, and breach

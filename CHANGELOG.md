@@ -2,6 +2,12 @@
 
 ## Unreleased
 ### Added
+- Google Analytics 4 on the public site, in consent mode: a banner asks once; until the visitor
+  accepts, GA sets no cookies (cookieless pings only). Only the page path is sent, never the query
+  string, which can hold a student's merit number, category and gender (checked on every GA request,
+  including GA's own `user_engagement`). Ads, ad personalisation and Google signals are off. The
+  privacy page names Google Analytics and lets visitors change their choice; the Content Security
+  Policy allows Google's hosts on the production build only.
 - SEO: the home page is prerendered with its own canonical URL, heading, text and links to every
   district, the most sought-after colleges and the guides (crawlers saw an empty page: 9 words, no
   links; now about 660 words and 65 links). App-only routes are served a separate empty shell,

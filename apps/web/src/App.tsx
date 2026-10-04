@@ -3,6 +3,7 @@ import { ProfileProvider, useProfile } from "./lib/ProfileContext";
 import { CompareProvider } from "./lib/CompareContext";
 import { AuthProvider } from "./lib/AuthContext";
 import { Layout } from "./components/Layout";
+import { ConsentBanner } from "./components/ConsentBanner";
 import { FindPage } from "./pages/FindPage";
 import { CollegesPage } from "./pages/CollegesPage";
 import { CollegePage } from "./pages/CollegePage";
@@ -101,6 +102,7 @@ export function App() {
         <ProfileProvider>
           <CompareProvider>
             <AppRoutes />
+            <ConsentBanner />
           </CompareProvider>
         </ProfileProvider>
       </AuthProvider>

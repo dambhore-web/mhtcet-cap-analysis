@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { analyticsActive, onConsentChange, setConsent, storedConsent } from "../lib/analytics";
 import { PageHeader } from "../components/PageHeader";
 import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
 import "./LegalPage.css";
@@ -127,7 +129,10 @@ function PrivacyTab() {
         <li>To maintain and improve the service</li>
         <li>To investigate security incidents</li>
       </ul>
-      <p>We do <strong>not</strong> sell your data, use it for advertising, or share it with third parties except as required by law.</p>
+      <p>
+        We do <strong>not</strong> sell your data or use it for advertising. We share it with no one except as required by law,
+        and with Google Analytics only as described under Cookies below.
+      </p>
 
       <h3>3. Data storage and retention</h3>
       <p>
@@ -139,10 +144,17 @@ function PrivacyTab() {
         We are committed to compliance with the Digital Personal Data Protection Act 2023 (India). As a product primarily serving students in India, we process personal data only to the extent necessary to provide the service. You have the right to access, correct, or request deletion of your data. Contact us at the email below to exercise these rights.
       </p>
 
-      <h3>5. Cookies</h3>
+      <h3 id="cookies">5. Cookies and analytics</h3>
       <p>
-        GetMeCollege does not use tracking cookies. We use browser localStorage for application state, and, if you sign in, to keep you signed in.
+        We use browser localStorage for application state, and, if you sign in, to keep you signed in.
       </p>
+      <p>
+        We use Google Analytics to learn which pages help students. It sets cookies only if you choose "Accept"; otherwise
+        it counts visits without cookies. It receives the page you open (its address without anything after "?"), your
+        browser and device type, and your approximate location. It never receives your merit number, percentile, category,
+        gender or anything else you type. Advertising features and Google signals are off.
+      </p>
+      <AnalyticsChoice />
 
       <h3>6. Children's privacy</h3>
       <p>
@@ -211,5 +223,20 @@ function TermsTab() {
         <a href="mailto:support@getmecollege.com" className="legal-link">support@getmecollege.com</a>
       </p>
     </div>
+  );
+}
+
+/** The visitor's analytics choice, changeable at any time (shown on the public site only). */
+function AnalyticsChoice() {
+  const [consent, setLocal] = useState(storedConsent);
+  useEffect(() => onConsentChange(() => setLocal(storedConsent())), []);
+  if (!analyticsActive()) return null;
+  return (
+    <p className="legal-consent">
+      Analytics cookies in this browser: <strong>{consent === "granted" ? "allowed" : "not allowed"}</strong>.{" "}
+      <button type="button" className="btn btn-secondary btn-sm" onClick={() => setConsent(consent === "granted" ? "denied" : "granted")}>
+        {consent === "granted" ? "Turn off" : "Allow"}
+      </button>
+    </p>
   );
 }
