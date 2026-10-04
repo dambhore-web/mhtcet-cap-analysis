@@ -19,6 +19,10 @@
   (guide, estimate); college, branch and group pages keep them as prerendered text.
 
 ### Fixed
+- Visitors couldn't get a new version for hours after a deploy: Cloudflare cached `sw.js` and
+  `registerSW.js` for 4 hours. The web server now sends `Cache-Control: no-cache` for pages, the
+  service worker files and the manifest, a year (`immutable`) for the hashed files in `assets/`, and
+  a day for images.
 - After Google sign-in the student sometimes landed on My account instead of the page they started
   from: the return step could run twice and the second run found the saved page already used.
 - No more blank page for returning visitors after a deploy. Their first page could come from the old
