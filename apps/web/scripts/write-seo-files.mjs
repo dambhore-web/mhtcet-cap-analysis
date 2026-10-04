@@ -10,6 +10,7 @@
 // Usage: node scripts/write-seo-files.mjs   (from apps/web, after vite build)
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { fetchApi } from "./fetch-api.mjs";
 
 /** Public pages that are the same for everyone. Personal pages carry noindex instead. */
 export const STATIC_PATHS = ["/", "/colleges", "/branches", "/guide", "/data", "/estimate", "/eligibility", "/legal"];
@@ -62,7 +63,7 @@ async function main() {
 
   const api = (process.env.SITEMAP_API_URL || process.env.VITE_API_URL || "").replace(/\/+$/, "");
   if (!api) throw new Error("[seo] set VITE_API_URL or SITEMAP_API_URL so the sitemap can list colleges and branches");
-  const res = await fetch(`${api}/api/sitemap`);
+  const res = await fetchApi(`${api}/api/sitemap`);
   if (!res.ok) throw new Error(`[seo] ${api}/api/sitemap answered ${res.status}`);
   const data = await res.json();
   const xml = buildSitemapXml(siteUrl, data);

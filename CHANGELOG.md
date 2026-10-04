@@ -10,6 +10,9 @@
   (guide, estimate); college, branch and group pages keep them as prerendered text.
 
 ### Fixed
+- The web build waits out a restarting API: its calls for the sitemap and prerendered pages retry
+  502/503/504 answers and failed connections for about four minutes. The production web build of
+  542ee15 failed when it asked for `/api/sitemap` while the API was redeploying from the same push.
 - The estimate page no longer says GetMeCollege uses only the merit number: percentile search exists.
 - SEO, richer college and branch pages: the real closing numbers in the text, title and description
   (the app sets the same ones), the trend year on year, seats, fee and NIRF salary, the All India
