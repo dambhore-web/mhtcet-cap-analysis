@@ -8,7 +8,11 @@ test.describe("First visit: landing, questions one at a time, scan, results (#14
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Find the colleges and branches");
     await expect(page.getByRole("region", { name: /the data getmecollege checks/i })).toContainText("colleges in CAP");
-    await expect(page.getByRole("link", { name: "Computer & IT" })).toHaveAttribute("href", /\/branches\?group=Computer/);
+    // each branch group has its own page (SEO); older ?group= links redirect to it
+    await expect(page.getByRole("link", { name: "Computer & IT" })).toHaveAttribute("href", "/branches/computer-it");
+    await page.goto("/branches?group=Mechanical");
+    await expect(page).toHaveURL(/\/branches\/mechanical$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Mechanical engineering colleges in Maharashtra");
   });
 
   test("can browse colleges without answering anything", async ({ page }) => {
