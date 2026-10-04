@@ -20,6 +20,8 @@ export interface SeoSeatClosing {
 export interface SeoBranchOut {
   choiceCode: string;
   name: string;
+  /** Branch group (Computer & IT, Mechanical …), as the rank finder groups branches; null for others. */
+  group: string | null;
   roundI: number | null;
   latest: number;
   /** The same rows' closing percentiles (null when not printed). */
@@ -96,7 +98,7 @@ export function allIndiaRoundI(rows: readonly CutoffRow[]): SeoBranchOut["allInd
  */
 export function getSeoPages(c: Context, cache: AppCache) {
   const byCollege = new Map<string, SeoBranchOut[]>();
-  for (const [choiceCode, collegeCode, name, roundI, latest, , seatType] of openLatestRows(cache)) {
+  for (const [choiceCode, collegeCode, name, roundI, latest, group, seatType] of openLatestRows(cache)) {
     const history = cache.history.get(choiceCode) ?? [];
     const rows = cache.cutoffsByChoiceCode.get(choiceCode) ?? [];
     const open = rows.filter((r) => r.list === "MH" && r.seatType === seatType);
@@ -106,6 +108,7 @@ export function getSeoPages(c: Context, cache: AppCache) {
       {
         choiceCode,
         name,
+        group,
         roundI,
         latest,
         roundIPct: tightestRoundI(open)?.closingPercentile ?? null,

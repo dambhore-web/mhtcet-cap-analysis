@@ -14,8 +14,10 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { branchMeta, closingPhrase, collegeMeta, fullTitle, type OpenClosing, SITE_NAME, STATIC_PAGE_META, type PageMeta } from "../src/lib/seo.ts";
-import { formatPercentile } from "../src/lib/percentile.ts";
+import { branchGroupMeta, branchMeta, closingPhrase, collegeMeta, fullTitle, type OpenClosing, SITE_NAME, STATIC_PAGE_META, type PageMeta } from "../src/lib/seo.ts";
+import { estimateFaqs, formatPercentile, percentileRows, type ScalePoint } from "../src/lib/percentile.ts";
+import { CAP_STEPS, DECISIONS, FAQS } from "../src/lib/guide.ts";
+import { BRANCH_GROUP_HUB, branchGroupPath } from "../src/lib/branchGroups.ts";
 import { seatTypeLabel } from "../src/lib/seatType.ts";
 import {
   collegeRows, DISTRICT_HUB_PATH, districtIntro, districtLabel, districtMeta, districtPath, formatLakh, groupIntro, groupMeta,
@@ -25,6 +27,8 @@ import {
 export interface SeoBranch {
   choiceCode: string;
   name: string;
+  /** Branch group (Computer & IT …), null when the branch is in none (GET /api/seo-pages). */
+  group?: string | null;
   roundI: number | null;
   latest: number;
   seatType: string;
@@ -55,6 +59,8 @@ export interface SeoData {
   colleges: SeoCollege[];
   /** District landing pages, from GET /api/districts/:slug for each district. */
   districts?: DistrictDetail[];
+  /** Merit ↔ percentile pairs of the year (GET /api/percentile-scale), for the /estimate tables. */
+  scales?: { year: number; mh: ScalePoint[]; ai: ScalePoint[] };
 }
 
 export interface Page {
@@ -103,7 +109,11 @@ const closingOf = (b: { roundI: number | null; latest: number }) => b.roundI ?? 
 const pct = (p: number | null | undefined) => (p == null ? "" : ` (${formatPercentile(p)} percentile)`);
 const openOf = (year: number, b: SeoBranch): OpenClosing => ({ year, roundI: b.roundI, roundIPct: b.roundIPct ?? null, latest: b.latest });
 
-/** A visible question list plus the matching FAQPage structured data. */
+/**
+ * A question list plus the matching FAQPage structured data. Pages whose app view doesn't show the
+ * questions (college, branch, branch group) use only the html: structured data must describe what
+ * visitors see.
+ */
 function faq(items: { q: string; a: string }[]): { html: string; jsonLd: object | null } {
   if (!items.length) return { html: "", jsonLd: null };
   return {
@@ -223,7 +233,6 @@ export function collegePage(siteUrl: string, year: number, c: SeoCollege, ctx?: 
     jsonLd: [
       { "@context": "https://schema.org", "@type": "WebPage", name: fullTitle(meta.title), url: siteUrl + path, about: collegeEntity(c) },
       breadcrumb(siteUrl, [...crumbItems(ctx), { name: c.name, path }]),
-      ...(questions.jsonLd ? [questions.jsonLd] : []),
     ],
   };
 }
@@ -298,18 +307,142 @@ export function branchPage(siteUrl: string, year: number, c: SeoCollege, b: SeoB
     jsonLd: [
       { "@context": "https://schema.org", "@type": "WebPage", name: fullTitle(meta.title), url: siteUrl + path, about: collegeEntity(c) },
       breadcrumb(siteUrl, [...crumbItems(ctx), { name: c.name, path: `/colleges/${c.code}` }, { name: b.name, path }]),
-      ...(questions.jsonLd ? [questions.jsonLd] : []),
+    ],
+  };
+}
+
+/** /guide: every section of the CAP guide (the page shows them as tabs), with its questions as FAQPage data. */
+export function guidePage(siteUrl: string): Page {
+  const meta = STATIC_PAGE_META["/guide"];
+  const questions = faq(FAQS);
+  const body =
+    `<main class="page prerendered"><h1>${esc(meta.title)}</h1><p>${esc(meta.description ?? "")}</p>` +
+    `<h2>How CAP works</h2><ol>${CAP_STEPS.map((st) => `<li><strong>${esc(st.title)}.</strong> ${esc(st.body)}</li>`).join("")}</ol>` +
+    `<h2>Freeze, float or slide</h2>${DECISIONS.map((d) => `<h3>${esc(d.title)}</h3><p>${esc(d.summary)}</p>`).join("")}` +
+    `<h2>Seat codes</h2><p>Most seat codes join three parts: who the seat is for (G general, L ladies, DEF defence, PWD disability), the category (OPEN, OBC, SEBC, SC, ST, VJ, NT1, NT2, NT3) and the level (S state, H home university, O other than home university). For example GOPENH is general, open category, home university. <a href="/eligibility">Which seat types can I take?</a></p>` +
+    questions.html +
+    `<p><a href="/estimate">MHT-CET percentile to merit number</a> · <a href="/colleges">All colleges</a> · <a href="/branches">Cutoffs by branch</a></p>` +
+    `<p>Dates and rules change every year. Always follow the official CAP information brochure and CET Cell notices.</p></main>`;
+  return {
+    path: "/guide",
+    meta,
+    body,
+    jsonLd: [{ "@context": "https://schema.org", "@type": "WebPage", name: fullTitle(meta.title), url: siteUrl + "/guide" }, ...(questions.jsonLd ? [questions.jsonLd] : [])],
+  };
+}
+
+/** /estimate: the percentile → merit number tables the page shows, with questions as FAQPage data. */
+export function estimatePage(siteUrl: string, scales: NonNullable<SeoData["scales"]>): Page {
+  const meta = STATIC_PAGE_META["/estimate"];
+  const mh = percentileRows(scales.mh);
+  const ai = percentileRows(scales.ai);
+  const table = (rows: typeof mh, a: string, b: string, caption: string) =>
+    `<table><caption>${esc(caption)}</caption><thead><tr><th>${a}</th><th>${b}</th></tr></thead><tbody>` +
+    rows.map((r) => `<tr><td>${r.percentile}</td><td>${num(r.merit)}</td></tr>`).join("") +
+    `</tbody></table>`;
+  const questions = faq(estimateFaqs(scales.year, mh, ai));
+  const body =
+    `<main class="page prerendered"><h1>MHT-CET percentile vs merit number, CAP ${scales.year}</h1><p>${esc(meta.description ?? "")}</p>` +
+    (mh.length ? table(mh, "MHT-CET percentile", "State merit number (about)", `CAP ${scales.year}: MHT-CET percentile and state merit number (PCM), from the official cutoff lists`) : "") +
+    (ai.length ? `<h2>JEE Main percentile vs All India merit number</h2>` + table(ai, "JEE Main percentile", "All India merit number (about)", `CAP ${scales.year}: JEE Main percentile and All India merit number`) : "") +
+    questions.html +
+    `<p><a href="/find">Find colleges by percentile or merit number</a> · <a href="/guide">How CAP works</a> · <a href="/colleges">All colleges</a></p>${NOTE}</main>`;
+  return {
+    path: "/estimate",
+    meta,
+    body,
+    jsonLd: [{ "@context": "https://schema.org", "@type": "WebPage", name: fullTitle(meta.title), url: siteUrl + "/estimate" }, ...(questions.jsonLd ? [questions.jsonLd] : [])],
+  };
+}
+
+/** The branch groups that have pages, in the data's order of first appearance. */
+export function branchGroups(data: SeoData): string[] {
+  return [...new Set(data.colleges.flatMap((c) => c.branches.flatMap((b) => (b.group ? [b.group] : []))))];
+}
+
+/** /branches/computer-it: every college offering the group across Maharashtra, hardest to get first. */
+export function branchGroupPage(siteUrl: string, data: SeoData, group: string): Page {
+  const path = branchGroupPath(group);
+  const meta = branchGroupMeta(group);
+  const ctx = contextIndex(data.districts);
+  const rows = data.colleges
+    .flatMap((c) => c.branches.filter((b) => b.group === group).map((b) => ({ c, b })))
+    .sort((p, q) => closingOf(p.b) - closingOf(q.b));
+  const colleges = new Set(rows.map((r) => r.c.code));
+  const seats = rows.reduce((n, r) => n + (r.b.intake ?? 0), 0);
+  const top = rows[0];
+  const lead =
+    `${num(colleges.size)} colleges offered ${num(rows.length)} ${group} ${rows.length === 1 ? "branch" : "branches"} in MHT-CET CAP ${data.year}` +
+    `${seats ? `, with ${num(seats)} CAP seats` : ""}.` +
+    (top ? ` The hardest to get on open seats was ${top.b.name} at ${top.c.name}, which ${closingPhrase(openOf(data.year, top.b))}.` : "");
+  const table =
+    `<table><caption>CAP ${data.year}: ${esc(group)} branches by open-seat closing merit number, lowest first</caption>` +
+    `<thead><tr><th>College and branch</th><th>District</th><th>Round I</th><th>Last round</th></tr></thead><tbody>` +
+    rows
+      .map(({ c, b }) => {
+        const d = ctx.get(c.code)?.district;
+        return (
+          `<tr><td><a href="/colleges/${c.code}">${esc(c.name)}</a>: <a href="/colleges/${c.code}/${b.choiceCode}">${esc(b.name)}</a></td>` +
+          `<td>${d ? `<a href="${districtPath(d.slug)}">${esc(districtLabel(d.name))}</a>` : esc(c.district ?? "–")}</td><td>${num(b.roundI)}</td><td>${num(b.latest)}</td></tr>`
+        );
+      })
+      .join("") +
+    `</tbody></table>`;
+  const byDistrict = (data.districts ?? [])
+    .flatMap((d) => d.groups.filter((g) => g.name === group).map((g) => ({ d, g })))
+    .sort((p, q) => q.g.colleges - p.g.colleges)
+    .map(({ d, g }) => `<li><a href="${groupPath(d.slug, g.slug)}">${esc(group)} engineering colleges in ${esc(districtLabel(d.name))}</a> (${g.colleges})</li>`)
+    .join("");
+  const top5 = rows.slice(0, 5);
+  const questions = faq([
+    ...(top5.length
+      ? [{
+          q: `Which colleges had the lowest ${group} cutoff in Maharashtra in CAP ${data.year}?`,
+          a: `On open seats in Round I: ${top5.map(({ c, b }) => `${c.name} (${b.name}) ${num(closingOf(b))}`).join("; ")}. A lower merit number is harder to get.`,
+        }]
+      : []),
+    { q: `How many colleges offer ${group} in MHT-CET CAP?`, a: `${num(colleges.size)} colleges with ${num(rows.length)} ${group} branches took part in CAP ${data.year}${seats ? `, with ${num(seats)} CAP seats` : ""}.` },
+  ]);
+  const others = branchGroups(data).filter((g) => g !== group).map((g) => `<a href="${branchGroupPath(g)}">${esc(g)}</a>`).join(" · ");
+  return {
+    path,
+    meta,
+    body:
+      `<main class="page prerendered"><nav aria-label="Breadcrumb"><a href="${BRANCH_GROUP_HUB}">Branches</a></nav>` +
+      `<h1>${esc(group)} engineering colleges in Maharashtra</h1><p>${esc(lead)}</p>` +
+      (byDistrict ? `<h2>By district</h2><ul>${byDistrict}</ul>` : "") +
+      table +
+      questions.html +
+      (others ? `<p>Other branches: ${others}</p>` : "") +
+      `${NOTE}</main>`,
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: fullTitle(meta.title),
+        url: siteUrl + path,
+        mainEntity: {
+          "@type": "ItemList",
+          name: meta.title,
+          itemListElement: rows.slice(0, 50).map(({ c, b }, i) => ({ "@type": "ListItem", position: i + 1, name: `${b.name}, ${c.name}`, url: `${siteUrl}/colleges/${c.code}/${b.choiceCode}` })),
+        },
+      },
+      breadcrumb(siteUrl, [{ name: "Branches", path: BRANCH_GROUP_HUB }, { name: group, path }]),
     ],
   };
 }
 
 export function staticPage(siteUrl: string, path: string, data: SeoData): Page {
+  if (path === "/guide") return guidePage(siteUrl);
+  if (path === "/estimate" && data.scales) return estimatePage(siteUrl, data.scales);
   const meta = STATIC_PAGE_META[path];
   // the colleges list doubles as a crawl path to every college page
   const list =
     path === "/colleges"
       ? `<ul>${data.colleges.map((c) => `<li><a href="/colleges/${c.code}">${esc(c.name)}</a></li>`).join("")}</ul>`
-      : `<p><a href="/colleges">All colleges</a> · <a href="/branches">By branch</a> · <a href="/guide">How CAP works</a></p>`;
+      : path === BRANCH_GROUP_HUB
+        ? `<ul>${branchGroups(data).map((g) => `<li><a href="${branchGroupPath(g)}">${esc(g)} engineering colleges in Maharashtra</a></li>`).join("")}</ul>`
+        : `<p><a href="/colleges">All colleges</a> · <a href="/branches">By branch</a> · <a href="/guide">How CAP works</a></p>`;
   return {
     path,
     meta,
@@ -477,6 +610,9 @@ export function homePage(siteUrl: string, data: SeoData): Page {
     (top.length
       ? `<h2>Most sought-after engineering colleges, CAP ${data.year}</h2><p>Lowest closing merit number on open seats, any branch.</p><ol>${topItems}</ol>`
       : "") +
+    (branchGroups(data).length
+      ? `<h2>Cutoffs by branch</h2><p>${branchGroups(data).map((g) => `<a href="${branchGroupPath(g)}">${esc(g)}</a>`).join(" · ")}</p>`
+      : "") +
     (computer ? `<h2>Computer engineering colleges</h2><p>${computer}</p>` : "") +
     (districtItems ? `<h2>Engineering colleges by district</h2><ul>${districtItems}</ul>` : "") +
     `${NOTE}</main>`;
@@ -522,6 +658,7 @@ export function allPages(siteUrl: string, data: SeoData): Page[] {
     pages.push(collegePage(siteUrl, data.year, c, ctx.get(c.code)));
     for (const b of c.branches) pages.push(branchPage(siteUrl, data.year, c, b, ctx.get(c.code)));
   }
+  for (const g of branchGroups(data)) pages.push(branchGroupPage(siteUrl, data, g));
   const districts = data.districts ?? [];
   if (districts.length) {
     pages.push(hubPage(siteUrl, data.year, districts));
@@ -589,6 +726,17 @@ async function fetchDistricts(api: string): Promise<DistrictDetail[]> {
   return Promise.all(districts.map((d) => get<DistrictDetail>(`/api/districts/${encodeURIComponent(d.slug)}`)));
 }
 
+/** The year's merit ↔ percentile pairs for both lists. A failed call fails the build. */
+async function fetchScales(api: string): Promise<NonNullable<SeoData["scales"]>> {
+  const get = async (list: "MH" | "AI") => {
+    const res = await fetch(`${api}/api/percentile-scale?list=${list}`);
+    if (!res.ok) throw new Error(`[prerender] ${api}/api/percentile-scale?list=${list} answered ${res.status}`);
+    return (await res.json()) as { year: number; points: ScalePoint[] };
+  };
+  const [mh, ai] = await Promise.all([get("MH"), get("AI")]);
+  return { year: mh.year, mh: mh.points, ai: ai.points };
+}
+
 async function main() {
   const siteUrl = (process.env.VITE_SITE_URL ?? "").trim().replace(/\/+$/, "");
   if (!siteUrl) {
@@ -601,6 +749,7 @@ async function main() {
   if (!res.ok) throw new Error(`[prerender] ${api}/api/seo-pages answered ${res.status}`);
   const data = (await res.json()) as SeoData;
   data.districts = await fetchDistricts(api);
+  data.scales = await fetchScales(api);
 
   const dist = fileURLToPath(new URL("../dist/", import.meta.url));
   const template = readFileSync(join(dist, APP_SHELL), "utf8");

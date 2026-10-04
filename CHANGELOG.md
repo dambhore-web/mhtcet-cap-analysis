@@ -2,6 +2,15 @@
 
 ## Unreleased
 ### Added
+- SEO step 3: one page per branch group (`/branches/computer-it`, `/branches/mechanical` …) listing
+  every college that offers it across Maharashtra, in the sitemap; old `?group=` links redirect. The
+  CAP guide renders every section, not only the open tab (248 → about 1,270 words in the page). The
+  estimate page shows MHT-CET percentile vs merit number and JEE percentile vs All India merit
+  tables for the year, with questions. `FAQPage` data is kept only where the app shows the questions
+  (guide, estimate); college, branch and group pages keep them as prerendered text.
+
+### Fixed
+- The estimate page no longer says GetMeCollege uses only the merit number: percentile search exists.
 - SEO, richer college and branch pages: the real closing numbers in the text, title and description
   (the app sets the same ones), the trend year on year, seats, fee and NIRF salary, the All India
   closing, Round I closing per category seat type, open seats year by year, a short FAQ (with

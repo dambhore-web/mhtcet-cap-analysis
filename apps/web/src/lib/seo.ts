@@ -24,7 +24,7 @@ export const STATIC_PAGE_META: Record<string, PageMeta> = {
   "/branches": { title: "Engineering branches — CAP cutoffs by branch", description: "Computer, IT, E&TC, Mechanical, Civil and more: closing merit numbers by branch across Maharashtra colleges, by seat type. From the official CET Cell CAP lists." },
   "/guide": { title: "How MHT-CET CAP works — rounds, seat codes, freeze, float, slide", description: "A plain-language guide to the CAP option form, the rounds, auto-freeze, freeze, float and slide, and seat type codes such as GOPENS and TFWS." },
   "/data": { title: "Where our numbers come from", description: "The official CET Cell lists behind every closing merit number on GetMeCollege, how they are read and checked, and what past cutoffs can't tell you." },
-  "/estimate": { title: "MHT-CET percentile to merit number estimate", description: "Estimate your state merit number range from your MHT-CET percentile, and see which branches that range reached in past CAP rounds." },
+  "/estimate": { title: "MHT-CET percentile vs merit number (rank) table", description: "MHT-CET percentile vs state merit number, and JEE Main percentile vs All India merit number, from the official CAP lists. Estimate your rank before the merit list is out." },
   "/eligibility": { title: "Which CAP seat types can I take?", description: "Home university, category, ladies, TFWS, EWS, defence and PWD seats: which MHT-CET CAP seat types apply to you and how many more branches they open." },
   "/legal": { title: "Disclaimer, privacy and terms", description: "GetMeCollege is an unofficial guide to MHT-CET CAP. What the data means, how your details are kept, and the terms of use." },
 };
@@ -61,6 +61,16 @@ export function clip(text: string, max = 160): string {
   if (text.length <= max) return text;
   const cut = text.slice(0, max - 1);
   return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
+}
+
+/** /branches/computer-it: one branch group across Maharashtra (the app and the prerendered page). */
+export function branchGroupMeta(group: string): PageMeta {
+  return {
+    title: `${group} engineering colleges in Maharashtra — CAP cutoffs`,
+    description: clip(
+      `Every Maharashtra engineering college offering ${group}: Round I and last-round MHT-CET CAP closing merit numbers by seat type, hardest to get first. From the official CET Cell lists.`,
+    ),
+  };
 }
 
 /** A branch's open-seat closing in one CAP year, as the college and branch pages describe it. */

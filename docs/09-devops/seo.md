@@ -32,6 +32,19 @@
   `branchMeta`, `openClosing` in `src/lib/seo.ts`), so the page Google renders says the same as the
   prerendered one. Data: `GET /api/seo-pages` (percentiles, intake, earlier years, seat types, All
   India) plus the district data for fees, salaries and neighbours.
+- **Guide, estimate and branch-group pages** (SEO step 3, the high-volume searches):
+  - `/guide` renders every section (the tabs only show and hide them), so search engines read all of
+    it; its text lives in `src/lib/guide.ts`, shared with the prerendered page and its `FAQPage` data.
+  - `/estimate` shows "MHT-CET percentile vs merit number" and "JEE Main percentile vs All India
+    merit number" tables for the year, read off the printed pairs (`percentileRows`,
+    `GET /api/percentile-scale`), and the questions from `estimateFaqs`, in the app and prerendered.
+  - `/branches/computer-it` and one page per branch group (`src/lib/branchGroups.ts`): every college
+    offering the group across Maharashtra, hardest to get first, with the district group pages.
+    Old `/branches?group=…` links redirect there; the group cards are links. In the sitemap via
+    `branchGroups` from `GET /api/sitemap`.
+  - `FAQPage` data only where the app shows the questions too (guide, estimate). College, branch
+    and group pages keep their questions as prerendered text only: structured data must describe
+    what visitors see.
 - **District landing pages** (`src/pages/DistrictPage.tsx`, text in `src/lib/districts.ts`): the
   hub `/engineering-colleges`, one page per district (`/engineering-colleges/pune`) and one per
   district and branch group (`/engineering-colleges/pune/computer-it`) when at least 2 colleges in

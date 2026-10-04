@@ -286,3 +286,10 @@
     display: none;
   }
 }
+
+/* the group cards are links (one page per group): no underline, same colours as before */
+a.branches-group,
+a.branches-group:hover {
+  text-decoration: none;
+  color: var(--navy);
+}
