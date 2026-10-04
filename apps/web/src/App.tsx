@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ProfileProvider, useProfile } from "./lib/ProfileContext";
 import { CompareProvider } from "./lib/CompareContext";
@@ -7,29 +8,34 @@ import { ConsentBanner } from "./components/ConsentBanner";
 import { FindPage } from "./pages/FindPage";
 import { CollegesPage } from "./pages/CollegesPage";
 import { CollegePage } from "./pages/CollegePage";
-import { ListPage } from "./pages/ListPage";
-import { AskPage } from "./pages/AskPage";
-import { ComparePage } from "./pages/ComparePage";
 import { OnboardingWizard } from "./pages/OnboardingPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LegalPage } from "./pages/LegalPage";
-import { ProfilePage } from "./pages/ProfilePage";
-import { AccountPage } from "./pages/AccountPage";
-import { SignInPage } from "./pages/SignInPage";
-import { PlansPage } from "./pages/PlansPage";
 import { PAYMENTS_ENABLED } from "./lib/plans";
 import { GuidePage } from "./pages/GuidePage";
-import { SimulatorPage } from "./pages/SimulatorPage";
 import { EstimatePage } from "./pages/EstimatePage";
-import { AddOptionsPage } from "./pages/AddOptionsPage";
-import { SummaryPage } from "./pages/SummaryPage";
 import { DataPage } from "./pages/DataPage";
 import { EligibilityPage } from "./pages/EligibilityPage";
 import { BranchTrendsPage } from "./pages/BranchTrendsPage";
-import { AllotmentPage } from "./pages/AllotmentPage";
-import { ExportPage } from "./pages/ExportPage";
 import { BranchesPage } from "./pages/BranchesPage";
 import { DistrictPage } from "./pages/DistrictPage";
+
+// Pages for students already planning (option form, simulator, account …) load when opened, so
+// the public pages most visitors and search engines arrive on carry less code. The public,
+// prerendered pages stay in the main bundle: a lazy page would replace their HTML with a blank
+// fallback while its code loads.
+const ListPage = lazy(() => import("./pages/ListPage").then((m) => ({ default: m.ListPage })));
+const AskPage = lazy(() => import("./pages/AskPage").then((m) => ({ default: m.AskPage })));
+const ComparePage = lazy(() => import("./pages/ComparePage").then((m) => ({ default: m.ComparePage })));
+const ProfilePage = lazy(() => import("./pages/ProfilePage").then((m) => ({ default: m.ProfilePage })));
+const AccountPage = lazy(() => import("./pages/AccountPage").then((m) => ({ default: m.AccountPage })));
+const SignInPage = lazy(() => import("./pages/SignInPage").then((m) => ({ default: m.SignInPage })));
+const PlansPage = lazy(() => import("./pages/PlansPage").then((m) => ({ default: m.PlansPage })));
+const SimulatorPage = lazy(() => import("./pages/SimulatorPage").then((m) => ({ default: m.SimulatorPage })));
+const AddOptionsPage = lazy(() => import("./pages/AddOptionsPage").then((m) => ({ default: m.AddOptionsPage })));
+const SummaryPage = lazy(() => import("./pages/SummaryPage").then((m) => ({ default: m.SummaryPage })));
+const AllotmentPage = lazy(() => import("./pages/AllotmentPage").then((m) => ({ default: m.AllotmentPage })));
+const ExportPage = lazy(() => import("./pages/ExportPage").then((m) => ({ default: m.ExportPage })));
 
 /** A shared result link: a merit number or a percentile in the URL. */
 const hasScore = (search: string) => {
@@ -52,6 +58,7 @@ function Home() {
 
 function AppRoutes() {
   return (
+    <Suspense fallback={<div className="page" aria-busy="true" />}>
     <Routes>
       <Route index element={<Home />} />
       <Route path="welcome" element={<Navigate to="/" replace />} />
@@ -93,6 +100,7 @@ function AppRoutes() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+    </Suspense>
   );
 }
 

@@ -1,7 +1,16 @@
 # Changelog
 
 ## Unreleased
-### Added
+### Changed
+- Faster first load (SEO step 4). The main script went from 853 KB to 445 KB (245 → 132 KB gzipped):
+  the Supabase sign-in library (about a third of the code) loads only when this browser holds a
+  saved sign-in, on the return from Google, or when someone taps "Sign in"; pages for students
+  already planning (option form, simulator, export, account, compare …) load when opened, while the
+  public prerendered pages stay in the main bundle. The unused Syne, DM Sans and Space Grotesk font
+  packages are removed (stylesheet 148 → 95 KB, 60 font files gone). The service worker no longer
+  pre-downloads the PDF and spreadsheet export libraries: its first-visit download fell from about
+  2.2 MB to 1.0 MB.
+
 - SEO step 3: one page per branch group (`/branches/computer-it`, `/branches/mechanical` …) listing
   every college that offers it across Maharashtra, in the sitemap; old `?group=` links redirect. The
   CAP guide renders every section, not only the open tab (248 → about 1,270 words in the page). The
@@ -10,6 +19,8 @@
   (guide, estimate); college, branch and group pages keep them as prerendered text.
 
 ### Fixed
+- After Google sign-in the student sometimes landed on My account instead of the page they started
+  from: the return step could run twice and the second run found the saved page already used.
 - No more blank page for returning visitors after a deploy. Their first page could come from the old
   service worker's cache while the new one took over and deleted it, leaving the old page's script
   missing. `public/registerSW.js` (loaded before the app bundle) now reloads the page once when a

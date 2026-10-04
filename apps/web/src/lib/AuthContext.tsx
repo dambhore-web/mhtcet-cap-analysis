@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import type { Session } from "@supabase/supabase-js";
-import { getSupabase } from "./supabase";
+import type { Session, SupabaseClient } from "@supabase/supabase-js";
+import { loadSupabase, supabaseConfigured, supabaseNeededAtStart } from "./supabase";
 import { removeKey } from "./storage";
 import { clearSyncedLocally, startSync, supabaseBackend, type SyncSession, type SyncStatus } from "./sync";
 
@@ -42,14 +42,27 @@ function toUser(session: Session | null): AuthUser | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const supabase = getSupabase();
+  // Loaded only when someone is (or is becoming) signed in: see lib/supabase.ts
+  const [needed] = useState(() => supabaseNeededAtStart(safeLocalStorage(), window.location));
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(!!supabase);
+  const [loading, setLoading] = useState(needed);
   const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const sync = useRef<SyncSession | null>(null);
 
   useEffect(() => {
     removeKey(LEGACY_SESSION_KEY);
+    if (!needed) return;
+    let live = true;
+    loadSupabase()
+      .then((sb) => live && setSupabase(sb))
+      .catch(() => live && setLoading(false));
+    return () => {
+      live = false;
+    };
+  }, [needed]);
+
+  useEffect(() => {
     if (!supabase) return;
     let live = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -81,13 +94,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(
     async (returnTo?: string) => {
-      if (!supabase) throw new Error("Sign-in is not configured");
+      const sb = supabase ?? (await loadSupabase());
+      if (!sb) throw new Error("Sign-in is not configured");
       try {
         sessionStorage.setItem(RETURN_KEY, returnTo ?? "/profile");
       } catch {
         /* private mode: lands on the profile */
       }
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await sb.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo: `${window.location.origin}/signin` },
       });
@@ -117,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase, userId]);
 
   return (
-    <Ctx.Provider value={{ user, loading, configured: !!supabase, syncStatus, signIn, signOut, deleteAccountData }}>
+    <Ctx.Provider value={{ user, loading, configured: supabaseConfigured, syncStatus, signIn, signOut, deleteAccountData }}>
       {children}
     </Ctx.Provider>
   );
@@ -127,4 +141,12 @@ export function useAuth() {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useAuth must be inside AuthProvider");
   return ctx;
+}
+
+function safeLocalStorage(): Storage | null {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
 }
