@@ -1,6 +1,6 @@
 # SEO
 
-**What's in place (2026-10-03)**
+**What's in place (2026-10-04)**
 - Every page sets its own title, description, canonical URL and share-preview tags
   (`apps/web/src/lib/seo.ts`, `usePageMeta`). College and branch pages build them from the data:
   name, district, number of branches, years. The public pages' fixed titles live in
@@ -29,15 +29,29 @@
   with the FRA-approved fee and NIRF median salary only where published. Data from
   `GET /api/districts` and `/api/districts/:slug`; prerendered (`CollectionPage`, `ItemList`,
   `BreadcrumbList`) and in the sitemap. 192 pages on the 2026 data.
+- **Home page** (`homePage` in `scripts/prerender.ts`): `index.html` is prerendered with its own
+  canonical URL, a heading, how it works, the 20 most sought-after colleges, Computer & IT pages for
+  the six largest districts and every district page (about 660 words, 65 links on the 2026 data).
+  The empty app shell is `app.html` (a copy of the built `index.html`, written by the `app-shell`
+  plugin in `vite.config.ts`): app-only routes are served it, and the service worker uses it as its
+  page-load fallback. The service worker never answers page loads of files (`/sitemap.xml`,
+  `/robots.txt`) or `/api/`.
+- **Share image**: `public/og-image.png` (1200 × 630) on every prerendered page (`og:image`, size,
+  alt text, `twitter:image`, `summary_large_image`). Source `scripts/og-image.html`; regenerate with
+  `node scripts/og-image.mjs` and commit the PNG.
+- **One public address**: the production site also answers on `*.up.railway.app`; the app sends
+  those visits to the same page on `VITE_SITE_URL` (`publicAddressRedirect` in `src/lib/seo.ts`).
+  It's a JavaScript redirect (the static host can't send a 301 by host name); every prerendered page
+  also names its canonical URL. `www.getmecollege.com` has no DNS record yet: add one and redirect it
+  to `getmecollege.com` at the DNS provider.
 - **Routing** comes from `dist/serve.json`, not `serve -s` (which sent every URL to `index.html`
   and hid the prerendered files): prerendered URLs are served from their own file, app-only routes
-  (`APP_ONLY_ROUTES` in `scripts/prerender.ts`) get `index.html`, and any other URL gets
+  (`APP_ONLY_ROUTES` in `scripts/prerender.ts`) get `app.html`, and any other URL gets
   `404.html` (the app, which shows "not found") with a real 404 status. A unit test checks every
   route in `App.tsx` is covered. Start the web service with `npx serve apps/web/dist -l $PORT`
   (no `-s`).
 
 **Not yet**
-- A share image (`og:image`): links shared on WhatsApp show no picture.
 - `Dataset` / `FAQPage` structured data.
 - Lighthouse SEO and speed checks in CI.
 

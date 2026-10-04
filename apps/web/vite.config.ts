@@ -1,10 +1,28 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+
+/**
+ * Writes app.html, a copy of the built index.html: the app shell with no page's content. In
+ * production the prerender step (scripts/prerender.ts) turns index.html into the home page, so
+ * app-only routes and the service worker's page-load fallback need a shell of their own.
+ */
+function appShell(): Plugin {
+  return {
+    name: "app-shell",
+    enforce: "post",
+    generateBundle(_options, bundle) {
+      const index = bundle["index.html"];
+      if (index?.type !== "asset") throw new Error("[app-shell] no index.html in the bundle");
+      this.emitFile({ type: "asset", fileName: "app.html", source: index.source });
+    },
+  };
+}
 
 export default defineConfig({
   plugins: [
     react(),
+    appShell(),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
@@ -34,6 +52,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
+        // the empty shell, not index.html: in production index.html is the prerendered home page
+        navigateFallback: "app.html",
         // The app shell answers page loads, but not files: /sitemap.xml, /robots.txt and the like
         // must come from the server, or a returning visitor opening them sees the landing page
         navigateFallbackDenylist: [/^\/api\//, /\/[^/?]+\.[a-z0-9]+$/i],

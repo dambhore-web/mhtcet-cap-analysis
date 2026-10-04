@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { branchMeta, clip, collegeMeta, fullTitle } from "../src/lib/seo";
+import { branchMeta, clip, collegeMeta, fullTitle, publicAddressRedirect } from "../src/lib/seo";
 
 describe("page meta (SEO)", () => {
   it("adds the site name once", () => {
@@ -40,5 +40,22 @@ describe("college meta: place names", () => {
   it("adds the district only when the name doesn't already say it", () => {
     expect(collegeMeta({ name: "VJTI, Matunga, Mumbai", district: "Mumbai-Suburban" }, 9, 2026).description).toContain("9 branches at VJTI, Matunga, Mumbai:");
     expect(collegeMeta({ name: "COEP Technological University", district: "Pune" }, 9, 2026).description).toContain("COEP Technological University, Pune:");
+  });
+});
+
+describe("one public address (SEO)", () => {
+  const at = (hostname: string, pathname = "/colleges/16006", search = "?x=1", hash = "#cutoffs") => ({ hostname, pathname, search, hash });
+  const SITE = "https://getmecollege.com/";
+
+  it("sends a visit on the hosting platform's address to the same page on the public address", () => {
+    expect(publicAddressRedirect(SITE, at("mhtcetweb-production.up.railway.app"))).toBe("https://getmecollege.com/colleges/16006?x=1#cutoffs");
+  });
+
+  it("leaves the public address, local runs and sites without a public address alone", () => {
+    expect(publicAddressRedirect(SITE, at("getmecollege.com"))).toBeNull();
+    expect(publicAddressRedirect(SITE, at("localhost"))).toBeNull();
+    expect(publicAddressRedirect(undefined, at("compass-web-staging-276c.up.railway.app"))).toBeNull();
+    expect(publicAddressRedirect("", at("compass-web-staging-276c.up.railway.app"))).toBeNull();
+    expect(publicAddressRedirect("not a url", at("x.up.railway.app"))).toBeNull();
   });
 });

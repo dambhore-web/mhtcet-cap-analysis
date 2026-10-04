@@ -26,19 +26,26 @@ if (supabaseUrl) {
   }
 }
 
-export function connectSrc(api = apiOrigin, supabase = supabaseOrigin) {
-  return ["connect-src 'self'", api, supabase].filter(Boolean).join(" ");
+// Google Analytics (src/lib/analytics.ts) runs on the public site only, so only its build allows
+// Google's hosts (the list Google documents for GA4 under a Content Security Policy)
+const analytics = Boolean(process.env.VITE_SITE_URL?.trim());
+const GA_SCRIPT = "https://*.googletagmanager.com";
+const GA_HOSTS = "https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com";
+const GA_IMG = "https://*.google-analytics.com https://*.googletagmanager.com";
+
+export function connectSrc(api = apiOrigin, supabase = supabaseOrigin, ga = analytics) {
+  return ["connect-src 'self'", api, supabase, ga ? GA_HOSTS : ""].filter(Boolean).join(" ");
 }
 
 const csp = [
   "default-src 'self'",
-  // Only the app's own bundles: no inline or third-party scripts (vite and the PWA plugin emit files)
-  "script-src 'self'",
+  // Only the app's own bundles, plus Google Analytics' loader on the public site; never inline scripts
+  analytics ? `script-src 'self' ${GA_SCRIPT}` : "script-src 'self'",
   // Google Fonts stylesheet; inline styles are allowed (component style attributes), inline scripts are not
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   // PDF and spreadsheet exports use blob: and data: URLs
-  "img-src 'self' data: blob:",
+  analytics ? `img-src 'self' data: blob: ${GA_IMG}` : "img-src 'self' data: blob:",
   connectSrc(),
   "worker-src 'self'",
   "manifest-src 'self'",
