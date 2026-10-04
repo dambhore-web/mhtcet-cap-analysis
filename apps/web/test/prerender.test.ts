@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  allPages, APP_ONLY_ROUTES, APP_SHELL, branchPage, collegePage, districtGroupPage, districtPage, fileFor, homePage, hubPage, OG_IMAGE,
-  prerenderedServeConfig, renderPage, staticPage, type SeoData,
+  allPages, APP_ONLY_ROUTES, APP_SHELL, branchPage, collegePage, contextIndex, districtGroupPage, districtPage, fileFor, homePage, hubPage, OG_IMAGE,
+  prerenderedServeConfig, renderPage, staticPage, trendSentence, type SeoBranch, type SeoData,
 } from "../scripts/prerender";
 import { STATIC_PAGE_META } from "../src/lib/seo";
 import { DISTRICT_HUB_PATH, type DistrictDetail } from "../src/lib/districts";
@@ -55,23 +55,76 @@ const TEMPLATE = `<!doctype html><html><head>
 describe("prerendered pages (SEO)", () => {
   it("a college page: its own title, description, canonical, structured data and branch table", () => {
     const html = renderPage(TEMPLATE, SITE, collegePage(SITE, 2026, DATA.colleges[0]));
-    expect(html).toContain("<title>COEP Technological University — CAP 2026 cutoffs by branch | GetMeCollege</title>");
-    expect(html).toContain('<meta name="description" content="Closing merit numbers for 2 branches at COEP Technological University, Pune:');
+    expect(html).toContain("<title>COEP Technological University cutoff 2026 — MHT-CET CAP, all branches | GetMeCollege</title>");
+    expect(html).toContain('<meta name="description" content="COEP Technological University, Pune: MHT-CET CAP 2026 cutoffs for 2 branches. Computer Science and Engineering closed at merit 150');
     expect(html).toContain('<link rel="canonical" href="https://getmecollege.com/colleges/16006" />');
     expect(html).toContain('<meta property="og:url" content="https://getmecollege.com/colleges/16006" />');
     expect(html).toContain('"@type":"CollegeOrUniversity"');
     expect(html).toContain('"@type":"BreadcrumbList"');
-    expect(html).toContain('<a href="/colleges/16006/1600624210">Computer Science and Engineering</a></td><td>150</td><td>170</td><td>General open, state level</td>');
+    expect(html).toContain('<a href="/colleges/16006/1600624210">Computer Science and Engineering</a></td><td>150</td><td>170</td><td>–</td><td>–</td><td>General open, state level</td>');
+    expect(html).toContain("<h1>COEP Technological University cutoff 2026</h1>");
     // the app's own script still loads
     expect(html).toContain('<script type="module" src="/assets/index.js"></script>');
   });
 
   it("escapes text from the data, in the page and in the structured data", () => {
     const html = renderPage(TEMPLATE, SITE, branchPage(SITE, 2026, DATA.colleges[0], DATA.colleges[0].branches[1]));
-    expect(html).toContain("<h1>AI &amp; &lt;ML&gt;, COEP Technological University</h1>");
+    expect(html).toContain("<h1>AI &amp; &lt;ML&gt; cutoff, COEP Technological University</h1>");
     expect(html).not.toContain("<ML>");
     expect(html).toContain("\\u003cML>"); // inside JSON-LD a "<" can't close the script
     expect(html).toContain("<dd>–</dd>"); // no Round I closing: a dash, not a made-up number
+  });
+
+  it("a branch page: numbers in the text, category and year tables, questions and links to neighbours", () => {
+    const rich: SeoBranch = {
+      ...DATA.colleges[0].branches[0],
+      roundIPct: 99.9767207, latestPct: 99.9723948, intake: 300,
+      past: [{ year: 2024, roundI: 96, latest: 121 }, { year: 2025, roundI: 243, latest: 913 }],
+      seatTypes: [
+        { seatType: "GOPENS", roundI: 150, percentile: 99.9767 },
+        { seatType: "GOBCS", roundI: 463, percentile: 99.9014 },
+        { seatType: "TFWS", roundI: 287, percentile: null },
+      ],
+      allIndia: { roundI: 212, percentile: 99.481177 },
+    };
+    const college = { ...DATA.colleges[0], branches: [rich, DATA.colleges[0].branches[1]] };
+    const ctx = contextIndex([PUNE]).get("16006");
+    const page = branchPage(SITE, 2026, college, rich, ctx);
+    const html = renderPage(TEMPLATE, SITE, page);
+    expect(html).toContain("<title>Computer Science and Engineering cutoff, COEP Technological University — CAP 2024–2026 | GetMeCollege</title>");
+    expect(page.body).toContain("Computer Science and Engineering at COEP Technological University closed at merit 150 (99.976 percentile) in CAP 2026 Round I on open seats, 170 in the last round.");
+    expect(page.body).toContain("got harder to get on open seats: the Round I closing merit number fell from 243 in 2025 to 150 in 2026");
+    expect(page.body).toContain("<td>General OBC, state level</td><td>463</td><td>99.901</td>");
+    expect(page.body).toContain("<td>Tuition fee waiver (TFWS)</td><td>287</td><td>–</td>");
+    expect(page.body).toContain("<tr><td>2024</td><td>96</td><td>121</td></tr>");
+    expect(page.body).toContain("All India merit 212 (JEE Main 99.48 percentile)");
+    expect(page.body).toContain("<dt>CAP seats</dt><dd>300</dd>");
+    // a neighbour in the same branch group and district, and the college's other branches
+    expect(page.body).toContain('<a href="/colleges/06271/0627124210">Computer Engineering, Pune Institute of &lt;Computer&gt; Technology</a>: 900');
+    expect(page.body).toContain('<a href="/engineering-colleges/pune/computer-it">Computer &amp; IT engineering colleges in Pune</a>');
+    expect(page.body).toContain('<a href="/colleges/16006/1600692110">AI &amp; &lt;ML&gt;</a>: 633');
+    expect(page.body).toContain('<a href="/engineering-colleges/pune">Pune</a>');
+    const types = page.jsonLd.map((j) => (j as { "@type": string })["@type"]);
+    expect(types).toEqual(["WebPage", "BreadcrumbList", "FAQPage"]);
+    expect(JSON.stringify(page.jsonLd[2])).toContain("What was the Computer Science and Engineering cutoff at COEP Technological University in CAP 2026?");
+    expect(`${page.meta.title} ${page.meta.description} ${page.body}`).not.toMatch(/guarantee|you can get|you will get|\bsafe\b/i);
+  });
+
+  it("describes a cutoff trend in plain words, lower merit numbers being harder", () => {
+    const b = DATA.colleges[0].branches[0];
+    expect(trendSentence("CSE", 2026, { ...b, roundI: 300, past: [{ year: 2025, roundI: 200, latest: 250 }] })).toContain("got easier to get on open seats: the Round I closing merit number rose from 200 in 2025 to 300 in 2026");
+    expect(trendSentence("CSE", 2026, { ...b, past: [] })).toBeNull();
+    expect(trendSentence("CSE", 2026, { ...b, roundI: null, past: [{ year: 2025, roundI: 200, latest: 250 }] })).toBeNull();
+  });
+
+  it("a college page: facts, fee and salary from the district data, questions and nearby colleges", () => {
+    const ctx = contextIndex([PUNE]).get("16006");
+    const page = collegePage(SITE, 2026, { ...DATA.colleges[0], intake: 600 }, ctx);
+    expect(page.body).toContain("took part in MHT-CET CAP 2026 with 2 branches and 600 CAP seats");
+    expect(page.body).toContain("<dt>Placements</dt><dd>₹12 lakh median salary (NIRF, batch 2024-25)</dd>");
+    expect(page.body).toContain('<a href="/colleges/06271">Pune Institute of &lt;Computer&gt; Technology</a>');
+    expect(page.body).toContain('<a href="/engineering-colleges/pune/computer-it">Computer &amp; IT engineering colleges in Pune</a>');
+    expect(page.jsonLd.map((j) => (j as { "@type": string })["@type"])).toContain("FAQPage");
   });
 
   it("the colleges list links every college, so crawlers can reach them", () => {

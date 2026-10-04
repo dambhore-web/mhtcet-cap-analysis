@@ -14,7 +14,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { branchMeta, collegeMeta, fullTitle, SITE_NAME, STATIC_PAGE_META, type PageMeta } from "../src/lib/seo.ts";
+import { branchMeta, closingPhrase, collegeMeta, fullTitle, type OpenClosing, SITE_NAME, STATIC_PAGE_META, type PageMeta } from "../src/lib/seo.ts";
+import { formatPercentile } from "../src/lib/percentile.ts";
 import { seatTypeLabel } from "../src/lib/seatType.ts";
 import {
   collegeRows, DISTRICT_HUB_PATH, districtIntro, districtLabel, districtMeta, districtPath, formatLakh, groupIntro, groupMeta,
@@ -28,12 +29,25 @@ export interface SeoBranch {
   latest: number;
   seatType: string;
   years: number[];
+  /** The same rows' closing percentiles (GET /api/seo-pages; absent in older API builds). */
+  roundIPct?: number | null;
+  latestPct?: number | null;
+  /** CAP seats from the seat matrix. */
+  intake?: number | null;
+  /** Earlier years of the same open seat type, oldest first. */
+  past?: { year: number; roundI: number | null; latest: number }[];
+  /** Round I closing per category seat type (MH list), plus EWS and TFWS. */
+  seatTypes?: { seatType: string; roundI: number; percentile: number | null }[];
+  /** All India seats, Round I. */
+  allIndia?: { roundI: number; percentile: number | null } | null;
 }
 export interface SeoCollege {
   code: string;
   name: string;
   district: string | null;
   collegeType: string | null;
+  homeUniversity?: string | null;
+  intake?: number | null;
   branches: SeoBranch[];
 }
 export interface SeoData {
@@ -72,16 +86,135 @@ function collegeEntity(c: SeoCollege) {
 
 const NOTE = `<p>Closing merit numbers from the official State CET Cell CAP lists. Past cutoffs describe what happened, not what will happen.</p>`;
 
-export function collegePage(siteUrl: string, year: number, c: SeoCollege): Page {
+/** What a college and branch page links to: its district page, fees, salaries and neighbours. */
+export interface PageContext {
+  district: DistrictDetail;
+  college: DistrictCollege;
+}
+
+/** Each college's district page entry, for links, fees and salaries (from the district data). */
+export function contextIndex(districts: DistrictDetail[] = []): Map<string, PageContext> {
+  const index = new Map<string, PageContext>();
+  for (const d of districts) for (const c of d.colleges) index.set(c.code, { district: d, college: c });
+  return index;
+}
+
+const closingOf = (b: { roundI: number | null; latest: number }) => b.roundI ?? b.latest;
+const pct = (p: number | null | undefined) => (p == null ? "" : ` (${formatPercentile(p)} percentile)`);
+const openOf = (year: number, b: SeoBranch): OpenClosing => ({ year, roundI: b.roundI, roundIPct: b.roundIPct ?? null, latest: b.latest });
+
+/** A visible question list plus the matching FAQPage structured data. */
+function faq(items: { q: string; a: string }[]): { html: string; jsonLd: object | null } {
+  if (!items.length) return { html: "", jsonLd: null };
+  return {
+    html: `<h2>Questions</h2>${items.map((it) => `<h3>${esc(it.q)}</h3><p>${esc(it.a)}</p>`).join("")}`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: items.map((it) => ({ "@type": "Question", name: it.q, acceptedAnswer: { "@type": "Answer", text: it.a } })),
+    },
+  };
+}
+
+/** "got harder: the Round I closing fell from 243 (2025) to 150 (2026)"; lower merit numbers are harder to get. */
+export function trendSentence(branch: string, year: number, b: SeoBranch): string | null {
+  const before = [...(b.past ?? [])].reverse().find((p) => p.roundI != null);
+  if (!before || b.roundI == null || before.roundI === b.roundI) return null;
+  const harder = b.roundI < before.roundI!;
+  return (
+    `${branch} got ${harder ? "harder" : "easier"} to get on open seats: the Round I closing merit number ${harder ? "fell" : "rose"} ` +
+    `from ${num(before.roundI)} in ${before.year} to ${num(b.roundI)} in ${year} (a lower number is harder to get).`
+  );
+}
+
+/** Other branches of the same group in the district, nearest closing first: links to similar options. */
+function similarInDistrict(ctx: PageContext | undefined, b: SeoBranch, collegeCode: string, limit = 5) {
+  if (!ctx) return [];
+  const mine = ctx.college.branches.find((x) => x.choiceCode === b.choiceCode);
+  if (!mine?.group) return [];
+  const target = closingOf(b);
+  return ctx.district.colleges
+    .filter((c) => c.code !== collegeCode)
+    .flatMap((c) => c.branches.filter((x) => x.group === mine.group).map((x) => ({ college: c, branch: x })))
+    .sort((p, q) => Math.abs(closingOf(p.branch) - target) - Math.abs(closingOf(q.branch) - target))
+    .slice(0, limit);
+}
+
+/** The colleges in the district whose hardest branch closed nearest this college's. */
+function nearbyColleges(ctx: PageContext | undefined, c: SeoCollege, limit = 5) {
+  if (!ctx || !c.branches.length) return [];
+  const best = (bs: { roundI: number | null; latest: number }[]) => Math.min(...bs.map(closingOf));
+  const target = best(c.branches);
+  return ctx.district.colleges
+    .filter((o) => o.code !== c.code && o.branches.length)
+    .sort((p, q) => Math.abs(best(p.branches) - target) - Math.abs(best(q.branches) - target))
+    .slice(0, limit);
+}
+
+const feeText = (ctx?: PageContext) => (ctx?.college.fee ? `₹${ctx.college.fee.total.toLocaleString("en-IN")} a year (FRA-approved, ${ctx.college.fee.year})` : null);
+const salaryText = (ctx?: PageContext) =>
+  ctx?.college.placement ? `${formatLakh(ctx.college.placement.medianSalary)} median salary (NIRF, batch ${ctx.college.placement.graduationYear})` : null;
+
+function crumbHtml(items: { name: string; path?: string }[]) {
+  return `<nav aria-label="Breadcrumb">${items.map((it) => (it.path ? `<a href="${it.path}">${esc(it.name)}</a>` : esc(it.name))).join(" / ")}</nav>`;
+}
+
+function crumbItems(ctx: PageContext | undefined) {
+  return [{ name: "Colleges", path: "/colleges" }, ...(ctx ? [{ name: districtLabel(ctx.district.name), path: districtPath(ctx.district.slug) }] : [])];
+}
+
+export function collegePage(siteUrl: string, year: number, c: SeoCollege, ctx?: PageContext): Page {
   const path = `/colleges/${c.code}`;
+  const top = c.branches.length ? c.branches.reduce((a, b) => (closingOf(b) < closingOf(a) ? b : a)) : null;
+  const meta = collegeMeta(c, c.branches.length, year, top ? { branch: top.name, closing: openOf(year, top) } : null);
+  const place = ctx ? districtLabel(ctx.district.name) : c.district ? districtLabel(c.district) : null;
+  const prevYear = (b: SeoBranch) => b.past?.at(-1);
   const rows = c.branches
-    .map((b) => `<tr><td><a href="${path}/${b.choiceCode}">${esc(b.name)}</a></td><td>${num(b.roundI)}</td><td>${num(b.latest)}</td><td>${esc(seatTypeLabel(b.seatType))}</td></tr>`)
+    .map((b) => {
+      const prev = prevYear(b);
+      return (
+        `<tr><td><a href="${path}/${b.choiceCode}">${esc(b.name)}</a></td><td>${num(b.roundI)}${pct(b.roundIPct)}</td><td>${num(b.latest)}</td>` +
+        `<td>${prev ? `${num(prev.latest)} (${prev.year})` : "–"}</td><td>${b.intake ?? "–"}</td><td>${esc(seatTypeLabel(b.seatType))}</td></tr>`
+      );
+    })
     .join("");
-  const meta = collegeMeta(c, c.branches.length, year);
+  const facts = [
+    c.collegeType ? `<dt>Type</dt><dd>${esc(c.collegeType)}</dd>` : "",
+    place ? `<dt>District</dt><dd>${ctx ? `<a href="${districtPath(ctx.district.slug)}">${esc(place)}</a>` : esc(place)}</dd>` : "",
+    c.homeUniversity ? `<dt>Home university</dt><dd>${esc(c.homeUniversity)}</dd>` : "",
+    `<dt>Branches in CAP ${year}</dt><dd>${c.branches.length}</dd>`,
+    c.intake ? `<dt>CAP seats</dt><dd>${num(c.intake)}</dd>` : "",
+    feeText(ctx) ? `<dt>Fee</dt><dd>${esc(feeText(ctx)!)}</dd>` : "",
+    salaryText(ctx) ? `<dt>Placements</dt><dd>${esc(salaryText(ctx)!)}</dd>` : "",
+  ].join("");
+  const lead =
+    `${c.name}${place && !c.name.toLowerCase().includes(place.toLowerCase().split(" ")[0]) ? `, ${place},` : ""} took part in MHT-CET CAP ${year} with ` +
+    `${c.branches.length} ${c.branches.length === 1 ? "branch" : "branches"}${c.intake ? ` and ${num(c.intake)} CAP seats` : ""}.` +
+    (top ? ` The hardest to get was ${top.name}, which ${closingPhrase(openOf(year, top))}.` : "");
+  const hardest = [...c.branches].sort((a, b) => closingOf(a) - closingOf(b)).slice(0, 3);
+  const questions = faq([
+    ...(hardest.length
+      ? [{
+          q: `What is the cutoff of ${c.name} in CAP ${year}?`,
+          a: `On open seats in Round I: ${hardest.map((b) => `${b.name} ${num(closingOf(b))}${b.roundIPct != null && b.roundI != null ? ` (${formatPercentile(b.roundIPct)} percentile)` : ""}`).join("; ")}. Each branch and seat type has its own closing merit number; the table above lists them all.`,
+        }]
+      : []),
+    ...(feeText(ctx) ? [{ q: `What is the fee at ${c.name}?`, a: `${feeText(ctx)}, from the Fee Regulating Authority's approved fees.` }] : []),
+    ...(salaryText(ctx) ? [{ q: `What are placements like at ${c.name}?`, a: `${salaryText(ctx)}, as reported by the college to NIRF.` }] : []),
+  ]);
+  const nearby = nearbyColleges(ctx, c);
+  const groups = ctx
+    ? ctx.district.groups.filter((g) => ctx.college.branches.some((b) => b.group === g.name))
+    : [];
   const body =
-    `<main class="page prerendered"><nav aria-label="Breadcrumb"><a href="/colleges">Colleges</a></nav>` +
-    `<h1>${esc(c.name)}</h1><p>${esc(meta.description ?? "")}</p>` +
-    `<table><caption>CAP ${year} closing merit numbers, open seats</caption><thead><tr><th>Branch</th><th>Round I</th><th>Last round</th><th>Seat type</th></tr></thead><tbody>${rows}</tbody></table>` +
+    `<main class="page prerendered">${crumbHtml(crumbItems(ctx))}` +
+    `<h1>${esc(c.name)} cutoff ${year}</h1><p>${esc(lead)}</p><dl>${facts}</dl>` +
+    `<table><caption>CAP ${year} closing merit numbers, open seats</caption><thead><tr><th>Branch</th><th>Round I</th><th>Last round</th><th>Year before, last round</th><th>Seats</th><th>Seat type</th></tr></thead><tbody>${rows}</tbody></table>` +
+    questions.html +
+    (groups.length && ctx
+      ? `<h2>Compare in ${esc(districtLabel(ctx.district.name))}</h2><ul>${groups.map((g) => `<li><a href="${groupPath(ctx.district.slug, g.slug)}">${esc(g.name)} engineering colleges in ${esc(districtLabel(ctx.district.name))}</a></li>`).join("")}</ul>`
+      : "") +
+    (nearby.length ? `<h2>Colleges with similar cutoffs nearby</h2><ul>${nearby.map((o) => `<li><a href="/colleges/${o.code}">${esc(o.name)}</a></li>`).join("")}</ul>` : "") +
     `${NOTE}</main>`;
   return {
     path,
@@ -89,27 +222,83 @@ export function collegePage(siteUrl: string, year: number, c: SeoCollege): Page 
     body,
     jsonLd: [
       { "@context": "https://schema.org", "@type": "WebPage", name: fullTitle(meta.title), url: siteUrl + path, about: collegeEntity(c) },
-      breadcrumb(siteUrl, [{ name: "Colleges", path: "/colleges" }, { name: c.name, path }]),
+      breadcrumb(siteUrl, [...crumbItems(ctx), { name: c.name, path }]),
+      ...(questions.jsonLd ? [questions.jsonLd] : []),
     ],
   };
 }
 
-export function branchPage(siteUrl: string, year: number, c: SeoCollege, b: SeoBranch): Page {
+export function branchPage(siteUrl: string, year: number, c: SeoCollege, b: SeoBranch, ctx?: PageContext): Page {
   const path = `/colleges/${c.code}/${b.choiceCode}`;
-  const meta = branchMeta(c.name, b.name, b.years);
+  const open = openOf(year, b);
+  const meta = branchMeta(c.name, b.name, b.years, open);
+  const lead = `${b.name} at ${c.name} ${closingPhrase(open)}.`;
+  const trend = trendSentence(b.name, year, b);
+  const facts = [
+    `<dt>CAP ${year}, Round I closing</dt><dd>${num(b.roundI)}${pct(b.roundIPct)}</dd>`,
+    `<dt>CAP ${year}, last round closing</dt><dd>${num(b.latest)}${pct(b.latestPct)}</dd>`,
+    `<dt>Seat type</dt><dd>${esc(seatTypeLabel(b.seatType))}</dd>`,
+    b.intake ? `<dt>CAP seats</dt><dd>${b.intake}</dd>` : "",
+    b.allIndia ? `<dt>All India seats, Round I closing</dt><dd>All India merit ${num(b.allIndia.roundI)}${b.allIndia.percentile != null ? ` (JEE Main ${formatPercentile(b.allIndia.percentile)} percentile)` : ""}</dd>` : "",
+    feeText(ctx) ? `<dt>Fee</dt><dd>${esc(feeText(ctx)!)}</dd>` : "",
+    salaryText(ctx) ? `<dt>College placements</dt><dd>${esc(salaryText(ctx)!)}</dd>` : "",
+    `<dt>Years of data</dt><dd>${b.years.join(", ")}</dd><dt>Choice code</dt><dd>${esc(b.choiceCode)}</dd>`,
+  ].join("");
+  const cats = b.seatTypes ?? [];
+  const catTable = cats.length
+    ? `<table><caption>CAP ${year} Round I closing by seat type</caption><thead><tr><th>Seat type</th><th>Closing merit number</th><th>Percentile</th></tr></thead><tbody>` +
+      cats.map((s) => `<tr><td>${esc(seatTypeLabel(s.seatType))}</td><td>${num(s.roundI)}</td><td>${s.percentile != null ? formatPercentile(s.percentile) : "–"}</td></tr>`).join("") +
+      `</tbody></table>`
+    : "";
+  const years = [...(b.past ?? []), { year, roundI: b.roundI, latest: b.latest }];
+  const yearTable =
+    years.length > 1
+      ? `<table><caption>Open seats year by year</caption><thead><tr><th>CAP year</th><th>Round I</th><th>Last round</th></tr></thead><tbody>` +
+        years.map((y) => `<tr><td>${y.year}</td><td>${num(y.roundI)}</td><td>${num(y.latest)}</td></tr>`).join("") +
+        `</tbody></table>`
+      : "";
+  const catLine = cats
+    .filter((s) => s.seatType !== b.seatType)
+    .slice(0, 6)
+    .map((s) => `${seatTypeLabel(s.seatType)} ${num(s.roundI)}`)
+    .join("; ");
+  const questions = faq([
+    { q: `What was the ${b.name} cutoff at ${c.name} in CAP ${year}?`, a: `It ${closingPhrase(open)}.` },
+    ...(catLine ? [{ q: `What were the category cutoffs (OBC, SC, ST, EWS, TFWS)?`, a: `Round I closing merit numbers in CAP ${year}: ${catLine}.` }] : []),
+    ...(b.allIndia
+      ? [{
+          q: `What was the All India (JEE Main) cutoff?`,
+          a: `All India seats closed at All India merit ${num(b.allIndia.roundI)}${b.allIndia.percentile != null ? `, JEE Main ${formatPercentile(b.allIndia.percentile)} percentile` : ""}, in Round I of CAP ${year}.`,
+        }]
+      : []),
+    ...(b.intake ? [{ q: `How many CAP seats does ${b.name} at ${c.name} have?`, a: `${b.intake} seats in the CAP ${year} seat matrix, across all seat types.` }] : []),
+  ]);
+  const siblings = c.branches.filter((x) => x.choiceCode !== b.choiceCode);
+  const similar = similarInDistrict(ctx, b, c.code);
+  const mine = ctx?.college.branches.find((x) => x.choiceCode === b.choiceCode);
+  const group = mine?.group && ctx ? ctx.district.groups.find((g) => g.name === mine.group) : undefined;
   const body =
-    `<main class="page prerendered"><nav aria-label="Breadcrumb"><a href="/colleges">Colleges</a> / <a href="/colleges/${c.code}">${esc(c.name)}</a></nav>` +
-    `<h1>${esc(b.name)}, ${esc(c.name)}</h1><p>${esc(meta.description ?? "")}</p>` +
-    `<dl><dt>CAP ${year}, Round I closing</dt><dd>${num(b.roundI)}</dd><dt>CAP ${year}, last round closing</dt><dd>${num(b.latest)}</dd>` +
-    `<dt>Seat type</dt><dd>${esc(seatTypeLabel(b.seatType))}</dd><dt>Years of data</dt><dd>${b.years.join(", ")}</dd></dl>` +
-    `<p>Choice code ${esc(b.choiceCode)}.</p>${NOTE}</main>`;
+    `<main class="page prerendered">${crumbHtml([...crumbItems(ctx), { name: c.name, path: `/colleges/${c.code}` }])}` +
+    `<h1>${esc(b.name)} cutoff, ${esc(c.name)}</h1><p>${esc(lead)}${trend ? ` ${esc(trend)}` : ""}</p><dl>${facts}</dl>` +
+    catTable +
+    yearTable +
+    questions.html +
+    (similar.length
+      ? `<h2>Similar cutoffs nearby</h2><ul>${similar.map(({ college: o, branch: x }) => `<li><a href="/colleges/${o.code}/${x.choiceCode}">${esc(x.name)}, ${esc(o.name)}</a>: ${num(closingOf(x))}</li>`).join("")}</ul>`
+      : "") +
+    (group && ctx ? `<p><a href="${groupPath(ctx.district.slug, group.slug)}">${esc(group.name)} engineering colleges in ${esc(districtLabel(ctx.district.name))}</a></p>` : "") +
+    (siblings.length
+      ? `<h2>Other branches at ${esc(c.name)}</h2><ul>${siblings.map((x) => `<li><a href="/colleges/${c.code}/${x.choiceCode}">${esc(x.name)}</a>: ${num(closingOf(x))}</li>`).join("")}</ul>`
+      : "") +
+    `${NOTE}</main>`;
   return {
     path,
     meta,
     body,
     jsonLd: [
       { "@context": "https://schema.org", "@type": "WebPage", name: fullTitle(meta.title), url: siteUrl + path, about: collegeEntity(c) },
-      breadcrumb(siteUrl, [{ name: "Colleges", path: "/colleges" }, { name: c.name, path: `/colleges/${c.code}` }, { name: b.name, path }]),
+      breadcrumb(siteUrl, [...crumbItems(ctx), { name: c.name, path: `/colleges/${c.code}` }, { name: b.name, path }]),
+      ...(questions.jsonLd ? [questions.jsonLd] : []),
     ],
   };
 }
@@ -328,9 +517,10 @@ export function allPages(siteUrl: string, data: SeoData): Page[] {
   const pages: Page[] = Object.keys(STATIC_PAGE_META)
     .filter((p) => p !== "/")
     .map((p) => staticPage(siteUrl, p, data));
+  const ctx = contextIndex(data.districts);
   for (const c of data.colleges) {
-    pages.push(collegePage(siteUrl, data.year, c));
-    for (const b of c.branches) pages.push(branchPage(siteUrl, data.year, c, b));
+    pages.push(collegePage(siteUrl, data.year, c, ctx.get(c.code)));
+    for (const b of c.branches) pages.push(branchPage(siteUrl, data.year, c, b, ctx.get(c.code)));
   }
   const districts = data.districts ?? [];
   if (districts.length) {

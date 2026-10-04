@@ -598,6 +598,34 @@ describe("GET /api/seo-pages", () => {
       for (const b of c.branches) expect(b.years).toContain(cache.year);
     }
   });
+
+  it("adds each branch's percentiles, category seat types, earlier years and All India closing, from the same rows", async () => {
+    const cache = seedCache();
+    const app = createApp(cache, stubPool);
+    type B = {
+      choiceCode: string; roundI: number | null; latest: number; roundIPct: number | null; seatType: string;
+      past: { year: number; roundI: number | null; latest: number }[];
+      seatTypes: { seatType: string; roundI: number; percentile: number | null }[];
+      allIndia: { roundI: number; percentile: number | null } | null;
+    };
+    const pages = (await (await app.request("http://localhost/api/seo-pages")).json()) as { colleges: { branches: B[] }[] };
+    const branches = pages.colleges.flatMap((c) => c.branches);
+    expect(branches.length).toBeGreaterThan(0);
+    for (const b of branches) {
+      const rows = cache.cutoffsByChoiceCode.get(b.choiceCode)!;
+      // the open seat's own Round I row is in the seat-type list, with the same closing
+      const own = b.seatTypes.find((s) => s.seatType === b.seatType);
+      if (b.roundI != null) expect(own?.roundI).toBe(b.roundI);
+      for (const s of b.seatTypes) {
+        const min = Math.min(...rows.filter((r) => r.list === "MH" && r.round === "I" && r.seatType === s.seatType).map((r) => r.closingMerit));
+        expect(s.roundI).toBe(min);
+      }
+      for (const p of b.past) expect(p.year).toBeLessThan(cache.year);
+      const ai = rows.filter((r) => r.list === "AI" && r.round === "I");
+      if (ai.length) expect(b.allIndia?.roundI).toBe(Math.min(...ai.map((r) => r.closingMerit)));
+      else expect(b.allIndia).toBeNull();
+    }
+  });
 });
 
 // ─── District landing pages (SEO) ────────────────────────────────────────────

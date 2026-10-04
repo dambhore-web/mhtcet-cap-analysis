@@ -2,6 +2,13 @@
 
 ## Unreleased
 ### Added
+- SEO, richer college and branch pages: the real closing numbers in the text, title and description
+  (the app sets the same ones), the trend year on year, seats, fee and NIRF salary, the All India
+  closing, Round I closing per category seat type, open seats year by year, a short FAQ (with
+  `FAQPage` data), and links to the college's other branches, similar cutoffs in the district and the
+  district pages. Branch pages grew from about 95 words to a median of about 480. `GET /api/seo-pages`
+  now gives each branch its percentiles, intake, earlier years, category seat types and All India
+  closing, and each college its home university and intake.
 - Google Analytics 4 on the public site, in consent mode: a banner asks once; until the visitor
   accepts, GA sets no cookies (cookieless pings only). Only the page path is sent, never the query
   string, which can hold a student's merit number, category and gender (checked on every GA request,
