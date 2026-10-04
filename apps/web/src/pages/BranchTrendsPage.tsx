@@ -147,6 +147,8 @@ export function BranchTrendsPage() {
           status === "loading" ? "Loading…" : (
             <>
               {branch}
+              {/* read as "Branch, College" by search engines and screen readers; shown on two lines */}
+              <span className="sr-only">, </span>
               <span className="trends-college">{college?.name}</span>
             </>
           )
