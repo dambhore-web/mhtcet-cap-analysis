@@ -9,6 +9,7 @@ import { Icon } from "../components/Icon";
 import { MeritRuler } from "../components/MeritRuler";
 import { formatPercentile, meritToPercentile, parsePercentileText, percentileToMerit, type ScalePoint, type ScoreKind } from "../lib/percentile";
 import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
+import { branchGroupPath } from "../lib/branchGroups";
 import "./OnboardingPage.css";
 import "./LandingPage.css";
 
@@ -290,7 +291,7 @@ export function LandingPage() {
           ) : null}
           <div className="landing-groups">
             {groups.map(({ g, vals }) => (
-              <Link key={g} to={`/branches?group=${encodeURIComponent(g)}`} className="card landing-group">
+              <Link key={g} to={branchGroupPath(g)} className="card landing-group">
                 <h3>{g}</h3>
                 <GroupStrip vals={vals} merit={merit} domain={domain} />
                 <span className="landing-group-count">

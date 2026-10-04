@@ -4,6 +4,7 @@ import { PageHeader } from "../components/PageHeader";
 import { Icon, type IconName } from "../components/Icon";
 import { seatTypeLabel, seatTypeParts } from "../lib/seatType";
 import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
+import { CAP_STEPS, FAQS } from "../lib/guide";
 import "./GuidePage.css";
 
 type Tab = "how" | "freeze" | "float" | "slide" | "codes" | "faq";
@@ -44,7 +45,7 @@ export function GuidePage() {
             role="tab"
             id={`guide-tab-${t.id}`}
             aria-selected={tab === t.id}
-            aria-controls="guide-panel"
+            aria-controls={`guide-panel-${t.id}`}
             className={`guide-tab${tab === t.id ? " active" : ""}`}
             onClick={() => setTab(t.id)}
           >
@@ -54,26 +55,17 @@ export function GuidePage() {
         ))}
       </div>
 
-      <div className="guide-body" role="tabpanel" id="guide-panel" aria-labelledby={`guide-tab-${tab}`}>
-        {tab === "how" && <HowContent />}
-        {tab === "freeze" && <FreezeContent />}
-        {tab === "float" && <FloatContent />}
-        {tab === "slide" && <SlideContent />}
-        {tab === "codes" && <CodesContent />}
-        {tab === "faq" && <FaqContent />}
+      {/* every section is in the page (search engines read them all); only the chosen one is shown */}
+      <div className="guide-body">
+        {TABS.map((t) => (
+          <div key={t.id} role="tabpanel" id={`guide-panel-${t.id}`} aria-labelledby={`guide-tab-${t.id}`} hidden={tab !== t.id}>
+            {PANELS[t.id]()}
+          </div>
+        ))}
       </div>
     </div>
   );
 }
-
-const CAP_STEPS = [
-  { title: "Register and verify documents", body: "Fill the CAP application on the CET Cell portal and get your documents verified (e-scrutiny or at a facilitation centre)." },
-  { title: "Check the merit lists", body: "A provisional merit list is published first, then the final state merit list. Your state merit number is your rank in it." },
-  { title: "Fill the option form", body: "List up to 300 choice codes (college + branch) in the order you prefer them. Order matters: you are allotted the highest choice your rank qualifies for." },
-  { title: "Round I allotment", body: "CET Cell publishes the allotment. If you got a seat, you choose to freeze, float or slide, and report online or at the institute." },
-  { title: "Rounds II and III", body: "Seats left after each round are re-allotted. You can edit your option form between rounds. Later rounds usually close at higher (easier) ranks." },
-  { title: "Report to the institute", body: "Once you freeze a seat, report to the college with original documents and pay the fees before the deadline." },
-];
 
 function HowContent() {
   return (
@@ -352,33 +344,6 @@ function SlideContent() {
   );
 }
 
-const FAQS = [
-  {
-    q: "Can I change my option (Freeze/Float/Slide) after submitting?",
-    a: "You can change your option until the option-form deadline. Once the round processing begins, the submitted option is final for that round.",
-  },
-  {
-    q: "If I Float and get upgraded, do I lose the original seat?",
-    a: "Yes — when you Float and receive a higher preference, the original seat is automatically released for other candidates. Ensure you are okay with this.",
-  },
-  {
-    q: "Can I select both Float and Slide?",
-    a: "Yes. Float applies across colleges; Slide applies within the same college. You can select Slide as a preference-within-college option and also Float to allow cross-college upgrades.",
-  },
-  {
-    q: "What if I don't submit any option?",
-    a: "If you fail to submit an option within the deadline, the default is typically treated as Freeze. Always verify the default for the current year in the official CAP brochure.",
-  },
-  {
-    q: "How many CAP rounds are there?",
-    a: "There are usually 3 main CAP rounds (Round I, II, III) followed by an Institute Level round and sometimes an ARC (Admission Reporting Centre) round for vacant seats. The exact count may vary year to year.",
-  },
-  {
-    q: "What documents do I need at the reporting centre?",
-    a: "Typically: MHT-CET mark statement, Class 10 & 12 mark sheets, domicile certificate, caste certificate (if applicable), Aadhaar, category validity certificate, and the allotment letter. Always check the official DTE circular for the current year.",
-  },
-];
-
 function FaqContent() {
   return (
     <div className="guide-content">
@@ -417,3 +382,12 @@ function DecisionCard({ title, yes, no }: { title: string; yes: string; no: stri
     </div>
   );
 }
+
+const PANELS: Record<Tab, () => React.ReactNode> = {
+  how: HowContent,
+  freeze: FreezeContent,
+  float: FloatContent,
+  slide: SlideContent,
+  codes: CodesContent,
+  faq: FaqContent,
+};

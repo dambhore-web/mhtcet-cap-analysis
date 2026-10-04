@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  allPages, APP_ONLY_ROUTES, APP_SHELL, branchPage, collegePage, contextIndex, districtGroupPage, districtPage, fileFor, homePage, hubPage, OG_IMAGE,
+  allPages, APP_ONLY_ROUTES, APP_SHELL, branchGroupPage, branchPage, collegePage, contextIndex, estimatePage, guidePage, districtGroupPage, districtPage, fileFor, homePage, hubPage, OG_IMAGE,
   prerenderedServeConfig, renderPage, staticPage, trendSentence, type SeoBranch, type SeoData,
 } from "../scripts/prerender";
 import { STATIC_PAGE_META } from "../src/lib/seo";
@@ -105,8 +105,9 @@ describe("prerendered pages (SEO)", () => {
     expect(page.body).toContain('<a href="/colleges/16006/1600692110">AI &amp; &lt;ML&gt;</a>: 633');
     expect(page.body).toContain('<a href="/engineering-colleges/pune">Pune</a>');
     const types = page.jsonLd.map((j) => (j as { "@type": string })["@type"]);
-    expect(types).toEqual(["WebPage", "BreadcrumbList", "FAQPage"]);
-    expect(JSON.stringify(page.jsonLd[2])).toContain("What was the Computer Science and Engineering cutoff at COEP Technological University in CAP 2026?");
+    // the questions are in the page; no FAQPage data, as the app view doesn't show them
+    expect(types).toEqual(["WebPage", "BreadcrumbList"]);
+    expect(page.body).toContain("What was the Computer Science and Engineering cutoff at COEP Technological University in CAP 2026?");
     expect(`${page.meta.title} ${page.meta.description} ${page.body}`).not.toMatch(/guarantee|you can get|you will get|\bsafe\b/i);
   });
 
@@ -124,7 +125,57 @@ describe("prerendered pages (SEO)", () => {
     expect(page.body).toContain("<dt>Placements</dt><dd>₹12 lakh median salary (NIRF, batch 2024-25)</dd>");
     expect(page.body).toContain('<a href="/colleges/06271">Pune Institute of &lt;Computer&gt; Technology</a>');
     expect(page.body).toContain('<a href="/engineering-colleges/pune/computer-it">Computer &amp; IT engineering colleges in Pune</a>');
-    expect(page.jsonLd.map((j) => (j as { "@type": string })["@type"])).toContain("FAQPage");
+    expect(page.body).toContain("<h2>Questions</h2>");
+    expect(page.jsonLd.map((j) => (j as { "@type": string })["@type"])).not.toContain("FAQPage");
+  });
+
+  it("the guide page: every section the app shows as tabs, and its questions as FAQPage data", () => {
+    const page = guidePage(SITE);
+    for (const h of ["How CAP works", "Freeze, float or slide", "Seat codes", "Questions"]) expect(page.body).toContain(`<h2>${h}</h2>`);
+    expect(page.body).toContain("<h3>Float</h3>");
+    expect(page.body).toContain("What does GOPENS mean in the CAP cutoff list?");
+    expect(page.jsonLd.map((j) => (j as { "@type": string })["@type"])).toEqual(["WebPage", "FAQPage"]);
+    expect(staticPage(SITE, "/guide", DATA).body).toBe(page.body);
+  });
+
+  it("the estimate page: percentile → merit number tables read off the printed pairs, with questions", () => {
+    const scales = {
+      year: 2026,
+      mh: [[100, 99.98], [1000, 99.7], [10000, 97.5], [50000, 88.1], [200000, 10]] as [number, number][],
+      ai: [[212, 99.48], [98000, 0.2]] as [number, number][],
+    };
+    const page = estimatePage(SITE, scales);
+    expect(page.body).toContain("<h1>MHT-CET percentile vs merit number, CAP 2026</h1>");
+    expect(page.body).toContain("<tr><td>99.5</td><td>1,820</td></tr>"); // between 1,000 at 99.7 and 10,000 at 97.5
+    expect(page.body).toContain("<tr><td>95</td><td>");
+    expect(page.body).toContain("What merit number is 95 percentile in MHT-CET 2026?");
+    expect(page.body).toContain("JEE Main percentile vs All India merit number");
+    expect(page.jsonLd.map((j) => (j as { "@type": string })["@type"])).toEqual(["WebPage", "FAQPage"]);
+    // without the pairs, the plain static page
+    expect(staticPage(SITE, "/estimate", DATA).body).not.toContain("<table>");
+  });
+
+  it("a branch-group page: every college offering the group, hardest first, with district links", () => {
+    const data: SeoData = {
+      ...DATA,
+      colleges: [
+        { ...DATA.colleges[0], branches: [{ ...DATA.colleges[0].branches[0], group: "Computer & IT", intake: 300 }, { ...DATA.colleges[0].branches[1], group: null }] },
+        { code: "06271", name: "PICT", district: "Pune", collegeType: "Un-Aided", branches: [{ choiceCode: "0627124210", name: "Computer Engineering", group: "Computer & IT", roundI: 900, latest: 950, seatType: "GOPENO", years: [2026], intake: 120 }] },
+      ],
+      districts: [PUNE],
+    };
+    const page = branchGroupPage(SITE, data, "Computer & IT");
+    expect(page.path).toBe("/branches/computer-it");
+    expect(page.meta.title).toBe("Computer & IT engineering colleges in Maharashtra — CAP cutoffs");
+    expect(page.body).toContain("2 colleges offered 2 Computer &amp; IT branches in MHT-CET CAP 2026, with 420 CAP seats.");
+    // hardest to get first
+    expect(page.body.indexOf("1600624210")).toBeLessThan(page.body.indexOf("0627124210"));
+    expect(page.body).not.toContain("1600692110"); // not in the group
+    expect(page.body).toContain('<a href="/engineering-colleges/pune/computer-it">Computer &amp; IT engineering colleges in Pune</a> (2)');
+    expect(page.jsonLd.map((j) => (j as { "@type": string })["@type"])).toEqual(["CollectionPage", "BreadcrumbList"]);
+    expect(allPages(SITE, data).map((p) => p.path)).toContain("/branches/computer-it");
+    expect(staticPage(SITE, "/branches", data).body).toContain('<a href="/branches/computer-it">Computer &amp; IT engineering colleges in Maharashtra</a>');
+    expect(homePage(SITE, data).body).toContain('<a href="/branches/computer-it">Computer &amp; IT</a>');
   });
 
   it("the colleges list links every college, so crawlers can reach them", () => {
@@ -210,7 +261,8 @@ describe("prerendered pages (SEO)", () => {
   it("every route in App.tsx is either prerendered or listed as an app-only route", () => {
     const app = readFileSync(new URL("../src/App.tsx", import.meta.url), "utf8");
     const routes = [...app.matchAll(/path="([^"]+)"/g)].map((m) => "/" + m[1]).filter((r) => r !== "/*");
-    const prerendered = (r: string) => r in STATIC_PAGE_META || r.startsWith("/colleges/:code") || r.startsWith(DISTRICT_HUB_PATH);
+    const prerendered = (r: string) =>
+      r in STATIC_PAGE_META || r.startsWith("/colleges/:code") || r.startsWith(DISTRICT_HUB_PATH) || r === "/branches/:group";
     const listed = (r: string) => APP_ONLY_ROUTES.some((a) => a === r || (a.endsWith("/**") && r.startsWith(a.slice(0, -3) + "/")));
     for (const r of routes) expect(prerendered(r) || listed(r), r).toBe(true);
   });

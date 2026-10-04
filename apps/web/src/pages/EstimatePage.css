@@ -105,12 +105,15 @@
   margin-top: 8px;
 }
 
-.estimate-explain h2 {
+.estimate-explain h2,
+.estimate-table h2,
+.estimate-faq h2 {
   margin: 0 0 8px;
   font-size: var(--text-lg);
 }
 
-.estimate-explain p {
+.estimate-explain p,
+.estimate-table > p {
   margin: 0;
   font-size: var(--text-sm);
   color: var(--muted);
@@ -138,3 +141,16 @@
 .eb-line.sure { stroke: var(--violet); opacity: 0.5; }
 .eb-range { fill: rgba(15, 23, 42, 0.08); stroke: var(--navy-deep); stroke-width: 1.5; }
 .eb-axis { font-family: var(--font-mono); font-size: 10.5px; fill: var(--muted-2); }
+
+/* percentile → merit number reference tables (SEO step 3), styled like the guide's code table */
+.estimate-table table { width: 100%; max-width: 480px; border-collapse: collapse; font-size: var(--text-sm); }
+.estimate-table th,
+.estimate-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line-soft); }
+.estimate-table th { font-size: var(--text-xs); letter-spacing: var(--label-tracking); text-transform: uppercase; color: var(--muted); }
+.estimate-table td { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.estimate-table td:last-child { text-align: right; }
+.estimate-table th:last-child { text-align: right; }
+.estimate-faq details { border-bottom: 1px solid var(--line-soft); padding: 10px 0; }
+.estimate-faq summary { cursor: pointer; font-weight: 600; color: var(--navy); }
+.estimate-faq details p { margin: 8px 0 0; color: var(--muted); }
+.estimate-table > p { margin-bottom: 10px; }

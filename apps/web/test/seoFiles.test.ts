@@ -27,6 +27,13 @@ describe("robots.txt and sitemap.xml (SEO)", () => {
     expect(paths.some((p: string) => /profile|list|find|simulator|summary/.test(p))).toBe(false);
   });
 
+  it("lists the statewide branch-group pages", () => {
+    const paths = sitemapPaths({ ...DATA, branchGroups: ["computer-it", "mechanical"] });
+    expect(paths).toContain("/branches/computer-it");
+    expect(paths).toContain("/branches/mechanical");
+    expect(sitemapPaths(DATA).some((p: string) => p.startsWith("/branches/"))).toBe(false);
+  });
+
   it("lists the district landing pages and their branch-group pages", () => {
     const paths = sitemapPaths({ ...DATA, districts: [{ slug: "pune", groups: ["computer-it", "mechanical"] }, { slug: "washim", groups: [] }] });
     expect(paths.slice(-5)).toEqual([

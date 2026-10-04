@@ -23,6 +23,7 @@ export function sitemapPaths(data) {
     paths.push(`/colleges/${c.code}`);
     for (const b of c.branches) paths.push(`/colleges/${c.code}/${b}`);
   }
+  for (const g of data.branchGroups ?? []) paths.push(`/branches/${g}`);
   const districts = data.districts ?? [];
   if (districts.length) paths.push("/engineering-colleges");
   for (const d of districts) {

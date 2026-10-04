@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { api, generalOpen, BRANCH_GROUPS, type FindOption, type Category } from "../lib/api";
 import { useProfile } from "../lib/ProfileContext";
 import { PageHeader } from "../components/PageHeader";
@@ -11,7 +11,8 @@ import { LadderAxis, LadderLegend, MeritLadder, ladderDomain } from "../componen
 import { formatNumber } from "../lib/format";
 import { seatTypeLabel, seatTypeShortLabel } from "../lib/seatType";
 import { logBounds, logScale } from "../lib/logScale";
-import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
+import { branchGroupMeta, STATIC_PAGE_META, usePageMeta } from "../lib/seo";
+import { BRANCH_GROUP_HUB, branchGroupPath, groupFromSlug } from "../lib/branchGroups";
 import "./BranchesPage.css";
 
 /** One branch group's closing ranks as a small barcode, with the student's merit as a line. */
@@ -116,15 +117,15 @@ function isGroup(v: string | null): v is BranchGroup {
  * branch group, with Round I and last-round closing ranks against the student's merit.
  */
 export function BranchesPage() {
-  usePageMeta(STATIC_PAGE_META["/branches"]);
+  const { group: groupSlug } = useParams();
+  const fromPath = groupFromSlug(groupSlug, BRANCH_GROUPS);
+  usePageMeta(fromPath ? branchGroupMeta(fromPath) : STATIC_PAGE_META["/branches"]);
   const { profile } = useProfile();
   const [params, setParams] = useSearchParams();
   const selectedBranch = params.get("branch") ?? null;
-  const group: BranchGroup | null = selectedBranch
-    ? null
-    : isGroup(params.get("group"))
-      ? (params.get("group") as BranchGroup)
-      : BRANCH_GROUPS[0];
+  // older links: /branches?group=Mechanical → /branches/mechanical
+  const legacyGroup = !groupSlug && !selectedBranch && isGroup(params.get("group")) ? (params.get("group") as BranchGroup) : null;
+  const group: BranchGroup | null = selectedBranch ? null : (fromPath ?? BRANCH_GROUPS[0]);
 
   const [results, setResults] = useState<FindOption[]>([]);
   const [status, setStatus] = useState<Status>("loading");
@@ -208,7 +209,7 @@ export function BranchesPage() {
   const clearBranch = () => {
     setComboQuery("");
     setComboOpen(false);
-    setParams({ group: group ?? BRANCH_GROUPS[0] }, { replace: true });
+    setParams({}, { replace: true });
     inputRef.current?.focus();
   };
 
@@ -277,10 +278,13 @@ export function BranchesPage() {
   const reachable = merit ? displayed.filter((r) => r.status !== "out-of-range").length : null;
   const activeLabel = selectedBranch ?? group ?? "";
 
+  if (legacyGroup) return <Navigate to={branchGroupPath(legacyGroup)} replace />;
+  if (groupSlug && !fromPath) return <Navigate to={BRANCH_GROUP_HUB} replace />;
+
   return (
     <div className="page branches-page">
       <PageHeader
-        title="By branch"
+        title={fromPath ? `${fromPath} engineering colleges in Maharashtra` : "By branch"}
         subtitle={
           merit
             ? `Every college offering a branch, with where it closed in Round I and in the last round, against your merit ${formatNumber(merit)}.`
@@ -299,15 +303,16 @@ export function BranchesPage() {
       <div className="branches-filter-row">
         <div className="branches-groups" role="group" aria-label="Branch group">
           {BRANCH_GROUPS.map((g) => (
-            <button
+            // links, not buttons: each group is its own page that search engines can follow
+            <Link
               key={g}
-              type="button"
+              to={branchGroupPath(g)}
+              replace
               className={`branches-group${g === group ? " active" : ""}`}
-              aria-pressed={g === group}
+              aria-current={g === group ? "page" : undefined}
               onClick={() => {
                 setComboQuery("");
                 setComboOpen(false);
-                setParams({ group: g }, { replace: true });
               }}
             >
               <span className="branches-group-name">{g}</span>
@@ -321,7 +326,7 @@ export function BranchesPage() {
                   </span>
                 </>
               )}
-            </button>
+            </Link>
           ))}
         </div>
 
@@ -346,7 +351,7 @@ export function BranchesPage() {
                 setHighlighted(0);
                 if (selectedBranch) {
                   suppressSyncRef.current = true;
-                  setParams({ group: group ?? BRANCH_GROUPS[0] }, { replace: true });
+                  setParams({}, { replace: true });
                 }
               }}
               onFocus={() => {

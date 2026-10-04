@@ -86,6 +86,7 @@ function AppRoutes() {
         <Route path="allotment" element={<AllotmentPage />} />
         <Route path="export" element={<ExportPage />} />
         <Route path="branches" element={<BranchesPage />} />
+        <Route path="branches/:group" element={<BranchesPage />} />
         <Route path="summary" element={<SummaryPage />} />
         <Route path="data" element={<DataPage />} />
         <Route path="eligibility" element={<EligibilityPage />} />

@@ -8,6 +8,7 @@ import { formatNumber } from "../lib/format";
 import { logBounds, logScale, tickLabel, ticksIn } from "../lib/logScale";
 import { useWidth } from "../lib/useWidth";
 import { STATIC_PAGE_META, usePageMeta } from "../lib/seo";
+import { estimateFaqs, percentileRows, type ScalePoint } from "../lib/percentile";
 import "./EstimatePage.css";
 
 /**
@@ -204,9 +205,76 @@ export function EstimatePage() {
         <p>
           Your <strong>percentile</strong> compares you with everyone who took the exam in your session. Your{" "}
           <strong>state merit number</strong> is your rank in the CAP merit list, which CET Cell publishes after registration.
-          CAP allots seats by merit number, so GetMeCollege uses it for every result.
+          CAP allots seats by merit number, and every cutoff list prints both for the last student admitted, so you can{" "}
+          <Link to="/find">search by either</Link>.
         </p>
       </section>
+
+      <PercentileTables />
     </div>
+  );
+}
+
+/**
+ * Reference tables: percentile → merit number, read off the pairs printed on the year's cutoff
+ * lists (GET /api/percentile-scale). The same rows are prerendered (scripts/prerender.ts).
+ */
+function PercentileTables() {
+  const [scales, setScales] = useState<{ year: number; mh: ScalePoint[]; ai: ScalePoint[] } | null>(null);
+  useEffect(() => {
+    let live = true;
+    Promise.all([api.percentileScale("MH"), api.percentileScale("AI")])
+      .then(([mh, ai]) => live && setScales({ year: mh.year, mh: mh.points, ai: ai.points }))
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (!scales) return null;
+  const mh = percentileRows(scales.mh);
+  const ai = percentileRows(scales.ai);
+  return (
+    <>
+      {mh.length > 0 && (
+        <PercentileTable
+          title={`MHT-CET percentile vs merit number, CAP ${scales.year}`}
+          note={`Read off the merit number and percentile printed together on every CAP ${scales.year} cutoff list (state merit, PCM). A guide to where a percentile landed, not your exact rank.`}
+          head={["MHT-CET percentile", "State merit number (about)"]}
+          rows={mh}
+        />
+      )}
+      {ai.length > 0 && (
+        <PercentileTable
+          title={`JEE Main percentile vs All India merit number, CAP ${scales.year}`}
+          note="For All India seats in Maharashtra CAP: JEE Main candidates who registered, ranked by JEE percentile."
+          head={["JEE Main percentile", "All India merit number (about)"]}
+          rows={ai}
+        />
+      )}
+      <section className="page-section estimate-faq">
+        <h2>Questions</h2>
+        {estimateFaqs(scales.year, mh, ai).map((f) => (
+          <details key={f.q}>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </section>
+    </>
+  );
+}
+
+function PercentileTable({ title, note, head, rows }: { title: string; note: string; head: [string, string]; rows: { percentile: number; merit: number }[] }) {
+  return (
+    <section className="page-section estimate-table">
+      <h2>{title}</h2>
+      <p>{note}</p>
+      <div className="table-scroll">
+        <table>
+          <thead><tr><th scope="col">{head[0]}</th><th scope="col">{head[1]}</th></tr></thead>
+          <tbody>{rows.map((r) => <tr key={r.percentile}><td>{r.percentile}</td><td>{formatNumber(r.merit)}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </section>
   );
 }
